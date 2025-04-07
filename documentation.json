@@ -35,7 +35,7 @@
     "components": [
         {
             "name": "AppComponent",
-            "id": "component-AppComponent-360ffc62a2344757af520d934efa31dd3b2f4542115b6a096f0e61b9c93d91d4f92eb3bc9b976163482dcf02b8bd26244c23fd83a84a1399b411d7fca022119c",
+            "id": "component-AppComponent-8868b1135ca7a5d8e807ceb1bdc114c3e399e66671a0e09f90ad0532beabedc775bbecb7bb0c4f9f2bc4f51bf4677507b6385e59cdefa9138432831d9e685e57",
             "file": "src/app/app.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -62,7 +62,7 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 11
+                    "line": 12
                 }
             ],
             "methodsClass": [],
@@ -74,18 +74,22 @@
             "imports": [
                 {
                     "name": "RouterOutlet"
+                },
+                {
+                    "name": "LoginComponent",
+                    "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\nimport { RouterOutlet } from '@angular/router';\r\n\r\n@Component({\r\n  selector: 'app-root',\r\n  imports: [RouterOutlet],\r\n  templateUrl: './app.component.html',\r\n  styleUrl: './app.component.css'\r\n})\r\nexport class AppComponent {\r\n  title = 'poolagancy';\r\n}\r\n",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { RouterOutlet } from '@angular/router';\r\nimport { LoginComponent } from './login/login.component';\r\n\r\n@Component({\r\n  selector: 'app-root',\r\n  imports: [RouterOutlet, LoginComponent],\r\n  templateUrl: './app.component.html',\r\n  styleUrl: './app.component.css'\r\n})\r\nexport class AppComponent {\r\n  title = 'poolagancy';\r\n}\r\n",
             "styleUrl": "./app.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<h1 class=\"text-3xl font-bold underline\">\r\n  Hello world!\r\n</h1>\r\n\r\n<router-outlet />\r\n"
+            "templateData": "<!-- <h1 class=\"text-3xl font-bold underline\">\r\n  Hello world!\r\n</h1> -->\r\n<h1 class=\"text-3xl font-bold underline\">\r\n  Hello world!\r\n</h1>\r\n<app-login-modal></app-login-modal>\r\n<router-outlet />\r\n"
         },
         {
             "name": "ButtonComponent",
@@ -308,6 +312,164 @@
             "extends": []
         },
         {
+            "name": "LoginComponent",
+            "id": "component-LoginComponent-aac0b810b6d1187414f6a1d5acb770ba7161d32f9f9331ca3127e8caf8a625d87fe71eaabfa70fa3031fd7cacfb6db0dc36a590bcd9643aee41c67447a988d2e",
+            "file": "src/app/login/login.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app-login-modal",
+            "styleUrls": [
+                "./login.component.css"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./login.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "show",
+                    "defaultValue": "true",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 13,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "close",
+                    "defaultValue": "new EventEmitter<void>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 15,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "login",
+                    "defaultValue": "new EventEmitter<{ email: string; password: string }>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 14,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "loginForm",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "FormGroup",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 17
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "handleClose",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 42,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "handleLogin",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 35,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                },
+                {
+                    "name": "ReactiveFormsModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, Output, EventEmitter } from '@angular/core';\r\nimport { CommonModule } from '@angular/common';\r\nimport { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';\r\n\r\n@Component({\r\n  selector: 'app-login-modal',\r\n  standalone: true,\r\n  imports: [CommonModule, ReactiveFormsModule],\r\n  templateUrl: './login.component.html',\r\n  styleUrls: ['./login.component.css'],\r\n})\r\nexport class LoginComponent {\r\n  @Input() show = true;\r\n  @Output() login = new EventEmitter<{ email: string; password: string }>();\r\n  @Output() close = new EventEmitter<void>();\r\n\r\n  loginForm: FormGroup;\r\n\r\n  constructor(private fb: FormBuilder) {\r\n    this.loginForm = this.fb.group({\r\n      email: ['', [Validators.required, Validators.email]],\r\n      password: ['', Validators.required],\r\n      rememberMe: [false],\r\n    });\r\n  }\r\n\r\n  get email() {\r\n    return this.loginForm.get('email');\r\n  }\r\n\r\n  get password() {\r\n    return this.loginForm.get('password');\r\n  }\r\n\r\n  handleLogin() {\r\n    if (this.loginForm.valid) {\r\n      const { email, password } = this.loginForm.value;\r\n      this.login.emit({ email, password });\r\n    }\r\n  }\r\n\r\n  handleClose() {\r\n    this.close.emit();\r\n  }\r\n}\r\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./login.component.css"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "fb",
+                        "type": "FormBuilder",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 17,
+                "jsdoctags": [
+                    {
+                        "name": "fb",
+                        "type": "FormBuilder",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "accessors": {
+                "email": {
+                    "name": "email",
+                    "getSignature": {
+                        "name": "email",
+                        "type": "",
+                        "returnType": "",
+                        "line": 27
+                    }
+                },
+                "password": {
+                    "name": "password",
+                    "getSignature": {
+                        "name": "password",
+                        "type": "",
+                        "returnType": "",
+                        "line": 31
+                    }
+                }
+            },
+            "templateData": "<div *ngIf=\"show\" class=\"fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50\">\r\n    <div class=\"bg-white rounded-2xl shadow-lg w-full max-w-sm p-8 relative\">\r\n      <!-- Close Button -->\r\n      <button (click)=\"handleClose()\" class=\"absolute top-2 right-3 text-2xl text-gray-400 hover:text-gray-700\">\r\n        &times;\r\n      </button>\r\n  \r\n      <!-- Logo -->\r\n      <div class=\"flex justify-center mb-4\">\r\n        <img src=\"assets/logo.svg\" alt=\"Logo\" class=\"h-12\" />\r\n      </div>\r\n  \r\n      <!-- App Name -->\r\n      <h1 class=\"text-center text-xl font-semibold mb-6\">\r\n        <span class=\"text-sky-500 font-bold\">pool</span><span class=\"text-black font-semibold\">brain</span>\r\n      </h1>\r\n  \r\n      <!-- Login Form -->\r\n      <form [formGroup]=\"loginForm\" (ngSubmit)=\"handleLogin()\">\r\n        <!-- Email -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"email\"\r\n            placeholder=\"Email address\"\r\n            formControlName=\"email\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': email?.invalid && (email?.touched || email?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"email?.invalid && (email?.touched || email?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Valid email required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Password -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"password\"\r\n            placeholder=\"Password\"\r\n            formControlName=\"password\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': password?.invalid && (password?.touched || password?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"password?.invalid && (password?.touched || password?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Password is required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Remember Me -->\r\n        <div class=\"flex items-center mb-4\">\r\n          <input\r\n            type=\"checkbox\"\r\n            id=\"rememberMe\"\r\n            formControlName=\"rememberMe\"\r\n            class=\"mr-2 h-4 w-4 text-sky-600 border-gray-300 rounded\"\r\n          />\r\n          <label for=\"rememberMe\" class=\"text-sm text-gray-700\">Keep me signed in.</label>\r\n        </div>\r\n  \r\n        <!-- Submit Button -->\r\n        <button\r\n          type=\"submit\"\r\n          class=\"w-full bg-sky-500 text-white py-3 rounded-md shadow-md hover:bg-sky-600 transition duration-200\"\r\n          [disabled]=\"loginForm.invalid\"\r\n        >\r\n          SIGN IN\r\n        </button>\r\n      </form>\r\n  \r\n      <!-- Extra Links -->\r\n      <div class=\"mt-4 text-center text-sm\">\r\n        <a href=\"#\" class=\"text-sky-500 hover:underline\">Forgot Password?</a>\r\n      </div>\r\n      <div class=\"mt-2 text-center text-sm text-gray-700\">\r\n        Don’t have an account? <a href=\"#\" class=\"text-sky-500 hover:underline\">Sign Up</a>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  "
+        },
+        {
             "name": "PageComponent",
             "id": "component-PageComponent-21dd6eb370b4983b5c21c84d40e6f54d266a9d9af9889e6e76b35c43058bd53b3e451bad089d5adf4bea46647ba10265a2fa8cb15630398e75636307d4817fc6",
             "file": "src/stories/page.component.ts",
@@ -502,7 +664,7 @@
     },
     "routes": [],
     "coverage": {
-        "count": 11,
+        "count": 10,
         "status": "low",
         "files": [
             {
@@ -522,6 +684,15 @@
                 "name": "appConfig",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/login/login.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "LoginComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
