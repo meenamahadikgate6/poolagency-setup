@@ -1,10 +1,11 @@
+
 // main.ts
 import { createApplication } from '@angular/platform-browser';
 import { createCustomElement } from '@angular/elements';
 import { importProvidersFrom } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { appConfig } from './app.config';
-import { LoginComponent } from './app/login/login.component';
+import { LoginComponent } from './app/components/login/login.component';
 import { AppComponent } from './app/app.component';
 
 createApplication({

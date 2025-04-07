@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-login-modal',
@@ -9,21 +11,26 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit{
   @Input() show = true;
   @Output() login = new EventEmitter<{ email: string; password: string }>();
   @Output() close = new EventEmitter<void>();
 
-  loginForm: FormGroup;
+  loginForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       rememberMe: [false],
     });
   }
-
   get email() {
     return this.loginForm.get('email');
   }
@@ -32,14 +39,14 @@ export class LoginComponent {
     return this.loginForm.get('password');
   }
 
-  handleLogin() {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      this.login.emit({ email, password });
-    }
-  }
+  onSubmit(): void {
+    if (this.loginForm.invalid) return;
 
-  handleClose() {
-    this.close.emit();
+    const { email, password, rememberMe } = this.loginForm.value;
+
+    this.auth.login(email, password, rememberMe).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: () => alert('Invalid credentials'),
+    });
   }
 }

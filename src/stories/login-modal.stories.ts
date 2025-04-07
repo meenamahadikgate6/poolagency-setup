@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/angular';
-import { LoginComponent } from '../app/login/login.component';
+import { LoginComponent } from '../app/components/login/login.component';
 
 const meta: Meta<LoginComponent> = {
   title: 'Auth/LoginModal',

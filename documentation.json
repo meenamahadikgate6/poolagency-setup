@@ -27,7 +27,258 @@
             "extends": []
         }
     ],
-    "injectables": [],
+    "injectables": [
+        {
+            "name": "AuthApiService",
+            "id": "injectable-AuthApiService-1b2ecfdbd8b84c41af86c8b5003e2b41d46cf6c6b02d62dac609ada0305864ad97941793b176eb1ec47ca139d5f9173dd728c198688b8950e4bbc077ca1f6e75",
+            "file": "src/app/app/auth/auth-api.service.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "deleteAccount",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 17,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "getProfile",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 9,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "updatePassword",
+                    "args": [
+                        {
+                            "name": "data",
+                            "type": "any",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 13,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "data",
+                            "type": "any",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { HttpClient } from '@angular/common/http';\r\nimport { buildAuthHeaders } from './api-headers.util';\r\n\r\n@Injectable({ providedIn: 'root' })\r\nexport class AuthApiService {\r\n  constructor(private http: HttpClient) {}\r\n\r\n  getProfile() {\r\n    return this.http.get('/api/profile', buildAuthHeaders());\r\n  }\r\n\r\n  updatePassword(data: any) {\r\n    return this.http.put('/api/change-password', data, buildAuthHeaders());\r\n  }\r\n\r\n  deleteAccount() {\r\n    return this.http.delete('/api/delete-account', buildAuthHeaders());\r\n  }\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 6,
+                "jsdoctags": [
+                    {
+                        "name": "http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "type": "injectable"
+        },
+        {
+            "name": "AuthService",
+            "id": "injectable-AuthService-c685641339de43092371f00a86070bb70d95f70ce65a8baa108b890923a8d3459f4ff08a8a9a75c1c884715c8480e95ee2040a1eef9006aeb73902cacc4fc247",
+            "file": "src/app/app/auth/auth.service.ts",
+            "properties": [
+                {
+                    "name": "isAuthenticatedSubject",
+                    "defaultValue": "new BehaviorSubject<boolean>(false)",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "indexKey": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        123
+                    ]
+                }
+            ],
+            "methods": [
+                {
+                    "name": "getToken",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "string | null",
+                    "typeParameters": [],
+                    "line": 41,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "isLoggedIn",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "boolean",
+                    "typeParameters": [],
+                    "line": 37,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "login",
+                    "args": [
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "password",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "rememberMe",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "false"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "password",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "rememberMe",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "false",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "logout",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 31,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { HttpClient } from '@angular/common/http';\r\nimport { Router } from '@angular/router';\r\nimport { BehaviorSubject, tap } from 'rxjs';\r\n\r\nimport { LOGIN_ENDPOINT } from './api.constants';\r\nimport { buildAuthHeaders } from './api-headers.util';\r\n\r\n@Injectable({ providedIn: 'root' })\r\nexport class AuthService {\r\n  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);\r\n  // isAuthenticated$ = this.isAuthenticatedSubject.asObservable();\r\n\r\n  constructor(private http: HttpClient, private router: Router) {}\r\n\r\n  login(email: string, password: string, rememberMe: boolean = false) {\r\n    const payload = { email, password, remember_me: rememberMe };\r\n\r\n    return this.http.post<{ token: string }>(\r\n      LOGIN_ENDPOINT,\r\n      payload,\r\n      buildAuthHeaders()\r\n    ).pipe(\r\n      tap((res) => {\r\n        localStorage.setItem('token', res.token);\r\n        // this.isAuthenticatedSubject.next(true);\r\n      })\r\n    );\r\n  }\r\n\r\n  logout() {\r\n    localStorage.removeItem('token');\r\n    // this.isAuthenticatedSubject.next(false);\r\n    this.router.navigate(['/login']);\r\n  }\r\n\r\n  isLoggedIn(): boolean {\r\n    return !!localStorage.getItem('token');\r\n  }\r\n\r\n  getToken(): string | null {\r\n    return localStorage.getItem('token');\r\n  }\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 11,
+                "jsdoctags": [
+                    {
+                        "name": "http",
+                        "type": "HttpClient",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "type": "injectable"
+        }
+    ],
     "guards": [],
     "interceptors": [],
     "classes": [],
@@ -313,7 +564,7 @@
         },
         {
             "name": "LoginComponent",
-            "id": "component-LoginComponent-aac0b810b6d1187414f6a1d5acb770ba7161d32f9f9331ca3127e8caf8a625d87fe71eaabfa70fa3031fd7cacfb6db0dc36a590bcd9643aee41c67447a988d2e",
+            "id": "component-LoginComponent-89e08808ffbf7c561e977c7cb91a53a19c4215812d6199c6b6413ba08bdd93384feba0d24b5081e4faeee950f4cad29e8bdeb0265e03fd6afc99a677cbd23bf2",
             "file": "src/app/login/login.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -336,7 +587,7 @@
                     "defaultValue": "true",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 13,
+                    "line": 15,
                     "type": "boolean",
                     "decorators": []
                 }
@@ -347,7 +598,7 @@
                     "defaultValue": "new EventEmitter<void>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 15,
+                    "line": 17,
                     "type": "EventEmitter"
                 },
                 {
@@ -355,7 +606,7 @@
                     "defaultValue": "new EventEmitter<{ email: string; password: string }>()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 14,
+                    "line": 16,
                     "type": "EventEmitter"
                 }
             ],
@@ -368,27 +619,27 @@
                     "indexKey": "",
                     "optional": false,
                     "description": "",
-                    "line": 17
+                    "line": 19
                 }
             ],
             "methodsClass": [
                 {
-                    "name": "handleClose",
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "onSubmit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
                     "line": 42,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "handleLogin",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 35,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -411,7 +662,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, Input, Output, EventEmitter } from '@angular/core';\r\nimport { CommonModule } from '@angular/common';\r\nimport { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';\r\n\r\n@Component({\r\n  selector: 'app-login-modal',\r\n  standalone: true,\r\n  imports: [CommonModule, ReactiveFormsModule],\r\n  templateUrl: './login.component.html',\r\n  styleUrls: ['./login.component.css'],\r\n})\r\nexport class LoginComponent {\r\n  @Input() show = true;\r\n  @Output() login = new EventEmitter<{ email: string; password: string }>();\r\n  @Output() close = new EventEmitter<void>();\r\n\r\n  loginForm: FormGroup;\r\n\r\n  constructor(private fb: FormBuilder) {\r\n    this.loginForm = this.fb.group({\r\n      email: ['', [Validators.required, Validators.email]],\r\n      password: ['', Validators.required],\r\n      rememberMe: [false],\r\n    });\r\n  }\r\n\r\n  get email() {\r\n    return this.loginForm.get('email');\r\n  }\r\n\r\n  get password() {\r\n    return this.loginForm.get('password');\r\n  }\r\n\r\n  handleLogin() {\r\n    if (this.loginForm.valid) {\r\n      const { email, password } = this.loginForm.value;\r\n      this.login.emit({ email, password });\r\n    }\r\n  }\r\n\r\n  handleClose() {\r\n    this.close.emit();\r\n  }\r\n}\r\n",
+            "sourceCode": "import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';\r\nimport { CommonModule } from '@angular/common';\r\nimport { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';\r\nimport { AuthService } from '../app/auth/auth.service';\r\nimport { Router } from '@angular/router';\r\n\r\n@Component({\r\n  selector: 'app-login-modal',\r\n  standalone: true,\r\n  imports: [CommonModule, ReactiveFormsModule],\r\n  templateUrl: './login.component.html',\r\n  styleUrls: ['./login.component.css'],\r\n})\r\nexport class LoginComponent implements OnInit{\r\n  @Input() show = true;\r\n  @Output() login = new EventEmitter<{ email: string; password: string }>();\r\n  @Output() close = new EventEmitter<void>();\r\n\r\n  loginForm!: FormGroup;\r\n\r\n  constructor(\r\n    private fb: FormBuilder,\r\n    private auth: AuthService,\r\n    private router: Router\r\n  ) {}\r\n\r\n  ngOnInit(): void {\r\n    this.loginForm = this.fb.group({\r\n      email: ['', [Validators.required, Validators.email]],\r\n      password: ['', Validators.required],\r\n      rememberMe: [false],\r\n    });\r\n  }\r\n  get email() {\r\n    return this.loginForm.get('email');\r\n  }\r\n\r\n  get password() {\r\n    return this.loginForm.get('password');\r\n  }\r\n\r\n  onSubmit(): void {\r\n    if (this.loginForm.invalid) return;\r\n\r\n    const { email, password, rememberMe } = this.loginForm.value;\r\n\r\n    this.auth.login(email, password, rememberMe).subscribe({\r\n      next: () => this.router.navigate(['/dashboard']),\r\n      error: () => alert('Invalid credentials'),\r\n    });\r\n  }\r\n}\r\n",
             "assetsDirs": [],
             "styleUrlsData": [
                 {
@@ -431,9 +682,21 @@
                         "type": "FormBuilder",
                         "deprecated": false,
                         "deprecationMessage": ""
+                    },
+                    {
+                        "name": "auth",
+                        "type": "AuthService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
                     }
                 ],
-                "line": 17,
+                "line": 19,
                 "jsdoctags": [
                     {
                         "name": "fb",
@@ -443,10 +706,31 @@
                         "tagName": {
                             "text": "param"
                         }
+                    },
+                    {
+                        "name": "auth",
+                        "type": "AuthService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
                     }
                 ]
             },
             "extends": [],
+            "implements": [
+                "OnInit"
+            ],
             "accessors": {
                 "email": {
                     "name": "email",
@@ -454,7 +738,7 @@
                         "name": "email",
                         "type": "",
                         "returnType": "",
-                        "line": 27
+                        "line": 34
                     }
                 },
                 "password": {
@@ -463,11 +747,11 @@
                         "name": "password",
                         "type": "",
                         "returnType": "",
-                        "line": 31
+                        "line": 38
                     }
                 }
             },
-            "templateData": "<div *ngIf=\"show\" class=\"fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50\">\r\n    <div class=\"bg-white rounded-2xl shadow-lg w-full max-w-sm p-8 relative\">\r\n      <!-- Close Button -->\r\n      <button (click)=\"handleClose()\" class=\"absolute top-2 right-3 text-2xl text-gray-400 hover:text-gray-700\">\r\n        &times;\r\n      </button>\r\n  \r\n      <!-- Logo -->\r\n      <div class=\"flex justify-center mb-4\">\r\n        <img src=\"assets/logo.svg\" alt=\"Logo\" class=\"h-12\" />\r\n      </div>\r\n  \r\n      <!-- App Name -->\r\n      <h1 class=\"text-center text-xl font-semibold mb-6\">\r\n        <span class=\"text-sky-500 font-bold\">pool</span><span class=\"text-black font-semibold\">brain</span>\r\n      </h1>\r\n  \r\n      <!-- Login Form -->\r\n      <form [formGroup]=\"loginForm\" (ngSubmit)=\"handleLogin()\">\r\n        <!-- Email -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"email\"\r\n            placeholder=\"Email address\"\r\n            formControlName=\"email\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': email?.invalid && (email?.touched || email?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"email?.invalid && (email?.touched || email?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Valid email required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Password -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"password\"\r\n            placeholder=\"Password\"\r\n            formControlName=\"password\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': password?.invalid && (password?.touched || password?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"password?.invalid && (password?.touched || password?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Password is required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Remember Me -->\r\n        <div class=\"flex items-center mb-4\">\r\n          <input\r\n            type=\"checkbox\"\r\n            id=\"rememberMe\"\r\n            formControlName=\"rememberMe\"\r\n            class=\"mr-2 h-4 w-4 text-sky-600 border-gray-300 rounded\"\r\n          />\r\n          <label for=\"rememberMe\" class=\"text-sm text-gray-700\">Keep me signed in.</label>\r\n        </div>\r\n  \r\n        <!-- Submit Button -->\r\n        <button\r\n          type=\"submit\"\r\n          class=\"w-full bg-sky-500 text-white py-3 rounded-md shadow-md hover:bg-sky-600 transition duration-200\"\r\n          [disabled]=\"loginForm.invalid\"\r\n        >\r\n          SIGN IN\r\n        </button>\r\n      </form>\r\n  \r\n      <!-- Extra Links -->\r\n      <div class=\"mt-4 text-center text-sm\">\r\n        <a href=\"#\" class=\"text-sky-500 hover:underline\">Forgot Password?</a>\r\n      </div>\r\n      <div class=\"mt-2 text-center text-sm text-gray-700\">\r\n        Don’t have an account? <a href=\"#\" class=\"text-sky-500 hover:underline\">Sign Up</a>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  "
+            "templateData": "<div *ngIf=\"show\" class=\"fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50\">\r\n    <div class=\"bg-white rounded-2xl shadow-lg w-full max-w-sm p-8 relative\">\r\n      <!-- Close Button -->\r\n    \r\n  \r\n      <!-- Logo -->\r\n      <div class=\"flex justify-center mb-4\">\r\n        <img src=\"assets/logo.svg\" alt=\"Logo\" class=\"h-12\" />\r\n      </div>\r\n  \r\n      <!-- App Name -->\r\n      <h1 class=\"text-center text-xl font-semibold mb-6\">\r\n        <span class=\"text-sky-500 font-bold\">pool</span><span class=\"text-black font-semibold\">brain</span>\r\n      </h1>\r\n  \r\n      <!-- Login Form -->\r\n      <form [formGroup]=\"loginForm\" (ngSubmit)=\"onSubmit()\">\r\n        <!-- Email -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"email\"\r\n            placeholder=\"Email address\"\r\n            formControlName=\"email\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': email?.invalid && (email?.touched || email?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"email?.invalid && (email?.touched || email?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Valid email required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Password -->\r\n        <div class=\"mb-4\">\r\n          <input\r\n            type=\"password\"\r\n            placeholder=\"Password\"\r\n            formControlName=\"password\"\r\n            class=\"w-full px-4 py-3 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500\"\r\n            [ngClass]=\"{\r\n              'border-red-500': password?.invalid && (password?.touched || password?.dirty)\r\n            }\"\r\n          />\r\n          <div *ngIf=\"password?.invalid && (password?.touched || password?.dirty)\" class=\"text-red-500 text-sm mt-1\">\r\n            Password is required.\r\n          </div>\r\n        </div>\r\n  \r\n        <!-- Remember Me -->\r\n        <div class=\"flex items-center mb-4\">\r\n          <input\r\n            type=\"checkbox\"\r\n            id=\"rememberMe\"\r\n            formControlName=\"rememberMe\"\r\n            class=\"mr-2 h-4 w-4 text-sky-600 border-gray-300 rounded\"\r\n          />\r\n          <label for=\"rememberMe\" class=\"text-sm text-gray-700\">Keep me signed in.</label>\r\n        </div>\r\n  \r\n        <!-- Submit Button -->\r\n        <button\r\n          type=\"submit\"\r\n          class=\"w-full bg-sky-500 text-white py-3 rounded-md shadow-md hover:bg-sky-600 transition duration-200\"\r\n          [disabled]=\"loginForm.invalid\"\r\n        >\r\n          SIGN IN\r\n        </button>\r\n      </form>\r\n  \r\n      <!-- Extra Links -->\r\n      <div class=\"mt-4 text-center text-sm\">\r\n        <a href=\"#\" class=\"text-sky-500 hover:underline\">Forgot Password?</a>\r\n      </div>\r\n      <div class=\"mt-2 text-center text-sm text-gray-700\">\r\n        Don’t have an account? <a href=\"#\" class=\"text-sky-500 hover:underline\">Sign Up</a>\r\n      </div>\r\n    </div>\r\n  </div>\r\n  "
         },
         {
             "name": "PageComponent",
@@ -631,6 +915,36 @@
     "miscellaneous": {
         "variables": [
             {
+                "name": "API_BASE_URL",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/app/auth/api.constants.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "environment.apiBaseUrl"
+            },
+            {
+                "name": "API_KEY",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/app/auth/api.constants.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "environment.apiKey"
+            },
+            {
+                "name": "appConfig",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app.config.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "ApplicationConfig",
+                "defaultValue": "{\r\n  providers: [provideExperimentalZonelessChangeDetection()]\r\n}"
+            },
+            {
                 "name": "appConfig",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
@@ -639,12 +953,98 @@
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
                 "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
+            },
+            {
+                "name": "authGuard",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/app/auth/auth.guard.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "CanActivateFn",
+                "defaultValue": "() => {\r\n  const auth = inject(AuthService);\r\n  const router = inject(Router);\r\n\r\n  if (auth.isLoggedIn()) {\r\n    return true;\r\n  } else {\r\n    router.navigate(['/login']);\r\n    return false;\r\n  }\r\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/environments/environments.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\r\n    // production: false,\r\n    apiBaseUrl: 'https://testapi.poolbrain.com',\r\n    apiKey: '2d1f05f134e341fb83a539a37aebeed0'\r\n  }"
+            },
+            {
+                "name": "LOGIN_ENDPOINT",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/app/auth/api.constants.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "`${API_BASE_URL}/login`"
             }
         ],
-        "functions": [],
+        "functions": [
+            {
+                "name": "buildAuthHeaders",
+                "file": "src/app/app/auth/api-headers.util.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [],
+                "returnType": "literal type"
+            }
+        ],
         "typealiases": [],
         "enumerations": [],
         "groupedVariables": {
+            "src/app/app/auth/api.constants.ts": [
+                {
+                    "name": "API_BASE_URL",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/app/auth/api.constants.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "environment.apiBaseUrl"
+                },
+                {
+                    "name": "API_KEY",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/app/auth/api.constants.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "environment.apiKey"
+                },
+                {
+                    "name": "LOGIN_ENDPOINT",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/app/auth/api.constants.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "`${API_BASE_URL}/login`"
+                }
+            ],
+            "src/app.config.ts": [
+                {
+                    "name": "appConfig",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app.config.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplicationConfig",
+                    "defaultValue": "{\r\n  providers: [provideExperimentalZonelessChangeDetection()]\r\n}"
+                }
+            ],
             "src/app/app.config.ts": [
                 {
                     "name": "appConfig",
@@ -656,17 +1056,65 @@
                     "type": "ApplicationConfig",
                     "defaultValue": "{\r\n  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]\r\n}"
                 }
+            ],
+            "src/app/app/auth/auth.guard.ts": [
+                {
+                    "name": "authGuard",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/app/auth/auth.guard.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "CanActivateFn",
+                    "defaultValue": "() => {\r\n  const auth = inject(AuthService);\r\n  const router = inject(Router);\r\n\r\n  if (auth.isLoggedIn()) {\r\n    return true;\r\n  } else {\r\n    router.navigate(['/login']);\r\n    return false;\r\n  }\r\n}"
+                }
+            ],
+            "src/app/environments/environments.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/environments/environments.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\r\n    // production: false,\r\n    apiBaseUrl: 'https://testapi.poolbrain.com',\r\n    apiKey: '2d1f05f134e341fb83a539a37aebeed0'\r\n  }"
+                }
             ]
         },
-        "groupedFunctions": {},
+        "groupedFunctions": {
+            "src/app/app/auth/api-headers.util.ts": [
+                {
+                    "name": "buildAuthHeaders",
+                    "file": "src/app/app/auth/api-headers.util.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [],
+                    "returnType": "literal type"
+                }
+            ]
+        },
         "groupedEnumerations": {},
         "groupedTypeAliases": {}
     },
     "routes": [],
     "coverage": {
-        "count": 10,
+        "count": 4,
         "status": "low",
         "files": [
+            {
+                "filePath": "src/app.config.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "appConfig",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
             {
                 "filePath": "src/app/app.component.ts",
                 "type": "component",
@@ -682,6 +1130,84 @@
                 "linktype": "miscellaneous",
                 "linksubtype": "variable",
                 "name": "appConfig",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/api-headers.util.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "buildAuthHeaders",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/api.constants.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "API_BASE_URL",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/api.constants.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "API_KEY",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/api.constants.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LOGIN_ENDPOINT",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/auth-api.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "AuthApiService",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/auth.guard.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "authGuard",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/app/auth/auth.service.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "AuthService",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/environments/environments.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "environment",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
