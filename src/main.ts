@@ -1,15 +1,25 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
-import { LoginComponent } from './app/login/login.component';
+// main.ts
+import { createApplication } from '@angular/platform-browser';
 import { createCustomElement } from '@angular/elements';
+import { importProvidersFrom } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { appConfig } from './app.config';
+import { LoginComponent } from './app/login/login.component';
+import { AppComponent } from './app/app.component';
 
-// bootstrapApplication(AppComponent, appConfig)
-//   .catch((err) => console.error(err));
-
-bootstrapApplication(AppComponent).then((ref) => {
-  const injector = ref.injector;
-  const loginModalElement = createCustomElement(LoginComponent, { injector });
-  customElements.define('login-modal-element', loginModalElement);
-});
-
+createApplication({
+  ...appConfig,
+  providers: [importProvidersFrom(HttpClientModule)],
+})
+  .then((app) => {
+    // Check for app-root in DOM
+    if (document.querySelector('app-root')) {
+      // ✅ Full Angular App
+      app.bootstrap(AppComponent);
+    } else {
+      // ✅ Angular Element Only
+      const LikeButton = createCustomElement(LoginComponent, { injector: app.injector });
+      customElements.define('like-button', LikeButton);
+    }
+  })
+  .catch((err) => console.error('Error initializing Angular:', err));
