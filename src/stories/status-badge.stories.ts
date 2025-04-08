@@ -1,5 +1,5 @@
 import { Meta, StoryFn } from '@storybook/angular';
-import { StatusBadgeComponent } from '../app/status-badge/status-badge.component';
+import { StatusBadgeComponent } from '../app/components/status-badge/status-badge.component';
 
 export default {
   title: 'Components/StatusBadge',

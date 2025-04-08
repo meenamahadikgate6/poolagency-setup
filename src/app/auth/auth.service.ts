@@ -15,14 +15,13 @@ export class AuthService {
 
   login(email: string, password: string, rememberMe: boolean = false) {
     const payload = { email, password, remember_me: rememberMe };
-
-    return this.http.post<{ token: string }>(
+    return this.http.post<{ token: any }>(
       LOGIN_ENDPOINT,
       payload,
       buildAuthHeaders()
     ).pipe(
-      tap((res) => {
-        localStorage.setItem('token', res.token);
+      tap((res:any) => {
+        localStorage.setItem('token', res.data.token);
         // this.isAuthenticatedSubject.next(true);
       })
     );

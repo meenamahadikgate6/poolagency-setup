@@ -13,14 +13,14 @@ import { AuthService } from '../../auth/auth.service';
 })
 export class LoginComponent implements OnInit{
   @Input() show = true;
-  @Output() login = new EventEmitter<{ email: string; password: string }>();
-  @Output() close = new EventEmitter<void>();
+  // @Output() login = new EventEmitter<{ email: string; password: string }>();
+  // @Output() close = new EventEmitter<void>();
 
   loginForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
-    private auth: AuthService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit{
 
     const { email, password, rememberMe } = this.loginForm.value;
 
-    this.auth.login(email, password, rememberMe).subscribe({
+    this.authService.login(email, password, rememberMe).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: () => alert('Invalid credentials'),
     });

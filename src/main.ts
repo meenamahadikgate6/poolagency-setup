@@ -7,10 +7,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { appConfig } from './app.config';
 import { LoginComponent } from './app/components/login/login.component';
 import { AppComponent } from './app/app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes';
 
 createApplication({
   ...appConfig,
-  providers: [importProvidersFrom(HttpClientModule)],
+  providers: [importProvidersFrom(HttpClientModule), provideRouter(routes),],
 })
   .then((app) => {
     // Check for app-root in DOM
