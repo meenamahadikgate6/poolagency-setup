@@ -1,0 +1,100 @@
+<div id="content" ng-class="{ 'sidebar-opened' : sidebarOpened, 'sidebar-closed' : !sidebarOpened }" ng-click="closeisFullScreenSearchBox()">
+
+  <section  class="sidebar">
+    <div style="width:100%; margin-bottom:5px; display: block;" ng-if="loggedInRole == 'administrator' && displayDropDown" class="select custom-select custom-select-noimage">
+      <select class="change-company-dropdown" ng-model="selectedCompany" ng-change="setCompany(selectedCompany)"
+        ng-options="company.companyId as company.companyName for company in adminCompanyList | orderBy:'companyName' | filter: {status:'1'}" >
+        <!-- <option ng-repeat="company in adminCompanyList" ng-selected="company.companyId == selectedCompany" value="{{company.companyId}}">{{company.companyName}}</option> -->
+      </select>
+    </div>
+    <ng-container ng-if="loggedInRole != 'administrator' && userSession.canAccessMultiCompany && groupCompanyList.length > 0">
+      <div style="width:100%; margin-bottom:5px; display: block;" class="select custom-select custom-select-noimage">
+        <select class="change-company-dropdown" ng-model="selectedCompany" ng-change="setCompany(selectedCompany, true)" ng-options="company.companyId as company.companyName for company in groupCompanyList | orderBy:'companyName' | filter: {status:'1'}">
+        </select>
+      </div>
+    </ng-container>
+    <div id="menubar">
+      <nav class="menu">
+        <ul ng-if="loggedInRole!='user'">
+          <li ng-class="{'active' : currentState === 'app.dashboard' || currentState == 'login'}"><a ui-sref="app.dashboard" title="Alerts">Alerts</a></li>
+          <li ng-class="{'active' : currentState === 'app.technicians' || currentState === 'app.techniciandetail'}"><a ui-sref="app.technicians" title="Technicians">Technicians</a></li>
+          <li ng-class="{'active' : currentState === 'app.customer' || currentState === 'app.companycustomer' || currentState === 'app.customerdetail' || currentState === 'app.installdetail' || currentState === 'app.customerjobdetail'}"><a ui-sref="app.customer" title="Customers">Customers</a></li>          
+          <li ng-if="isRoutingSection" ng-class="{'active' : currentState === 'technicianroute'}"><a ui-sref="technicianroute" title="Scheduling">Scheduling</a></li>
+          <li ng-class="{'active' : currentState === 'app.products' }"><a ui-sref="app.products" title="Products & Services">Products & Services</a></li>
+          <li ng-if="permissions.canAccessTrucksAndToolsURL == 1" ng-class="{'active' : currentState === 'app.trucks' }"><a ui-sref="app.trucks" title="Trucks & Tools">Trucks & Tools</a></li>
+          <li ng-if="permissions.canAccessTrucksAndToolsURL == 0">
+            <a class="button blue-bg icon-required" href="#" style="color: #fff;">Trucks & Tools
+              <span class="sch-help" style="bottom: 46px; left: 4px; right: 4px; width: auto;">
+                <p>You will need a permission<br/>to view this section</p>
+              </span>
+            </a>
+          </li>
+          <li ng-if="permissions.canAccessInventoryURL == 1" ng-class="{'active' : currentState === 'app.inventory' }"><a ui-sref="app.inventory" title="Inventory">Inventory</a></li>
+          <li ng-if="permissions.canAccessInventoryURL == 0">
+            <a class="button blue-bg icon-required" href="#" style="color: #fff;">Inventory
+              <span class="sch-help" style="bottom: 46px; left: 4px; right: 4px; width: auto;">
+                <p>You will need a permission<br/>to view this section</p>
+              </span>
+            </a>
+          </li>
+          <li ng-class="{'active' : currentState === 'app.emailcenter' }"><a ui-sref="app.emailcenter" title="Email Center">Email Center</a></li>
+          <li ng-class="{'active' : currentState === 'app.reports' }"><a ui-sref="app.reports" title="Reports">Reports</a></li>
+          <!-- <li ng-class="{'active' : currentState === 'app.contactissue'}"><a ui-sref="app.contactissue" title="Contact Issue">Contact/Issue</a></li>
+          <li ng-class="{'active' : currentState === 'app.devices'}"><a ui-sref="app.devices" title="Devices">Devices</a></li> -->
+        </ul>
+        <ul ng-if="loggedInRole=='user'">
+          <li ng-class="{'active' : currentState === 'app.companysignup'}"><a ui-sref="app.companysignup" title="Company Signup">Company Signup</a></li>
+        </ul>
+      </nav>
+    </div>
+    <script type="text/ng-template" id="idle.html">
+    <div class="dataTables_wrapper modal-box" >
+  <div class="popup-header"><div class="popup-title">Warning</div>
+  <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>
+      <div class="popup-scroll" id="scrollarea">
+        You will logout in {{countdown}} seconds.
+      </div>
+    </div>
+</script>
+    <div class="ser-managers" ng-if="loggedInRole!='user' && loggedInRole!='viewer' && loggedInRole != 'administrator'">
+      <div class="subtitle">Users</div>
+      <div ng-if="onlineServiceMangProcessing"><div class="spinner-item"><div class="spinner-animation"><img src="resources/images/spinner.gif" /></div></div></div>
+      <div class="p-t20" ng-if="onlineServiceMang.length == 0 && !onlineServiceMangProcessing">No Users</div>
+      <ul ng-if="onlineServiceMang.length > 0">
+        <!-- ng-if="osm.id != userSession.id"-->
+        <li ng-class="{ 'fullWidth' : hoverEdit{{$index+1}}}" ng-mouseover="hoverIn('hoverEdit',$index+1,osm)" ng-mouseleave="hoverOut('hoverEdit',$index+1,osm)" ng-repeat="osm in onlineServiceMang | orderBy:'isOnline':true"  ng-if="osm.companyId == userSession.companyId">
+
+          <div ng-class="{'disabled': osm.isOnline == 0}"> <!--  <img border="0" ng-src="{{osm.userImage ? osm.userImage : 'resources/images/not-available-img.png'}}" />-->
+            <div class="image-radius" ng-class="{'name-initial': !osm.userImage}" ng-style="{'background-image': 'url({{osm.userImage}})'}" style="background-size: cover;">
+            <span ng-show="!osm.userImage">
+                {{osm.firstName | convertToInitial: osm.lastName}}
+            </span>
+            </div>
+          </div>
+          <div ng-show="hoverEdit{{$index+1}}" class="left-ser-managers-info animate-show">
+						<div class="left-ser-managers-info-inner">
+              <span class="close-btn" ng-click="hoverOut('hoverEdit',$index+1)">
+                <i class="fa fa-times-circle" aria-hidden="true"></i>
+              </span>
+              <span class="manager-name">{{osm.firstName}} {{osm.lastName}}</span>
+              <span class="manager-contact">
+                <i class="fa fa-phone" aria-hidden="true"></i>
+                <a href="tel:{{osm.contactNumber}}" ng-if="osm.contactNumber">
+                  <phone-Number number="{{osm.contactNumber}}"></phone-Number>
+                </a>
+              </span>
+              <span class="manager-email">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                <a href="mailto:{{osm.email}}">{{osm.email}}</a>
+              </span>
+            </div>
+					</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+  <section em-Height-Source class="mainContent">
+    <div class="page-view" ui-view="app-view"></div>
+  </section>
+</div>

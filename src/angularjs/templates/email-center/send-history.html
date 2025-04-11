@@ -1,0 +1,211 @@
+<div ng-controller="emailHistoryController" ng-init="initPayloadForEmailHistory()" class="email-history-section">
+    <div class="row">
+        <div class="col-xs-12 email-center-top-messages">
+            <success ng-if="sendEmailSuccess" message="{{sendEmailSuccess}}"></success>
+            <error ng-if="sendEmailError" message="{{sendEmailError}}"></error>            
+        </div>
+    </div>
+    <div class="ecp-section">                        
+        <div class="ecp-section-body">                          
+            <div class="ecp-section-card">                                
+                <div class="email-history-list-filter">
+                    <div class="email-history-list-filter-search-area">
+                        <img class="email-history-list-filter-search-icon" src="resources/images/magnifiy.png">
+                        <input type="text" class="form-control email-history-list-filter-search" placeholder="customer name or email" ng-blur="searchEmailHistoryByKey($event)" ng-keypress="handleKeyForSearchEmailHistory($event)">
+                    </div>                                    
+                    <div class="email-history-list-filter-dropdown">
+                        <div class="dropdown select-wrap service-level-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                                {{selectedEmailHistoryFilterType.label == 'All' ? 'Filter by type' : selectedEmailHistoryFilterType.label}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu scrollable-menu">
+                                <li ng-repeat="filterType in emailHistoryFilterTypes" ng-if="selectedEmailHistoryFilterType.id!=filterType.id" ng-click="setEmailHistoryFilterType(filterType)">
+                                    <a href="javascript:void(0)">{{filterType.label}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="send-history-filterRange-dropdown-area">
+                        <div class="send-history-custom-date-picker-area" ng-show="emailHistorySelectedFilterRange.value==='custom'">
+                            <div class="datePicker datePicker-rangepicker-static input-daterange">
+                                <div class="date-rangepicker-static-row">
+                                  <div class="date-rangepicker-static-col left">
+                                    <div class="smallview" date-format="MM/dd/yy">
+                                      <input id="emailHistoryFromDate" ng-model="emailHistoryFromDate" options="emailHistoryDatePickerOption" ng-click="emailHistoryClickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterEmailHistoryByDate('fromDate')" />
+                                    </div>
+                                  </div>
+                                  <div class="date-rangepicker-static-col right">
+                                    <div class="" date-format="MM/dd/yy" min-date="fromDate">
+                                      <input id="emailHistoryToDate" ng-model="emailHistoryToDate" options="emailHistoryDatePickerOption" ng-click="emailHistoryClickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterEmailHistoryByDate('toDate')" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                        </div>
+                        <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown cust-select-btn">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{emailHistorySelectedFilterRange.title}}</button>
+                            <ul class="dropdown-menu scrollable-menu">   
+                                <li ng-repeat="x in emailHistoryRangeFilterData" ng-hide="emailHistorySelectedFilterRange.value==x.value">
+                                    <a href="javascript:void(0)" ng-click="emailHistoryFilterRange(x)">{{x.title}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>                                   
+                </div>
+                <!-- Mobile Sorting Start -->
+                <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown dropdown-mobile-sorting flt-rng-drp email-center-sortingResp" ng-if="emailHistoryListData.length > 0">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true" >{{selectedEmailHistoryFilterSortingTitle}}</button>
+                    <ul class="dropdown-menu scrollable-menu">   
+                        <li ng-repeat="x in emailHistoryFilterSortingData">
+                            <a href="javascript:void(0)" class="sorting-mob" ng-click="orderEmailHistoryListBy(x.id,x)" ng-class="{'sorting_mob_asc': emailHistoryListColumnName == x.id && emailHistoryListDir == 'asc', 'sorting_mob_desc': emailHistoryListColumnName == x.id && emailHistoryListDir == 'desc', }">{{x.value}}</a>
+                        </li>
+                    </ul>
+                </div>
+            <!-- Mobile Sorting End -->
+                <div class="email-group-table-area email-history-table-area">                                    
+                    <div class="email-history-tbody-area scrollareaCls" id="emailHistoryTbody">
+                        <div class="spinner" ng-if="isEmailHistoryListLoading">
+                            <div class="spinner-item">
+                              <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                            </div>
+                        </div>
+                        <table class="dataTable email-group-table email-group-table-mob-resp">                         
+                            <thead class="dark-gray-bg">
+                                <tr>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('dateTime')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'dateTime' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'dateTime' && emailHistoryListDir == 'desc', }">
+                                            DATE
+                                        </div>
+                                    </th>                  
+                                    <th>
+                                        <div>
+                                            TIME
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('displayName')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'displayName' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'displayName' && emailHistoryListDir == 'desc', }">
+                                            CUSTOMER
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('type')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'type' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'type' && emailHistoryListDir == 'desc', }">
+                                            TYPE
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('templateName')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'templateName' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'templateName' && emailHistoryListDir == 'desc', }">
+                                            TEMPLATE
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('sentBy')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'sentBy' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'sentBy' && emailHistoryListDir == 'desc', }">
+                                            SENT BY
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('email')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'email' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'email' && emailHistoryListDir == 'desc', }">
+                                            EMAIL
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailHistoryListBy('status')"
+                                            ng-class="{'sorting_asc': emailHistoryListColumnName == 'status' && emailHistoryListDir == 'asc', 'sorting_desc': emailHistoryListColumnName == 'status' && emailHistoryListDir == 'desc', }">
+                                            STATUS
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>                 
+                            <tbody ng-repeat="emailRow in emailHistoryListData" ng-if="emailHistoryListData && emailHistoryListData.length > 0">                                                                                 
+                                <tr>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Date: </span>
+                                            {{emailRow.date}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Time: </span>
+                                            {{emailRow.time}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Customer: </span>
+                                            {{emailRow.displayName}}                                            
+                                        </div>
+                                    </td> 
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Type: </span>
+                                            {{emailRow.type}}                                            
+                                        </div>
+                                    </td> 
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Template: </span>
+                                            {{emailRow.templateName}}                                            
+                                        </div>
+                                    </td> 
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Sent by: </span>
+                                            {{emailRow.sentBy}}                                            
+                                        </div>
+                                    </td> 
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Email: </span>
+                                            {{emailRow.email}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Status: </span>
+                                            <span class=" email-history-list-status {{ 'email-history-list-status-'+getEmailHistoryRowStatusName(emailRow.status).toLowerCase()}}">
+                                                {{getEmailHistoryRowStatusName(emailRow.status)}}
+                                            </span>
+                                        </div>
+                                    </td>                                        
+                                </tr>
+                            </tbody>                                    
+                        </table>
+                        <div class="email-history-tbody-area-no-record-found" ng-if="emailHistoryListData.length == 0">
+                            <span>No record found</span>
+                        </div>
+                    </div>                                                                                                         
+                    <div class="pagination-area--parent">
+                        <div class="pagination-area" ng-if="emailHistoryListTotalEmail > 0">
+                          <div class="pagination-area-left" ng-class="{ 'hide-by-opacity' : isEmailHistoryListLoading }">
+                            Showing
+                              {{emailHistoryListData.length ? (emailHistoryListTotalPage == emailHistoryListPage ? (emailHistoryListTotalEmail-emailHistoryListData.length)+1 : (emailHistoryListPage > 0 ? ((emailHistoryListPage-1)*emailHistoryListData.length)+1 : 1)) : 0 }} 
+                              to
+                              {{ emailHistoryListData.length ? (emailHistoryListTotalPage == emailHistoryListPage ? emailHistoryListTotalEmail : emailHistoryListPage*emailHistoryListData.length) : 0 }}  
+                              of 
+                              {{emailHistoryListTotalEmail}} 
+                          </div>
+                          <div class="pagination pagination-area-right" ng-class="{ 'lessRecords' : ((emailHistoryListTotalEmail / emailHistoryListLength) < 6 ) }">
+                            <paging page="emailHistoryListPage" page-size="emailHistoryListLength" total="emailHistoryListTotalEmail" text-first="First" text-last="Last" text-next="Next" text-prev="Prev"
+                                  paging-action="goToPageEmailHistory(page)" show-prev-next="true" show-first-last="true"> </paging>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

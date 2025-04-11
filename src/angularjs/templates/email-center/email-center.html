@@ -1,0 +1,22 @@
+<div class="email-center-page">    
+    <div class="row">
+        <div class="col-xs-12">
+            <ul class="ecp-tabs">
+                <li class="ecp-tab-btn" ng-repeat="tab in ecpTabs">
+                    <a class="ecp-tab-link {{ !tab.accessible ? 'ecp-tab-link-not-allowed' : ''}}" ng-click="(activeEcpTab != tab.key && tab.accessible) ? setEcpTab(tab) : null" ng-class="{ 'active' : activeEcpTab == tab.key }" href="javascript:void(0)" ng-if="tab.templateName && tab.templateName != ''">{{tab.title}}</a>
+                    <span ng-if="!tab.accessible" class="ecp-tab-tooltip">{{tab.permissionMessage}}</span>
+                </li>                
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="ecp-tab-content-area">
+                <div ng-repeat="tab in ecpTabs" class="ecp-tab-content" ng-if="activeEcpTab == tab.key">
+                    <div ng-if="tab.templateName && tab.templateName != ''" ng-include="'templates/email-center/' + tab.templateName + '?ver=' + PB_WEB_VERSION"></div>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+

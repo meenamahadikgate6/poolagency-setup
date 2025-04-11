@@ -1,0 +1,409 @@
+<div class="m-tb20" ng-controller="oneTimeJobSettingController" ng-init="oneTimeJobSetting();">    
+  <div class="job-scheduling setting-sm-card-loader-parent" style="width: auto;">
+    <div class="setting-sm-card-loader" ng-if="settingPageLoaders.jobScheduleSection">
+      <div class="spinner">
+         <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+         </div>
+      </div>
+   </div>
+    <div class="set-chem-title">Job Scheduling</div>
+    <div class="set-chem-details text-left">
+      <success ng-if="successMail" message="{{successMail}}"></success>
+      <error message="{{errorProductForm}}" ng-if="errorProductForm"></error>
+      <div class="row m-b50">
+        <div class="col-md-8 job-scheduling-text">
+            <h3>Time Windows
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <span>Time windows can be selected on jobs so technician knows when to arrive. You can create them with specific time ranges or just a name only. Time windows are always optional to use. Examples: First job, last job, morning, afternoon, etc.</span>
+              </a>
+              <a class="add-new-btn" href="javascript:void(0)" ng-click="addScheduleNewRow()">Add <i class="fa fa-plus" aria-hidden="true"></i></a> 
+            </h3>
+
+            <div class="row flex-row p-l30 m-b20">
+              <div class="col-md-4"><input class="form-control" type="text" value="Anytime" disabled></div>
+              <div class="col-md-3 p-r0"></div>
+              <div class="col-md-1 text-center"></div>
+              <div class="col-md-3 p-l0"></div>
+              <div class="col-md-1"></div>
+            </div>
+            <div class="row flex-row p-l30 m-b20" ng-repeat="scheduleData in scheduleTime track by $index" >
+              <div class="col-md-4">
+                <input class="form-control" type="text" ng-focus="clearTimeWindowTimeout()" ng-blur="saveOneTimeJobSetting(scheduleData,$index)" maxlength="12" name="" id="" ng-model="scheduleData.period">
+              </div>
+              <div class="col-md-3 p-r0">
+                <input class="form-control" ng-class="scheduleData.startTimeClass" ng-focus="clearTimeWindowTimeout(); focusDatePicker(scheduleData,$index,'start')" type="text" datetimepicker datetimepicker-disable-drop options="startTimePickerOption" ng-blur="saveOneTimeJobSetting(scheduleData,$index)" name="startTime" ng-model="scheduleData.startTime">
+              </div>
+              <div class="col-md-1 text-center">to</div>
+              <div class="col-md-3 p-l0">
+                <input class="form-control" ng-class="scheduleData.endTimeClass" ng-focus="clearTimeWindowTimeout(); focusDatePicker(scheduleData,$index, 'end')" ng-focus="removeClass()" type="text" datetimepicker datetimepicker-disable-drop options="endTimePickerOption" ng-blur="saveOneTimeJobSetting(scheduleData,$index)" name="endTime" ng-model="scheduleData.endTime">
+              </div>
+              <div class="col-md-1">
+                <a href="javascript:void(0)" class="" ng-click="removeTimeWindow(scheduleData, $index)"><i class="fa fa-times"></i></a>
+              </div>
+            </div>
+            
+        </div>        
+        <div class="col-md-4">        
+            
+        </div>
+      </div>
+
+      <div class="row" ng-controller="oneTimeJobController" ng-init="oneTimeJobSetting();">
+        <div class="col-md-12">
+          <div class="row job-templates-headings">
+            <div class="col-md-8 job-scheduling-text">
+              <h3>Job Templates
+                <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span>Job templates are collections of preset job info. They can be selected on jobs to quickly create common job types without having to enter everything each time. Examples: Pool opening/closing, new service startup, complaint follow up, pressure issues, etc.</span>
+                </a>
+                <a href="javascript:void(0)" ng-click="addJobTemplate()" class="add-new-btn">Add <i class="fa fa-plus" aria-hidden="true"></i></a> 
+              </h3>
+          </div>        
+          <div class="col-md-4">        
+              <h3>Filter/Salt Cell Cleans
+                <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span>These are default settings when a filter or salt cell clean schedule is active for a property. When a schedule is toggled on, the info and job creation schedule will automatically be filled in. You can edit it as desired per property as well.</span>
+                </a>
+              </h3>
+          </div>
+          </div>
+          <div class="row job-templates-messages">
+            <div class="col-md-12">
+              
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-8 job-scheduling-text">              
+              <div class="p-l30" ng-repeat="customTemplateId in customTemplate">
+                <p><span class="template-name">{{customTemplateId.templateName}}</span> <a href="javascript:void(0)" class="action-btn" ng-click="editJobTemplate(customTemplateId.id, $index)">edit</a><a href="" class="action-btn" ng-click="removeTemplateConfirm(customTemplateId, $index)">delete</a></p>
+              </div>
+          </div>        
+          <div class="col-md-4">                      
+              <div class="row p-l30 p-r30" ng-repeat="systemTempateId in systemTempate">
+                <div class="col-md-8"><p>{{systemTempateId.templateName}}</p></div><div class="col-md-4 text-right"><a href="javascript:void(0)" ng-click="editFilterSalt(systemTempateId)">edit</a></div>   
+              </div> 
+          </div>
+          </div>
+        </div>
+       
+
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/ng-template" id="addJobTemplate.html">
+<div class="dataTables_wrapper modal-box modal-box-v2 common-popup job-template" style="max-width: 1200px; min-height: auto;">
+  <div class="popup-header">
+    <span ng-class="oneJobModel.job.templateName ? 'heading' : 'heading has-error'" id="templateNameBox" ng-if="addJobTemplateTrue || editTemplate">
+      <span ng-show="!showForm" ng-click="showForm=true;focusInput=true">{{oneJobModel.job.templateName ? oneJobModel.job.templateName : ''}}</span>
+      <input id="templateName" ng-show="showForm" type="text" class="form-control template-name" ng-model="oneJobModel.job.templateName" name="title" placeholder="Template Name" type="text" focus-me="focusInput" ng-blur="showForm=false" ng-keyup="templateNameEnter($event)">        
+      <i class="fa fa-pencil"  ng-click="showForm=true;focusInput=true" aria-hidden="true"></i>
+    </span>
+    <span ng-if="editFilterTemplate" class="heading">
+      <span>{{oneJobModel.job.templateName ? oneJobModel.job.templateName : ''}}</span>
+    </span>
+    <!-- <span class="heading" ng-if="editTemplate"><input class="form-control template-name" ng-model="oneJobModel.job.templateName" name="title" placeholder="Template Name" type="text"/> <i class="fa fa-pencil" aria-hidden="true"></i></span>
+    <span class="heading" ng-if="editFilterTemplate"><input class="form-control template-name" ng-model="oneJobModel.job.templateName" name="title" placeholder="Template Name" type="text"/> <i class="fa fa-pencil" aria-hidden="true"></i></span> -->
+  </div>
+<div class="create-new-job-model create-new-job-model-setting">
+  <div class="colored-scroll-bar-section">
+  <form ng-init="jobTemplateInit()">
+  <div class="create-new-job-form create-new-job-form-hide-checklist-msg">
+    <success ng-if="successProductForm" message="{{successProductForm}}"></success>
+    <error message="{{errorProductForm}}" ng-if="errorProductForm"></error>
+     <div class="create-new-body">
+      <div class = "row" ng-if="editFilterTemplate">
+        <div class="col-md-12">
+          <h3 class="m-b10">
+            <span ng-if="filterClean">Default settings when filter clean schedule is active</span>
+            <span ng-if="saltClean">Default settings when salt cell clean schedule is active</span>
+            <a href="javascript:void(0)" class="icon-required inverce">
+              <i class="fa fa-question-circle" aria-hidden="true"></i>
+              <span class="sch-help" ng-if="filterClean"><p>When you activate the schedule toggle below the filter icon on any property, these settings will be used by default to create a filter clean job.</p></span>
+              <span class="sch-help" ng-if="saltClean"><p>When you activate the schedule toggle below salt cell icon on any property, these settings will be used by default to create a salt cell clean job.</p></span>
+            </a>
+          </h3>
+
+          <div class="p-l30 p-30 m-b50 defaul-settings-filter">
+            <label class = "often"> How Often ? <a href="javascript:void(0)" class="icon-required inverce"><i class="fa fa-question-circle" aria-hidden="true"></i>
+              <span class="sch-help" ng-if="filterClean"><p>This determines when Pool Brain will automatically create a filter clean job for a property. Every 26 weeks would be every 26 weeks from the date of the last time the filter was cleaned. Specific dates would create a job on each date you select every year. For example, September 1st and February 1st of each year.</p></span>
+              <span class="sch-help" ng-if="saltClean"><p>This determines when Pool Brain will automatically create a salt cell clean job for a property. Every 26 weeks would be every 26 weeks from the date of the last time the salt cell was cleaned. Specific dates would create a job on each of the dates you select every year.</p></span>
+            </a></label>
+            <div class="form-group">
+              <div class="radio-default2"><label for="everyWeek">Every<input type="radio" name="howOften" id="everyWeek" value="every" ng-model="oneJobModel.job.how_often" ng-checked="oneJobModel.job.how_often == 'every'" /><span></span></label></div>
+              <div class="form-group-inline" ng-show="oneJobModel.job.how_often == 'every' || !oneJobModel.job.how_often"><input type="text" ng-model="oneJobModel.job.frequency" name="weeks" id="frequency_val"  value="" class = "week" allow-typing="^[0-9. ]+$" maxlength="2" /> <span class="dates">Weeks</span> </div>
+            </div>
+            <div class = "form-group">
+              <div class="radio-default2"><label for="specificDates">On specific dates<input type="radio" name="howOften" id="specificDates" ng-model="oneJobModel.job.how_often" ng-checked="oneJobModel.job.how_often == 'specific'" value="specific" /><span></span></label></div>
+              <a ng-show="oneJobModel.job.how_often == 'specific' || !oneJobModel.job.how_often"  id="add_extra_date" class="btn add-btn "> Add <i class="fa fa-plus-circle"></i></a>                          
+            </div>
+            <div class = "filter-box" ng-show="oneJobModel.job.how_often == 'specific' || !oneJobModel.job.how_often">
+              <ul class = "on-date">
+                <li class= "filter-date" ng-repeat="dateObj in oneJobModel.job.dates track by $index">{{dateObj.date | monthName}} <i class="fa fa-close close-filter" ng-click="removeStartDates($index)"></i> </li>
+              </ul>                          
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class = "row" ng-if="editFilterTemplateLocal">
+          <h3>
+            Activate filter clean schedule
+          </h3>
+          <div class = "col-md-6">
+               <div class="form-group">
+                <input type="radio" name="every"  value="every" class = "radio-class" />
+                <span class = "dates">every</span>
+                <input type="text" name="weeks"  value="" class = "week" />
+                <span class= "dates">Weeks</span>
+                </div>
+                <div class = "form-group">
+                  <input type="radio" name="specific date"  value="specific date"class = "radio-class" />
+                <span class= "dates" >On specific dates</span>
+                  <a class="btn"> Add New <i class="fa fa-plus-circle"style = "right: 338px;"></i></a>
+                 </div>
+              </div>
+              <div class="col-md-6">
+                <label class = "often"> Ends On ? <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <span class="sch-help"><p>lorem ipsum</p></span>
+              </a></label>
+              <div class="form-group">
+                <input type="radio" name="Never"  value="Never"class = "radio-class" />
+                <span class = "dates">Never</span>
+              </div>
+              <div class="form-group">
+                <input type="radio" name="date"  value="date" class = "radio-class" />
+                <span class = "dates">date</span>
+              </div>
+            </div>  
+      </div>
+
+      <div class="row">
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-7">
+                <label>Title <span href="javascript:void(0)" class="icon-required checklist-help inverce" style="margin-left: 10px;">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span class="sch-help"><p>Technician can see this in app. A brief description of the overall job. Example: Filter pump install.</p></span>
+                </span></label>
+                  <div class="form-group">
+                    <input class="form-control" id="tempTitle" ng-model="oneJobModel.job.jobTitle" name="title" placeholder="Brief Description" type="text" tabindex="1" />
+                  </div>
+              </div>
+              <div class="col-md-5">
+                <label>Duration <span href="javascript:void(0)" class="icon-required checklist-help inverce" style="margin-left: 10px;">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span class="sch-help"><p>Technician can see this in app. Total estimated job time. It will update automatically when you add products & services or you can set it manually.</p></span>
+                </span></label>
+                  <div class="form-group duration-picker">
+                  <span class="duration-field" onclick="$('#durationPicker').datetimepicker('show');">{{oneJobModel.job.duration | duration}}</span>
+                  <input class="form-control duration" id="durationPicker"  datetimepicker datetimepicker-disable-drop options="durationOption" ng-model="oneJobModel.job.duration" name="duration" placeholder="0 hr  0 min" type="text" tabindex="2" />
+                  <img src="resources/images/watch-icon.png" />
+                  </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Instructions<span href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span class="sch-help"><p>Technician can see this in app. Additional job instructions for technician go here.</p></span>
+                </span></label>
+                <div class="form-group">
+                  <textarea class="form-control" ng-model="oneJobModel.job.instruction" name="" maxlength="6000" tabindex="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <label>Office Notes <span href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                  <i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <span class="sch-help"><p>Technician can't see this. Customer can't see this.</p></span>
+                </span></label>
+                <div class="form-group">
+                  <textarea class="form-control" ng-model="oneJobModel.job.note" name="" maxlength="6000" tabindex="4">{{oneJobModel.job.note}}</textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="product-add-new-form-top">
+                  <label class="ooj-on-setting">Products & Services</label>
+                  <a class="btn" ng-click="addBundleProductSearch(saveOneTimeJobVar)" tabindex="5"> Add New <i class="fa fa-plus-circle "></i></a>
+                </div>
+                <div class="grey-box">
+                  <div id="scrollarea"  style="overflow:auto; max-height:300px;">
+                  <table class="product-services-list" style="width:100%">
+                    <thead>
+                      <tr>
+                        <td style="width:40px" ></td>
+                        <td style="width:215px; text-align:left">NAME</td>
+                        <td style="width:50px; text-align:left">QTY</td>
+                        <td style="width:50px; text-align:left">PRICE</td>
+                        <td style="width:30px; text-align:left;">TAX</td>
+                        <td style="width:30px;"></td>
+                      </tr>
+                    </thead>
+                    <tbody ng-if="productNoItem">
+                      <tr><td colspan="5" style="text-align:center">No item in list</td></tr>
+                    </tbody> 
+                    <tbody ng-if="bundleSearchForm">
+                      <tr>
+                        <td colspan="100%" class="bundle-search" style="position: relative">
+                          <div class="product-search-widget-holder --fixed">
+                            <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('jobTemplate',productBundleListNew)"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tbody class="bundleSearchResult charge-tax-checkbox-tbody" ng-repeat="productBundleListNewCategory in productBundleListNew">
+                      <tr>
+                        <td><div class="product-sevices-category" ng-class="productBundleListNewCategory.category"></div></td>
+                        <td>{{productBundleListNewCategory.name}}<br><span style="color: #9b9999;font-size: 11px;" ng-if="productBundleListNewCategory.category == 'Product'">part {{productBundleListNewCategory.sku}}</span></td>
+                        <td style="text-align:center"><input type="text" ng-disabled="productBundleListNewCategory.category == 'Bundle'" class="form-control input-number form-control-small bundle-qty" ng-model="productBundleListNewCategory.qty" ng-blur="validateBlankQtyInputNegative(productBundleListNewCategory,'qty');calculateBundleCostTemp()" allow-typing="^[0-9.-]+$" data-dont-fix-if-int="true"/></td>
+                        <td style="text-align:left">{{ negativeRoundUp(productBundleListNewCategory.qty==0 || !productBundleListNewCategory.qty? productBundleListNewCategory.price : productBundleListNewCategory.price * productBundleListNewCategory.qty) | currency}}</td>
+                        <td style="text-align:center"><input type="checkbox" ng-if="productBundleListNewCategory.category != 'Bundle'" ng-checked="productBundleListNewCategory.isChargeTax == 1" ng-model="productBundleListNewCategory.isChargeTax" ng-true-value="1" ng-false-value="0" ng-click="getSubtotalForTax(); chargeTax()"></td>
+                        <td style="width:30px;"><a class="delete-btn" href="javascript:void(0)" ng-click="removeProductToBundle(productBundleListNew, $index)"><i class="fa fa-times"></i></a></td>
+                      </tr>                                            
+                      <tr ng-if="productBundleListNewCategory.bundleItemReference" ng-repeat="bundleItem in productBundleListNewCategory.bundleItemReference">
+                        <td></td>
+                        <td>{{bundleItem.name}}<br><span style="color: #9b9999;font-size: 11px;" ng-if="bundleItem.category == 'Product' && bundleItem.sku">part {{bundleItem.sku}}</span></td>
+                        <td style="text-align:center"><input type="text" class="form-control input-number form-control-small bundle-qty" ng-model="bundleItem.qty" ng-blur="validateBlankQtyInputNegative(bundleItem,'qty');calculateBundleCostTemp()" allow-typing="^[0-9.-]+$" data-dont-fix-if-int="true"/></td>
+                        <td style="text-align:left">{{ negativeRoundUp(bundleItem.qty==0 || !bundleItem.qty? bundleItem.price : bundleItem.price * bundleItem.qty) | currency}}</td>
+                        <td style="text-align:center"><input type="checkbox" ng-checked="bundleItem.isChargeTax == 1" ng-model="bundleItem.isChargeTax" ng-true-value="1" ng-false-value="0" ng-click="getSubtotalForTax(); chargeTax()"></td>
+                        <td style="width:30px;"></td>
+                      </tr>
+                    </tbody>                   
+                  </table>
+                </div>
+              </div>
+              </div>
+            </div>
+            <div class="row billing-section-jobs" ng-if="productBundleListNew.length > 0">
+              <div class="col-md-12">
+                <div ng-if="errorDiscount" class="error-div">Discount amount should not be more than the subtotal</div>
+                <div class="row">
+                  <div class="col-md-7">&nbsp;</div>
+                  <div class="col-md-5">
+                    <div class="row m-b5">
+                      <div class="col-md-6 p-lr0">Subtotal</div>
+                      <div class="col-md-6"><strong>{{ currencyTrimmer(trimmedData.subtotal) | currency}}</strong></div>
+                    </div>                    
+                    <div class="row m-b5">
+                      <div class="col-md-6 p-lr0"><small>Taxable Subtotal</small></div>
+                      <div class="col-md-6"><strong><small>{{currencyTrimmer(trimmedData.taxableSubtotal) | currency}}</small></strong></div>
+                    </div>
+                    <div class="row m-b5">
+                      <div class="col-md-6 p-lr0">Discount <span ng-if="discountTitle && discountType == '%'" style="color:red;">({{discountTitle}})</span></div>
+                      <div class="col-md-6">
+                        <strong ng-if="discountCalculation">{{currencyTrimmer(trimmedData.discount) | currency}}</strong> 
+                        <a ng-click="addDiscount()" class="btn add-discount-btn" ng-if="!discountCalculation">Add</a>
+                        <a class="delete" ng-if="discountCalculation" href="javascript:void(0)" ng-click="removeDiscount()"><i class="fa fa-times"></i></a>
+                      </div>
+                    </div>
+                    <div class="row m-b5">
+                      <div class="col-md-6 p-lr0">Total</div>
+                      <div class="col-md-6"><strong>{{currencyTrimmer(trimmedData.total) | currency}}</strong></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12 col-xs-12 checklist-one-of-job" ng-include="'/templates/component/checklist-item.html?ver='+PB_WEB_VERSION" ng-controller="checklistItemController" ng-init="getChecklistOneOfJob()"></div>
+        </div>
+     </div>
+
+     
+  </div>
+  </form>
+</div>
+  <div class="row">
+    <div class="col-md-12 m-tb20 text-center">
+      
+      <button style="position: inherit !important;" id="saveButton" class="btn btn-primary ng-scope" type="submit" ng-click="saveOneTimeJobTemplate()" ng-disabled="saveBtnClick">SAVE <span ng-if="editTemplate">CHANGES</span></button>
+      <button style="position: inherit !important;" id="cancelButton" class="btn btn-primary ng-scope" type="button" ng-click="closeThisDialog()" ng-disabled="saveBtnClick" ng-if="!productEdit">CANCEL</button>  
+    </div>
+  </div>
+
+</div>
+</div>
+
+</script>
+
+   
+<script type="text/ng-template" id="addDiscount.html" >
+  <div class="modal-box modal-box-v2 common-popup add-tax-popup">
+   <div class="popup-header">
+     <span class="heading ">Add Discount</span>
+     <div class="popup-close" ng-click="closeTaxJob()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   </div>
+   <div class="add-tax-popup-body">
+      <div class="row">
+              <div class="col-md-5">
+                <input 
+                class="form-control small-input input-number discount-value" 
+                mgminmax-validator 
+                type="number" 
+                name="discount-value" 
+                ng-min="0" 
+                ng-model="discountValue"
+                ng-max="discountType == '%' ? 100 : 9999999" 
+                required 
+                allow-typing="^[0-9. ]+$"
+                ng-keyup="showDiscountValue(discountValue)"
+                />   
+                    
+              </div>
+              <div class="col-md-2 text-center p-l0">
+                  <div class="dropdown select-wrap label-dropdown discount-type">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        <b>{{discountType}}</b>
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu scrollable-menu">
+                        <li ng-click="updateDiscountType('%')" ng-if="discountType!='%'"><a href="javascript:void(0)">%</a></li>
+                        <li ng-click="updateDiscountType('$')" ng-if="discountType!='$'"><a href="javascript:void(0)">$</a></li>
+                    </ul>
+                  </div>
+              </div>
+              <div class="col-md-3 text-center p-l0">
+                <span class="tax-value" ng-if="discountCalculation"> ${{discountCalculation | number: 2}}</span>
+              </div>
+              <div class="col-md-2 p-l0">
+                  <div class="text-right h-2x">
+                      <button class="btn" type="button" ng-disabled="!discountValue" ng-click="addTaxJob()">Save</button>
+                  </div>
+              </div>
+      </div>
+   </div>
+</div>
+</script>
+
+<script type="text/ng-template" id="removeTemplateConfirmPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete job template?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red" type="submit" ng-click="removeTemplate(customTemplateId, index)">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>

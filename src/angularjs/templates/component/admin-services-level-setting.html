@@ -1,0 +1,1043 @@
+
+<div class="set-chem-form m-t30 p-relative setting-sm-card-loader-parent">
+  <div class="setting-sm-card-loader" ng-if="!dropDownMenuSettingsPopup && settingPageLoaders.serviceLevelSection">
+    <div class="spinner">
+       <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+       </div>
+    </div>
+ </div>
+  <div class="set-chem-price" style="width: 100%">
+  <div class="set-chem-title">
+    Service Levels
+  </div>
+  <div class="set-chem-body-sl">
+    
+  <div style="position: absolute;width: 47.5%;z-index: 1;left: 17px;top: 48px;" ng-if="checkListSuccess">  <success  message="{{checkListSuccess}}"></success></div>
+  <div style="position: absolute;width: 47.5%;z-index: 1;left: 17px;top: 48px;" ng-if="checkListError">  <error  message="{{checkListError}}"></error></div>
+  <div class="row">
+    <div class="col-lg-12"> 
+  <div class="service-level-tab-item-wrapper">
+      <i class="fa fa-arrow-left" ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('left')"></i>
+      <div class="service-tab service-tab-circle" ng-class="{'service-fullbox' : tabContainerWidth < 900,  'service-box' : tabContainerWidth > 900    }">
+        <div style="width:{{tabContainerWidth+'px'}}">
+        <ul id="serviceTab2" >
+          <li  ng-repeat="serviceLevelObj in serviceLevelArray"  ng-class="{'active':selectedServiceLevel == $index}" ng-click="selectTab($index)"><span><b>{{serviceLevelObj.serviceLevel.title}}</b>  <i class="fa fa-pencil" aria-hidden="true" ng-click="openAddServiceLevelPopup($index)"></i></span></li>                 
+        </ul>
+      </div>
+      </div>
+      <i class="fa fa-arrow-right" ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('right')"></i>
+      <i class="fa fa-plus-circle" ng-show="serviceLevelArray.length < 25" aria-hidden="true" ng-click="openAddServiceLevelPopup()"></i>
+    </div>
+    </div>
+  </div>
+  <div class="work-bridge-height" style="width: 100%; min-height: 364px; height: auto;">
+      
+
+    <div class="work-progress-grid work-progress-grid-sl" ng-repeat="serviceLevelObj in serviceLevelArray" style="padding: 0" ng-init="serviceLevelIndex=$index;"  ng-show="selectedServiceLevel == $index">
+      
+      <ng-container class="setting-page-chklist-wrap" ng-show="selectedServiceLevel == $index">
+        <div class="set-chem-title" >              
+          <span>    
+           <span title="Time per visit"> <i class="fa fa-clock-o"  aria-hidden="true" title="Time per visit"></i> {{(serviceLevelArray[$index].serviceLevel.time_per_visit ? serviceLevelArray[$index].serviceLevel.time_per_visit : '0') }}  
+          </span>  
+            <!--span class="p-l10" title="Tech pay per visit">              
+              {{(serviceLevelArray[$index].serviceLevel.tech_pay_per_visit ? serviceLevelArray[$index].serviceLevel.tech_pay_per_visit : '0') | currency:"$ "}}
+            </span--> 
+          </span>
+        
+        </div>   
+        <div class="row">
+          <div class="col-lg-6">   
+            <div class="pb-checklist-default-sl-header">
+              <div class="pb-checklist-default-sl-header-left">
+                <span class="pb-checklist-default-sl-header-left-title">
+                  <span>Workflow shown in technician app</span>                  
+                  <a href="javascript:void(0)" class="icon-required customer-subdomain-help"><i class="fa fa-question-circle" aria-hidden="true"></i><span>Workflow shown in technician app</span></a>
+                </span> 
+              </div>
+              <div class="pb-checklist-default-sl-header-right">
+                <div class="dropdown dropdown-checklist-multi-option">
+                    <a class="dropdown-checklist-multi-option-link" data-toggle="dropdown">
+                      <span>Add Item</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z" />
+                      </svg>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li ng-repeat="item in checklistTypes"><a href="javascript:void(0)" ng-click="addNewChecklistAction(serviceLevelIndex, item.key)">{{item.label}}</a></li>                                      
+                    </ul>
+                </div>    
+              </div>
+            </div>                           
+          <div class="pb-checklist-box pb-checklist-box{{selectedServiceLevel}} pb-checklist-box-default-s-level" id="scrollarea" style="margin: 0 0 10px 0"  >
+            <form name="checklistForm" novalidate> 
+              <div>
+              
+              <!--temp-->
+              <div ui-tree="checklistSortableOptions" >
+              <div  ui-tree-nodes ng-model="serviceLevelObj.checklistBundle">
+              <div class="section-wrapper" ng-repeat="bundle in serviceLevelObj.checklistBundle">
+                <div ng-if="bundle.type == 'jobInProgress'" class="before-after-checklist-section">
+                  <span>Before Pictures&nbsp;&nbsp;
+                    <a class="icon-required toggle-icon" ng-click="serviceLevelArray[serviceLevelIndex].serviceLevel.beforePicture=!serviceLevelArray[serviceLevelIndex].serviceLevel.beforePicture; saveJobSteps(serviceLevelIndex)">
+                      <i class="fa fa-exclamation-circle" ng-class="{active: serviceLevelArray[serviceLevelIndex].serviceLevel.beforePicture }" aria-hidden="true"></i>
+                      <span>{{(serviceLevelArray[serviceLevelIndex].serviceLevel.beforePicture ? 'Completion Required' : 'Not Required')}}</span>
+                    </a> 
+                  </span> 
+                  <span><i class="fa fa-chevron-right"></i></span> 
+                  <span ng-click="openChemicalReadingPopup();chemicalReadingTab(serviceLevelIndex)" style="cursor: pointer;color: #285fc6;">Chemical Readings
+                    <a><i class="fa fa-gear" aria-hidden="true"></i></a>
+                  </span> 
+                  <span><i class="fa fa-chevron-right"></i></span> 
+                  <span>Chemical Dosing</span>
+                </div>
+
+                <div ng-if="bundle.type == 'whenLeaving'" class="before-after-checklist-section">
+                  <span>PSI Gauge reading&nbsp;&nbsp;
+                    <a class="icon-required toggle-icon" ng-click="serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugeReading=!serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugeReading; saveJobSteps(serviceLevelIndex)">
+                      <i class="fa fa-exclamation-circle" ng-class="{active: serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugeReading }" aria-hidden="true"></i>
+                      <span>{{(serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugeReading ? 'Completion Required' : 'Not Required')}}</span>
+                    </a> &nbsp;&nbsp;
+                    <a class="icon-required toggle-icon" ng-click="serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugePicture=!serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugePicture; saveJobSteps(serviceLevelIndex)">
+                      <i class="fa fa-camera" style="font-size: 11px;" ng-class="{active: serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugePicture }" aria-hidden="true"></i>
+                      <span>{{(serviceLevelArray[serviceLevelIndex].serviceLevel.psiGaugePicture ? 'Photo Required' : 'Photo Not Required')}}</span>
+                    </a> 
+                  </span> 
+                  <span><i class="fa fa-chevron-right"></i></span> 
+                  <span>After Pictures&nbsp;&nbsp;
+                    <a class="icon-required toggle-icon" ng-click="serviceLevelArray[serviceLevelIndex].serviceLevel.afterPicture=!serviceLevelArray[serviceLevelIndex].serviceLevel.afterPicture; saveJobSteps(serviceLevelIndex)">
+                      <i class="fa fa-exclamation-circle" ng-class="{active: serviceLevelArray[serviceLevelIndex].serviceLevel.afterPicture }" aria-hidden="true"></i>
+                      <span>{{(serviceLevelArray[serviceLevelIndex].serviceLevel.afterPicture ? 'Completion Required' : 'Not Required')}}</span>
+                    </a> 
+                   
+                  </span> 
+                </div>
+
+
+                <div class="section" ui-tree-node="" data-li-id="{{bundle.name}}" >
+                
+                <div ui-tree-handle></div>
+                <div class="head"><span>{{bundle.title}}</span></div>
+                  <ul class="pb-checklist multi-option-checklist" ui-tree-nodes ng-model="bundle.data" data-type="checkList"  data-section-id="{{bundle.sectionId}}" >    
+                    <li class="setting-checklist-textarea-li" ui-tree-node="" data-scroll-container=".pb-checklist-box{{selectedServiceLevel}}" data-type="checkList-item" data-li-id="{{data.id}}" data-parent-index="{{$parent.$index}}"  data-serviceLevel-parent-index="{{serviceLevelIndex}}" data-section-id={{data.sectionId}}  ng-repeat="data in bundle.data" ng-class="{'is-local':data.isLocal && !data.isSystem}">
+                      <div class="checklist-item-input-parent-{{getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).key}}"> 
+                        <!-- ng-if="!serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].randomId" -->
+                        <div class="new-pick-icon" ui-tree-handle>
+                            <img src="/resources/images/move-icon.png" />                            
+                        </div>
+                        <span class="checklist-type-icon {{ !data.isSystem ? 'checklist-type-icon--cursor' : ''}} checklist-type-icon-{{getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).key}}">
+                          <span class="checklist-help-area" ptitle="{{!data.isSystem ? getCheckListToolTip(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType) : ''}}" title-class="checklist-type-tooltip">
+                            <img width="20" ng-src="{{!data.isSystem ? (getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).icon) : 'resources/images/blank.png'}}" alt="">                           
+                          </span>
+                        </span> 
+                        <div class="name">
+                          <textarea
+                            ng-maxlength="getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).maxLength"
+                            maxlength="{{getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).maxLength}}"
+                            name="{{'title_'+[serviceLevelIndex]+'_'+[$parent.$index]+'_'+[$index]}}"
+                            style="height: {{serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].title.length > 37 ? '60px' : '35px'}}"
+                            ng-keypress="clearSaveInterval(); updateCheckListItemHeight()"  
+                            ng-keyup="updateCheckListItemHeight()" 
+                            ng-init="updateCheckListItemHeight()" 
+                            class="checklist-item-input" 
+                            ng-model="serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].title"
+                            ng-blur="getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).key == 'dropDownMenu' ? null : (!data.isSystem && saveCheckListItem(data, 'title', false, $index))"
+                            id="input_id_{{$parent.$index}}_{{$index}}"
+                            ng-click="getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).key == 'dropDownMenu' ? addNewChecklistAction(serviceLevelIndex, 'dropDownMenu', data) : (data.isSystem && openSystemSettingPopup(data.title))"                          
+                            ng-class="{'has-error': checklistForm.$submitted && checklistForm['title_'+[serviceLevelIndex]+'_'+[$parent.$index]+'_'+[$index]].$invalid || checklistForm['title_'+[serviceLevelIndex]+'_'+[$parent.$index]+'_'+[$index]].$touched && checklistForm['title_'+[serviceLevelIndex]+'_'+[$parent.$index]+'_'+[$index]].$invalid, 'system-check-list':data.isSystem}"
+                            ng-readonly="data.isSystem || getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).key == 'dropDownMenu'"
+                            placeholder="{{getChecklistType(serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].workFlowType).placeholderText}}"                                             
+                            required>{{data.title}}</textarea>                             
+                        </div>
+                        <div class="action" ng-show="!data.isSystem">
+                          <a href="javascript:void(0)" draggable="false" class="icon-required"
+                            ng-click="serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].required=!serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].required; saveCheckListItem(data, 'required', false)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 12 13">
+                              <path fill="{{serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].required ? '#285FC6' : '#909ca9'}}" fill-rule="evenodd" d="M5.454 9.008a.607.607 0 0 1 .424-.164c.17 0 .315.053.436.161.12.107.18.26.18.456a.615.615 0 0 1-.616.613.626.626 0 0 1-.42-.156c-.121-.105-.182-.257-.182-.457 0-.193.06-.344.178-.453zM5.276 3.91c0-.252.057-.442.173-.571a.57.57 0 0 1 .443-.194c.178 0 .324.066.435.198.111.132.167.322.167.567v3.598c0 .249-.056.436-.167.562a.553.553 0 0 1-.435.19.576.576 0 0 1-.443-.19c-.116-.126-.173-.301-.173-.525V3.91zm-3.56 7.04a5.737 5.737 0 0 0 8.294 0 6.111 6.111 0 0 0 1.72-4.28 6.11 6.11 0 0 0-1.719-4.28 5.74 5.74 0 0 0-8.297.001c-2.286 2.36-2.285 6.2.002 8.56z"/>
+    
+                            </svg>
+                            <span>{{serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].required ? 'Completion Required' :  'Not Required'}}</span>
+                          </a>
+    
+                          <a href="javascript:void(0)" draggable="false" class="icon-required"
+                            ng-click="serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].photo=!serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].photo; saveCheckListItem(data, 'photo', false)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+                                <path fill="{{serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].photo ? '#285FC6' : '#909ca9'}}" fill-rule="evenodd" d="M21.61 10.022a.882.882 0 0 0 .891-.873.888.888 0 0 0-.873-.87.88.88 0 0 0-.875.864.876.876 0 0 0 .857.88zm-9.114 9.471c3.428.01 6.235-2.779 6.253-6.212.018-3.427-2.791-6.234-6.245-6.24A6.245 6.245 0 0 0 6.25 13.25c-.017 3.426 2.792 6.234 6.245 6.244zM24.383 6.661c.33.365.49.809.617 1.27v11.874c-.096.411-.226.809-.488 1.15-.549.714-1.278 1.037-2.177 1.037-6.557-.005-13.113-.003-19.67-.003-.082 0-.163 0-.244-.004a2.513 2.513 0 0 1-1.857-.935C.26 20.686.106 20.257 0 19.805V7.932c.013-.02.034-.039.037-.06.197-1.205 1.326-2.133 2.614-2.088.893.032 1.789.007 2.684.006.62 0 1.008-.277 1.203-.86.23-.682.457-1.366.687-2.048.18-.539.583-.832 1.15-.832 2.75-.002 5.5-.002 8.249 0 .568 0 .97.293 1.151.832.233.69.461 1.381.694 2.072.187.553.584.836 1.172.836.968.001 1.936-.008 2.904.005.739.009 1.345.32 1.838.866zM12.507 9.533c2.071.004 3.766 1.7 3.746 3.75a3.748 3.748 0 0 1-3.76 3.714c-2.076-.007-3.765-1.698-3.746-3.75a3.748 3.748 0 0 1 3.76-3.714z"/>
+    
+                            </svg>
+                            <span>{{serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].photo ? 'Photo Required' :  'Photo Not Required'}}</span>
+                          </a> 
+                          <a href="javascript:void(0)" draggable="false" class="calender-icon" ng-class="{'icon-disabled':serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].frequency == 0 && serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].deleteAfter == 0 && serviceLevelArray[serviceLevelIndex].checklistBundle[$parent.$index].data[$index].endDate == null}" ng-click="openFrequencyOptionPopup(data,  $parent.$index, $index, 'jobInProgress')" >
+                            <i class="fa fa-calendar-o"></i>
+                          </a>
+    
+                          <a class="delete" href="javascript:void(0)" draggable="false" ng-click="checklistDeleteConfirm(data, serviceLevelIndex, $parent.$index, $index, 'jobInProgress')">
+                            <i class="fa fa-times"></i>
+                          </a>
+                        </div>
+                        <div class="action" ng-show="data.isSystem"> 
+                          <a class="setting" href="javascript:void(0)" draggable="false" ng-click="openSystemSettingPopup(data.title)" >
+                            <i class="fa fa-cog"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                
+                </div>
+              </div>
+              </div>
+            </div>
+              <input type="submit" id="checklistSubmitt" style="display: none">
+            </div>
+              </form>
+          </div>    
+          </div>
+          <div class="col-lg-6">
+            <div class="service-level-pooltype-division-row">
+              <div class="service-level-pooltype-division-col service-level-pooltype-division-col--heading">
+                 <h3>
+                    <span>Billing / payroll types</span>
+                    <a href="javascript:void(0)" class="icon-required customer-subdomain-help"><i class="fa fa-question-circle" aria-hidden="true"></i><span>Billing / payroll types</span></a>
+                 </h3>
+              </div>
+              <div class="service-level-pooltype-division-col service-level-pooltype-division-col--filter">
+                 <div class="fl dropdown">
+                    <button class="btn btn-primary dropdown-toggle button blue-bg" type="button" data-toggle="dropdown">Filter: {{currentFilterPoolType == 2 ? 'All' : (currentFilterPoolType == 1 ? 'Active' : 'Inactive')  }}&nbsp;&nbsp;<span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                       <li ng-class="{'active': currentFilterPoolType == 2}"><a href="javascript:void(0)" ng-click="filterPoolType(2)">All</a></li>
+                       <li ng-class="{'active': currentFilterPoolType == 1}"><a href="javascript:void(0)" ng-click="filterPoolType(1)">Active</a></li>
+                       <li ng-class="{'active': currentFilterPoolType == 0}"><a href="javascript:void(0)" ng-click="filterPoolType(0)">Inactive</a></li>
+                    </ul>
+                 </div>
+              </div>
+              <div class="service-level-pooltype-division-col service-level-pooltype-division-col--add-btn">
+                 <div class="pb-checklist-add-new" ng-click="addPoolTypeRow()"  ng-class="{ 'disbaled-link-add-pooltype' : currentFilterPoolType == 0}">
+                    <span>Add Type</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                       <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+                    </svg>
+                 </div>
+              </div>
+           </div>            
+            <div class="text-center">            
+              <p>Add any types you want for this service level.<br>
+                You can set payroll and price options for these in other sections.</p>
+            </div>           
+            <div id="scrollarea" style="margin: 0 0 10px 0; height: 216px; overflow: auto; padding-right: 20px;"  >
+              
+            <form id="poolTypeForm{{serviceLevelIndex}}" name="poolTypeForm" ng-submit="poolTypeForm.$valid && addPoolType(poolTypeModel)" novalidate autocomplete="off">  
+                  
+              <div ng-repeat="pType in poolTypeModel" class="poolType-wrap" ng-show="currentFilterPoolType == pType.status || currentFilterPoolType == 2">  
+                <div >
+                  <input 
+                    class="form-control" 
+                    name="poolTypeModelName[{{$index}}]" 
+                    ng-model="poolTypeModel[$index].poolType" 
+                    ng-class="{'has-error': poolTypeError[$index] }" 
+                    ng-blur="addPoolType($index)" 
+                    maxlength="80" 
+                    
+                    required 
+                    ng-disabled="!pType.status"
+                    
+                  />
+                  <span class="has-required" ng-if="poolTypeError[$index]">{{poolTypeError[$index]}}</span>
+                </div>          
+               <div class="action">
+                <a class="delete" ng-if="!pType.id"  href="javascript:void(0)" ng-click="poolTypeDeleteConfirm($index)">
+                  <i class="fa fa-times" ></i>
+                </a> &nbsp;
+                <label ng-if="pType.id" class="switch small m-t10 m-l10" ng-click="activateInactive($index)">
+                  <span ng-class="{'active' : pType.status == '1'}" class="slider round"></span>
+                </label>
+               </div>
+              </div>
+            </form>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="service-level-default-tx-icon">
+              <span class="service-level-default-tx-icon-label">Use workflow on route stops when no service level exists for the property</span>
+              <span class="service-level-default-tx-icon-tooltip">
+                <a href="javascript:void(0)" class="icon-required customer-subdomain-help"><i class="fa fa-question-circle" aria-hidden="true"></i><span>Use workflow on route stops when no service level exists for the property</span></a>
+              </span>
+              <span class="service-level-default-tx-icon-toggle"><label class="switch small" ng-click="toggleDefaultServiceLevel(serviceLevelArray, serviceLevelObj, serviceLevelObj.serviceLevel.isDefault)"><span ng-class="{'active' : serviceLevelObj.serviceLevel.isDefault == '1'}" class="slider round"></span></label></span>
+            </div>
+          </div>
+        </div>
+    </ng-container>             
+    </div>
+  </div>  
+</div>
+</div>
+</div>
+
+<script type="text/ng-template" id="removeChelistConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>   
+    </div>
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <error ng-if="checklistDeleteErrorMsg" message="{{checklistDeleteErrorMsg}}"></error>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete checklist item?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="confirmChecklistAction(checkListObj, serviceLevelIndex, parentIndex, index, type)">OK</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+
+
+<script type="text/ng-template" id="setFrequencyPopup.html" >
+<div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+  <div class="popup-header">
+    <span class="heading">Frequency</span>
+    <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+
+  <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+    <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+  </div>
+
+   <div class="detail-box">
+        
+       <div class="formGroup">
+        <div class="main-title">Show in technician app:</div>
+        <div class="radio-default2" ng-class="{'disabled':model.frequencyType != '1'}">
+          <label for="frequencyType1" >
+            Always 
+            <input type="radio" name="frequencyType" id="frequencyType1" value="1" ng-model="model.frequencyType" ng-checked="model.frequencyType == '1'" ng-change="setFrequency()" />
+            <span></span>
+          </label>                    
+        </div>
+        <div class="radio-default2" ng-class="{'disabled':model.frequencyType != '2'}">
+          <label for="frequencyType2" >
+            Every  <input type="number" ng-min="2" class="input-under-radio" name="frequency" id="frequency" ng-model="model.frequency" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)"  ng-blur="saveFrequencyTrigger()" />  visits
+            <input type="radio" name="frequencyType" id="frequencyType2" value="2" ng-model="model.frequencyType" ng-checked="model.frequencyType == '2'" ng-change="setFrequency()" />
+            <span></span>
+          </label>                    
+        </div>
+      </div> 
+
+
+      <div class="formGroup">
+        <div class="main-title">Delete after:</div>
+        <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '1'}">
+          <label for="deleteAfterType1" >
+            Never
+            <input type="radio" name="deleteAfterType" id="deleteAfterType1" value="1" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '1'" ng-change="setDeleteAfter()" />
+            <span></span>
+          </label>                    
+        </div>
+        <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '2'}">
+          <label for="deleteAfterType2" >
+            After  <input type="number" class="input-under-radio" name="deleteAfter" id="deleteAfter" ng-model="model.deleteAfter" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveFrequencyTrigger()"   />  visits
+            <input type="radio" name="deleteAfterType" id="deleteAfterType2" value="2" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '2'" ng-change="setDeleteAfter()" />
+            <span></span>
+          </label>                    
+        </div>
+        <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '3'}">
+          <label for="deleteAfterType3" class="date-picker-icon pointer" >
+            <i class="fa fa-calendar-o light-blue " ></i> Choose date <input ng-model="model.endDate"  class="datepicker-custom-input" ng-change="chooseDate(model.endDate)" readonly/> 
+            <input type="radio" name="deleteAfterType" id="deleteAfterType3" value="3" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '3'"  ng-change="setDeleteAfter()" /> {{model.deleteAfterType == 3 ? model.endDate : ''}}                          
+            <span></span>
+          </label> 
+
+        </div>
+      </div> 
+       
+      
+   
+   </div>
+
+</div>
+</script>
+
+<script type="text/ng-template" id="addServiceLevelPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup setting-sm-card-loader-parent">  
+    <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+    <div class="setting-sm-card-loader" ng-if="!dropDownMenuSettingsPopup && settingPageLoaders.serviceLevelSection">
+      <div class="spinner">
+         <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+         </div>
+      </div>
+   </div>
+    <form class="set-chem-form" name="addServiceLevelForm" ng-submit="addServiceLevelForm.$valid && addNewServiceLevel(serviceLevelModel)" novalidate>
+      <div class="popup-header">
+        <span class="heading">{{serviceLevelModel.serviceLevel.id ? 'Edit' : 'Create New'}} Service Level</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+        <success ng-if="addServiceSuccess" message="{{addServiceSuccess}}"></success>
+      <error ng-if="addServiceError" message="{{addServiceError}}"></error> 
+      </div>   
+      <div class="detail-box">
+        <div class="grid text-left">
+          <div class="col-12-12 p-0">    
+            <div class="formGroup">
+              <label>Name <small class="h-12x font-regular">(shown on invoice)</small></label>
+              <input class="form-control" name="serviceLevelModelTitle" ng-model="serviceLevelModel.serviceLevel.title" value="{{serviceLevelModel.title}}"  ng-class="{'has-error': addServiceLevelForm.$submitted && addServiceLevelForm.serviceLevelModelTitle.$invalid}" maxlength="80" required />
+             <span class="has-required" ng-show="addServiceLevelForm.$submitted && addServiceLevelForm.serviceLevelModelTitle.$invalid">Please enter Name</span>
+            </div>    
+            <div class="formGroup">
+              <label>Description <small class="h-12x font-regular">(shown on invoice)</small></label>
+              <textarea class="form-control minH-100" name="serviceLevelModelDescription" ng-model="serviceLevelModel.serviceLevel.description" value="{{serviceLevelModel.description}}" maxlength="500" >{{serviceLevelModel.description}}</textarea>             
+            </div> 
+            <div class="formGroup">
+            </div>              
+          </div>
+        </div>
+        <div class="row add-new-section">
+          <div class="col-md-12" style="padding:unset">
+            <div class="dropdown select-wrap">
+              <label style="margin-bottom:5px;">QBO Income Account<a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <span>This account will be associated with this service level in Quickbooks Online any time it's automatically invoiced. You can change this later if you want.</span>
+              </a></label>
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  style="margin:0">
+                <b>{{currentProductAccount}}</b>
+              <span class="caret"></span></button>
+              <ul class="dropdown-menu scrollable-menu">                         
+                <li ng-click="setIncomeAccount(accountsDataForProductAccountName.accountId)" ng-repeat="accountsDataForProductAccountName in IncomeAccountDetails.accountsDataForProduct"><a href="javascript:void(0)">{{accountsDataForProductAccountName.accountName}}</a></li>
+                <!--<li ng-click="setIncomeAccount(incomeAccount.accountId)" ng-repeat="incomeAccount in incomeAccountDetails.incomeAccountsData"><a href="javascript:void(0)">{{incomeAccount.accountName | uppercase}}</a></li>-->
+              </ul>
+            </div>
+            </div>
+        </div>
+        <div class="row service-status-box add-new-section">
+          <div class="col-md-8"> 
+              <label >Estimated time per visit (minutes)</label>      
+              <div class="formGroup service-status-box-est-time-field">                            
+                <i class="fa fa-clock-o" aria-hidden="true" title="Time per visit"></i>
+                <input class="form-control "                  
+                  options="timePickerOption"
+                  name="serviceLevelTimeRerVisit"
+                  value=""
+                  ng-model="serviceLevelModel.serviceLevel.time_per_visit"
+                  type="text"
+                  angular-mask="0000"
+                  ng-class="{'has-error': addServiceLevelForm.$submitted && timeError}"
+                  placeholder="minutes"
+                  maxlength="4"
+                />
+                <span class="has-required" style="padding-left:25px" ng-show="addServiceLevelForm.$submitted && timeError">Please enter valid time</span>
+              </div>
+          </div>    
+          <!--div class="col-md-6">
+              <label >Technician pay per visit</label>  
+              <div class="formGroup">                
+                <i class="fa fa-usd" aria-hidden="true" title="Tech pay per visit"></i>
+                <input class="form-control "
+                  currency-mask
+                  name="serviceLevelTechPayPerVisit"
+                  value=""
+                  ng-model="serviceLevelModel.serviceLevel.tech_pay_per_visit"                      
+                  type="text"                
+                />            
+              </div>
+          </div-->            
+        </div>
+        <div class="row service-status-box-chargeTax">
+          <div class="col-md-12">
+            <label class="service-status-box-chargeTax-field"> <input type="checkbox" ng-model="serviceLevelModel.serviceLevel.isChargeTax" ng-true-value="1" ng-false-value="0"> Charge Tax</label>    
+          </div>
+        </div>
+        <div class="text-center">
+          <span class="p-r10" ng-class="{ 'icon-required icon-required-sl-delete-tooltip' : serviceLevelModel.serviceLevel.isDefault == 1}">
+            <button class="add-button"
+              ng-class="{ 'sl-delete-disable' : serviceLevelModel.serviceLevel.isDefault == 1}"
+              ng-disabled="serviceLevelModel.serviceLevel.isDefault == 1"
+              style="background-color:red"
+              ng-click="serviceLevelModel.serviceLevel.isDefault == 0 ? serviceLevelDeleteConfirm(serviceLevelModel.serviceLevel.id) : ''" type="button">
+              DELETE
+            </button>
+            <span ng-if="serviceLevelModel.serviceLevel.isDefault == 1">This service level can't be deleted while the toggle switch is active to use the workflow on route stops when no service level exists for a property. To delete this service level, you must toggle this switch on for a different service level instead.</span>
+          </span>
+          <button class="add-button" type="submit" >SAVE</button>    
+        </div>
+      </div>
+    </form> 
+  
+  </div>
+</script>
+<!--Invalid Address List: End-->
+<script type="text/ng-template" id="removeServiceLevelConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to permanently delete this service level and all associated checklist items?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="confirmServiceLevelAction()" style="background-color:red">Yes</button>
+         </div>
+       </div>
+     </div>   
+  </div>
+ </script>
+
+ <script type="text/ng-template" id="removeChecklistConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete checklist item?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red" type="submit" ng-click="confirmChecklistAction(checkListObj, parentIndex, index)">Yes</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+
+ <script type="text/ng-template" id="setFrequencyPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header">
+      <span class="heading">Frequency</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+  
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+    </div>
+
+     <div class="detail-box">
+          
+         <div class="formGroup">
+          <div class="main-title">Show in technician app:</div>
+          <div class="radio-default2" ng-class="{'disabled':frequencyModel.frequencyType != '1'}">
+            <label for="frequencyType1" >
+              Always 
+              <input type="radio" name="frequencyType" id="frequencyType1" value="1" ng-model="frequencyModel.frequencyType" ng-checked="frequencyModel.frequencyType == '1'" ng-change="setFrequency()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':frequencyModel.frequencyType != '2'}">
+            <label for="frequencyType2" >
+              Every  <input type="number" ng-min="1" class="input-under-radio" name="frequency" id="frequency" ng-model="frequencyModel.frequency" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)"  ng-blur="checkFrequencyInput(frequencyModel.frequency)" />  visits
+              <input type="radio" name="frequencyType" id="frequencyType2" value="2" ng-model="frequencyModel.frequencyType" ng-checked="frequencyModel.frequencyType == '2'" ng-change="setFrequency()" />
+              <span></span>
+            </label>                    
+          </div>
+        </div> 
+
+
+        <div class="formGroup">
+          <div class="main-title">Delete after:</div>
+          <div class="radio-default2" ng-class="{'disabled':frequencyModel.deleteAfterType != '1'}">
+            <label for="deleteAfterType1" >
+              Never
+              <input type="radio" name="deleteAfterType" id="deleteAfterType1" value="1" ng-model="frequencyModel.deleteAfterType" ng-checked="frequencyModel.deleteAfterType == '1'" ng-change="setDeleteAfter()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':frequencyModel.deleteAfterType != '2'}">
+            <label for="deleteAfterType2" >
+              After  <input type="number" class="input-under-radio" name="deleteAfter" id="deleteAfter" ng-model="frequencyModel.deleteAfter" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="checkDeleteAfterInput(frequencyModel.deleteAfter)"   />  visits
+              <input type="radio" name="deleteAfterType" id="deleteAfterType2" value="2" ng-model="frequencyModel.deleteAfterType" ng-checked="frequencyModel.deleteAfterType == '2'" ng-change="setDeleteAfter()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':frequencyModel.deleteAfterType != '3'}">
+            <label for="deleteAfterType3" class="date-picker-icon pointer" >
+              <i class="fa fa-calendar-o light-blue " ></i> Choose date <input ng-model="frequencyModel.endDate"  class="datepicker-custom-input" ng-change="chooseDate(frequencyModel.endDate)" readonly/> 
+              <input type="radio" name="deleteAfterType" id="deleteAfterType3" value="3" ng-model="frequencyModel.deleteAfterType" ng-checked="frequencyModel.deleteAfterType == '3'"  ng-change="setDeleteAfter()" /> {{frequencyModel.deleteAfterType == 3 ? frequencyModel.endDate : ''}}                          
+              <span></span>
+            </label> 
+
+          </div>
+        </div> 
+         
+        
+     
+     </div>
+ 
+  </div>
+</script>
+ <!--Backwashed Start-->
+<script type="text/ng-template" id="backwashDataSettingPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width:650px; ">
+    <div class="popup-header">
+      <span class="heading">Backwash Process Shown in Technician App</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+  
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+    </div>
+
+    <div class="detail-box process-wrapper" style="background: #fff; margin:0; padding:20px;">        
+      <div class="grey-box" style="border:none;background: #fff;">
+        <!--toggleIcons Start--> 
+        <ul >
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'instructionsBefore')" ng-class="{'active':backwashData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'Backwash')" ng-class="{'active':Backwash}"><i class="fa fa-camera" aria-hidden="true"></i><div>Backwash Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'closeBackwashValve')" ng-class="{'active':closeBackwashValve}"><i class="fa fa-camera" aria-hidden="true"></i><div>Valve Closed Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'instructionsAfter')" ng-class="{'active':backwashData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+        </ul> 
+        <hr  ng-if="model.backwashData.instStartData || model.backwashData.instEndData" class="m-b0 m-t0" />
+        <div class="p-10 h-0-5x">
+          <div ng-if="model.backwashData.instStartData">
+            <strong>Instructions Before:</strong> 
+            <span ng-if="!showAllInstStartData"> {{ model.backwashData.instStartData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstStartData"> {{model.backwashData.instStartData}}</span>
+            <span ng-show="model.backwashData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+            <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+          </div>
+          <div ng-if="model.backwashData.instEndData">                     
+            <strong>Instructions After:</strong> 
+            <span ng-if="!showAllInstEndData"> {{ model.backwashData.instEndData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstEndData"> {{model.backwashData.instEndData}}</span>
+            <span ng-show="model.backwashData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+            <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+          </div>                      
+        </div>
+        <!--toggleIcons End--> 
+        <!--inline-radio-button Start-->                  
+        <div class="formGroup inline-radio-button">                       
+          <div class="radio-default2">                           
+            <label for="backwashRequired1" >
+              Never required
+              <input type="radio" name="backwashRequired" id="backwashRequired1" value="1" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '1'"  ng-change="setRequired('backwashData')"/>
+              <span></span>
+            </label>
+          </div>   
+          <div class="radio-default2">                           
+            <label for="backwashRequired2" >
+              Always required
+              <input type="radio" name="backwashRequired" id="backwashRequired2" value="2" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '2'" ng-change="setRequired('backwashData')" />
+              <span></span>
+            </label>
+          </div>                 
+          <div class="radio-default2">                           
+            <label for="backwashRequired3" >
+              Require every <input type="number" class="input-under-radio" name="backwashDataWeeks" id="backwashDataWeeks" ng-model="model.backwashData.visits" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('backwashData')"   /> visit(s)
+              <input type="radio" name="backwashRequired" id="backwashRequired3" value="3" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '3'" ng-change="setRequired('backwashData')" />
+              <span></span>
+            </label>
+          </div>                                                             
+        </div>  
+        <!--inline-radio-button End-->         
+        <!--quick-popup before After Start-->
+        <div ng-if="backwashData.instructionsBeforePopup" class="quick-popup before">  
+          <div class="popup-header"><span class="heading">Instructions Before</span>                        
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.backwashData.instStartData" name="instStartData">{{model.backwashData.instStartData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('backwashData', 'instructionsBefore')" >Save</button></div>
+          </div>
+        </div>   
+        <div ng-if="backwashData.instructionsAfterPopup" class="quick-popup after">  
+          <div class="popup-header"><span class="heading">Instructions After</span>                          
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.backwashData.instEndData" name="instEndData">{{model.backwashData.instEndData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('backwashData', 'instructionsAfter')" >Save</button></div>
+          </div>
+        </div>   
+        <!--quick-popup before After End-->
+      </div>
+    </div> 
+  </div>
+</script>
+<!--Backwashed End-->
+
+<!--Filtered Cleaned Start-->
+<script type="text/ng-template" id="cleanFilteredDataSettingPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width:650px; ">
+    <div class="popup-header">
+      <span class="heading">Filter Clean Process Shown in Technician App</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+  
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+    </div>
+
+    <div class="detail-box process-wrapper" style="background: #fff; margin:0; padding:20px;">        
+      <div class="grey-box" style="border:none;background: #fff;">
+        <!--toggleIcons Start--> 
+        <ul >
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'instructionsBefore')" ng-class="{'active':cleanFilteredData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'beforePicture')" ng-class="{'active':cleanFilteredData.beforePicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>Before<br>Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'afterPicture')" ng-class="{'active':cleanFilteredData.afterPicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>After<br>Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'instructionsAfter')" ng-class="{'active':cleanFilteredData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+        </ul> 
+        <hr  ng-if="model.cleanFilteredData.instStartData || model.cleanFilteredData.instEndData" class="m-b0 m-t0" />
+        <div class="p-10 h-0-5x">
+          <div ng-if="model.cleanFilteredData.instStartData">
+            <strong>Instructions Before:</strong> 
+            <span ng-if="!showAllInstStartData"> {{ model.cleanFilteredData.instStartData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstStartData"> {{model.cleanFilteredData.instStartData}}</span>
+            <span ng-show="model.cleanFilteredData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+            <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+          </div>
+          <div ng-if="model.cleanFilteredData.instEndData">                     
+            <strong>Instructions After:</strong> 
+            <span ng-if="!showAllInstEndData"> {{ model.cleanFilteredData.instEndData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstEndData"> {{model.cleanFilteredData.instEndData}}</span>
+            <span ng-show="model.cleanFilteredData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+            <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+          </div>                      
+        </div>
+        <!--toggleIcons End--> 
+        <!--inline-radio-button Start-->                  
+        <div class="formGroup inline-radio-button">                       
+          <div class="radio-default2">                           
+            <label for="cleanFilteredDataRequired1" >
+              Never required
+              <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired1" value="1" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '1'" ng-change="setRequired('cleanFilteredData')" />
+              <span></span>
+            </label>
+          </div>   
+          <div class="radio-default2">                           
+            <label for="cleanFilteredDataRequired2" >
+              Always required
+              <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired2" value="2" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '2'" ng-change="setRequired('cleanFilteredData')" />
+              <span></span>
+            </label>
+          </div>                 
+          <div class="radio-default2">                           
+            <label for="cleanFilteredDataRequired3" >
+              Require every <input type="number" class="input-under-radio" name="cleanFilteredDataWeeks" id="cleanFilteredDataWeeks" ng-model="model.cleanFilteredData.weeks" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('cleanFilteredData')" /> Visit(s)
+              <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired3" value="3" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '3'" ng-change="setRequired('cleanFilteredData')" />
+              <span></span>
+            </label>
+          </div>                                                             
+        </div>  
+        <!--inline-radio-button End-->
+        <!--quick-popup before After Start-->
+        <div ng-if="cleanFilteredData.instructionsBeforePopup" class="quick-popup before">  
+          <div class="popup-header"><span class="heading">Instructions Before</span>                        
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.cleanFilteredData.instStartData" name="instStartData">{{model.cleanFilteredData.instStartData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('cleanFilteredData', 'instructionsBefore')" >Save</button></div>
+          </div>
+        </div>   
+        <div ng-if="cleanFilteredData.instructionsAfterPopup" class="quick-popup after">  
+          <div class="popup-header"><span class="heading">Instructions After</span>                          
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.cleanFilteredData.instEndData" name="instEndData">{{model.cleanFilteredData.instEndData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('cleanFilteredData', 'instructionsAfter')" >Save</button></div>
+          </div>
+        </div>   
+        <!--quick-popup before After End-->
+      </div>
+    </div> 
+  </div>
+</script>
+<!--Filtered Cleaned End--> 
+
+
+<!--Salt Cell cleaned Start-->
+<script type="text/ng-template" id="cleanSaltCellDataSettingPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width:650px; ">
+    <div class="popup-header">
+      <span class="heading">Salt Cell Cleaning Process Shown in Technician App</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+  
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+    </div>
+
+    <div class="detail-box process-wrapper" style="background: #fff; margin:0; padding:20px;">        
+      <div class="grey-box" style="border:none;background: #fff;">
+  
+        <!--toggleIcons Start--> 
+        <ul>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'instructionsBefore')" ng-class="{'active':cleanSaltCellData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'beforePicture')" ng-class="{'active':cleanSaltCellData.beforePicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>Before<br>Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'afterPicture')" ng-class="{'active':cleanSaltCellData.afterPicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>After<br>Pictures</div></a></li>
+          <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'instructionsAfter')" ng-class="{'active':cleanSaltCellData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+        </ul> 
+        <hr  ng-if="model.cleanSaltCellData.instStartData || model.cleanSaltCellData.instEndData" class="m-b0 m-t0" />
+        <div class="p-10 h-0-5x">
+          <div ng-if="model.cleanSaltCellData.instStartData">
+            <strong>Instructions Before:</strong> 
+            <span ng-if="!showAllInstStartData"> {{ model.cleanSaltCellData.instStartData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstStartData"> {{model.cleanSaltCellData.instStartData}}</span>
+            <span ng-show="model.cleanSaltCellData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+            <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+          </div>
+          <div ng-if="model.cleanSaltCellData.instEndData">                     
+            <strong>Instructions After:</strong> 
+            <span ng-if="!showAllInstEndData"> {{ model.cleanSaltCellData.instEndData | limitTo: 70 }}</span>                      
+            <span ng-if="showAllInstEndData"> {{model.cleanSaltCellData.instEndData}}</span>
+            <span ng-show="model.cleanSaltCellData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+            <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+          </div>                      
+        </div>
+        <!--toggleIcons End--> 
+        <!--inline-radio-button Start-->                  
+        <div class="formGroup inline-radio-button">                       
+          <div class="radio-default2">                           
+            <label for="cleanSaltCellDataRequired1" >
+              Never required
+              <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired1" value="1" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '1'" ng-change="setRequired('cleanSaltCellData')"/>
+              <span></span>
+            </label>
+          </div>   
+          <div class="radio-default2">                           
+            <label for="cleanSaltCellDataRequired2" >
+              Always required
+              <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired2" value="2" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '2'" ng-change="setRequired('cleanSaltCellData')"/>
+              <span></span>
+            </label>
+          </div>                 
+          <div class="radio-default2">                           
+            <label for="cleanSaltCellDataRequired3" >
+              Require every <input type="number" class="input-under-radio" name="cleanSaltCellDataWeeks" id="cleanSaltCellDataWeeks" ng-model="model.cleanSaltCellData.weeks" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('cleanSaltCellData')" /> Visit(s)
+              <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired3" value="3" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '3'" ng-change="setRequired('cleanSaltCellData')" />
+              <span></span>
+            </label>
+          </div>                                                             
+        </div>  
+        <!--inline-radio-button End-->          
+        <!--quick-popup before After Start-->
+        <div ng-if="cleanSaltCellData.instructionsBeforePopup" class="quick-popup before">  
+          <div class="popup-header"><span class="heading">Instructions Before</span>                        
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.cleanSaltCellData.instStartData" name="instStartData">{{model.cleanSaltCellData.instStartData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('cleanSaltCellData', 'instructionsBefore')" >Save</button></div>
+          </div>
+        </div>   
+        <div ng-if="cleanSaltCellData.instructionsAfterPopup" class="quick-popup after">  
+          <div class="popup-header"><span class="heading">Instructions After</span>                          
+          </div>
+          <div class="p-tb10 p-lr10">
+            <textarea  class="form-control minH-100" ng-model="model.cleanSaltCellData.instEndData" name="instEndData">{{model.cleanSaltCellData.instEndData}}</textarea>
+            <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('cleanSaltCellData', 'instructionsAfter')" >Save</button></div>
+          </div>
+        </div>   
+        <!--quick-popup before After End-->
+      </div>
+    </div> 
+  </div>
+</script>
+<!--Salt Cell cleaned End-->    
+
+
+<script type="text/ng-template" id="removePoolTypeConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete Type?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red" type="submit" ng-click="confirmPoolTypeAction()">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+
+<script type="text/ng-template" id="openChemicalReadingPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width:900px;background-color: #fff; " id="openChemicalReadingPopup-area">
+    <div class="popup-header">
+      <span class="heading">Chemical Reading Requirements</span>
+      <div class="popup-close" ng-click="closeChemicalReadings('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+
+    <success ng-if="successChemicalReading" message="{{successChemicalReading}}"></success>
+    <error ng-if="errorChemicalReading" message="{{errorChemicalReading}}"></error>
+    <div class="pool-datagrid m-t30" style="padding-left: 40px;padding-right: 40px;">
+      <div class="row" ng-repeat="chemicalReadingService in chemicalReadingServiceArray" ng-if="$index == sChemReadingSeTab">
+        <div class="col-md-12">
+          <div class="row tbody">    
+            <ng-container ng-repeat="chemicalReadingSetting in chemicalReadingService.data; track by $index">         
+              <div class="col-md-4">                                        
+                <div class="chemical-reading-required-setting" style="height: 85px">
+                  <span class="h-1x">
+                    <b>{{(chemicalReadingSetting.value == 'PH' ? 'pH' : chemicalReadingSetting.value)}}</b>
+                  </span>
+                  <br> 
+                  <div class="row salt-setting">       
+                    <div class="col-md-12" style="height: 30px">                                        
+                      <div class="chemical-reading-required-setting">
+                        <span class="h-1x">    
+                          <div class="select border-select custom-select custom-select-noimage customer-select-pointer" style="width: 95%">
+                            <select ng-model="chemicalReadingSettingModel[$index].required" ng-change="toggleChemicalReadingSetting($index)" style="width: 100% !important;"
+                            ng-if="chemicalReadingSetting.key != 'salt'">
+                              <option value="2" >Require every (X) visits</option>
+                              <option value="1" >Required Always</option>
+                              <option value="0" >Optional Always</option>     
+                            </select>     
+                            <select ng-model="chemicalReadingSettingModel[$index].required" ng-change="toggleChemicalReadingSetting($index)" style="width: 100% !important;"
+                            ng-if="chemicalReadingSetting.key == 'salt'">
+                              <option value="2" >Required for Working Salt Systems</option>
+                              <option value="1" >Required Always</option>
+                              <option value="0" >Optional Always</option>        
+                            </select> 
+                          </div>                      
+                        </span>                     
+                      </div>     
+                    </div> 
+                  </div>
+                  <div ng-if="chemicalReadingSettingModel[$index].required == '2' && chemicalReadingSetting.key != 'salt'">
+                    <input onkeypress="return event.keyCode != 13;" type="number" mgminmax-validator class="input-number width50 text-center" name="days" id="days{{$index}}" ng-model="chemicalReadingSettingModel[$index].visits" maxlength="3" ng-min="1" ng-max="365" value="" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="editChemicalReadingVisits($index)" /> visits
+                  </div>
+
+                  <div ng-if="chemicalReadingSetting.key == 'salt' && chemicalReadingSettingModel[$index].required == '3'">
+                    <input onkeypress="return event.keyCode != 13;" type="number" mgminmax-validator class="input-number width50 text-center" name="days" id="days{{$index}}" ng-model="chemicalReadingSettingModel[$index].visits" maxlength="3" ng-min="1" ng-max="365" value="" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="editChemicalReadingVisits($index)" /> visits
+                  </div>
+
+                  <div ng-if="chemicalReadingSetting.key == 'salt' && chemicalReadingSettingModel[$index].required == '2'" style="font-size: small">
+                    <div class="m-b10">
+                      <input style="height: 10px;margin-top: 8px;" type="radio" ng-checked="isSingleVisit ? isSingleVisit : ''" ng-click="selectEveryVisit($index)" /> Every visit
+                    </div>
+                    <div>
+                      <input style="height: 10px;margin-top: 8px;" type="radio" ng-checked="!isSingleVisit" ng-click="selectMultipleVisits($index)" /> Every (X) visits
+                      <span ng-if="multipleVisitsInput || chemicalReadingSettingModel[$index].visits > 1">
+                        <input onkeypress="return event.keyCode != 13;" type="number" mgminmax-validator class="input-number width50 text-center" name="days" id="days{{$index}}" ng-model="chemicalReadingSettingModel[$index].visits" maxlength="3" ng-min="1" ng-max="365" value="" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="editChemicalReadingVisits($index)" />
+                      </span>
+                    </div>
+                  </div>
+                </div>     
+              </div> 
+            </ng-container>
+          </div>       
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="defautlSLToggleAlert.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Alert</div>   
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>This switch must be active for at least 1 service level. You can select a different service level tab above and toggle this setting on for that service level instead.</label></div>         
+         <div class="set-chem-button" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">OK</button>
+         </div>
+       </div>
+     </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="dropDownMenuSettingsPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup dropDownMenuSettingsPopup" style="width:100%;max-width: 500px">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Drop Down Menu Settings</div>   
+    </div>
+     <div class="popup-body">
+      <div class="setting-sm-card-loader" ng-if="settingPageLoaders.serviceLevelSection">
+        <div class="spinner">
+           <div class="spinner-item">
+              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+           </div>
+        </div>
+     </div>
+      <form class="set-chem-form" name="dropDownMenuForm" autocomplete="off" ng-submit="saveDropDownSettings()" novalidate>
+       <div class="row-container">
+        <div class="row">
+          <div class="col-xs-12">
+            <error ng-if="dropDownMenuError" message="{{dropDownMenuError}}"></error>
+          </div>
+        </div>
+         <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label class="form-label">Menu Title</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  name="title"
+                  ng-model="addDropDownChecklistModel.title"
+                  id="addDropDownChecklistModelTitle"
+                  ng-maxlength="1000"
+                  maxlength="1000"
+                >
+              </div>
+            </div>
+         </div>
+         <div class="row">
+          <div class="col-xs-12">             
+              <div class="form-group drop-down-menu-settings-add-item-parent">
+                <label class="form-label">Menu Options</label>
+                <a class="drop-down-menu-settings-add-item" ng-click="addItem()">
+                  <span>Add Option</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+                  </svg>
+                </a>
+              </div>
+              <div>
+                <div class="drop-down-menu-settings-area">
+                  <div ui-tree="dropDownMenuOptionConfig">
+                      <ul ui-tree-nodes="" ng-model="addDropDownChecklistModel.options" data-type="dropdown-options-area">
+                          <li ui-tree-node="" ng-repeat="item in addDropDownChecklistModel.options" data-type="dropdown-option">
+                              <div class="drop-down-menu-settings-option" >
+                                <div class="drop-down-menu-option-handle" ui-tree-handle="">
+                                  <img src="/resources/images/move-icon.png">                            
+                                </div>
+                                <div class="drop-down-menu-option-input-area">
+                                  <textarea 
+                                  data-nodrag 
+                                  class="drop-down-menu-option-input" 
+                                  ng-model="item.title" 
+                                  placeholder="Option" 
+                                  ng-keyup="updateOptionsHeight()"  
+                                  ng-keydown="updateOptionsHeight()"  
+                                  ng-paste="updateOptionsHeight()"  
+                                  ondrop="event.preventDefault();" 
+                                  ondragover="event.preventDefault();"                                  
+                                  ng-maxlength="1000"                                  
+                                  maxlength="1000"
+                                  >
+                                </textarea>
+                                </div>
+                                <div class="drop-down-menu-option-remove" ng-click="removeItem($index)">
+                                  <span>
+                                    <i class="fa fa-times"></i>
+                                  </span>
+                                </div>
+                              </div>
+                          </li>
+                        </ul>
+                  </div>
+            </div>            
+            </div>
+          </div>
+        </div>
+         <div style="text-align: center;padding-top: 10px;">
+            <button class="add-button"  type="submit">SAVE </button>
+            <button class="add-button"  type="button" ng-click="closeThisDialog('close')">CANCEL </button>
+         </div>
+       </div>
+      </form>
+     </div> 
+  </div>
+</script>

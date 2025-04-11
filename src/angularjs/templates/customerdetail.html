@@ -1,0 +1,1153 @@
+<div class="dataTables_wrapper customer-detail-page">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+  <div class="row customer-add-moreinfo" ng-init="getCustomerInfo();">
+    <div class="col-md-5 col-sm-5 col-xs-12">
+        <div class="customer-tab-item-wrapper">
+            <ul ng-init="showTab('0')" class="customer-tab-item">
+              <li ng-class="{'active': tab[0]}"><span ng-click="showTab('0')" ><i class="fa fa-user-circle" aria-hidden="true"></i></span></li>
+              <li ng-class="{'active': tab[1]}"><span ng-click="showTab('1')" ><i class="fa fa-map-marker customer-detail-tab-address-icon" aria-hidden="true" ><i class="fa fa-map-marker" aria-hidden="true"><i class="fa fa-map-marker" aria-hidden="true"><i class="fa fa-circle" aria-hidden="true" ></i></i></i></i></span></li>
+              <li ng-class="{'active': tab[2]}"><span ng-click="showTab('2')" ><i class="fa fa-address-book" aria-hidden="true"></i></span></li>
+              <li ng-class="{'active': tab[3]}"><span ng-click="showTab('3')" ><i class="fa fa-dollar" aria-hidden="true"></i></span></li>
+              <li ng-class="{'active': tab[4]}"><span ng-click="showTab('4')" ><i class="cnw-notes-icon" aria-hidden="true"></i></span></li>
+            </ul>
+          </div>
+      <div class="white-bg text-left p-tb20 p-lr20 cust-info-box" id="cust-info-box" style="height: calc(100% - 31px);"> 
+        <div ng-if="isServiceSchedule" ng-controller="serviceScheduleController" ng-include="'/templates/component/service-schedule-popup.html?ver='+PB_WEB_VERSION"></div>
+          <div class="customer-tab-detail-wrapper" style="width: 100%;">
+              <div ng-show="tab[0]">
+                <div class="p-l20 m-b10">
+                <error message="{{errorCustomerForm}}" ng-if="errorCustomerForm"></error>
+                <div class="p-name-container h-2x b darkGray grid" ng-if="!isEditCustomer">
+                  <ng-container ng-if="displayName">{{displayName}}</ng-container>
+                  <ng-container ng-if="!displayName">{{customerinfo.customer.firstName}} {{customerinfo.customer.lastName}}</ng-container>
+                  <span class="edit-link" ng-click="showEditCustForm()">Edit</span>
+                </div>
+                <div class="customer-edit-wrapper" ng-if="isEditCustomer">
+                    <div class="address-search" style="padding-left:0!important">
+                        <i class="fa fa-times searchbtn" aria-hidden="true" ng-click="hideEditCustForm()"></i>
+                        <input type="text" ng-model="displayName" placeholder="Customer Name" ng-keyup="$event.keyCode == 13 && saveCustomer(displayName)"
+                        ng-blur="saveCustomer(displayName)" ng-class="displayName ? 'form-control ' : 'form-control has-error'"
+                        required  autofocus>
+                      </div>
+                </div>
+                <div class="h-0-5x" ng-if="customerinfo.customer.address">
+                  {{customerinfo.customer.address}} <i aria-hidden="true" style="color:red" ng-if="customerinfo.customer.uspsValid==2" class="fa fa-exclamation-triangle" title="Not a valid address"></i><br>
+                    {{customerinfo.customer.city}} {{customerinfo.customer.state}} {{customerinfo.customer.zipcode}}             
+                </div>
+                <span class="more-count" ng-if="addressList.length>1" ng-click="showTab('1')">
+                  {{addressList.length-1}} more addresses
+                </span>
+
+                </div>
+                <div class="p-l20 h-0-5x" ng-if="customerinfo.contact">
+                  <div class="b customer-contact-name"><i class="fa fa-address-book" aria-hidden="true"></i> {{customerinfo.contact.firstName}} {{customerinfo.contact.lastName}}</div>
+                  <div class="customer-contact-relation h-12x">{{customerinfo.contact.relation}}</div>
+                  <div class="customer-contact-detail m-tb5">
+                  <div ng-if="customerinfo.contact.contactNumber">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+                      <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+                    </svg>
+        
+                    <a href="tel:{{customerinfo.contact.contactNumber}}" class="">
+                    <phone-Number number="{{customerinfo.contact.contactNumber}}"></phone-Number>
+                    </a>
+                  </div>
+                  <div class="customer-email" ng-if="customerinfo.contact.email">
+        
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                      <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+                    </svg>
+        
+                    <p><a class="show" ng-repeat="email in customerinfo.contact.email | convertToArrayByComma" href="mailto:{{email}}" class="">{{email}}</a></p>
+                  
+                  </div>
+                  </div>
+                  <span class="more-count" ng-if="contactList.length>1" ng-click="showTab('2')">
+                      {{contactList.length-1}} more contacts
+                    </span>
+                </div>
+                <div class="p-l20">
+                    <div>
+                        <div class="addRemoveEmail formGroup" >
+                          
+                          <span class="h-0-5x route-stop-email-label">
+                            <span>Route Stop Email</span>
+                            <a href="javascript:void(0)" class="icon-required">
+                              <i class="fa fa-question-circle" aria-hidden="true"></i>
+                              <span>
+                                <p>If auto-sending route stop emails is turned on in settings, emails will be sent to the email address in this field and it is specific to the property page you are viewing. You can enter more than one email address (SEPARATED BY A COMMA) to send to multiple email addresses automatically. If you don't want any emails sent to this customer for this property, leave the field blank. </p>
+                              </span>
+                            </a>
+                          </span>
+                          <input type="text"
+                            autocomplete="off"
+                            ng-class="checkEmail(primaryEmail) ? 'form-control' : 'form-control  has-error'"
+                            ng-model="primaryEmail"
+                            placeholder="Enter 1 or more email addresses" name="primaryEmail"
+                            maxlength="5000"
+                            ng-keyup="$event.keyCode == 13 && savePrimaryEmail(primaryEmail)"
+                            ng-blur="savePrimaryEmail(primaryEmail)"                            
+                            autofocus>
+                        </div>
+                      <!-- <div class="" ng-if="primaryEmail!=customerinfo.customer.primaryEmail">
+                        <div ng-show="primaryEmail" class="saveEmail" ng-click="savePrimaryEmail(primaryEmail, customerinfo.customer.customerId)"></div>
+                      </div> -->
+                    </div>
+                </div>
+                <div ng-if="isPropertyInformation" ng-controller="propertyInformationController" ng-include="'/templates/property-information-popup.html?ver='+PB_WEB_VERSION"></div> 
+                <!--  -->
+                <div class="customer-tags-area">                  
+                  <div class="customer-tags-heading">
+                    <i class="customer-tags-heading-icon fa fa-tag"></i>
+                    <span class="customer-tags-heading-text">Tags</span>
+                    <a href="javascript:void(0)" class="icon-required customer-tags-heading-required-icon">
+                      <i class="fa fa-question-circle" aria-hidden="true"></i>
+                      <span>
+                        <p>You can add tags to any Customer to easily sort them in other areas like the Email Center. For example, you might add a tag named "SEASONAL" to customers who only use your services during part of the year so you can easily email all of your seasonal customers reminding them to start service again when the time comes.</p>
+                      </span>
+                    </a>
+                    <!-- <a href="javascript:void(0)" class="customer-tags-add-link" ng-click="toggleCustmerTagInput()" ng-if="!isCustomerTagAddInputOn">
+                      Add
+                    </a> -->
+                    <div class="customer-tag-dropdown">
+                      <a href="javascript:void(0)" class="customer-tags-add-link customer-tag-dropdown-toggle" ng-click="openCustomerTagsDropdown()" ng-if="!isCustomerTagAddInputOn">
+                        Add
+                      </a>
+                      <div class="customer-tag-dropdown-menu" ng-if="isCustomerTagsDropdownOpen" click-outside="closeCustomerTagsDropdown()">
+                        <div class="customer-tag-dropdown-search length-{{!searchTextTag && searchTextTag == '' && allCustomerTags.length == 0 ? '0' : '1'}}">
+                          <input type="text" class="form-control" id="customerTagSearch" >
+                          <i class="fa fa-search"></i>
+                        </div>
+                        <div class="customer-tag-dropdown-list">
+                          <ul id="customerTagList">
+                            <li ng-if="filteredTags().length === 0 && searchTextTag && searchTextTag != ''" class="add-new-customer-tag-btn-holder">
+                                <!-- <span class="no-result-found">No tags were found.</span> -->
+                                <div class="add-new-tag">
+                                  <a href="javascript:void(0)" class="customer-tags-add-link" ng-click="toggleCustmerTagInput(searchTextTag)" ng-if="!isCustomerTagAddInputOn">
+                                    <!-- Create New Tag "{{searchTextTag}}" -->
+                                    Create New Tag
+                                  </a>
+                                </div>
+                            </li>
+                            <li ng-repeat="tag in filteredTags()" ng-click="addTagToCustomer(tag)">{{tag}}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="customer-tags-add-input-area" ng-if="isCustomerTagAddInputOn">
+                      <form name="customerTagForm" ng-submit="modifyCustomerTag()" novalidate>                        
+                        <input maxlength="25" ng-disabled="isCustomerTagProcessing" class="form-control customer-tags-add-input" type="text" placeholder="Tag" name="tags" ng-model="customerTagFormData.tags" ng-required="true" ng-class="{'has-error': customerTagForm.$submitted && customerTagForm.tags.$invalid && customerTagForm.tags.$dirty}">                        
+                        <button type="submit" ng-disabled="isCustomerTagProcessing" class="customer-tags-add-input-btn customer-tags-add-input-btn-save" ng-click="modifyCustomerTag()"><i class="fa fa-check"></i></button>
+                        <button type="reset" ng-disabled="isCustomerTagProcessing" class="customer-tags-add-input-btn customer-tags-add-input-btn-cancel" ng-click="toggleCustmerTagInput()"><i class="fa fa-times"></i></button>
+                    </form>
+                    </div>
+                  </div>
+                  <div class="customer-tag-msg">
+                    <success ng-if="customerTagSuccess" message="{{customerTagSuccess}}"></success>
+                    <error ng-if="customerTagError" message="{{customerTagError}}"></error>
+                  </div>
+                  <div class="customer-tag-list" ng-class="{ 'disable-customer-tag-action' : isCustomerTagProcessing || isCustomerTagLoading }">
+                    <div class="customer-tag-item" ng-repeat="tag in customerTags">
+                      <span>{{tag}}</span>
+                      <a href="javascript:void(0)" ng-click="(!isCustomerTagProcessing && !isCustomerTagLoading) && modifyCustomerTag('delete', tag)">&times;</a>
+                    </div>
+                  </div>                  
+                </div>
+                <!--  -->
+              </div>
+              <div ng-show="tab[1]">
+                <div class="row">
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="address-search">
+                           <i class="fa fa-search searchbtn" aria-hidden="true"></i>
+                          <input type="search" ng-model="searchKey" placeholder="Search addresses" class="form-control">
+
+                          <!-- <i class="fa fa-search searchbtn" ng-click="getCustomerAddressList(customerId)" aria-hidden="true"></i>
+                            <input type="search" ng-blur="getCustomerAddressList(customerId)" ng-model="searchInvoiceTextKey" placeholder="Search addresses" class="form-control" ng-keyup="$event.keyCode == 13 ? getCustomerAddressList(customerId) : null"> -->
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-5 col-xs-12 text-right">
+                        <a href="javascript:void(0)" ng-click="addAddressForm()" class="add-address-link"><i class="fa fa-map-marker" aria-hidden="true"><i class="fa fa-plus" aria-hidden="true" style="
+                          font-size: 8px;
+                      "></i></i> Add Address</a>
+                    </div>
+                </div>
+                    
+                
+                  <div class="address-row scrollareaCls" id="scrollarea" >
+                    <ng-container ng-repeat="addressObj in addressList | filter:search track by $index">
+                      <div class="grid c-address-list-wrapper taxRates" ng-init='isEditAddress[$index]=false'>
+
+                          <div class="fl map-icon">
+                            <i class="fa fa-map-marker" id="fa-map-marker" ng-click="isEditAddress[$index] && showUpdateCoordinate($index)" aria-hidden="true"></i>
+                            <div id="coordinate-box" ng-if="updateCoordinateBox[$index] && isEditAddress[$index]" class="coordinate-box noselect">
+                              <div ng-if="latLongSuccess" class="latLongSuccessMsg">Coordinates are updated</div>
+                              {{(!latLongBox[$index] ? (!addressObj.latitude ? 'N/A' : addressObj.latitude+', '+addressObj.longitude) : '')}}
+                              <span ng-show="!latLongBox[$index]">
+                                <i id="fa-refresh" class="fa fa-refresh" ng-class="{'fa-spin':isCoordinateProcess}" ng-click="updateCoordinate(addressObj.addressId)" aria-hidden="true"></i>
+                                &nbsp;&nbsp;&nbsp;
+                                <button id="fa-pencil" class="button p-0" ng-click="showEditLatLong($index)" type="button"><i id="fa-pencil" class="fa fa-pencil"  aria-hidden="true"></i></button>                         
+                                
+                              </span>                           
+                              <form name="editLatLongForm" id="latLongBox" ng-show="latLongBox[$index] && isEditAddress[$index]"  ng-submit="editLatLongForm.$valid && editLatLong(addressObj.addressId)" novalidate>
+
+                                <input type="text" id="latBox" placeholder="latitude" class="lat-long-input" ng-model="latLongModel.lat"  ng-pattern="/^(\+|-)?(?:90(?:(?:\.0{1,15})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,15})?))$/" required="" /> 
+                                <input type="text" id="longBox" placeholder="longitude" class="lat-long-input" ng-model="latLongModel.long"  ng-pattern="/^(\+|-)?(?:180(?:(?:\.0{1,15})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,15})?))$/" required="" />
+                                &nbsp;&nbsp;&nbsp;
+                                <button  class="button p-0 m-l10" type="button" ng-click="showEditLatLong($index)"><i id="fa-pencil" class="fa fa-times "  aria-hidden="true"></i></button> 
+                                &nbsp;&nbsp;&nbsp; &nbsp;
+                                <button id="fa-pencil" class="button p-0" type="submit"><i id="fa-pencil" class="fa fa-check"  type="submit" ng-click="editLatLong(addressObj.addressId)" aria-hidden="true"></i></button> 
+                              </form>                            
+                             
+                            </div> 
+                            
+                          </div>
+                          <div class="fl list" ng-if="!isEditAddress[$index]">
+                            <div ng-if="addressObj.isPrimary==0">
+                              <a id="{{addressObj.addressId}}" class="b" ui-sref="app.locationdetail({addressId: addressObj.addressId})">{{addressObj.address}} <i aria-hidden="true" style="color:red" ng-if="addressObj.uspsValid==2"  class="fa fa-exclamation-triangle" title="Not a valid address"></i></a>                                 
+                              <br/>
+                              <a id="{{addressObj.addressId}}"  ui-sref="app.locationdetail({addressId: addressObj.addressId})" title="{{addressObj.address}}"> {{addressObj.city}} {{addressObj.state}} {{addressObj.zipcode}}</a>
+                              <br/>
+                              <span ng-if="addressObj.isBilling==1" class="primary">Billing</span>
+                              <span  ng-click="setPrimaryAddress(addressObj.addressId, 'address')" style="margin-left:0px!important; margin-right: 10px; font-size: 12px;" class="set-address-primary icon">Set Primary</span>
+                              <span ng-if="addressObj.isBilling==0" ng-click="setPrimaryAddress(addressObj.addressId, 'billing')" style="margin-left:0px!important; font-size: 12px;" class="set-address-primary icon">Set Billing</span>
+                              
+                              <i ng-click="showEditAddressForm($index,addressObj)" class="fa fa-pencil-square icon" aria-hidden="true"></i> <i ng-click="deleteAddressConfirm($index,addressObj.addressId)" class="fa fa-trash icon" aria-hidden="true" style="color:red" ng-if="addressObj.isBilling==0"></i>
+                            </div>
+
+                            <div ng-if="addressObj.isPrimary==1">
+                              <a id="{{addressObj.addressId}}"  ui-sref="app.customerdetail({addressId: addressObj.addressId})" class="b">{{addressObj.address}} <i aria-hidden="true" style="color:red" ng-if="addressObj.uspsValid==2"  class="fa fa-exclamation-triangle" title="Not a valid address"></i></a>                                              
+                              <br/>
+                              <a id="{{addressObj.addressId}}"  ui-sref="app.customerdetail({addressId: addressObj.addressId})" title="{{addressObj.address}}"> {{addressObj.city}} {{addressObj.state}} {{addressObj.zipcode}}</a>
+                              <br/>
+                              <span class="primary">Primary</span> 
+                              <span ng-if="addressObj.isBilling==1" class="primary">Billing</span>
+                              <span ng-if="addressObj.isBilling==0" ng-click="setPrimaryAddress(addressObj.addressId, 'billing')" style="margin-left:0px!important; font-size: 12px;" class="set-address-primary icon">Set Billing</span>                             
+                              <i ng-click="showEditAddressForm($index,addressObj)" class="fa fa-pencil-square icon" aria-hidden="true"></i>                           
+                            </div>
+                                                     
+                          </div>
+                          <div class="fl address-edit-form p-b5" ng-if="isEditAddress[$index]">
+                              <form class="form-edit-address" id="customerEditAddressForm" name="customerEditAddressForm" ng-submit="customerEditAddressFormIsSubmit = true; customerEditAddressForm.$valid && addEditAddress(customerModel)" novalidate>           
+                                  <div class="row">
+                                    <div class="col-md-12">
+                                      <div class="formGoup inlineFormGroup">
+                                      <label>Address</label>
+                                      <input autocomplete="off" class="form-control" name="address" ng-class="{'has-error': customerEditAddressFormIsSubmit && customerEditAddressForm.address.$invalid}" maxlength="150" ng-model="customerModel.addressLine1"  placeholder="Address" required type="text" />
+                                  
+                                      <span class="has-required">
+                                      <span ng-show="customerEditAddressFormIsSubmit && customerEditAddressForm.address.$viewValue.length && customerEditAddressForm.address.$invalid">Please enter Address</span></span>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="formGoup inlineFormGroup">
+                                        <label>City</label>
+                                      <input autocomplete="off" class="form-control" name="city" ng-class="{'has-error': customerEditAddressFormIsSubmit && customerEditAddressForm.city.$invalid}" maxlength="25" ng-model="customerModel.city"  placeholder="City" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"/>
+                                      <span class="has-required"><span ng-show="customerEditAddressFormIsSubmit && customerEditAddressForm.city.$viewValue.length &&customerEditAddressForm.city.$invalid">City should contain letters only</span> 
+                                    </span>
+                                    </div>
+                                    </div>             
+                                    <div class="col-md-4">
+                                        <div class="formGoup inlineFormGroup">
+                                        <label>State</label>
+                                        <input autocomplete="off" class="form-control" name="state" ng-class="{'has-error': customerEditAddressFormIsSubmit && customerEditAddressForm.state.$invalid}" maxlength="25" ng-model="customerModel.state"  placeholder="State" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text" /> 
+                                        <span class="has-required"><span ng-show="customerEditAddressFormIsSubmit && customerEditAddressForm.state.$viewValue.length &&customerEditAddressForm.state.$invalid">State should contain letters only</span> 
+                                       </span>  
+                                       </div>                
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="formGoup inlineFormGroup">
+                                        <label>Zipcode</label>
+                                      <input autocomplete="off" class="form-control" name="zipcode" ng-class="{'has-error': customerEditAddressFormIsSubmit && customerEditAddressForm.zipcode.$invalid}" maxlength="5"  ng-model="customerModel.zipcode" placeholder="Zipcode" required="" ng-pattern="/^(['0-9']+)$/" only-num="" type="text"/>
+                                      <span class="has-required"><span ng-show="customerEditAddressFormIsSubmit && customerEditAddressForm.zipcode.$viewValue.length && customerEditAddressForm.zipcode.$invalid">Zipcode should contain numbers only</span> 
+                                     </span>
+                                     </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                      <div class="formGoup inlineFormGroup">
+                                        <label>Tax Rate</label>
+                                        <div class="dropdown select-wrap " ng-init="taxRate()">
+                                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="font-size: 12px">
+                                            {{customerModel.taxTitle ? customerModel.taxTitle : 'None' }} <span
+                                                ng-if="customerModel.taxTitle">({{customerModel.taxPercentValue}}%)</span>
+                                            <span class="caret"></span></button>
+                                          <ul class="dropdown-menu scrollable-menu">
+                                            <li ng-if="customerModel.taxTitle"><a ng-click="removeTax()" href="javascript:void(0)">None</a></li>
+                                            <li ng-repeat="taxRateDataList in taxRateData"
+                                              ng-hide="customerModel.taxTitle == taxRateDataList.title" ng-click="updateTax(taxRateDataList)">
+                                              <span>
+                                                <a
+                                                href="javascript:void(0)" style="display:block">{{taxRateDataList.title}} ({{taxRateDataList.amount}}%)
+                                                </a>
+                                              </span>
+                                              </li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </div> 
+                                    <div class="col-md-4">
+                                      <div class="inlineFormGroup text-right" style="margin-top: 24px;">                                   
+                                        <button class="button" type="submit">Save</button> 
+                                        <button ng-click="isEditAddress[$index]=false;  showUpdateCoordinate(); showEditLatLong()"  type="button" class="button">Cancel</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <error message="{{errorCustomerForm}}" ng-if="errorCustomerForm"></error>                              
+                               </form>
+                          </div>
+                      </div>
+                    </ng-container>
+                  </div>
+              </div>
+              <div ng-show="tab[2]">
+                 
+                 <div class="text-right"><a href="javascript:void(0)" ng-click="addContactForm()" class="add-address-link"><i class="fa fa-address-book" aria-hidden="true"><i class="fa fa-plus" aria-hidden="true" style="
+                  font-size: 8px;
+              "></i></i> Add Contact</a></div> 
+                  <div class="contact-list-wrapper" id="scrollarea">
+                  <div class="row contact-list" ng-repeat="contactObj in contactList track by $index" ng-init='isEditContact[$index]=false'>
+                      <div class="row" ng-if="!isEditContact[$index]">  
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="contact-name"><i class="fa fa-address-book" aria-hidden="true"></i> {{contactObj.firstName}} {{contactObj.lastName}}</div>
+                            <div ng-if="contactObj.relation" class="contact-relation">{{contactObj.relation}}</div>
+                            <div class="contact-phone">{{contactObj.contactNumber}}</div>
+                            <div class="contact-email">{{contactObj.email}}</div>                            
+                          </div>
+                          <div class="col-md-6 col-sm-6 col-xs-12">
+                              <div class="contact-note">{{contactObj.notes}}</div>
+                          </div>
+                          <div class="col-xs-12">
+                            <div class="contact-action">
+                              <span ng-if="contactObj.isPrimary==1" class="primary" style="cursor: text;">Primary</span>                              
+                              <span ng-if="contactObj.isBilling==1" class="primary" style="cursor: text;">Billing</span>
+                              <span ng-if="contactObj.isPrimary==0" ng-click="setPrimaryContact(contactObj.id, 'address')" style="margin-right: 10px;">Set Primary</span>
+                              <span ng-if="contactObj.isBilling==0" ng-click="setPrimaryContact(contactObj.id, 'billing')">Set Billing</span>
+                              <span  ng-click="showEditContactForm($index,contactObj)" class="edit"><i  class="fa fa-pencil-square" aria-hidden="true"></i></span>
+                              <span ng-if="contactObj.isPrimary==0 && contactObj.isBilling==0"  ng-click="deleteContactConfirm($index,contactObj.id)" class="delete"><i  class="fa fa-trash" aria-hidden="true" style="color:red"></i></span>
+                            </div>
+                          </div>
+                          
+                      </div> 
+                      <div class="contact-edit-form p-b5" ng-if="isEditContact[$index]">  
+                          <form class="form-edit-contact" id="contactEditForm" name="contactEditForm" ng-submit="contactEditFormIsSubmit = true; contactEditForm.$valid && addEditContact(contactModel)" novalidate>     
+                              <div class="row">
+                                  <div class="col-md-8">
+                                      <i class="fa fa-address-book" aria-hidden="true" style="position:absolute; left: -25px; top:2px; color: #285fc6"></i>
+                                      <div class="row">
+                                          <div class="col-md-6">
+                                              <div class="formGoup inlineFormGroup">
+                                                <label>First Name</label>
+                                           <input autocomplete="off" class="form-control" name="firstName" ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.firstName.$invalid}" maxlength="50" ng-model="contactModel.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+                                           <span class="has-required"><span ng-show="contactEditFormIsSubmit && contactEditForm.firstName.$viewValue.length && contactEditForm.firstName.$invalid">Letters/Numbers only</span> </span>
+                                          </div>
+                                          </div>
+                                          <div class="col-md-6">
+                                            <div class="formGoup inlineFormGroup">
+                                              <label>Last Name</label>
+                                         <input autocomplete="off" class="form-control" name="lastName" ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.lastName.$invalid}" maxlength="50" ng-model="contactModel.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" type="text"/>
+                                         <span class="has-required"><span ng-show="contactEditFormIsSubmit && contactEditForm.lastName.$viewValue.length && contactEditForm.lastName.$invalid">Letters/Numbers only</span> </span>
+                                        </div>
+                                        </div>
+                                          
+                                      </div> 
+                                      <div class="row">
+                                          <div class="col-md-6">
+                                            <div class="formGoup inlineFormGroup">
+                                                <label>Title</label>
+                                        <input autocomplete="off" class="form-control" name="relation" ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.relation.$invalid || contactEditForm.relation.$touched && contactEditForm.relation.$invalid}" maxlength="50" ng-model="contactModel.relation" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Title" type="text"/>
+                                        <span class="has-required"><span ng-show="contactEditFormIsSubmit && contactEditForm.relation.$viewValue.length && contactEditForm.relation.$invalid">Letters/Numbers only</span> </span>
+                                        </div>
+                                        </div>               
+                                          <div class="col-md-6">
+                                             <div class="formGoup inlineFormGroup">
+                                                 <label>Phone</label>
+                                             <input autocomplete="off" class="form-control" name="contactNumber"
+                                             ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.contactNumber.$invalid}" maxLength="12"
+                                             ng-model="contactModel.contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" custom-phone-input=""
+                                             placeholder="Phone" type="text" />      
+                                             <span class="has-required"><span ng-show="contactEditFormIsSubmit && contactEditForm.contactNumber.$invalid">Please enter valid Phone</span> </span>  
+                                           </div>         
+                                          </div>
+                                          
+                                         </div> 
+                                         <div class="row">
+                                          <div class="col-md-12">
+                                            <div class="formGoup inlineFormGroup">
+                                                <label>Email</label>
+                                           <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="contactModel.email" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" type="email"/>
+                                           <span class="has-required"><span ng-show="contactEditFormIsSubmit && contactEditForm.email.$invalid">Please enter valid Email</span> </span>
+                                          </div>
+                                         </div>
+                                         </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                      <div class="row">
+                                          <div class="col-md-12">
+                                              <div class="formGoup inlineFormGroup">
+                                                  <label>Notes</label>
+                                              <textarea style="max-height:48px;" class="form-control" ng-class="{'has-error': contactEditFormIsSubmit && contactEditForm.notes.$invalid}" ng-model="contactModel.notes" placeholder="Notes" name="notes"></textarea>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="edit-contact-button inlineFormGroup m-t20 text-right">
+                                            <button class="button" type="submit">Save</button>
+                                            <button type="button" ng-click="isEditContact[$index]=false;" class="button">Cancel</button>
+                                          </div>
+                                    </div>
+                              </div>      
+                               
+                              <error message="{{errorContactForm}}" ng-if="errorContactForm"></error>
+                           </form>  
+                      </div>
+
+                  </div>
+                </div>
+              </div>   
+              <div ng-show="tab[3]">
+                <div ng-controller="customerBillingTabController" ng-include="'/templates/component/customer-billing-tab.html?ver='+PB_WEB_VERSION"></div>                
+              </div> 
+              <div ng-show="tab[4]">
+                <div ng-if="customerinfo" ng-controller="customerNotesTabController" ng-include="'/templates/component/customer-notes-tab.html?ver='+PB_WEB_VERSION" ng-init="setCustomerInfo(customerinfo, 'getNotes')"></div>
+              </div>
+            </div>
+
+               
+      </div>
+      
+    </div>
+  
+      <div class="col-md-7 col-sm-7 col-xs-12 " ng-controller="checklistItemController" ng-include="'/templates/component/checklist-item.html?ver='+PB_WEB_VERSION"></div>
+    
+  </div>
+ 
+
+  <!--<div ng-controller="equipmentController" ng-include="'/templates/equipmentDetails.html?ver='+PB_WEB_VERSION"></div>-->
+  <div ng-controller="equipmentController" ng-include="'/templates/equipmentDetailsOneOffJob.html?ver='+PB_WEB_VERSION"></div>
+  <script type="text/ng-template" id="sensor.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div>
+       <div class="p-t10" ng-if="jobSensor.length > 0">
+              <div class="b" style="padding-left: 10px;">SENSORS</div>
+              <div style="padding:5px 10px" ng-repeat="sensor in jobSensor track by $index" > {{sensor.name}}  - <span style="color:#797979; font-size: 13px;">{{sensor.sensorType}}</span> </div>
+              <!-- Left Basket<br />
+              Right Basket -->
+              </div>
+          </div>
+</div>
+</script>
+<div ng-init="initGraphArea(addressId, waterBodyId, 'customer')" class="graph-area-parent graph-area-parent-customer" ng-controller="graphAreaController" ng-include="'/templates/component/graph-area.html?ver='+PB_WEB_VERSION"></div>
+<ng-container ng-show="listingTab['jobHistory'] || listingTab['feedback']">
+  <div class="contianer-fluid invoice-job-listing-title">
+    <div class="row">
+      <div class="col-md-8 col-xs-12 listing-tab-headings">
+        <div class="title" ng-click="showListingTab('jobHistory')" ng-class="{'disabled':!listingTab['jobHistory']}">JOBS</div>
+        <div class="title" ng-click="showListingTab('quotes')" ng-class="{'disabled':!listingTab['quotes']}">QUOTES</div>
+        <div class="title"  ng-click="showListingTab('invoice')" ng-class="{'disabled':!listingTab['invoice']}">INVOICES</div>
+        <div class="title"  ng-click="showListingTab('payment')" ng-class="{'disabled':!listingTab['payment']}">PAYMENTS</div>
+        <div class="title"  ng-click="showListingTab('feedback')" ng-class="{'disabled':!listingTab['feedback']}">FEEDBACK</div>
+      </div>
+      <div class="col-md-4 col-xs-6">
+        <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true" style="margin-bottom: 4px;">{{rangeFilterData[filterRangeSelected].title}}</button>
+          <ul class="dropdown-menu scrollable-menu">   
+            <li ng-repeat="x in rangeFilterData">
+              <a href="javascript:void(0)" ng-click="filterRange($index)">{{x.title}}</a>
+            </li>
+          </ul>
+
+          <div class="hide-dates-text" ng-if="hideShownDatesText" ng-hide="listingTab['feedback']">
+            <span style="cursor: pointer;margin-right: 37px;" ng-click="hideShowDates()"
+              ng-if="hideShowDatesText == 'Hide future dates'">{{hideShowDatesText}}</span>
+            <span style="cursor: pointer;margin-right: 32px;" ng-click="hideShowDates()"
+              ng-if="hideShowDatesText == 'Show future dates'">{{hideShowDatesText}}</span>
+          </div>
+          <!-- <span ng-show="listingTab['feedback']" class="excel-download-btn" ng-click="downloadFeedbackReport()" style="top: 0px; right: -60px; float: right;"></span> -->
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 20px;margin-right: 10px;">
+      <div class="col-md-6 col-xs-12"></div>
+      <div class="col-md-2 col-xs-12"></div>
+      <div class="col-md-4 col-xs-12">
+        <div ng-show="rangeFilterData[filterRangeSelected].type == 'custom'">
+          <div class="datePicker input-daterange" style="position:unset">
+            <div class="col-6-12 p-l10 p-r0 fl">
+              <div class="smallview" date-format="MM/dd/yyyy">
+                <input ng-model="fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+              </div>
+            </div>
+          </div>
+          <div class="datePicker input-daterange" style="position:unset">
+            <div class="col-6-12 p-r0 p-l10 text-right fr">
+              <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                <input ng-model="toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid cust-job-history data-table-grid job-dataTable">
+    <div class="col-1-1">
+      <div class="white-bg p-lg20">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="flex invoice-filter" style="visibility: {{ listingTab['jobHistory'] ? 'unset' : 'hidden' }};">
+              <div class="flex" ng-class="{'disabled':!jobFilter['RoutedJob']}" ng-click="jobFilterByType('RoutedJob')">
+                <div class="tag route-stops">
+                    {{ listingTab['jobHistory'] ? routeCount : routeCountFb }}
+                </div>
+                <div>
+                  <div><strong>Route Stops</strong></div>
+                </div>
+              </div>        
+              <div class="flex" ng-class="{'disabled':!jobFilter['OneOfJob']}" ng-click="jobFilterByType('OneOfJob')">
+                <div class="tag jobs">
+                  {{ listingTab['jobHistory'] ? oneOfJobCount : oneOfJobCountFb }}
+                </div>
+                <div>
+                  <div><strong>Jobs</strong></div>
+                </div>
+              </div>        
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-6 showallproperties p-lr0" style="margin-top: 16px;"> <input id="show_all_properties" type="checkbox" ng-model="showAllPropertiesJob.value" ng-change="listingTab['jobHistory'] ? getCustomerJobList() : getCustomerFeedbackList()" ng-true-value="1" ng-false-value="0" name="show_all_properties">
+            <label for="show_all_properties"> Show all properties</label>
+          </div>
+          <div class="col-md-4">
+            <div class="search-box" ng-if="listingTab['jobHistory']">
+              <i class="fa fa-search searchbtn" ng-click="doSearchJobList($event,searchText)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchJobList($event,searchText)" ng-model="searchText" placeholder="Address, job title, tech name" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchJobList($event,searchText) : null">
+            </div>
+            <div class="search-box" ng-if="listingTab['feedback']">
+              <i class="fa fa-search searchbtn" ng-click="doSearchFeedbackList($event,searchTextFb)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchFeedbackList($event,searchTextFb)" ng-model="searchTextFb" placeholder="Address, technician, feedback" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchFeedbackList($event,searchTextFb) : null">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="white-bg">
+        <div class="dataTables_wrapper" ng-init="getCustomerJobList()">
+          <div class="list-box" id="scrollarea">
+            <table class="row-border hover no-footer dataTable sticky-header-table" width="100%" ng-show="listingTab['jobHistory']">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th style="border-left: 10px solid transparent;">
+                    <div class="sorting"
+                      ng-class="{'sorting_asc': column == 'createTime' && dir == 'asc', 'sorting_desc': column == 'createTime' && dir == 'desc', }"
+                      rowspan="1" colspan="1" aria-sort="ascending"
+                      aria-label="DATE: activate to sort column descending"
+                      ng-click="orderByJobList('createTime')">DATE</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('isOneOfJob')"
+                         ng-class="{'sorting_asc': column == 'isOneOfJob' && dir == 'asc', 'sorting_desc': column == 'isOneOfJob' && dir == 'desc', }">
+                      TYPE
+                    </div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('address')"
+                         ng-class="{'sorting_asc': column == 'address' && dir == 'asc', 'sorting_desc': column == 'address' && dir == 'desc', }">
+                      ADDRESS
+                    </div>
+                  </th>
+                  <th style="width: 210px!important;">
+                    <div class="row" style="display: flex;align-items: center;">
+                      <div class="col-md-5 p-r0">BODY OF WATER</div>
+                      <div class="col-md-7 text-center">ALERT(S)</div>
+                    </div>
+                    
+                  </th>
+                  <th>
+                    <div class="sorting"
+                          ng-click="orderByJobList('jobTitle')"
+                          ng-class="{'sorting_asc': column == 'jobTitle' && dir == 'asc', 'sorting_desc': column == 'jobTitle' && dir == 'desc', }">
+                      TITLE / SERVICE LEVEL
+                    </div>
+                  </th>
+                  
+                 
+
+                  <th>
+                    <div class="sorting"
+                          ng-click="orderByJobList('jobStatus')"
+                          ng-class="{'sorting_asc': column == 'jobStatus' && dir == 'asc', 'sorting_desc': column == 'jobStatus' && dir == 'desc', }">
+                      STATUS
+                    </div>
+                  </th>
+
+                  <th style="width:126px;">
+                    <div class="sorting"
+                     ng-class="{'sorting_asc': column == 'technicianName' && dir == 'asc', 'sorting_desc': column == 'technicianName' && dir == 'desc', }"
+                      ng-click="orderByJobList('technicianName')">TECHNICIAN</div>
+                  </th>
+                  <th class="text-right">
+                    <div class="sorting" ng-class="{'sorting_asc': column == 'totalAmount' && dir == 'asc', 'sorting_desc': column == 'totalAmount' && dir == 'desc', }"
+                    ng-click="orderByJobList('totalAmount')">PRICE</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody ng-if="jobList.length > 0" dt-rows ng-repeat="job in jobList" ng-class="{'shown': job.jobId == openedJobId}">
+                <tr>
+                  <td colspan="6" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr ng-click="job.status == 1 && goToDetail(job,job.isOneOfJob)" style="cursor: pointer;" ng-class="{'deleted-jobs': job.status == 0}"
+                title-class="dark"  
+                ptitle='{{ job.status == 0 ? "Deleted by " + job.jobDeleteLogs[0].firstName +" "+ job.jobDeleteLogs[0].lastName + " - " + (job.jobDeleteLogs[0].createTime | date:"MM/dd/yy") + " at " + (job.jobDeleteLogs[0].createTime |  date:"hh:mm a")  : ""}}' 
+                title-direction="bottom">
+                  <td ng-class="job.isOneOfJob ? 'jobs' : 'route-stops'"><div class="darkGray date-col" ng-if="job.createTime">{{job.createTime | CFDate: job.tempJobId | date:"MM/dd/yy"}}</div><div class="darkGray" style="width: 75px;" ng-if="!job.createTime">{{job.dueDate | date:"MM/dd/yy"}}</div></td>
+                  <td>
+                    <span class="darkGray" id="job_type_{{job.jobId}}">
+                      <span ng-if="job.isOneOfJob==0">Route</span>
+                      <span ng-if="job.isOneOfJob==1">Job</span>
+                    </span>
+                    
+                  </td>
+                  <td><span class="darkGray" id="pool_location_{{job.jobId}}"><span>{{job.address}}
+                  <br>{{job.city}} {{job.state}} {{job.zipcode}}
+                  </span>
+                      <!-- <format-Address address="{{job.address}}"></format-Address> -->
+                  </span>
+                  
+                </td>
+                
+                <td align="center"> 
+                  <div class="row" ng-if="job.isMwb==0">
+                    <div class="col-md-5 p-r0">
+                      <span title="{{job.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: {{job.color ? job.color : 'inherit'}};">{{job.waterBodyName}}</span>
+                    </div>
+                    <div class="col-md-7">
+                      <div class="alerts-icon" >
+                        <div class="tech-action-buttons" ng-if="alertIssue.issue.length > 0" ng-repeat="alertIssue in job.alerts">
+                            <a class="linkClass clientIssue"
+                            data-title="{{issue.type}}"
+                            href="javascript:void(0)"
+                            ng-repeat="issue in alertIssue.issue" style="cursor: text;">
+                                <img alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                                <div class="alertNote" ng-bind="getAlertTabName(issue.type)"> </div>
+                            </a>
+                          </div>
+                        <div class="tech-action-buttons" ng-if="alertIssue.systemIssue.length > 0" ng-repeat="alertIssue in job.alerts">
+                          <div ng-repeat="issue in alertIssue.systemIssue" class="tech-action-buttons alert-button">
+                            <a class="linkClass {{issue.priority}}"
+                              data-title="{{issue.type}}"
+                              href="javascript:void(0)" style="cursor: text;">
+  
+                              <img alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}"/>
+                              <div class="alertNote"> {{issue.description}} </div>
+                              </a>
+                            </div>
+                        </div>
+                      </div> 
+                    </div>
+                  </div>
+
+
+                  <div ng-if="job.isMwb==1 && job.waterBodies && job.waterBodies.length > 0">
+                    <div class="row" ng-repeat="waterBody in job.waterBodies" style="display: flex;align-items: center;">
+                      <div class="col-md-5 p-r0">
+                        <div><span title="{{waterBody.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: {{waterBody.color ? waterBody.color : 'inherit'}};">{{waterBody.waterBodyName}}</span></div>                        
+                      </div>
+                      <div class="col-md-7">                          
+                        <div ng-if="job.isMwb==1">
+                          <img style="width: 20px; margin:2px 1px" ng-repeat="issue in waterBody.alertIssueArray"  alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                          <img style="width: 20px; margin:2px 1px;" ng-repeat="issue in waterBody.alertSystemIssueArray"  alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                
+                
+                </td>
+                
+                <td>
+                  <span class="darkGray" id="job_title_{{job.jobId}}">
+                    {{job.jobTitle ? job.jobTitle : 'Untitled Job'}}
+                  </span>
+                </td>
+                
+                <td>
+                  <span class="darkGray status-col" id="job_title_{{job.jobId}}">
+                    {{job.jobStatus}}
+                  </span>
+                </td>
+                  <td>
+                    <span ng-if="job.technicianId" class="technician-name">{{job.techFirstName}} <span class="last-name">{{job.techLastName}}</span></span>
+                  </td>
+                  <td class="text-right">
+                    <span class="darkGray price-col" id="job_totalamount_{{job.jobId}}">
+                      {{job.totalAmount | currency}}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody ng-if="jobList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">No Route Stops / Jobs to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- table for feedback listing -->
+            <table ng-show="listingTab['feedback']" class="row-border hover no-footer dataTable" width="100%" ng-init="getCustomerFeedbackList()">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th></th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByFeedbackList('createTime')"
+                         ng-class="{'sorting_asc': feedbackPayload.column == 'createTime' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'createTime' && feedbackPayload.dir == 'desc', }">DATE</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByFeedbackList('customerName')"
+                         ng-class="{'sorting_asc': feedbackPayload.column == 'customerName' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'customerName' && feedbackPayload.dir == 'desc', }">ADDRESS</div>
+                  </th>
+                  <th>
+                      <div class="sorting"
+                           ng-click="orderByFeedbackList('techName')"
+                           ng-class="{'sorting_asc': feedbackPayload.column == 'techName' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'techName' && feedbackPayload.dir == 'desc', }">TECHNICIAN</div>
+                    </th>
+                  <th><div>FEEDBACK</div></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="review-tbody" dt-rows ng-repeat="reviewObj in feedbackList">
+                <tr>
+                  <td colspan="6" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr>
+                  <td class="left-td" rowspan="2"></td>
+                  <td>
+                      <div class="darkGray"><span class="thums-up-down"><img ng-if="reviewObj.thumbs=='UP'" src="resources/images/thums-up24.png"><img ng-if="reviewObj.thumbs=='DOWN'" src="resources/images/thums-down24.png"></span>
+                      {{getReviewDate(reviewObj.reviewDate) | date:"MM/dd/yy"}}</div>
+                  </td>
+                  <td>{{reviewObj.address ? reviewObj.address : reviewObj.primaryAddress }}</td>
+                  <td><a class="underline-none" ng-href="app/techniciandetail/{{reviewObj.technicianId}}" >{{reviewObj.techName ? reviewObj.techName : ''}}</a></td>
+                  <td class="feedback-readmore">
+                    {{reviewObj.review.substring(0, reviewLengthOnGrid)}}{{reviewObj.review.length > reviewLengthOnGrid ? '...' : ''}}
+                    <a ng-if="reviewObj.review.length > reviewLengthOnGrid" href="javascript:void(0)" ng-click="openCloseReadMore(reviewObj)">Read More</a>
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && reviewObj.isOneOfJob"  ng-href="app/one-time-job/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a> 
+                    
+
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && !reviewObj.isOneOfJob"  ng-href="app/customerjobdetail/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a>                 
+                  </td>
+                  <td class="right-td" rowspan="2"></td>
+                </tr>
+
+                <div ng-if="remoreReview" id="remoreReviewModal" class="inline-popup">
+                   <div class="inline-popup-header" >
+                      <a ng-if="linkAddressId && linkJobId && isOneOfJob" class="m-r20" ng-href="app/one-time-job/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                      <a ng-if="linkAddressId && linkJobId && !isOneOfJob" class="m-r20" ng-href="app/customerjobdetail/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                     <div class="h-1-5x b m-b10 fl">{{titleName}}</div>
+                     <div class="inline-popup-close" ng-click="openCloseReadMore(false)" >
+                       <i class="fa fa-times-circle" aria-hidden="true" ></i>
+                     </div>
+                   </div>
+                   <div class="row" style="text-align: left">
+                     <div class="col-md-12">
+                       <div class="scrollable-box" id="scrollarea" >
+                         <p>{{remoreReview}}</p>
+                       </div>
+                     </div>
+                   </div>
+                  </div>
+
+
+              </tbody>
+              <tbody ng-if="feedbackList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">no feedback to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+
+
+
+        <div class="paging-warp p-l20" ng-if="jobList.length > 0">
+          <div class="row" ng-show="listingTab['jobHistory']">
+            <div class="col-md-4 p-t20">
+              <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite"> 
+                Showing
+                {{jobList.length ? (totalPage == page-1 ? (totalRecord-jobList.length) == -1 ? 1 :(totalRecord-jobList.length)+1 :
+                (page > 0 ? ((page-1)*jobList.length)+1 : 1)
+                ) : 1 }}
+                to
+                {{ jobList.length ? (totalPage == page-1 ? totalRecord : page*jobList.length) : 0 }}
+                of
+                {{totalRecord}}
+              </div>
+              </div>
+              <div class="col-md-8">
+                  <div class="pagination">
+                    <paging
+                    page="page" page-size="limit" total="totalRecord" text-first="First"
+                    text-last="Last" text-next="Next" text-prev="Prev"
+                    paging-action="goToCustomerJobListPage(page)"
+                    show-prev-next="true" show-first-last="true"> </paging>
+                    </div>
+                </div>
+              </div>
+              
+              <div class="row" ng-show="listingTab['feedback']">
+                <div class="col-md-4 p-t20">
+                  <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite"> 
+                  Showing
+                  {{feedbackList.length ? (totalPageFb == pageFb-1 ? (totalRecordFb-feedbackList.length)+1 : (pageFb > 0 ? ((pageFb-1)*feedbackList.length)+1 : 1)) : 0 }} 
+                  to 
+                  {{ feedbackList.length ? (totalPageFb == pageFb-1 ? totalRecordFb : pageFb*feedbackList.length) : 0 }}  
+                  of 
+                  {{totalRecordFb}}
+                  </div>
+                  </div>
+                  <div class="col-md-8">
+                      <div class="pagination">
+                        <paging
+                        page="pageFb" page-size="limit" total="totalRecordFb" text-first="First"
+                        text-last="Last" text-next="Next" text-prev="Prev"
+                        paging-action="goToCustomerFeedbackPage(page)"
+                        show-prev-next="true" show-first-last="true"> </paging>
+                        </div>
+                    </div>
+                  </div>
+
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-container ng-show="listingTab['quotes']">
+  <div ng-controller="customerQuotesListController" ng-include="'/templates/component/customer-quotes-list.html?ver='+PB_WEB_VERSION"></div>
+</ng-container>
+<ng-container ng-show="listingTab['invoice']">
+  <div ng-controller="customerInvoiceListController" ng-include="'/templates/component/customer-invoice-list.html?ver='+PB_WEB_VERSION"></div> 
+</ng-container>
+<ng-container ng-show="listingTab['payment']">
+  <div ng-controller="customerPaymentListController" ng-include="'/templates/component/customer-payment-list.html?ver='+PB_WEB_VERSION"></div> 
+</ng-container>
+
+</div>
+<script type="text/ng-template" id="removeChelistConfirm.html" >
+ <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+   <div class="popup-header">
+     <div class="h-1-5x b white text-center">Confirm</div>    
+   </div>
+    <div class="popup-body text-center">
+      <div class="row-container">
+        <div><label>Are you sure you want to delete checklist item?</label></div>
+        <br />
+        <div class="set-chem-button m-b20" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+          <button class="add-button" type="submit" ng-click="confirmChecklistAction(checkListObj, index)">OK</button>
+        </div>
+      </div>
+    </div>
+
+ </div>
+</script>
+<script type="text/ng-template" id="removeCleanHistoryConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>    
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete history?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="confirmCleanHistoryAction(cleanHistoryObj, index);closeThisDialog()">OK</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+<script type="text/ng-template" id="customerAddressTemplate.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width: 600px;min-height: auto;width: auto; min-width: 600px;">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+   <div class="popup-header">
+    <span class="heading ng-binding">ADD ADDRESS</span>
+     <div class="popup-close" ng-click="closeCustomerPopup()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   </div>
+     <div>
+           <form class="form-signin" id="customerAddressForm" name="customerAddressForm" ng-submit="customerAddressFormIsSubmit = true; customerAddressForm.$valid && addEditAddress(customerModel)" novalidate>           
+              <div class="row">
+                <div class="col-md-12">
+                  <input autocomplete="off" class="form-control" name="address" ng-blur="(customerModel.addressLine1 && customerModel.addressLine1 != '') ? IsVisibleCityState = true : null" ng-class="{'has-error': customerAddressFormIsSubmit && customerAddressForm.address.$invalid}" maxlength="150" ng-model="customerModel.addressLine1" details="chosenPlaceDetails" googleplace placeholder="Address" required type="text" />
+                  
+                 
+                  
+                  <span class="has-required p-b10">
+                  <span ng-show="customerAddressFormIsSubmit && customerAddressForm.address.$dirty && customerAddressForm.address.$invalid">Please enter Address</span></span>
+                </div>
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                  <input autocomplete="off" class="form-control" name="city" ng-class="{'has-error': customerAddressFormIsSubmit && customerAddressForm.city.$invalid}" maxlength="25" ng-model="customerModel.city"  placeholder="City" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"  />
+                  <span class="has-required p-b10">
+                    <span ng-show="customerAddressFormIsSubmit && customerAddressForm.city.$error.required">City is required</span> 
+                    <span ng-show="customerAddressFormIsSubmit && customerAddressForm.city.$error.pattern">City should contain letters only</span> 
+                  </span>
+                </div>             
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                    <input autocomplete="off" class="form-control" name="state" ng-class="{'has-error': customerAddressFormIsSubmit && customerAddressForm.state.$invalid}" maxlength="25" ng-model="customerModel.state"  placeholder="State" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"  /> 
+                    <span class="has-required p-b10">
+                      <span ng-show="customerAddressFormIsSubmit && customerAddressForm.state.$error.required">State is required</span> 
+                      <span ng-show="customerAddressFormIsSubmit && customerAddressForm.state.$error.pattern">State should contain letters only</span> 
+                    </span>                  
+                </div>
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                  <input autocomplete="off" class="form-control" name="zipcode" ng-class="{'has-error': customerAddressFormIsSubmit && customerAddressForm.zipcode.$invalid}" maxlength="5"  ng-model="customerModel.zipcode" placeholder="Zipcode" required="" ng-pattern="/^(['0-9']+)$/" only-num="" type="text"  />
+                  <span class="has-required p-b10">
+                    <span ng-show="customerAddressFormIsSubmit && customerAddressForm.zipcode.$error.required">Zipcode is required</span> 
+                    <span ng-show="customerAddressFormIsSubmit && customerAddressForm.zipcode.$error.pattern">Zipcode should contain numbers only</span> 
+                  </span>
+                </div> 
+              </div>
+              
+              
+              <error message="{{errorCustomerForm}}" ng-if="errorCustomerForm"></error>
+             <success message="{{successCustomerForm}}" ng-if="successCustomerForm"></success>
+             <div class="technicians-button">
+               <button style="position: inherit !important;" id="addCustomerSubmitButton" class="add-button" type="submit" ng-disabled="buttonDisabled">ADD</button>
+             </div>
+             
+           </form>
+     </div>
+  </div>
+  </script>
+
+<script type="text/ng-template" id="customerContactTemplate.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width: 600px;min-height: auto;width: auto;">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+   <div class="popup-header">
+     <span class="heading ng-binding">ADD CONTACT</span>
+     <div class="popup-close" ng-click="closeContactPopup()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   </div>
+     <div>
+           <form class="form-signin" id="contactForm" name="contactForm" ng-submit="contactFormIsSubmit = true; contactForm.$valid && addEditContact(contactModel)" novalidate>           
+              <div class="row">
+                  <div class="col-md-6">
+                   <input autocomplete="off" class="form-control" name="firstName" ng-class="{'has-error': contactFormIsSubmit && contactForm.firstName.$invalid}" maxlength="50" ng-model="contactModel.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+                   <span class="has-required p-b10"><span ng-show="contactFormIsSubmit && contactForm.firstName.$dirty &&contactForm.firstName.$invalid">Letters/Numbers only</span> </span>
+                  </div>
+                  <div class="col-md-6">
+                    <input autocomplete="off" class="form-control" name="lastName" ng-class="{'has-error': contactFormIsSubmit && contactForm.lastName.$invalid}" maxlength="50" ng-model="contactModel.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" type="text"/>
+                    <span class="has-required p-b10"><span ng-show="contactFormIsSubmit && contactForm.lastName.$dirty &&contactForm.lastName.$invalid">Letters/Numbers only</span> </span>
+                   </div>
+                  
+              </div>  
+              <div class="row">               
+                 <div class="col-md-6">
+                    <input autocomplete="off" class="form-control" name="contactNumber"
+                    ng-class="{'has-error': contactFormIsSubmit && contactForm.contactNumber.$invalid}" maxLength="12"
+                    ng-model="contactModel.contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" custom-phone-input=""
+                    placeholder="Phone" type="text" />      
+                    <span class="has-required p-b10"><span ng-show="contactFormIsSubmit && contactForm.contactNumber.$dirty && contactForm.contactNumber.$invalid">Please enter valid Phone</span> </span>           
+                 </div>
+                 <div class="col-md-6">
+                   <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': contactFormIsSubmit && contactForm.email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="contactModel.email" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" type="email"/>
+                   <span class="has-required p-b10"><span ng-show="contactFormIsSubmit && contactForm.email.$invalid">Please enter valid Email</span> </span>
+                 </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <input autocomplete="off" class="form-control" name="relation" ng-class="{'has-error': contactFormIsSubmit && contactForm.relation.$invalid || contactForm.relation.$touched && contactForm.relation.$invalid}" maxlength="50" ng-model="contactModel.relation" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Title" type="text" />
+                    <span class="has-required p-b10"><span ng-show="contactFormIsSubmit && contactForm.relation.$dirty && contactForm.relation.$invalid">Letters/Numbers only</span> </span>
+                   </div>
+                  <div class="col-md-6">
+                      <textarea class="form-control" ng-class="{'has-error': contactFormIsSubmit && contactForm.notes.$invalid}" ng-model="contactModel.notes" placeholder="Notes" name="notes"></textarea>
+                  </div>
+                </div>
+              <error message="{{errorContactForm}}" ng-if="errorContactForm"></error>
+             <success message="{{successContactForm}}" ng-if="successContactForm"></success>
+             <div class="technicians-button m-t20">
+               <button style="position: inherit !important;" id="addContactSubmitButton" class="add-button " type="submit">ADD</button>
+             </div>
+             
+           </form>
+     </div>
+  </div>
+  </script>
+
+  <script type="text/ng-template" id="removeAddressConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to permanently delete this address?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="deleteAddress()" style="background-color:red">Yes</button>
+           </div>
+         </div>
+       </div>   
+    </div>
+   </script>
+
+   <script type="text/ng-template" id="removeContactConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>        
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to permanently delete this contact?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="deleteContact()" style="background-color:red">Yes</button>
+           </div>
+         </div>
+       </div>   
+    </div>
+   </script>
+   <script type="text/ng-template" id="sentReportEmailPopupFeedback.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+      <div class="popup-header">
+         <span class="heading">Create Report</span>
+         <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+         <div class="detail-box">         
+         <div class="grid text-left box" >         
+            <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+            <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+            <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+            <div class="col-12 sent-email-report-message">
+             Where should we send the report when it's ready? <br> (large reports can take a while)
+            </div>
+            <div class="col-12-12">                 
+               <div class="formGroup">
+                     <label>Email Address</label>
+                     <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="reportPageSentReportEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-disabled="reportPageIsReportSending"
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                        required                         
+                     />
+               </div>     
+            </div>
+         </div>      
+         <div class="text-center p-t20">
+            <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+            <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+         </div>        
+         </div>
+      </form>
+     </div>
+   </script>
+   <script type="text/ng-template" id="linkCustomerPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup common-popup-resp md-top-zero link-customer-popup" style="width: 100%;max-width: 570px;"> 
+      <div class="popup-header">
+        <span class="heading">Link Customer</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div> 
+      <div class="popup-body" ng-class="{ 'disable-actions-popup-body' : isCustomerLinkingInProgress }">  
+        <div class="spinner" ng-if="isDetailsLoadingFromQbo">
+          <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+          </div>
+        </div>         
+          <div class="link-cust--row">
+            <div class="link-cust--col" ng-if="isChooseAnotherCustomerOpened">
+              <label class="link-cust--form-label">Find customer in Quickbooks Online</label>
+              <div class="link-cust--form-group">
+                <input type="text" ng-model="linkingFromCustomerSearchKey" id="linkingFromCustomerSearchKey" class="form-control link-cust--form-control" placeholder="Search Customer" ng-change="searchLinkingFromCustomer(this)">
+                <span class="link-cust--form-group-loading" ng-if="linkingFromCustomerIsLoading"></span>
+              </div>
+            </div>
+            <div class="scrollareaCls linkingWizardCustomerList" ng-if="!isSelectedLinkingFromCustomer">
+              <ul>
+                <li ng-repeat="customer in linkingFromCustomerList" ng-click="openLinkingConfirmationPopup(customer)">
+                  {{ customer.FullyQualifiedName }}
+                </li>
+              </ul>
+              <div class="link-wizard-load-more-btn"  ng-if="linkingFromCustomerList.length != 0 && linkingFromCustomerListRows > linkingFromCustomerList.length">
+                <button ng-click="loadMoreLinkingFromCustomerList()">
+                  <span  ng-if="!loadingMoreLinkingFromCustomerList">Load More</span>
+                  <span ng-if="loadingMoreLinkingFromCustomerList">Loading..</span>
+                </button>
+              </div>
+            </div> 
+            <div class="link-cust--col" ng-if="(isSelectedLinkingFromCustomer || customerDeletedFromQbo || customerNeverMapped) && !isChooseAnotherCustomerOpened">
+              <div class="link-cust--merging" ng-if="!customerDeletedFromQbo && !customerNeverMapped">
+                  <div class="link-cust--merging-card">
+                    <h5>{{selectedLinkingFromCustomer.FullyQualifiedName}}</h5>
+                    <p>Email: {{selectedLinkingFromCustomer.PrimaryEmail}}</p>
+                    <p>Phone: {{selectedLinkingFromCustomer.PrimaryPhone}}</p>
+                  </div>
+              </div>
+              <div class="link-cust--merging" ng-if="customerDeletedFromQbo">
+                <div class="link-cust--merging-card">                  
+                  <p>Customer deleted from QBO.</p>
+               </div>
+              </div>
+              <div class="link-cust--merging" ng-if="customerNeverMapped">
+                <div class="link-cust--merging-card">                  
+                  <p>Customer not mapped to QBO.</p>
+               </div>
+              </div>
+              <p class="link-cust--merging-card-close-text-link"><a href="javascript:void(0)" ng-click="chooseAnotherLinkingFromCustomer()">Choose another customer</a></p>
+            </div>
+          </div>
+          <div class="link-cust--error-message" ng-if="linkCustomerErrorMsg">
+            {{linkCustomerErrorMsg}}
+          </div> 
+          <div class="link-cust--success-message" ng-if="linkCustomerSuccessMsg">
+           {{linkCustomerSuccessMsg}}
+         </div> 
+      </div>
+    </div>
+</script>
+<script type="text/ng-template" id="linkingConfirmationPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:400px"> 
+      <div class="popup-header">
+        <span class="heading">Are you sure</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div> 
+      <div class="popup-body linkingConfirmationPopup-body">
+          <p>Are you sure you want to link these customers?</p>
+          <div class="link-cust--btns">
+            <button class="add-button link-no" type="button" ng-click="userCancelledLinking()">NO</button>
+            <button class="add-button link-yes" type="button" ng-click="userConfirmedLinking()">YES</button>
+          </div>
+      </div>
+    </div>
+</script>

@@ -1,0 +1,103 @@
+<div class="customer-notes-wrapper">
+  <div class="cnw-header">      
+      <success message="{{customerNotesSuccess}}" ng-if="customerNotesSuccess"></success>
+      <div class="cnw-add-new-link">
+          <a href="javascript:void(0)" ng-click="editCustomerNote(newBlankNoteModel, 'create')"><i class="cnw-notes-icon --sm" aria-hidden="true"></i><i class="fa fa-plus"></i>Add customer note</a>
+      </div>
+  </div>
+  <div class="cnw-body scrollareaCls" id="scrollareaClsBox">
+      <div class="spinner" ng-if="isCustomerNotesFetching">
+          <div class="spinner-item">
+              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" width="120" /></div>
+          </div>
+      </div>
+      <ul class="cnw-list no-data" ng-if="!isCustomerNotesFetching && customerNotes.length == 0">
+          <li>
+              <p class="text-center">No notes added</p>
+          </li>
+      </ul>
+      <ul class="cnw-list" ng-if="customerNotes && customerNotes.length > 0">
+          <li class="cnw-list-item" ng-repeat="item in customerNotes">
+              <div class="cnw-notes-row">
+                  <div class="cnw-notes-details">
+                      <div class="cnw-notes-details-name">{{item.submittedName}}</div>
+                      <div class="cnw-notes-details-date">{{item.createTime | date : 'MM/dd/yyyy - hh:mm a'}}</div>                      
+                      <div class="cnw-notes-details-action">
+                        <!-- <a class="cnw-notes-details-action-btn --pin" ng-class="{ 'pinned' : item.isPin === 1 }" href="javascript:void(0)" ng-click="editCustomerNote(item, 'pin')">
+                          <i class="fa fa-map-pin" ></i>                          
+                        </a> -->
+                          <a ng-class="{ 'icon-required' : !canEditNote(item) }" class="cnw-notes-details-action-btn --edit" href="javascript:void(0)" ng-click="canEditNote(item) ? editCustomerNote(item, 'edit') : null">
+                            <i class="fa fa-pencil"></i>
+                            <span ng-if="!canEditNote(item)" class="icon-required-inner-span">Only the user who added this note can edit it</span>
+                          </a>
+                          <a ng-class="{ 'icon-required' : !canDeleteNote(item) }" class="cnw-notes-details-action-btn --delete" href="javascript:void(0)" ng-click="canDeleteNote(item) ? editCustomerNote(item, 'delete') : null">
+                            <i class="fa fa-times"></i>
+                            <span ng-if="!canDeleteNote(item)" class="icon-required-inner-span">You do not have permission to delete other user's customer notes</span>
+                          </a>
+                      </div>
+                  </div>
+                  <div class="cnw-notes-description">
+                      <p ng-if="!readMoreEnabled[$index]">{{item.noteTxt | limitTo: customerNotesLessLength }}<span read-more-dots ng-if="item.noteTxt.length > customerNotesLessLength">...</span><a read-more href="javascript:void(0)" ng-if="item.noteTxt.length > customerNotesLessLength" ng-click="readMoreLessNotes($index, 'more')">Read more</a></p>
+                      <p ng-if="readMoreEnabled[$index]">{{item.noteTxt}} <a read-less href="javascript:void(0)" ng-if="item.noteTxt.length > customerNotesLessLength" ng-click="readMoreLessNotes($index, 'less')">Read less</a></p>
+                  </div>
+              </div>
+          </li>
+      </ul> 
+  </div>
+</div>
+<!-- modal -->
+<script type="text/ng-template" id="modifyCustomerNotesPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup cnw-popup-style {{ getNotesPopupClass() }}">
+   <div class="popup-header">
+    <span class="heading ng-binding"> {{ getHeadingText() }} Customer Note</span>     
+   </div>
+     <div class="popup-body popup-body--customer-note">
+        <error message="{{customerNotesError}}" ng-if="customerNotesError"></error>
+        <!-- <div class="spinner" ng-if="notesModifying()">
+          <div class="spinner-item">
+            <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+          </div>
+        </div>              -->
+        <form id="customerNotesForm" name="customerNotesForm" ng-submit="saveNotes()" novalidate>
+          <div class="row">
+            <div class="col-md-12">
+              <ng-container ng-if="isCreateMode || isUpdateMode">
+                <textarea
+                id="textareaNotes"
+                autocomplete="off"
+                class="form-control"
+                name="notes"
+                ng-class="{ 'has-error': !notesTextareaIsValid }"
+                ng-model="notesModel.noteTxt"
+                placeholder="Type notes here..."
+                maxlength="100000"
+                rows="3"
+                ng-disabled="notesModifying()"                
+                 >
+                </textarea>
+                <span class="has-required p-b10">
+                  <span ng-show="!notesTextareaIsValid">Please enter notes</span>
+                </span>                
+              </ng-container>
+              <ng-container ng-if="isDeleteMode">
+                <div class="row">
+                  <div class="col-md-12">
+                    <p class="text-center" style="margin-bottom: 17px">Are you sure you want to delete this note?</p>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 text-center cnw-btn-dir" ng-class="{ 'cnw-btn-dir-reverse' : isDeleteMode }">
+              <button ng-disabled="notesModifying()" class="add-button --customer-note-btn {{ getSubmitBtnClass() }}" type="submit">                
+                {{ getSubmitButtonText() }}
+              </button>
+              <button ng-disabled="notesModifying()" class="add-button --customer-note-btn --customer-note-cancel-btn" type="button" ng-click="closeModifyCustomerNotesPopup()">Cancel</button>
+            </div>
+          </div>
+        </form>
+     </div>
+  </div>
+</script>
+<!-- modal -->

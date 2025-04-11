@@ -1,0 +1,160 @@
+:after, :before, * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+  background-color: #edf0f5;
+  font-size: 16px;
+  line-height: 1.42857143;
+  color: #333;
+}
+::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(40,95,198,0.1);background-color:#edf0f5}
+::-webkit-scrollbar{width:6px;background-color:#285fc6}
+::-webkit-scrollbar-thumb{background-color:#285fc6;border-radius:10px}
+#accountform_container{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#accountform_form, #payform_form{
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+#accountform_title{
+    display: none;
+}
+.accountform_field{
+  margin-bottom: 10px;
+  width: 100%;
+}
+input[type=text], select {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+  min-width: 100%;
+
+}
+select.accountform_field_select{
+  height:34px;
+  border: 1px solid #C9C9C9;
+  
+}
+.accountform_button {
+  background-color: #285fc6;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  border: none;
+  padding: 6px 20px;
+  font-size: 14px;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #ffffff;
+  text-transform: uppercase;
+  font-weight: normal;
+  font-family: 'Lato', sans-serif;
+}
+.accountForm, .payForm{
+
+  font-family: 'Lato', sans-serif;
+}
+.accountform_field_label {
+    font-size: 15px;
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+.accountform_field_input:focus, .accountform_field_select:focus{
+  border-color:transparent;
+  border: 1px solid #ccc;
+  box-shadow: none;
+  outline: none;
+}
+#accountform_col_2{
+  display: none!important;
+}
+#accountform_col_1{
+  width:100%!important
+}
+#accountform_buttons{
+  text-align: center;
+}
+/*pay form*/
+#payform_form {
+  padding: 10px 20px 10px;
+  border-radius: 5px;
+}
+#payform_title{
+  display: none;
+}
+#payform_col_1{
+  width: 100% !important;
+}
+#payform_col_2{
+  display: none !important;
+}
+/*remove unwanted field*/
+#payform_field_transaction_c1, #payform_field_transaction_c2, #payform_field_transaction_c3, #payform_field_check_number, #payform_field_is_company, #payform_field_ach_sec_code, #accountform_field_is_company, #accountform_field_ach_sec_code{
+  display: none;
+}
+#payform_buttons{
+  text-align: center;
+}
+/* Enable zip and street address */
+#payform_col_2, #accountform_col_2{
+  display: block !important;
+}
+#payform_col_2.ACH, #accountform_col_2.ACH {
+  display: none !important;
+}
+label#payform_field_billing_zip_label, label#accountform_field_billing_zip_label {
+  display: inline-flex;
+  gap: 3px;
+}
+label#payform_field_billing_zip_label .payform_field_required_indicator, 
+label#accountform_field_billing_zip_label .accountform_field_required_indicator {
+  order: 2;
+  display: inline !important;
+}
+#payform_col_2 #payform_field_billing_city, 
+#payform_col_2 #payform_field_billing_state,
+#payform_col_2 #payform_field_billing_phone,
+#payform_col_2 #payform_fields_personalidentity,
+#payform_col_2 #payform_field_notification_email_address,
+#accountform_col_2 #accountform_field_billing_city, 
+#accountform_col_2 #accountform_field_billing_state,
+#accountform_col_2 #accountform_field_billing_phone,
+#accountform_col_2 #accountform_fields_personalidentity,
+#accountform_col_2 #accountform_field_notification_email_address
+{
+  display: none !important;
+}
+/* Enable zip and street address */

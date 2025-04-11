@@ -1,0 +1,249 @@
+<div class="tech-pay-report-wrapper " ng-show="canView" ng-init="technicianId ? '' : getAllReport()">
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+
+  <div  class="container-fluid white-bg p-tb20 p-lr20 border-box time-report-download-link-container report-sm-card-loader-parent" style="min-height: 324px;">
+    <div class="report-sm-card-loader" ng-if="isProcessingTechPayReport">
+      <div class="spinner">
+         <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+         </div>
+      </div>
+    </div>
+    <a href="javascript:void(0)" ng-click="downloadTimeReport(isTechDetailPage ? 'isTechDetailPage':'')" class="time-report-download-link"><i class="fa fa-clock-o"></i> Time Report</a>  
+    <div class="row text-left" >    
+      <div class="col-md-3 col-sm-12 col-xs-12 tech-report-left" ng-if="isTechDetailPage">      
+        <div class="title" style="{{!isTechRolesExist ? 'padding-bottom:0px' : ''}}">PAY <a href="javascript:void(0)" class="icon-required customer-subdomain-help" >
+          <i class="fa fa-question-circle" aria-hidden="true" style=" font-size: 14px;"></i>
+          <span ><p>To calculate payroll for this tech, choose a role from the dropdown menu below. Visits made by this tech within date range selected will be shown. Pay will be calculated by what is configured in settings for this role along with Service Levels/Types assigned to the properties visited.</p></span>
+        </a>
+      </div>
+        <label>Role </label>
+        <div class="flex" >
+          <div style="width: 100%;">  
+            <div class="blue-tooltip-large">
+              <div class="dropdown select-wrap ">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                  <b>{{selectedTechnicianRole.role ? selectedTechnicianRole.role : '--'   }}</b>
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu scrollable-menu">
+                  <li 
+                    ng-repeat="item in techRoleModel" 
+                    ng-hide="selectedTechnicianRole.role == item.role" 
+                    ng-click="getTechReport(item)"
+                  >
+                  <a href="javascript:void(0)">{{item.role}}</a>
+                </li>
+                </ul>
+              </div> 
+              <span class="service-level-no-item-help" ng-show="!isTechRolesExist">To assign a role and track technician pay, you will first need to create a role in settings. (Senior Tech, Junior Tech, Trainee, etc) You can choose how much pay the tech should receive by role, service level, type and whether to pay for no access stops.</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="title m-t10">
+          <label>
+            Payroll ID 
+            <a href="javascript:void(0)" class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+              <i class="fa fa-question-circle" aria-hidden="true" style=" font-size: 14px;"></i>
+              <span class="sch-help2"><p>This is optional. Payroll ID will display on all pay reports and can be used to import pay info into 3rd party payroll platforms.</p></span>
+            </a>
+            <span class="service-level-no-item-help"></span>
+          </label>
+          <div class="flex" >
+            <div style="width: 100%">
+              <input type="text" class="form-control" ng-blur="updatePayrollId(techPayrollId)" ng-model="techPayrollId" debounceTimeout="300" maxlength="50" />
+            </div>
+            <div class="h-12x light-grey"></div>
+          </div>
+        </div>
+        <success ng-if="payrollSuccessMsg" message="{{payrollSuccessMsg}}"></success>
+        <error ng-if="payrollErrorMsg" message="{{payrollErrorMsg}}"></error>
+      </div>  
+        <div class="col-sm-12 col-xs-12 col-md-{{isTechDetailPage ? '9' : '12'}}" >
+            <div>
+              <div class="row p-b20">
+                <div ng-if="isTechDetailPage" class="col-md-3"></div>
+                <div class="col-md-{{isTechDetailPage ? '8' : '6'}} text-left report-filter-box tech-report-filter-box">        
+                    <div class="select custom-select custom-select-noimage">
+                        <select ng-model="filterMonth" ng-change="filterByDays(filterMonth)" ng-options="x for x in filterReportData">
+                        </select>
+                    </div> 
+                    <div>
+                      <div class="grid date-picker-wrapper" ng-hide="filterMonth !='custom'">
+                        <div class="datePicker input-daterange input-daterange-include">
+                          <div class="col-6-12 p-lr10 fl">
+                            <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                              <input ng-model="dateModel.fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('dateModel.fromDate')" id="fromDateInputTech"/>
+                            </div>
+                          </div>
+                          <div class="col-6-12 m-l10 text-right fr">
+                            <div class="" date-format="MM/dd/yyyy" min-date="dateModel.fromDate">
+                              <input ng-model="dateModel.toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('dateModel.toDate')" id="toDateInputTech" />
+                            </div>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="flex" ng-show="filterMonth !='custom'">
+                        <i class="fa fa-caret-left" aria-hidden="true" ng-click="prevPeriod()"></i>
+                        <span>{{dateModel.pFromDate | date:'M/dd/yyyy'}}</span>
+                        <span>to</span>
+                        <span>{{dateModel.pToDate | date:'M/dd/yyyy'}}</span>
+                        <i class="fa fa-caret-right" aria-hidden="true" ng-click="nextPeriod()"></i>
+                      </div>
+                    </div>
+                </div>  
+                <!-- <div class="col-md-4 text-left" ng-if="!isTechDetailPage"> 
+                  <div class="text-left" >                
+                    <span class="r-label">
+                      <span class="bb light-blue font-large">
+                        {{total.amount | currency}}                   
+                      </span> Technician Pay</span>
+                  </div>                  
+              </div> -->
+            </div>
+              <span class="excel-download-btn" ng-click="downloadTechPayReport(isTechDetailPage ? '':'full')"></span>  
+                <!--<div ng-if="seriesData.length == 0 && selectedTechnicianRole.id" class="text-center p-t20">No data to display.</div>
+                <div ng-show="seriesData.length > 0">
+                  <div id="TECHREPORTCHART" class="report-chart tech-pay-report-chart"
+                    style="overflow: hidden; {{!isTechDetailPage ? 'margin: 0 auto; width: 702px;' : ''}}"></div>
+                  <div class="total-tech-report" ng-if="isTechDetailPage">
+                    <div>Total</div>
+                    <div>{{total.visits}} visit{{(total.visits > 1 ? 's':'')}}</div>
+                    <div>{{total.amount | currency}}</div>
+                  </div>
+                </div>-->
+              <div class="row">
+                <div class="col-md-12">
+                
+                  <div ng-if="isCommision === false"
+                    style="text-align: center; text-transform: uppercase; font-weight: bold;">Per Route Stop</div>
+                  <div ng-if="isCommision === true"
+                    style="text-align: center; text-transform: uppercase; font-weight: bold;">commission</div>
+                  <div id="Carousel" class="carousel slide" style="margin-bottom: 0; padding: 0 40px 30px 40px;">
+                    <ol class="carousel-indicators">
+                      <li ng-click="slidePrev()" ng-class="{'active': isCommision === false}"></li>
+                      <li ng-click="slideNext()" ng-class="{'active': isCommision === true}"></li>
+                    </ol>
+                    <div class="carousel-inner" style="overflow: visible !important;">
+                      <div ng-class="{false: 'item active', true: 'item'}[isCommision]">
+                          <div class="user-routes" style="border: 2px solid #285fc6; border-radius: 10px; padding: 10px; min-height: 300px;">
+                            <div ng-if="seriesData === undefined || seriesData.length == 0" class="text-center p-t20" style="margin-top: 15%;">
+                              <div class="row" ng-if="selectedTechnicianRole.id !== 0">
+                                <p>No route stops completed by this tech in date range selected</p>
+                              </div>
+                              <div class="row" ng-if="isTechDetailPage && selectedTechnicianRole.id === 0">
+                                <p>Please select a technician role to see pay amounts</p>
+                              </div>
+                            </div>
+                            <div ng-show="seriesData.length > 0" style="position: relative; top: 24px;">
+                              <div id="TECHREPORTCHART" class="report-chart tech-pay-report-chart"
+                                style="overflow: hidden; {{!isTechDetailPage ? 'margin: 0 auto; width: 702px;' : ''}}"></div>
+                              <div class="total-tech-report" ng-if="isTechDetailPage" style="padding-right: 10px; margin-top: 24px;">
+                                <div>Total</div>
+                                <div>{{total.visits}} visit{{(total.visits > 1 ? 's':'')}}</div>
+                                <div>{{total.amount | currency}}</div>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                
+                      <div ng-class="{true: 'item active', false: 'item'}[isCommision]">
+                          <div class="user-commissions"
+                            style="border: 2px solid #285fc6; border-radius: 10px; padding: 10px; min-height: 300px;">
+                            <div ng-if="commissionData === undefined || commissionData.length == 0" class="text-center p-t20" style="margin-top: 15%;">
+                              <div class="row" ng-if="selectedTechnicianRole.id !== 0">
+                                <p>No commission jobs for this tech in date range selected</p>
+                              </div>
+                              <div class="row" ng-if="isTechDetailPage && selectedTechnicianRole.id === 0">
+                                <p>Please select a technician role to see pay amounts</p>
+                              </div>
+                            </div>
+                            <div ng-show="commissionData.length > 0" style="position: relative; top: 24px;">
+                              <div ng-if="!isTechDetailPage" class="row table-report-head">
+                                <div class="col-md-4">Job Pay</div>
+                                <div class="col-md-4">Sales Pay</div>
+                                <div class="col-md-4">Total</div>
+                              </div>
+                              <div id="COMMREPORTCHART" class="report-chart tech-pay-report-chart"
+                                style="overflow: hidden; {{!isTechDetailPage ? 'margin: 0 auto; width: 702px;' : ''}}"></div>
+                              <div class="total-tech-report" ng-if="isTechDetailPage" style="padding-right: 10px; margin-top: 24px;">
+                                <div>Total</div>
+                                <div>{{comTotal.jobs}} job{{(comTotal.jobs > 1 ? 's':'')}}</div>
+                                <div>{{comTotal.amount | currency}}</div>
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+                
+                    </div>
+                    <i class="fa fa-caret-left" ng-if="isCommision !== true" aria-hidden="true" ng-class="{'slidePrev': isCommision === false}"></i>
+                    <i class="fa fa-caret-right" ng-if="isCommision !== true" ng-click="slideNext()" aria-hidden="true" ng-class="{'slideNext slideActive': isCommision === false}"></i>
+                    
+                    <i class="fa fa-caret-left" ng-if="isCommision === true" ng-click="slidePrev()" aria-hidden="true" ng-class="{'slidePrev slideActive': isCommision === true}"></i>
+                    <i class="fa fa-caret-right" ng-if="isCommision === true" aria-hidden="true" ng-class="{'slideNext': isCommision === true}"></i>
+                  </div>
+                </div>
+                <div class="col-md-6"></div>
+                <div class="col-md-6" style="font-weight: bold; text-align: end; padding-right: 80px;">Grand Total 
+                  <span style="margin-left: 80px;">{{ (total.amount + comTotal.amount) | currency }}</span></div>
+              </div>
+            </div>
+        </div>       
+    </div>
+    <div class="col-sm-12 tech-report-no-role-exist" ng-if="!isTechRolesExist">
+      <p>Create at least one role in settings section to track pay</p>
+    </div>    
+    
+  </div>
+  <div class="text-right p-tb5 p-20x"  style="min-height: 32px;">
+    <ng-container ng-show="isProcessingTechReport">
+      <b>Generating Report (this could take several minutes), Please wait or <a href="javascript:void;" ng-click="reloadPage()">Cancel </a></b>
+    </ng-container>
+  </div>  
+  </div> 
+
+  <script type="text/ng-template" id="sentReportEmailPopupTechProfile.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+       <div class="popup-header">
+          <span class="heading">Create Report</span>
+          <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+       </div>  
+       <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+          <div class="detail-box">         
+          <div class="grid text-left box" >         
+             <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+             <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+             <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+             <div class="col-12 sent-email-report-message">
+              Where should we send the report when it's ready? <br> (large reports can take a while)
+             </div>
+             <div class="col-12-12">                 
+                <div class="formGroup">
+                      <label>Email Address</label>
+                      <input 
+                         type="email" 
+                         autocomplete="off" 
+                         class="form-control" 
+                         ng-model="reportPageSentReportEmailModel.email" 
+                         placeholder="Email Address" 
+                         name="emailId" 
+                         ng-maxlength="100" 
+                         ng-minlength="6" 
+                         ng-disabled="reportPageIsReportSending"
+                         ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                         ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                         required                         
+                      />
+                </div>     
+             </div>
+          </div>      
+          <div class="text-center p-t20">
+             <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+             <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+          </div>        
+          </div>
+       </form> 
+    
+    </div>
+    </script>

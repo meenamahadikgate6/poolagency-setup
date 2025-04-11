@@ -1,0 +1,55 @@
+<div class="dataTables_wrapper modal-box common-popup technician-list-popup" style="width:400px; ">
+	<div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+	<div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+		<div class="spinner-item">
+			<div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+		</div>
+	</div>
+	<div class="popup-header">
+		<span class="heading">Switch Vehicle</span>
+		<div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i>
+		</div>
+	</div>
+	<div class="popup-body">
+		<div class="row-container">
+			<div class="formGroup text-center">
+				<img src="resources/images/magnifiy.png">
+				<input type="text" ng-model="vehicleSearchBox.searchText" placeholder="Search" class="form-control" ng-keyup="searchVehicle(vehicleSearchBox.searchText)" />
+			</div>
+			<ul>
+				<li ng-class="{'selected': !technicianinfo.assignedTruckDetails.id }">
+					<i class="fa fa-check-circle" ng-click="assignVehicle(0)"></i>
+					<div class="image-radius name-initial" ng-click="assignVehicle(0)">
+						<i class="fa fa-user-circle assign-tech"></i>
+					</div>
+					<span class="name" style="color:#000" ng-click="assignVehicle(0)">Unassign This Vehicle</span>
+				</li>
+				<hr style="border-color: #ccc;" class="m-tb10" />
+			</ul>
+			<ul id="scrollarea" style="overflow: auto; height: 283px;">
+				<li ng-repeat="vehicle in vehicleList" ng-class="{'selected':vehicle.id == technicianinfo.assignedTruckDetails.id}">
+					<i class="fa fa-check-circle" ng-click="vehicle.id != technicianinfo.assignedTruckDetails.id && assignVehicle(vehicle.id, $index)"></i>
+					<div class="image-radius name-initial" style="background-image:url('{{vehicle.coverPhoto.mediaPath}}');background-size: cover;" ng-click="vehicle.id != technicianinfo.assignedTruckDetails.id && assignVehicle(vehicle.id, $index)">
+						<span ng-show="!vehicle.userImage">
+							{{vehicle.name | convertToInitial: vehicle.name}}
+						</span>
+					</div>
+					<div class="vehicle-tech-info">
+						<div class="name" ng-click="vehicle.id != technicianinfo.assignedTruckDetails.id && assignVehicle(vehicle.id, $index)">{{vehicle.name}}</div>
+						<div class="vehicle-info">
+							<div class="vehicle-tech" ng-if="vehicle.assignedTechId && vehicle.assignedTechId != 0">
+								<div class="name">Tech: {{vehicle.assignedTechName}}</div>
+								<div class="vehicle-btn" ng-if="vehicle.assignedTechId != technicianinfo.id">
+									<button class="btn btn-primary btn-sm" ng-click="unAssignTechFromVehicle(vehicle.assignedTechId, vehicle.id)">Unassign</button>
+								</div>
+							</div>
+							<div class="vehicle-tech" ng-if="!vehicle.assignedTechId || vehicle.assignedTechId == 0" ng-click="vehicle.id != technicianinfo.assignedTruckDetails.id && assignVehicle(vehicle.id, $index)">
+								<div class="not-tech-assigned">no technician assigned</div>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,99 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">{{action}} Company</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+    <form name="companyForm" class="form-signin" ng-submit="companyForm.$invalid ? null : (model.cpassword == model.password && createOrupdateCompany())" novalidate>
+      <h4>Individual information</h4>
+      <label>First Name</label>
+      <input type="text" class="form-control" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" ng-model="model.firstName" placeholder="Enter your first name" name="firstName" ng-maxlength="50"
+                       ng-class="{'has-error': companyForm.$submitted && companyForm.firstName.$invalid || companyForm.firstName.$touched && companyForm.firstName.$invalid}"
+                       required autofocus>
+      <label>Last Name</label>
+      <input type="text" class="form-control" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" ng-model="model.lastName" placeholder="Enter your last name" name="lastName" ng-maxlength="50"
+                       ng-class="{'has-error': companyForm.$submitted && companyForm.lastName.$invalid || companyForm.lastName.$touched && companyForm.lastName.$invalid}"
+                       required autofocus>
+      <label>Email</label>
+      <input type="email"
+         class="form-control"
+         ng-disabled="action!='Add'"
+         ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' ng-model="model.email" placeholder="name@companyname.com" name="email" ng-maxlength="100" ng-minlength="6"
+                      ng-class="{'has-error': companyForm.$submitted && companyForm.email.$invalid || companyForm.email.$touched && companyForm.email.$invalid}"
+                      required autofocus>
+			<div ng-if="action=='Add'">
+      <label>Password</label>
+				<input type="password" ng-pattern="/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/" placeholder="Enter your password" ng-minlength="8" ng-maxlength="30" maxlength="30"
+										 ng-focus="isFocusOnPassword=true" ng-blur="isFocusOnPassword=false"
+										 ng-class="{'has-error': companyForm.$submitted && companyForm.password.$invalid || companyForm.password.$touched && companyForm.password.$invalid}"
+										 ng-model="model.password" id="password" name="password" class="form-control" required>
+				<div class="password-note" ng-class='{"password-note-red":companyForm.$submitted && companyForm.password.$invalid || companyForm.password.$touched && companyForm.password.$invalid}'>(Minimum 8 characters with 1 uppercase, 1 lowercase and 1 number)</div>
+			<label>Confirm Password</label>
+				<input type="password" class="form-control" ng-model="model.cpassword" placeholder="Confirm your password" name="cpassword"												
+          ng-class="{'has-error': companyForm.$submitted && companyForm.cpassword.$invalid || companyForm.cpassword.$touched && companyForm.cpassword.$invalid}"
+          ng-class="{'has-error': (companyForm.$submitted && model.cpassword != model.password && companyForm.password.$dirty) || (companyForm.$submitted && companyForm.cpassword.$invalid) || (companyForm.cpassword.$touched && companyForm.cpassword.$invalid)}"
+          required>
+          <div class="password-note password-note-red"><span ng-show="companyForm.$submitted && model.cpassword != model.password && companyForm.password.$dirty">Password does not match</div>
+                            
+      </div>
+
+      <h4>Company information</h4>
+      <label>Company Name</label>
+      <input type="text"
+        class="form-control"
+        ng-pattern="/^([a-zA-Z0-9 '._-]+)$/"
+        ng-model="model.companyName"
+        placeholder="Company Name" name="companyName" minlength="3" maxlength="50"
+        ng-class="{'has-error': companyForm.$submitted && companyForm.companyName.$invalid || companyForm.companyName.$touched && companyForm.companyName.$invalid}"
+        required autofocus>
+      <label>Website</label>
+      <input type="text"
+          class="form-control"
+          ng-model="model.companyWebsite"
+          placeholder="www.company.com" name="companyWebsite" ng-maxlength="100"
+          autofocus>
+
+      <label>Company Address</label>
+      <input type="text"
+          class="form-control"
+          ng-model="model.companyAddress"
+          placeholder="Enter your company address" name="companyAddress" minlength="5" maxlength="60"
+          ng-class="{'has-error': companyForm.$submitted && companyForm.companyAddress.$invalid || companyForm.companyAddress.$touched && companyForm.companyAddress.$invalid}"
+          required autofocus>
+        <label>City</label>
+        <input type="text"
+            class="form-control"
+            ng-model="model.companyCity"
+            placeholder="Enter your company city" name="companyCity" minlength="3" maxlength="40"
+            ng-class="{'has-error': companyForm.$submitted && companyForm.companyCity.$invalid || companyForm.companyCity.$touched && companyForm.companyCity.$invalid}"
+            required autofocus>
+        <label>State</label>
+				<select name="companyState" class="form-control"
+								ng-class="{'has-error': companyForm.$submitted && companyForm.companyState.$invalid || companyForm.companyState.$touched && companyForm.companyState.$invalid}"
+					ng-model="model.companyState" required>
+							<option value=''>State</option>
+							<option ng-repeat="state in stateList" value="{{state.key}}">{{state.value}}</option>
+					</select>
+        <label>Zipcode</label>
+        <input type="text"
+            class="form-control"
+            ng-model="model.companyZipcode"
+            maxlength="6"
+            minlength="5"
+            ng-pattern="/^\d{6}|\d{5}?$/"
+            placeholder="Enter your company zipcode" name="companyZipcode"
+            ng-class="{'has-error': companyForm.$submitted && companyForm.companyZipcode.$invalid || companyForm.companyZipcode.$touched && companyForm.companyZipcode.$invalid}"
+            required autofocus>
+
+
+
+      <br />
+      <button class="" ng-disabled="isProcessing" type="submit">Save</button>
+      <error ng-if="error" message="{{error}}"></error>
+    </form>
+  </div>
+</div>

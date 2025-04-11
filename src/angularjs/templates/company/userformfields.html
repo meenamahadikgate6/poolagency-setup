@@ -1,0 +1,342 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:458px; background-color: transparent;">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">{{model.actionType == 'add' ? 'Add User' : 'Edit User'}} </div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+
+
+
+
+  <div class="dataTables_wrapper" ng-init="getMeidList()">
+      <success message="{{successMsg}}" ng-if="successMsg"></success>
+
+        <div class="meid-form-container">
+          <form class="form-signin" name="userAddForm" ng-submit="userAddForm.$valid ? addOrUpdateUser() : null" novalidate style="border-radius:none;">
+            <div class="add-profile-image" ng-if="model.actionType == 'edit'">
+              <a href="javascript:void(0)" ng-click="browseImage()">
+              <img alt="Add Profile Image" border="0" src="{{profileImage ? profileImage : 'resources/images/add-image.png'}}"
+              title="Add Profile Image"/>
+              <div class="text-center">Add Photo</div>
+              </a>
+              <a href="javascript:void(0)"><div ng-if="profileImage" class="text-center" ng-click="removeProfilePicture()">Remove Photo</div></a>
+              <input base-sixty-four-input="" id="profileImage" name="image" ng-change="uploadFile()" ng-model="model.profileImage" style="display: none" type="file"/>
+            </div>
+            <div class="row-container">
+              <div class="row-item">
+                <input autofocus class="form-control input-width" name="firstName" ng-class="{'has-error': userAddForm.$submitted && userAddForm.firstName.$invalid || userAddForm.firstName.$touched && userAddForm.firstName.$invalid}" ng-maxlength="25" ng-model="model.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+                <input autofocus class="form-control input-width" name="lastName" ng-class="{'has-error': userAddForm.$submitted && userAddForm.lastName.$invalid || userAddForm.lastName.$touched && userAddForm.lastName.$invalid}" ng-maxlength="25" ng-model="model.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" type="text"/>
+              </div>
+              <div class="row-item">
+                  <label class="title-box m-t10" style="padding:0; margin-bottom: 0;" > Role  </label>
+              </div>
+              <div class="row-item m-b20">
+                  <label  ng-repeat="role in roles | orderBy:'-value'"
+                  ng-if="role.key == 'viewer' || (model.role=='companyadmin' && role.key == 'companyadmin') || (model.role!='companyadmin' && role.key == 'companymanager') || role.key == 'servicemanager'"
+                  ng-class="{'has-error-label': userAddForm.$submitted && !model.role}" class="checkbox-wrap" style="display: inline-block; padding: 0 7px 0 32px;text-indent: 0;">{{roleValue[role.key]}}
+                    <input ng-disabled="model.role=='companyadmin'" type="radio" ng-checked="model.role == role.key" name="role" autofocus ng-model="model.role" value="{{role.key}}" ng-click="changeRole(model.role)" >
+                    <span class="checkmark"></span>
+                  </label>
+              </div>
+              <ng-container ng-if="userSession.isUserOfMultiCompany == 1">                
+                <div class="multi-company-access-toggle">
+                  <span>Multi-Company Access</span>
+                  <a href="javascript:void(0)" class="icon-required customer-subdomain-help icon-required-tt-aligned">
+                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span>When activated, this user can access a drop down menu in the top left corner of their screen that lists ALL of the companies in your super-admin group. They can select any company from this menu to view or edit all data for that company. This permission should only be activated for trusted users who need to see all data for all companies.</span>
+                  </a>
+                  <label class="small switch" ng-click="toggleCanAccessMultiCompany(model)">
+                    <span ng-class="{'active' : model.canAccessMultiCompany == '1'}" class="slider round"></span>
+                  </label>
+                </div>              
+              </ng-container>
+              <ng-container ng-if="(loggedInRole=='companyadmin' || loggedInRole=='companymanager' || loggedInRole=='administrator')">
+
+                <div class="row-item">
+                  <div class="radio-button" style="background-color: #ccd8f0;  padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="editAlertPermission" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can customize alerts 
+                      <input type="checkbox" name="editAlertPermission" id="editAlertPermission" ng-model="model.editAlertPermission" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.editAlertPermission">
+                      <span class="checkmark"></span>
+                    </label>                
+                  </div>
+                </div>
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canEditReadings" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can edit data on jobs 
+                      <input type="checkbox" name="canEditReadings" id="canEditReadings" ng-model="model.canEditReadings" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canEditReadings">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canDeleteJobs" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can delete jobs 
+                      <input type="checkbox" name="canDeleteJobs" id="canDeleteJobs" ng-model="model.canDeleteJobs" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canDeleteJobs">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="viewTechnicianPay" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can view/edit payroll 
+                      <input type="checkbox" name="viewTechnicianPay" id="viewTechnicianPay" ng-model="model.viewTechnicianPay" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.viewTechnicianPay">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canCreateInvoice" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can create invoice 
+                      <input type="checkbox" name="canCreateInvoice" id="canCreateInvoice" ng-model="model.canCreateInvoice" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canCreateInvoice">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canEditInvoice" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can edit invoice 
+                      <input type="checkbox" name="canEditInvoice" id="canEditInvoice" ng-model="model.canEditInvoice" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canEditInvoice">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canDeleteInvoice" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can delete invoice 
+                      <input type="checkbox" name="canDeleteInvoice" id="canDeleteInvoice" ng-model="model.canDeleteInvoice" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canDeleteInvoice">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canCreateProducts" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can create products/services 
+                      <input type="checkbox" name="canCreateProducts" id="canCreateProducts" ng-model="model.canCreateProducts" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canCreateProducts">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canEditProducts" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can edit products/services 
+                      <input type="checkbox" name="canEditProducts" id="canEditProducts" ng-model="model.canEditProducts" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canEditProducts">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canDeleteProducts" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can delete products/services 
+                      <input type="checkbox" name="canDeleteProducts" id="canDeleteProducts" ng-model="model.canDeleteProducts" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canDeleteProducts">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canViewRouteProfitReport" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can view route profit report
+                      <input type="checkbox" name="canViewRouteProfitReport" id="canViewRouteProfitReport" ng-model="model.canViewRouteProfitReport" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canViewRouteProfitReport">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>  
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canDeleteNotes" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can delete other user's customer notes
+                      <input type="checkbox" name="canDeleteNotes" id="canDeleteNotes" ng-model="model.canDeleteNotes" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canDeleteNotes">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canViewCommission" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can view commissions on jobs & quotes
+                      <input type="checkbox" name="canViewCommission" id="canViewCommission" ng-model="model.canViewCommission" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canViewCommission">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canEditCommission" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can edit commissions on jobs & quotes
+                      <input type="checkbox" name="canEditCommission" id="canEditCommission" ng-model="model.canEditCommission" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canEditCommission">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canDismissAlerts" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can dismiss alerts
+                      <input type="checkbox" name="canDismissAlerts" id="canDismissAlerts" ng-model="model.canDismissAlerts" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canDismissAlerts">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canBulkDismissAlerts" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can bulk dismiss alerts
+                      <input type="checkbox" name="canBulkDismissAlerts" id="canBulkDismissAlerts" ng-model="model.canBulkDismissAlerts" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canBulkDismissAlerts">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canExportCustomerReports" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can export customer report
+                      <input type="checkbox" name="canExportCustomerReports" id="canExportCustomerReports" ng-model="model.canExportCustomerReports" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canExportCustomerReports">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canExportJobReports" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can export job reports
+                      <input type="checkbox" name="canExportJobReports" id="canExportJobReports" ng-model="model.canExportJobReports" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canExportJobReports">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canExportQuoteReports" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can export quote reports
+                      <input type="checkbox" name="canExportQuoteReports" id="canExportQuoteReports" ng-model="model.canExportQuoteReports" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canExportQuoteReports">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canExportInvoiceReports" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can export invoice reports
+                      <input type="checkbox" name="canExportInvoiceReports" id="canExportInvoiceReports" ng-model="model.canExportInvoiceReports" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canExportInvoiceReports">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+				
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canExportPaymentReports" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can export payment reports
+                      <input type="checkbox" name="canExportPaymentReports" id="canExportPaymentReports" ng-model="model.canExportPaymentReports" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canExportPaymentReports">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canManageAutomaticEmailSettings" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can manage Automatic Email settings
+                      <input type="checkbox" name="canManageAutomaticEmailSettings" id="canManageAutomaticEmailSettings" ng-model="model.canManageAutomaticEmailSettings" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canManageAutomaticEmailSettings">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canManageEmailTemplates" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can manage Email Templates
+                      <input type="checkbox" name="canManageEmailTemplates" id="canManageEmailTemplates" ng-model="model.canManageEmailTemplates" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canManageEmailTemplates">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canAccessTrucksAndToolsURL" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can access the Trucks & Tools URL
+                      <input type="checkbox" name="canAccessTrucksAndToolsURL" id="canAccessTrucksAndToolsURL" ng-model="model.canAccessTrucksAndToolsURL" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canAccessTrucksAndToolsURL">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+                
+                <div class="row-item" >
+                  <div class="radio-button" style="background-color: #ccd8f0; padding: 10px 10px 10px 50px; margin: 10px 0;">
+                    <label for="canAccessInventoryURL" class="checkbox-wrap" style="display: inline;  padding-left: 33px; padding-top: 3px;"> 
+                      Can access the Inventory URL
+                      <input type="checkbox" name="canAccessInventoryURL" id="canAccessInventoryURL" ng-model="model.canAccessInventoryURL" value="1" ng-disabled="model.role=='companyadmin' || model.role=='companymanager'" ng-checked="model.canAccessInventoryURL">
+                      <span class="checkmark"></span>
+                    </label>                   
+                  </div>
+                </div>
+
+              </ng-container>
+
+
+              <div class="row-item" ng-if="model.actionType == 'edit'">
+                <input autofocus class="form-control" name="phoneNumber"
+                ng-class="{'has-error': userAddForm.$submitted && userAddForm.phoneNumber.$invalid || userAddForm.phoneNumber.$touched && userAddForm.phoneNumber.$invalid}"
+                       ng-model="model.phoneNumber"
+                       ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/"
+                       phone-input="" placeholder="Phone" required="" type="text"/>
+              </div>
+              <div class="row-item">
+                <input autofocus class="form-control" name="email" ng-class="{'has-error': userAddForm.$submitted && userAddForm.email.$invalid || userAddForm.email.$touched && userAddForm.email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="model.email" ng-disabled="model.actionType != 'add'" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" required="" type="email"/>
+              </div>
+
+
+             <!-- <div class="row-item" ng-if="model.actionType == 'add'">
+                  <input autofocus class="form-control" name="password" ng-pattern="/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/" ng-class="{'has-error': userAddForm.$submitted && userAddForm.password.$invalid || userAddForm.password.$touched && userAddForm.password.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="model.password"  placeholder="password" required="" type="password"/>
+                  <div class="form-indicator">(8 Chars. min with 1 capital, 1 lower and 1 numeric)</div>
+              </div>
+              <div class="row-item p-t20" ng-if="model.actionType == 'add'">
+                  <input autofocus class="form-control" ng-pattern="model.password" name="cpassword"
+                  ng-class="{'has-error': userAddForm.$submitted && userAddForm.password.$invalid || userAddForm.password.$touched && userAddForm.password.$invalid || (userAddForm.$submitted && model.password && (model.password != model.cpassword))}" ng-maxlength="100" ng-minlength="6" ng-model="model.cpassword"  placeholder="confirm password" required="" type="password"/>
+
+              </div>-->
+            </div>
+            <div class="technicians-button">
+              <button class="add-button" ng-disabled="model.$invalid" type="submit">{{model.actionType == 'add' ? 'ADD User' : 'Update'}}</button>
+            </div>
+            <error message="{{errorArr}}" ng-if="errorArr"></error>
+          </form>
+        </div>
+
+    </div>
+
+
+  </div>
+</div>

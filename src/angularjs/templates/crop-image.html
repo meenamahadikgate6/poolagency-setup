@@ -1,0 +1,17 @@
+<div class="modal-box">
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">Crop Image</div>
+    <div class="popup-close" ng-click="closeThisDialog('close')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="dataTables_wrapper">
+  <div class="meid-form-container form-signin">
+    <div class="cropArea" style="overflow: hidden;height:350px;">
+      <ui-cropper image="myimage" result-image="myCroppedImage" area-type="{{cropperType}}" result-image-size='{w: 400,h: 400}'></ui-cropper>
+    </div>
+
+    <div class="technicians-button" style="text-align: center;">
+      <div class="button blue-bg" style="cursor: pointer;" ng-click="closeThisDialog(myCroppedImage)">Done </div>
+      <div class="button blue-bg" style="cursor: pointer;" ng-click="closeThisDialog('close')">Cancel </div>
+    </div>
+  </div>
+</div>

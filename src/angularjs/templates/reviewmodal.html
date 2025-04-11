@@ -1,0 +1,94 @@
+
+<div class="dataTables_wrapper modal-box popup-redesign reviewBox sucess-reviemodal" style="width: 700px;">
+  <success ng-if="reviewOnEnterSuccess && reviewByMail" message="{{reviewOnEnterSuccess}}" class="sucess-reviewsection"></success>
+    <div class="spinner" ng-if="isReviewProcessing">
+        <div class="spinner-item">
+            <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif" /> </div>
+        </div>
+    </div>
+    <div class="popup-header">
+        <div class="h-1-5x b text-center" ng-style="reviewByMail && reviewSuccess && {'display':'none'}">
+            <span ng-if="model.rating=='up'" style="top:5px;" class="icon-like" ><img  src="resources/images/like.png"> </span>
+            <span ng-if="model.rating=='down'" style="top:5px;" class="icon-dislike" ><img  src="resources/images/dislike.png"> </span>
+              {{reviewByMail ? 'Provide Details' : 'Leave Feedback'}}
+        </div>
+        <div class="popup-close" ng-click="closeThisDialog('Some value')" ng-if="!reviewByMail">
+            <img src="resources/images/icon-close.png">
+
+        </div>
+    </div>
+    <div class="popup-body text-center">
+        <form name="reviewForm" ng-submit="reviewForm.$invalid && (model.onBehalf!= 'Myself' || model.onBehalf != 'Customer' || !reviewByMail) ? null : saveTechReview(true)" novalidate>
+            <div class="row p-b30" ng-if="!reviewByMail">
+
+                <div class="col-sm-6">
+                     <!--  <select class="form-control select-redesign h-1-5x" name="onBehalf" style="width:100%" ng-model="model.onBehalf"
+                     ng-class="{'has-error': reviewForm.$submitted && reviewForm.onBehalf.$invalid || reviewForm.onBehalf.$touched && reviewForm.onBehalf.$invalid}" required>
+                          <option value="">Adding feedback as</option>
+                          <option value="Myself">Myself</option>
+                          <option value="Customer">On behalf of the customer</option>
+                      </select> -->
+                    <div class="dropdown select-wrap" ng-class="{'has-error': reviewForm.$submitted && (!model.onBehalf || model.onBehalf=='')}">
+                        <button class="btn btn-primary dropdown-toggle"
+
+                         type="button" data-toggle="dropdown">
+                            {{model.onBehalf ? (model.onBehalf=='Customer' ? 'On behalf of the customer' : model.onBehalf) : 'Adding feedback as'}}<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-hide="model.onBehalf=='Myself'" ng-click="model.onBehalf='Myself'"><a href="javascript:void(0)">Myself</a></li>
+                            <li ng-hide="model.onBehalf=='Customer'" ng-click="model.onBehalf='Customer'"><a href="javascript:void(0)">On behalf of the customer</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-6 text-right" >
+                    <div class="smallview datePicker input-daterange"  date-format="MM/dd/yyyy" ng-if="false">
+                        <input style="width: 168px" name="reviewDate" class="angular-datepicker-input" ng-change="filterByDate('fromDate')" ng-class="{'has-error': reviewForm.$submitted && reviewForm.reviewDate.$invalid || reviewForm.reviewDate.$touched && reviewForm.reviewDate.$invalid}" ng-click="clickDate($event)" ng-model="model.reviewDate" placeholder="Date" type="text" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="model.onBehalf=='Customer' && !reviewByMail" class="row"  >
+                <div class="col-sm-12 p-b20">
+                    <div class="customer-wrap">
+                        <span>Customer Name:</span>
+
+                        <input type="text" ng-model="model.customerName" name="customerName" ng-class="{'has-error': reviewForm.$submitted && reviewForm.customerName.$invalid || reviewForm.customerName.$touched && reviewForm.customerName.$invalid}" auto-complete="autoCompleteOptions" placeholder="Customer Name:" class="customer-search form-control h-1-5x" required/>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12" ng-style="reviewByMail && reviewSuccess && {'display':'none'}">
+                    <textarea class="form-control h-1-5x" ng-model="model.review" name="review" ng-class="{'has-error': reviewForm.$submitted && reviewForm.review.$invalid || reviewForm.review.$touched && reviewForm.review.$invalid}" maxlength="3000" ng-maxlength="3000" required></textarea>
+                    <div class="count-help text-left" style="margin-top:-10px">
+                        {{3000 - model.review.length}} character {{model.review.length > 0 ? 'remaining': 'limit'}}
+                    </div>
+                </div>
+                <div class="col-sm-12" ng-if="reviewByMail && reviewSuccess" style="margin: 50px auto;">
+                  <success ng-if="reviewSuccess" message="Thank you. Your feedback has been sent."></success>
+                </div>
+            </div>
+            <br />
+            <error ng-if="reviewError" message="{{reviewError}}"></error>
+            <!-- <success ng-if="reviewSuccess" message="{{reviewSuccess}}"></success> -->
+            <div class="fr p-b20" ng-style="reviewByMail && reviewSuccess && {'display':'none'}">
+                <button class="add-button button blue-bg" type="submit">SEND</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+        .datepicker table tr td.start-range.selected::after {
+        background: none !important;
+        content: '' !important;
+        position: absolute;
+        z-index: -1;
+        width: 36px;
+        height: 33px;
+        display: inline-block;
+        top: 0;
+        left: 0;
+</style>

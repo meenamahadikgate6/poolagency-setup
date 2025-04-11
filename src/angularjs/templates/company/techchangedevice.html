@@ -1,0 +1,26 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessingDevice">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">Change Device</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="popup-body text-center">
+    <div class="row-container">
+      <div ng-show="freeDeviceList.length > 0">
+          <select ng-model="selectedObj" style="width:100%">
+            <option value="">Select Device</option>
+            <option ng-repeat="devices in freeDeviceList" selected="{{selectedObj.deviceCompId == devices.deviceCompId}}" value="{{devices}}">{{devices.deviceName+' '+devices.deviceSerialNo}}</option>
+          </select>
+      </div>
+      <div ng-if="freeDeviceList.length == 0" class="has-error-lavel">System haven't find free device.</div>
+
+      <br />
+      <button ng-show="freeDeviceList.length > 0" class="button bt-blue" ng-disabled="isProcessing || !selectedObj" type="button" ng-click="selectedObj ? switchDevice(selectedObj, technicianObj) : null">Save</button>
+      <error ng-if="error" message="{{error}}"></error>
+    </div>
+  </div>
+</div>

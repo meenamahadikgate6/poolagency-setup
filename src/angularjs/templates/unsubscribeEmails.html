@@ -1,0 +1,82 @@
+<div class="unsubscribe-emails-content" ng-if="pageLoaded">
+    <div class="unsubscribe-emails-card">  
+        <div class="spinner" ng-if="isProcessing">
+            <div class="spinner-item">
+              <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+            </div>
+        </div> 
+        <h4 ng-if="invalidLink" class="unsubscribe-emails-broken-icon">
+            <i class="fa fa-unlink"></i>
+        </h4>
+        <h4 ng-if="invalidLink" class="unsubscribe-emails-heading m-b0">Link is invalid or expired</h4>
+        <img ng-if="!invalidLink && unsubscribeData.companyLogo" class="unsubscribe-emails-company-logo" src="{{unsubscribeData.companyLogo}}" alt="Company Logo"/>
+        <h4 ng-if="!invalidLink" class="unsubscribe-emails-heading">Unsubscribe </h4>
+        <p ng-if="!invalidLink" class="unsubscribe-emails-sub-heading">We're sorry to see you go.</p>
+        <form ng-if="!invalidLink && !unsubscribed && unsubscribeData.unsubscribeStatus==0" class="unsubscribe-emails-form" novalidate autocomplete="off" name="unsubscribeForm" ng-submit="submitUnsubscribeForm(unsubscribeForm)">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" disabled 
+                                ng-model="unsubscribeData.email" 
+                                name="email" 
+                                ng-maxlength="100" 
+                                ng-minlength="6" 
+                                ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/'
+                                ng-class="{'has-error': (unsubscribeForm.$submitted && unsubscribeForm.email.$error.pattern) || (unsubscribeForm.email.$invalid && unsubscribeForm.email.$dirty)}"
+                                required>
+                            <span class="help-block" ng-show="unsubscribeForm.$submitted && unsubscribeForm.email.$invalid">Please enter a valid email address.</span>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="form-label form-label-reason">Reason</label>                                                                 
+                        <div class="form-group form-group-reason">
+                            <label>
+                                <input required type="radio" value="I've never used this pool company" name="reason" ng-model="unsubscribeData.reason">
+                                <i></i>
+                                <span>I've never used this pool company</span>
+                            </label>
+                        </div>
+                        <div class="form-group form-group-reason">
+                            <label>
+                                <input required type="radio" value="I'm no longer using this pool company" name="reason" ng-model="unsubscribeData.reason">
+                                <i></i>
+                                <span>I'm no longer using this pool company</span>
+                            </label>
+                        </div>
+                        <div class="form-group form-group-reason">
+                            <label>
+                                <input required type="radio" value="I don't like the content of these emails" name="reason" ng-model="unsubscribeData.reason">
+                                <i></i>
+                                <span>I don't like the content of these emails</span>
+                            </label>
+                        </div>
+                        <div class="form-group form-group-reason">
+                            <label>
+                                <input required type="radio" value="Other reason " name="reason" ng-model="unsubscribeData.reason">
+                                <i></i>
+                                <span>Other reason </span>
+                            </label>
+                        </div>
+                        <span class="help-block" ng-show="unsubscribeForm.$submitted && unsubscribeForm.reason.$invalid">Please provide a reason for unsubscribing.</span> 
+                    </div>
+                </div>                
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="submit" class="btn btn-primary">Unsubscribe</button>
+                    </div>
+                </div>
+        </form>    
+        <div ng-if="unsubscribed">
+            <success message="Thank you. Your request has been sent to {{unsubscribeData.companyName}} to remove you from their email list.">                
+            </success>
+        </div>   
+        <div ng-if="unsubscribeData.unsubscribeStatus==1">
+            <success message="Your request has been already sent to {{unsubscribeData.companyName}} to remove you from their email list.">                
+            </success>
+        </div>  
+    </div>
+</div>

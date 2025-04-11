@@ -1,0 +1,67 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessingCard">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">Add New Card</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="popup-body text-center addNewCard">
+      <form name="cardForm" autocomplete="off" class="comman-form" rc-submit="saveCard()" novalidate>
+        <div class="form-group">
+                <input type="text" class="form-control" ng-minlength="12" maxlength="19" placeholder="Card Number"
+                ng-model="cardModel.cardNo" ng-blur="validateCardNumber()" name="cardNo" validator="[creditcard]">
+                 <label>Card Number</label>
+         </div>
+         <div class="row">
+             <div class="col-md-5 col-sm-5 col-xs-12">
+                 <div class="form-group">
+                     <div class="select-style" ng-class="{'has-error-select': cardForm.$submitted && !cardModel.expMonth}">
+                       <select  name="expMonth" ng-model="cardModel.expMonth">
+                             <option value="">Month</option>
+                             <option ng-repeat="expmonth in expmonthList"
+                             value="{{expmonth.key}}"
+                             ng-selected="{{expmonth.key == companyInfoModel['creditCard'].expMonth}}">
+                               {{expmonth.value}}
+                             </option>
+                         </select>
+                      </div>
+                       <label>Exp. Month</label>
+                 </div>
+             </div>
+             <div class="col-md-5 col-sm-5 col-xs-12">
+                 <div class="form-group">
+                   <div class="select-style" ng-class="{'has-error-select': cardForm.$submitted && !cardModel.expYear}">
+                     <select  name="expYear" ng-model="cardModel.expYear">
+                         <option value="">Year</option>
+                         <option ng-repeat="expyear in expyearList" value="{{expyear.key}}"
+                         ng-selected="{{expyear.key == companyInfoModel['creditCard'].expYear}}">
+                           {{expyear.value}}
+                         </option>
+                     </select>
+                   </div>
+                 <label>Exp. Year</label>
+                 </div>
+             </div>
+         </div>
+
+         <div class="row">
+             <div class="col-md-5 col-sm-5 col-xs-12">
+               <div class="form-group">
+                 <input type="password" class="form-control" ng-model="cardModel.cvv" placeholder="CVV" name="cvv" maxlength="4" ng-minlength="3" validator="[alphanum]">
+                 <label>CVV</label>
+                 <a class="cvv_numberbox" title='The CVV Number ("Card Verification Value") on your credit card or debit card is a 3 digit number located on the back of VISA®, MasterCard® and Discover® branded credit and debit cards. On your American Express® branded credit or debit card, it is a 4 digit numeric code located on the front.'>
+                   <img border="0" src="resources/images/cvvicon.png"/>
+                 </a>
+               </div>
+             </div>
+             <div class="col-md-7 col-sm-7 col-xs-12">&nbsp;</div>
+         </div>
+        <button class="" ng-disabled="isProcessing" type="submit">Save</button>
+
+        <error ng-if="cardError" message="{{cardError}}"></error>
+      </form>
+  </div>
+</div>

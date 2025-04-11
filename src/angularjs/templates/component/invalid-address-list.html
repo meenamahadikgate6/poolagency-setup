@@ -1,0 +1,66 @@
+<div class="set-chem-price  setting-sm-card-loader-parent" style="width: auto;">
+  <div class="setting-sm-card-loader" ng-if="settingPageLoaders.invalidAddress">
+    <div class="spinner">
+       <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+       </div>
+    </div>
+ </div>
+  <div class="set-chem-title">Invalid Customer Addresses</div>
+  <div class="set-chem-details">
+<div class="data-table-grid invalid-address-grid">
+  <table class="row-border hover no-footer dataTable" width="100%">
+    <thead class="dark-gray-bg">
+      <tr>
+        <th>CUSTOMER</th>
+        <th style="width:40%!important">ADDRESS</th>
+        <th>CITY</th>
+        <th>STATE</th>
+        <th>ZIPCODE</th>
+      </tr>
+    </thead>
+    <tbody dt-rows ng-repeat="customer in customerList" ng-class-odd="'odd'" ng-class-even="'even'">
+      <tr>
+        <td colspan="5" style="background:#edf0f5; height: 5px; padding: 0"></td>
+      </tr>
+      <tr class="even">
+        <td class="customer-name border-top2 border-left2 border-bottom2">   
+          <a id="{{customer.addressId}}" ui-sref="app.customerdetail({addressId: customer.addressId})" title="{{customer.displayName}}" style="padding-top: 0px; font-size: 16px;">
+            {{customer.displayName}}</a>
+        </td>
+        <td class="border-top2 border-bottom2" style="word-break: normal;">        
+            {{customer.address}}  
+        </td>
+        <td class="border-top2 border-bottom2">
+          {{customer.city}}  
+        </td>
+        <td class="border-top2 border-bottom2">
+          {{customer.state}}  
+        </td>
+        <td class="border-top2 border-right2 border-bottom2">
+          {{customer.zipcode}}  
+        </td>
+       
+      </tr>      
+    </tbody>
+    <tbody ng-if="customerList.length < 1">
+      <tr class="even">
+        <td colspan="5" style="text-align: center; padding-top: 10px;">No invalid addresses found</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="row">
+    <div class="col-md-4 p-t20">
+      <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite">
+          Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div>
+    </div>
+    <div class="col-md-8">
+      <div class="pagination">
+          <paging page="page" page-size="limit" total="totalRecord" text-first="First" text-last="Last" text-next="Next" text-prev="Prev"
+            paging-action="goToCustomerPage(page)" show-prev-next="true" show-first-last="true"> </paging>
+        </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>

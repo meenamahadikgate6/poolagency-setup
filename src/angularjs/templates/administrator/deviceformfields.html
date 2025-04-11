@@ -1,0 +1,34 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessingDeviceUpdate">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">{{action}} Device</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+    <form name="deviceForm" class="form-signin" ng-submit="deviceForm.$invalid ? null : createOrupdateDevice()" novalidate>
+      <h4>Individual information</h4>
+      <div ng-if="action=='Add'">
+      <label>serial Number</label>
+      <input type="text" class="form-control"  ng-model="model.deviceSerialNo" name="deviceSerialNo" readonly >
+    </div>
+      <label>Device Name</label>
+      <input type="text" class="form-control" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" ng-model="model.deviceName" placeholder="Enter device name" name="deviceName" ng-maxlength="50"
+                       ng-class="{'has-error': deviceForm.$submitted && deviceForm.deviceName.$invalid || deviceForm.deviceName.$touched && deviceForm.deviceName.$invalid}"
+                       required autofocus>
+
+
+
+      <br />
+      <label>Device Serial No.</label>
+      <input type="text" class="form-control" ng-pattern="/^([a-zA-Z0-9: '._-]+)$/" ng-model="model.deviceSerialNo" placeholder="Enter device name" name="deviceSerialNo" ng-maxlength="50"
+                       ng-class="{'has-error': deviceForm.$submitted && deviceForm.deviceSerialNo.$invalid || deviceForm.deviceName.$touched && deviceForm.deviceSerialNo.$invalid}"
+                       required autofocus>
+      <br />
+      <button class="" ng-disabled="isProcessing" type="submit">Save</button>
+      <error ng-if="error" message="{{error}}"></error>
+    </form>
+  </div>
+</div>

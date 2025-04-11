@@ -1,0 +1,1009 @@
+<style>
+.data-table-grid table tbody:after{
+  position: inherit !important
+}
+</style>
+<div class="customerdetails dataTables_wrapper" >
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+  <div class="row customer-add-moreinfo" ng-init="getCustomerInfo(); getAdminAlertSetting()">
+    <div class="col-md-5 col-sm-5 col-xs-12">
+      <div class="white-bg text-left p-tb20 p-lr20 " id="customer-details-box">
+        <div class="grid">          
+            <div class="p-name-container h-3-5x p-relative job-detail-customer-name"> 
+                <i class="fa fa-user-circle" aria-hidden="true"></i>             
+              <a class="underline-none b"  ng-href="app/customerdetail/{{customerinfo.customer.primeaddressId}}" title="{{customerinfo.customer.displayName}}">{{customerinfo.customer.displayName}}</a>             
+          </div>          
+        </div>
+
+        <div class="customer-add-block adjust">    
+            <div class="customer-add grid" style="font-weight: normal">
+                <div class="fl p-l10"><img border="0" src="resources/images/gps_mapblue.svg" class="phone-icon p-r5" style="vertical-align: middle" /></div>
+                <div class="fl cust-name-width" ng-if="customerinfo.customer.address" style="max-width: 350px;">
+                <a id="location_detail"  title="{{customerinfo.customer.address}}" ng-href="{{customerinfo.customer.isPrimary==1 ? '/app/customerdetail/'+customerinfo.customer.addressId:'/app/locationdetail/'+customerinfo.customer.addressId}}">
+                  <span>{{customerinfo.customer.address}} <i aria-hidden="true" style="color:red;" ng-if="customerinfo.customer.uspsValid==2" class="fa fa-exclamation-triangle" title="Not a valid address"></i>
+                  <br> {{customerinfo.customer.city}}, {{customerinfo.customer.state}} {{customerinfo.customer.zipcode}}</span>
+                </a>
+              </div>
+            </div>
+            <div class="h-0-5x" ng-if="customerinfo.contact" style="padding: 15px 0 0 32px;">
+                <div class="b customer-contact-name"><i class="fa fa-address-book adjust" aria-hidden="true"></i> {{customerinfo.contact.firstName}} {{customerinfo.contact.lastName}}</div>
+                <div class="customer-contact-relation h-12x">{{customerinfo.contact.relation}}</div>
+                <div class="customer-contact-detail m-tb5">
+                <div ng-if="customerinfo.contact.contactNumber">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+                    <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+                  </svg>
+      
+                  <a href="tel:{{customerinfo.contact.contactNumber}}" class="darkGray">
+                  <phone-Number number="{{customerinfo.contact.contactNumber}}"></phone-Number>
+                  </a>
+                </div>
+                <div class="customer-email" ng-if="customerinfo.contact.email">
+      
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                    <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+                  </svg>
+      
+                  <p><a class="show darkGray" ng-repeat="email in customerinfo.contact.email | convertToArrayByComma" href="mailto:{{email}}">{{email}}</a></p>
+                
+                </div>
+                </div>
+                <span class="more-count" ng-if="contactList.length>0" ng-click="showTab('2')">
+                    {{contactList.length-1}} more contacts
+                  </span>
+              </div>
+        </div>
+
+
+        
+          <div class="p-l20 h-0-5x" ng-if="!customerinfo.contact">
+              <div class="b customer-contact-name"><i class="fa fa-address-book" aria-hidden="true"></i> {{customerinfo.customer.displayName}}</div>
+              <div class="customer-contact-relation h-12x">Customer</div>
+              <div class="customer-contact-detail m-tb5">
+              <div ng-if="customerinfo.customer.contactNumber">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+                  <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+                </svg>
+    
+                <a href="tel:{{customerinfo.customer.contactNumber}}" class="">
+                <phone-Number number="{{customerinfo.customer.contactNumber}}"></phone-Number>
+                </a>
+              </div>
+              <div class="customer-email" ng-if="customerinfo.customer.email">
+    
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                  <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+                </svg>
+    
+                <p><a class="show" ng-repeat="email in customerinfo.customer.email | convertToArrayByComma" href="mailto:{{email}}" class="">{{email}}</a></p>
+              
+              </div>
+              </div>
+              <span class="more-count" ng-if="contactList.length>0" ng-click="showTab('2')">
+                  {{contactList.length-1}} more contacts
+                </span>
+            </div>
+        <div class="customer-add-block-bottom" style="margin-top: 40px">
+          
+        </div>
+        <div ng-if="isPropertyInformation" ng-controller="propertyInformationController" ng-include="'/templates/property-information-popup.html?ver='+PB_WEB_VERSION"></div>    
+      </div>    
+    </div>
+   
+      <div class="col-md-7 col-sm-7 col-xs-12 " ng-controller="checklistItemController" ng-include="'/templates/component/checklist-item.html?ver='+PB_WEB_VERSION"></div>
+ 
+  </div>
+  <!--<div ng-controller="equipmentController" ng-include="'/templates/equipmentDetails.html?ver='+PB_WEB_VERSION"></div>-->
+  <div ng-controller="equipmentController" ng-include="'/templates/equipmentDetailsOneOffJob.html?ver='+PB_WEB_VERSION"></div>
+  <div ng-if="waterBodyObj && waterBodyObj.jobId" class="m-t20">
+    <div class="flex-container cleaning-header cleaning-header-customer-job">
+      <div class="cleaning-data cleaning-data-left-data">Completed on 
+        <span class="b" ng-if="job.closeTime">{{job.closeTime | date:"MM/dd/yyyy"}}</span>
+        <span class="b" ng-if="!job.closeTime">{{job.createTime | date:"MM/dd/yyyy"}}</span>
+        <span ng-if="job.isOneTimeMoved == 1" class="covered-visit-area">
+          <span class="covered-visit-title">
+            covered visit
+          </span>
+          <a href="javascript:void(0)" class="icon-required" style="margin-left: 5px;">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+            <span class="sch-help">This route stop was completed by a technician other than the originally scheduled tech for this property. "Covered visit" appears when any route stop is completed while it's in "one time move" status in Scheduling section. Depending on payroll settings, techs can automatically be paid a bonus percentage for covering route stops in this way.</span>
+          </a>
+        </span>
+      </div>
+
+      <div class="cleaning-data tech-name" ng-if="job.technicianName">TECHNICIAN:
+        <!--      <img class="customer-image" ng-src="{{techProfileImage}}" alt="{{technicianName}}" title="{{technicianName}}">-->
+        <div class="image-radius name-initial small customer-image" ng-style="{'background-image': 'url('+techProfileImage+')'}"
+          style="background-size: cover;" alt="{{technicianName}}" title="{{technicianName}}">
+          <span ng-show="!techProfileImage">
+            {{technicianFirstName | convertToInitial: technicianLastName}}
+          </span>
+        </div>
+        <a class="underline-none" style="color: #fff" ng-href="app/techniciandetail/{{job.technicianId}}">{{technicianName}}</a>
+
+
+        <div ng-if="job.technicianId" ng-controller="techRatingController" class="like-dislike-wrap p-l10 m-t0 fr">
+            <a title="Rating UP" style="display: inline-block; text-decoration: none; margin-right: 0" class="underline-none" href="javascript:void(0)"
+              ng-click="rateTach(job.tempJobId, job.technicianId, userSession.userId, 'up')"><span class="like-inner-wrap like-wrap-white"> <img src="resources/images/like.png"> </span>
+            </a>
+            <a style="display: inline-block; text-decoration: none; margin-right: 0" title="Rating DOWN" class="underline-none" href="javascript:void(0)"
+              ng-click="rateTach(job.tempJobId, job.technicianId, userSession.userId, 'down')"><span class="like-inner-wrap like-wrap-white" style="border: 1px solid #bc1010;"><img style="top:2px" src="resources/images/dislike.png"> </span>
+            </a>
+        </div>
+
+
+      </div>
+
+      <div class="cleaning-data tech-name" ng-if="!job.technicianName && job.installerName">INSTALLER:     
+
+        <div class="image-radius customer-image name-initial small" ng-style="{'background-image': 'url('+techProfileImage+')'}"
+          style="background-size: cover;" alt="{{job.installerName}}" title="{{job.installerName}}">
+          <span ng-show="!techProfileImage">{{(job.installerName ? job.installerName.charAt(0).toUpperCase() : '')}}</span>
+        </div>
+        <a class="underline-none" style="color: #fff" ng-href="app/techniciandetail/{{job.installerId}}">{{job.installerName}}</a>
+      </div>
+
+
+    </div>
+    <div class="cleaning-details p-lr20">
+      <div class="data-table-grid">
+        <div class="dataTables_wrapper">
+          <table class="row-border hover no-footer dataTable" width="100%">
+            <tbody dt-rows ng-class="{'shown': job.jobId == openedJobId, 'bounceIn animated popIn' : isPopOut}" class="">
+              <tr>
+                <td colspan="3" class="cleaning-details-issues">
+                  <div class="cleaning-issues">
+                    <div class="issues-tabs" id="issues-tabs-{{job.jobId}}" ng-class="{'open': job.jobId == openedJobId}">
+                      <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.issue.length > 0">
+                        <a ng-repeat="issue in alertIssue.issue" href='javascript:void(0)' ng-init="checkConfirmOverRide(issue, 'client')"
+                          ng-click="issue.alertIssueId == issueObj.alertIssueId ? null : alertsIssueTabs(job, issue, 'client')"
+                          class="linkClass clientIssue" ng-class="{'selected': issue.alertIssueId == issueObj.alertIssueId}"
+                          data-title="{{issue.type}}">
+                          <!-- <div ng-if="showDot['client'][issue.alertIssueId]" class="blue-dot-alert">
+                            <span class="blue-dot"></span>
+                          </div> -->
+                          <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                          <img border="0" src="resources/images/{{issue.type}}.jpg" alt="{{setTitle(issue.type)}}" title="{{setTitle(issue.type)}}"
+                          />
+                          <div class="alertNote" ng-bind="getAlertTabName(issue.type)"></div>
+                        </a>
+                      </div>
+                      <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.systemIssue.length > 0">
+                        <a ng-repeat="issue in alertIssue.systemIssue" href="javascript:void(0)" ng-click="issue == issueObj ? null : alertsIssueTabs(job, issue, 'system')"
+                          ng-init="checkConfirmOverRide(issue, 'system')" class="linkClass {{(issue.symbol == 'OUT_OF_WATER' || issue.symbol == 'PUMP_NOT_RUNNING' || issue.symbol == 'LOW_TESTING_PADS' || issue.symbol == 'LOW_BATTERY') ? 'water_guru_color' : issue.priority }}" ng-class="{'selected': issue == issueObj}"
+                          data-title="{{issue.type}}">
+                          <!-- <div ng-if="showDot['system'][issue.systemIssueId]" class="blue-dot-alert">
+                            <span class="blue-dot"></span>
+                          </div> -->
+                          <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                          <img border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" alt="{{issue.title | htmlToPlaintext}}"
+                            title="{{issue.title | htmlToPlaintext}}" />
+                          <div class="alertNote">{{issue.title}}</div>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="issues-tabs manager-name" ng-if="serviceManagerName">Viewing:
+                   
+                      <div class="image-radius customer-image name-initial small" ng-style="{'background-image': 'url('+managerProfileImage+')'}"
+                        style="background-size: cover;" alt="{{serviceManagerName}}" title="{{serviceManagerName}}">
+                        <span ng-show="!managerProfileImage">
+                          {{serviceManagerFirstName | convertToInitial: serviceManagerLastName}}                          
+                        </span>
+                      </div>
+                      {{serviceManagerName}}</div>
+                    <div class="small-loader" ng-if="showLoader">
+                      <img border="0" src="resources/images/loader.gif" />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" class="details-expand-hide" ng-class="{'details-expand': job.jobId == openedJobId}">
+                  <div class="tech-expand" ng-if="openedJobId==job.jobId">
+                    <div class="brushing-expand tabDivs" ng-if="issueObj">
+                      <div class="tech-note text-left alert-notewrap" style="width: 100%;">
+
+                        <div class="row" style="margin-bottom: 2px;">
+                          <div class="col-md-7">
+                              <div class="darkGray notEnough cinline-block">
+                              <!--  <span class="b notEnough"> {{openedIssueType == 'client' ? getAlertTabName(issueObj.type) : issueObj.description}} </span>
+                                {{issueObj.time ? ': '+issueObj.time : ''}}  -->
+      
+                                <span class="b notEnough" ng-if="openedIssueType == 'client'"> {{getAlertTabName(issueObj.type)}} </span>
+                                <span ng-if="openedIssueType != 'client'" class="m-b10" style="display: inline-block;" ng-bind-html="displayAsMultiLine(issueObj)"> </span>
+                                <div class="brushing-video cinline-block" style="vertical-align: top;" ng-if="jobDetails.alertsAssetsArray[selectedAlertIssueId].length > 0">
+                                    <a class="light-blue" href="javascript:void(0)" ng-click="showAlertPictures(jobDetails.alertsAssetsArray[selectedAlertIssueId])"> <i class="fa fa-camera" aria-hidden="true"></i> View Pictures</a>
+                                </div>
+                                <div class="alert-error-box" ng-if="openedIssueType == 'client' && issueObj.alertCount > 1">{{issueObj.alertCount}} visits in a row</div>
+                              </div>
+                          </div>
+                          <div class="col-md-5">
+                              <div class="fr text-right">
+                                  <!-- ng-if="(!checkConfirmDetail(issueObj.confirmDetail) && issueObj.overrideNote == '')" -->
+                                  <div ng-if="!issueObj.closeStatus" style="margin-right:0;">
+                                    <div class="" style="margin-right:0;">
+                                      <a href="javascript:void(0)" class="mclass selected" ng-if="permissions.canDismissAlerts == 1 || permissions.isSuperAdmin == 1" data-id="confirmDiv" ng-init="toggleConfirm()" ng-click="callConfirmSubmit(true)">
+                                        <div class="button blue-bg">DISMISS</div>
+                                      </a>
+                                      <a class="button blue-bg icon-required" ng-if="permissions.canDismissAlerts == 0" href="#" style="color: #fff;">DISMISS
+                                        <span class="sch-help" style="bottom: 46px; right: -8px;">
+                                          <p>You do not have permission to dismiss alerts</p>
+                                        </span>
+                                      </a>
+                                    </div>
+                                    <!-- <div class="override-list">
+                                      <a href="javascript:void(0)" id="overRide" class="mclass" ng-class="{'selected' : overRide }" data-class="alertTab"
+                                        ng-click="toggleOverRide()" data-id="overrideDiv">
+                                        <div class="button dark-gray-bg">OVERRIDE </div>
+                                      </a>
+                                    </div> -->
+                                  </div>
+                                   
+                                  <div ng-if="issueObj.closeStatus" style="margin-right:0;">
+                                    
+                                    <div class="issues-tabs manager-name" ng-if="issueObj.managerName" >
+                                      <div class="image-radius customer-image name-initial small" ng-style="{'background-image': 'url({{issueObj.managerImage}})'}" style="background-size: cover;" alt="{{issueObj.managerName}}" title="{{issueObj.managerName}}">
+                                          <span ng-show="!issueObj.managerImage">
+                                            {{issueObj.managerFirstName | convertToInitial: issueObj.managerLastName}}                                            
+                                          </span>
+                                      </div>
+
+                                      
+
+                                      {{issueObj.managerName}}</div>
+                                      <a href="javascript:void(0)" class="mclass selected" style="text-decoration:none; cursor:text;">
+                                          <div class="button blue-bg">DISMISSED </div>
+                                        </a>
+                                        <div ng-if="issueObj.autoDismissNotes" class="bulk-dismiss-msg">{{issueObj.autoDismissNotes}}</div>
+                                  </div>
+                                  <!-- <div ng-if="issueObj.overrideNote != ''">
+                                    <a href="javascript:void(0)" id="overRide" class="mclass">
+                                      <div class="button dark-gray-bg">OVERRIDDEN </div>
+                                    </a>
+                                  </div> -->
+          
+                                </div>
+                          </div>
+                        </div>
+                        
+
+
+
+
+
+                        <div ng-if="openedIssueType == 'client' && gaugeDescription" class="darkGray text-italic notEnough">
+                          <div class="b notEnough p-r10 p-b5" >
+                            <span style="font-weight: normal;font-size: 15px;">{{gaugeDescription}}</span>
+                          </div>
+                        </div>
+                          
+                           
+                        <div ng-if="openedIssueType == 'client'" class="darkGray text-italic notEnough">
+                          <div class="b notEnough p-r10 p-b5" ng-if="issueObj.issueNote">Tech Note:
+                            <span style="font-weight: normal;font-size: 15px;">{{issueObj.issueNote}}</span>
+                          </div>
+                        </div>
+                        <div ng-if="issueObj.overrideNote" class="darkGray text-italic notEnough">
+                          <div class="b notEnough p-r10 p-b5" ng-if="issueObj.overrideNote">Tech Note: <span style="font-weight: normal;font-size: 15px;">{{issueObj.overrideNote}}</span></div>
+                        </div>
+
+
+
+
+                      </div>
+                      <!--  <div class="brushing-video" ng-if="openedIssueType == 'client' && jobDetails.alertsAssetsArray[selectedAlertIssueId].length > 0">
+                        <div class="fl p-r10 light-blue"><i class="fa fa-camera" aria-hidden="true"></i></div>
+                        <div class="light-blue fl"> <a class="light-blue" href="javascript:void(0)"> {{jobDetails.alertsAssetsArray[selectedAlertIssueId][0].filePath.split('/').pop()}} </a> </div>
+
+                      </div> -->
+
+
+                      <!--  <div class="fr">
+                        <div class="confirm-list"> <a href="javascript:void(0)" class="mclass" ng-class="{'disabled':!checkConfirmDetail(issueObj.confirmDetail)}" data-id="confirmDiv">
+                          <div class="button" >CONFIRM </div>
+                          </a> </div>
+                        <div class="override-list"> <a href="javascript:void(0)" id="overRide" class="mclass" ng-class="{'disabled':issueObj.overrideNote == ''}" data-class="alertTab"  data-id="overrideDiv">
+                          <div class="button" >OVERRIDE </div>
+                          </a> </div>
+                      </div> -->
+                      
+
+
+                      <div ng-if="!issueObj.closeStatus" class="confirm fadein">
+                        <div style="clear:both"></div>
+                  <div class="row tech-contact-detail-box">
+                    <div class="col-12 col-lg-4 col-md-6">
+                      <div class="item">
+                              <div class="type b">Contact Pool Tech</div>
+                              <div>{{jobDetails.technicianName}}</div>
+                              <div ng-if="jobDetails.technicianContactNumber">
+                                  <i class="fa fa-phone" aria-hidden="true"></i>
+                                  <a class="white" href="tel: {{jobDetails.technicianContactNumber}}">{{jobDetails.technicianContactNumber}}</a>
+                              </div>
+                              <div class="tick">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" ng-true-value="true" ng-false-value="false" type="checkbox" name="technicianCheck1" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech"
+                                  title="Completed" ng-click="callConfirmSubmit()" value="true" ng-value="true" id="technicianCheck1"
+                                />
+                                <label for="technicianCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-12 col-lg-4 col-md-6">
+                              <div class="item">
+
+                              <div class="type b">Contact Customer</div>
+                              <div>{{jobDetails.customerName}}</div>
+
+                                <div ng-if="jobDetails.customerContactNumber">
+                                  <i class="fa fa-phone" aria-hidden="true"></i>
+                                  <a class="white" href="tel:'{{jobDetails.customerContactNumber}}"> {{jobDetails.customerContactNumber}}</a>
+                                </div>
+                                <div ng-if="jobDetails.customerEmail">
+                                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                                  <a class="white" href="mailto:{{jobDetails.customerEmail}}">{{jobDetails.customerEmail}} </a>
+                                </div>
+
+                              <div class="tick">
+                                <input ng-disabled="preventDefaultAction" ng-true-value="true" ng-false-value="false" class="css-checkbox-medium" type="checkbox" title="Completed" ng-click="callConfirmSubmit(alertId)"
+                                  name="customerCheck1" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer"
+                                  value="true" ng-value="true" id="customerCheck1" />
+                                <label for="customerCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-12 col-lg-4 col-md-6">
+                              <div class="item">
+                              <div class="type b">Schedule Visit</div>
+
+                              <div class="tick">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" ng-true-value="true" ng-false-value="false" type="checkbox" name="schVisitCheck1" title="Completed" ng-click="callConfirmSubmit()"
+                                  ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit"
+                                  value="true" ng-value="true" id="schVisitCheck1" />
+                                <label for="schVisitCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+
+                              </div>
+                            </div>
+                          </div>
+
+                  </div>
+                      </div>
+                      <div class="overRide" ng-class="{'fadein' : overRide }">
+                        <div ng-if="overRide" class="alert-tab override-tab">
+                          <success ng-if="successOveride" message="{{successOveride}}"></success>
+                          <error ng-if="errorOveride" message="{{errorOveride}}"></error>
+                          <div class="p-b15 h-1-5x">Explain why alert is being overriden</div>
+                          <form ng-submit="submitOveride(jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote)" name="overridenForm[selectedAlertIssueId]">
+                            <textarea ng-disabled="preventDefaultAction" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote" ng-change="changeOver($event,selectedAlertIssueId)"
+                              required rows="4" columns="20" placeholder="Type message here..."></textarea>
+                            <div class="text-right">
+                              <button class="button override-btn disabledBtn" ng-attr-id="btn{{selectedAlertIssueId}}" type="submit" disabled="true">Submit</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                      <div class="" ng-if="issueObj.closeStatus &&
+                        (issueObj.confirmDetail
+                        && (issueObj.confirmDetail.contactPoolTech ||
+                        issueObj.confirmDetail.contactCustomer ||
+                        issueObj.confirmDetail.scheduleVisit))" style="clear:both;">
+                        Actions taken:
+                        <ul>
+                          <li ng-repeat="(confirmOptKey, confirmOptValue) in issueObj.confirmDetail" ng-show="confirmOptValue && confirmOptKey!= 'isDismissed'">
+                            <span ng-if="confirmOptKey == 'contactPoolTech' && confirmOptValue">Contact Pool Tech</span>
+                            <span ng-if="confirmOptKey == 'contactCustomer' && confirmOptValue">Contact Customer</span>
+                            <span ng-if="confirmOptKey == 'scheduleVisit' && confirmOptValue">Schedule Visit</span>
+                            <span ng-if="confirmOptKey == 'discipliniaryAction' && confirmOptValue">Disciplinary Action</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div class="" ng-if="!issueObj.closeStatus &&
+                        jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail
+                        && (jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech ||
+                        jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer ||
+                        jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit ||
+                        jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction )"
+                        style="clear:both;">
+                        Actions taken:
+                        <ul ng-if="!issueObj.closeStatus">
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech">Contact Pool Tech</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer">Contact Customer</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit">Schedule Visit</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction">Disciplinary Action</li>
+                        </ul>
+                      </div>
+
+                      <div class="brushing-search" ng-class="{'p-t5' : confirmOpen || overRide }" ng-show="!issueObj.closeStatus">
+                        <!-- <success ng-if="successCustomNote" message="{{successCustomNote}}"></success> -->
+                        <error ng-if="errorCustomNote" message="{{errorCustomNote}}"></error>
+                        <form>
+                          <input style="{{successCustomNote ? 'border-color:#578a32;background-color: #DFF2BF;' : ''}}"
+                          ng-disabled="canDismissAlerts" type="search"
+                          ng-blur="saveCustomNote($event)"
+                          ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote"
+                            maxlength="1000"
+                            ng-maxlength="1000"
+                            placeholder="Type notes here..." 
+                            ng-class="{'has-error': dismissAlertSettingError}" />
+                            <div class="count-help text-left" style="margin-top:0; float: right">
+                              {{issueObj.customNote.length > 0 ? 'Remaining' : ''}} Character limit {{1000 - issueObj.customNote.length}}
+                            </div>
+                           
+                            <span class="has-required"><span ng-show="dismissAlertSettingError">Notes are required to dismiss alert</span> </span>
+                        </form>
+                      </div>
+                      <div class="action-note flex-container">
+                        <div class="action" ng-show="issueObj.closeStatus" style="width: 100%;">
+                          <span class="action-title">Manager notes:</span>
+                          <div style="word-break: break-word;">{{issueObj.customNote ? issueObj.customNote : 'No notes available'}}</div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+        </div>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cleaning-activity flex-container cleaning-activity-with-light-tabs">
+      <div class="chemical" style="position:relative;">
+        <div class="chemical-title">JOB ACTIVITY</div>
+        <div class="chemical-data input activity with-tabs" id="scrollarea">
+          <ul>
+            <li ng-if="instHistory.length > 0" ng-repeat="activity in instHistory">
+              <span>{{activity.createTimeFormatted}}</span>             
+              <span ng-if="activity.workFlowType && activity.workFlowType != ''" class="installer-history-checklist-type-icon"><img src="{{getChecklistType(activity.workFlowType).icon}}"/></span>
+              <span ng-if="activity.workFlowType == '' && activity.type == 'CHECKLIST'" class="installer-history-checklist-type-icon"><img src="{{getChecklistType('checklistItem').icon}}"/></span>
+              <span ><span>{{activity.title | limitTo: 300 }} <span class="job-activity-readmore-tooltip-toggle" ng-if="activity.title.length > 300" ptitle="{{activity.title}}" title-class="job-activity-readmore-tooltip">...more</span></span></span>
+              <span ng-if="activity.value && activity.value != ''" class="installer-history-checklist-type-title"> - {{activity.value | limitTo: 300 }} <span class="job-activity-readmore-tooltip-toggle" ng-if="activity.value.length > 300" ptitle="{{activity.value}}" title-class="job-activity-readmore-tooltip">...more</span></span>
+              <a href="javascript:void(0)"ng-if="activity.images.length > 0" ng-click="showActivityPictures(activity)">
+                <i class="fa fa-camera" aria-hidden="true"></i> Photos</a>
+              <a href="javascript:void(0)" ng-if="activity.note != ''" ng-click="showNote(activity.note)">
+                <img border="0" src="resources/images/notes-icon.png" class="p-l20 p-r5" style="vertical-align: middle"
+                /> Note</a>
+            </li>
+            <li ng-if="instHistory.length < 1">
+              <div class="fl p-r20 text-center">No Job Activity </div>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="chemical-cost">
+          <span class="job-start-time">Start  
+              <div class="dropdown select-wrap">
+                  <div class="input-group" ng-class="{'job-updated': jobActivityTime['startDate'].isUpdated ==true}">
+                      <input type="text" datetimepicker datetimepicker-disable-drop options="startTimePickerOption" ng-model="jobActivityTime['startDate'].time"
+                       ng-blur="jobStartTimeOnBlur(jobActivityTime['startDate'].time)"
+                      ps-datetime-picker class="form-control startJobInput input-indent" ng-readonly="canEditReadings ? true : false">
+                      <span class="input-group-addon datetimepicker-icon " ng-click="startDateTimeOpen()"></span>
+                      
+                      <div class="e-tooltip" ng-if="jobActivityTime['startDate'].isUpdated ==true">
+                        <strong>Technician started job at {{startJobLog[0].oldDate | date:'MM/dd/yy hh:mm a'}} </strong>
+                        <ul>
+                          <li ng-repeat="joblog in startJobLog">Changed to {{joblog.newDate |  date:"MM/dd/yy hh:mm a"}} by {{joblog.firstName}} {{joblog.lastName}} - {{joblog.createTime |  date:"MM/dd/yy"}}</li>
+                        </ul>
+                      </div>
+                  </div> 
+              </div>
+          </span>
+          <span class="job-end-time">Finish 
+              <div class="dropdown select-wrap" >
+                  <div class="input-group" ng-class="{'job-updated': jobActivityTime['endDate'].isUpdated ==true}">
+                      <input type="text" datetimepicker datetimepicker-disable-drop options="endTimePickerOption" ng-model="jobActivityTime['endDate'].time"
+                      ng-blur="jobEndTimeOnBlur(jobActivityTime['endDate'].time)" 
+                      ps-datetime-picker class="form-control endJobInput input-indent" ng-readonly="canEditReadings ? true : false">
+                      <span class="input-group-addon datetimepicker-icon" ng-click="endDateTimeOpen()"></span>
+                      
+                      <div class="e-tooltip" ng-if="jobActivityTime['endDate'].isUpdated ==true">
+                        <strong>Technician finished job at {{endJobLog[0].oldDate | date:'MM/dd/yy hh:mm a'}} </strong>
+                        <ul>
+                          <li ng-repeat="joblog in endJobLog">
+                            Changed to {{joblog.newDate |  date:"MM/dd/yy hh:mm a"}} by {{joblog.firstName}} {{joblog.lastName}} - {{joblog.createTime |  date:"MM/dd/yy"}}
+
+                          </li>
+                        </ul>
+                      </div>
+
+                  </div> 
+              </div>
+          </span>
+          <span class="job-duration">Duration:
+            <span class="cost-value">{{installerHistory.totalMinutes}}</span>
+          </span>
+          
+        </div>
+        <error ng-if="timeError" message="{{timeError}}" style="position:absolute;width:100%;"></error>
+      </div>
+      <div class="chemical job-activity-right with-tabs"  ng-controller="customerJobImagesController">       
+        <!-- customer & job notes -->
+        <div class="pb-light-tabs-area">
+          <ul class="pb-light-tabs-btn-group">
+            <li class="pb-light-tabs-btn" ng-class="{ 'active' : activePLTab == 'jobNotes' }"><span ng-click="openPLTab('jobNotes')">Job Notes</span></li>
+            <li class="pb-light-tabs-btn" ng-class="{ 'active' : activePLTab == 'customerNotes' }"><span ng-click="openPLTab('customerNotes')">Customer Notes</span></li>
+          </ul>
+          <ul class="pb-light-tabs-content-group">
+            <li class="pb-light-tabs-content scrollareaCls" ng-if="activePLTab == 'jobNotes'">
+              <p ng-repeat="installnote in installNotes">{{installnote.confirmNote}}</p>
+            </li>
+            <li class="pb-light-tabs-content scrollareaCls" ng-if="activePLTab == 'customerNotes'">
+              <p ng-repeat="customerNote in customerNotes">{{customerNote.confirmNote}}</p>
+            </li>
+          </ul>
+        </div>
+        <!-- customer & job notes -->  
+        
+        <div class="chemical-title">
+          <!--<a href="javascript:void(0)" ng-click="showPicturesVideos($event, 'video')" class="light-blue p-l5">
+            <img border="0" src="resources/images/video-icon.png" style="width:28px;padding-bottom: 5px;"> <span>Video</span>
+          </a>-->
+          <div class="link-view-gallery" ng-if="slides.length > 0 && !(slides.length == 1 && slides[0].assetsType == 'No Image')">  <a href="javascript:void(0)" ng-click="showImageInModal(jobDetails.jobId)" class="b underline-none ng-binding"> View Gallery <i  class="fa fa-long-arrow-right" aria-hidden="true"></i></a></div>
+        </div>
+
+        <div  ng-if="slides.length > 0 && !(slides.length == 1 && slides[0].assetsType == 'No Image')">
+          <ui-carousel  slides="slides" slides-to-show="2" slides-to-scroll="1" dots="false" autoplay="false"
+              ng-click="showImageInModal(jobDetails.jobId)" style="cursor: pointer;">
+            <carousel-item>
+              <div class="image">
+                <!-- <img src="{{ item.filePath }}"> -->
+                <div class="slide-image" ng-show="item.filetype == 'image'"  ng-style="{'background-image':'url('+item.fileThumbPath+')'}"></div>
+
+                  <div class="slide-image" ng-show="item.filetype == 'video'" >
+                                   <video width="247" height="172" controls>
+                                    <source src="{{item.filePath}}" type="video/mp4">
+
+                                Your browser does not support the video tag.
+                                </video>
+
+                  </div>
+              </div>
+              <div class="carousel-content">{{ item.assetsType }}</div>
+            </carousel-item>
+          </ui-carousel>
+        </div>
+        <div ng-if="slides.length == 0 || (slides.length == 1 && slides[0].assetsType == 'No Image')" class="p-tb40 text-center" >No image available</div>
+      </div>
+    </div>
+    <div class="cleaning-activity flex-container cleaning-activity-with-light-tabs" ng-if="loadingChemical">
+      <div class="chemical">
+        <div class="chemical-title">Readings</div>
+        <success ng-if="successChemicalReading" message="{{successChemicalReading}}"></success>
+        <error ng-if="errorChemicalReading" message="{{errorChemicalReading}}"></error>
+        <div class="chemical-data reading no-margin">
+          <table width="100%%" border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+              <tr>
+                <td class="reading-title">CHLORINE</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.chlorine == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.chlorine}}"  title-direction="bottom">               
+                  <input type="number" step="any" ng-model="chemicalReading.chlorine" id="chlorine" ng-class="getChemicalClassName(chemicalReading.chlorine_type, chemicalReadingLogs.chlorine)" 
+                  ng-blur="updateChemicals('reading', 'chlorine', chemicalReading.chlorine, chemicalReadingDefault.chlorine)" class="input-number"  mgminmax-validator ng-min="{{chemicalReading.chlorine_minValue}}" ng-max="{{chemicalReading.chlorine_maxValue != 0 ? chemicalReading.chlorine_maxValue : '20'}}" ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.chlorine_decimalAllowed}}"/>               
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;">{{chemicalReadingUnit.chlorine}}</td>
+                <td class="reading-title">SALT </td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.salt == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.salt}}"  title-direction="bottom">                
+                  <input type="number" step="any" ng-model="chemicalReading.salt" id="salt" ng-class="getChemicalClassName(chemicalReading.salt_type, chemicalReadingLogs.salt)"
+                  ng-blur="updateChemicals('reading', 'salt', chemicalReading.salt, chemicalReadingDefault.salt)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.salt_minValue}}" ng-max="{{chemicalReading.salt_maxValue != 0 ? chemicalReading.salt_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" only-num allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.salt_decimalAllowed}}"/>               
+                
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.salt}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">pH</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.ph == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.ph}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.ph" id="ph" ng-class="getChemicalClassName(chemicalReading.ph_type, chemicalReadingLogs.ph)"
+                  ng-blur="updateChemicals('reading', 'ph', chemicalReading.ph, chemicalReadingDefault.ph)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.ph_minValue}}" ng-max="{{chemicalReading.ph_maxValue != 0 ? chemicalReading.ph_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.ph_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;">{{chemicalReadingUnit.ph}}</td>
+                <td class="reading-title">PHOSPHATES</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.phosphates == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.phosphates}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.phosphates" id="phosphates" ng-class="getChemicalClassName(chemicalReading.phosphates_type, chemicalReadingLogs.phosphates)"
+                  ng-blur="updateChemicals('reading', 'phosphates', chemicalReading.phosphates, chemicalReadingDefault.phosphates)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.phosphates_minValue}}" ng-max="{{chemicalReading.phosphates_maxValue != 0 ? chemicalReading.phosphates_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" only-num  allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.phosphates_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.phosphates}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">ALKALINITY</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.alkalinity == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.alkalinity}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.alkalinity" id="alkalinity" ng-class="getChemicalClassName(chemicalReading.alkalinity_type, chemicalReadingLogs.alkalinity)" 
+                  ng-blur="updateChemicals('reading', 'alkalinity', chemicalReading.alkalinity, chemicalReadingDefault.alkalinity)"   class="input-number"  mgminmax-validator ng-min="{{chemicalReading.alkalinity_minValue}}" ng-max="{{chemicalReading.alkalinity_maxValue != 0 ? chemicalReading.alkalinity_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" only-num allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.alkalinity_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;">{{chemicalReadingUnit.alkalinity}}</td>
+                <td class="reading-title">TDS</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.tds == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.tds}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.tds" id="tds" ng-class="getChemicalClassName(chemicalReading.tds_type, chemicalReadingLogs.tds)"
+                  ng-blur="updateChemicals('reading', 'tds', chemicalReading.tds, chemicalReadingDefault.tds)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.tds_minValue}}" ng-max="{{chemicalReading.tds_maxValue != 0 ? chemicalReading.tds_maxValue : '9999' }}" ng-readonly="canEditReadings ? true : false" only-num allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.tds_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.tds}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">CYA</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.cya == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.cya}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.cya" id="cya" ng-class="getChemicalClassName(chemicalReading.cya_type, chemicalReadingLogs.cya)" 
+                  ng-blur="updateChemicals('reading', 'cya', chemicalReading.cya, chemicalReadingDefault.cya)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.cya_minValue}}" ng-max="{{chemicalReading.cya_maxValue != 0 ? chemicalReading.cya_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" only-num  allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.cya_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;">{{chemicalReadingUnit.cya}}</td>
+                <td class="reading-title">FILTER PSI</td> 
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.filterPsi == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.filterPsi}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.filterPsi" id="filterPsi" ng-class="getChemicalClassName(chemicalReading.filterPsi_type, chemicalReadingLogs.filterPsi)"  
+                  ng-blur="updateChemicals('reading', 'filterPsi', chemicalReading.filterPsi, chemicalReadingDefault.filterPsi)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.filterPsi_minValue}}" ng-max="{{chemicalReading.filterPsi_maxValue != 0 ? chemicalReading.filterPsi_maxValue : '9999'}}"  ng-readonly="canEditReadings ? true : false" only-num allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.filterPsi_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.filterPsi}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">CALCIUM</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.calcium == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.calcium}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.calcium" id="calcium" ng-class="getChemicalClassName(chemicalReading.calcium_type, chemicalReadingLogs.calcium)" 
+                  ng-blur="updateChemicals('reading', 'calcium', chemicalReading.calcium, chemicalReadingDefault.calcium)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.calcium_minValue}}" ng-max="{{chemicalReading.calcium_maxValue != 0 ? chemicalReading.calcium_maxValue : '9999'}}" ng-readonly="canEditReadings ? true : false" only-num  allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.calcium_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;">{{chemicalReadingUnit.calcium}}</td>
+                <td class="reading-title">WATER TEMP</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.watertemperature == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.watertemperature}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.watertemperature" id="watertemperature" ng-class="getChemicalClassName(chemicalReading.watertemperature_type, chemicalReadingLogs.watertemperature)" 
+                  ng-blur="updateChemicals('reading', 'watertemperature', chemicalReading.watertemperature, chemicalReadingDefault.watertemperature)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.watertemperature_minValue}}" ng-max="{{chemicalReading.watertemperature_maxValue != 0 ? chemicalReading.watertemperature_maxValue : '9999'}}"  ng-readonly="canEditReadings ? true : false" only-num allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.watertemperature_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.watertemperature}}</td>
+              </tr>
+              <tr>
+                  <td class="reading-title">BROMINE</td>
+                  <td class="reading-input" title-class="dark {{chemicalReadingLogs.bromine == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.bromine}}"  title-direction="bottom">
+                    <input type="number" step="any" ng-model="chemicalReading.bromine" id="bromine" ng-class="getChemicalClassName(chemicalReading.bromine_type, chemicalReadingLogs.bromine)"
+                    ng-blur="updateChemicals('reading', 'bromine', chemicalReading.bromine, chemicalReadingDefault.bromine)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.bromine_minValue}}" ng-max="{{chemicalReading.bromine_maxValue != 0 ? chemicalReading.bromine_maxValue : '20'}}" ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.bromine_decimalAllowed}}"/>
+                  </td>
+                  <td class="reading-value" style="border-right:solid 1px #c9cfd7;border-bottom: solid 1px #c9cfd7;">{{chemicalReadingUnit.bromine}}</td>
+                  <td class="reading-title">BORATES</td>
+                  <td class="reading-input" title-class="dark {{chemicalReadingLogs.borates == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.borates}}"  title-direction="bottom">
+                    <input type="number" step="any" ng-model="chemicalReading.borates" id="borates" ng-class="getChemicalClassName(chemicalReading.borates_type, chemicalReadingLogs.borates)" 
+                    ng-blur="updateChemicals('reading', 'borates', chemicalReading.borates, chemicalReadingDefault.borates)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.borates_minValue}}" ng-max="{{chemicalReading.borates_maxValue != 0 ? chemicalReading.borates_maxValue : '100'}}"  ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.borates_decimalAllowed}}"/>
+                  </td>
+                  <td class="reading-value">{{chemicalReadingUnit.borates}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">COPPER</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.copper == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.copper}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.copper" id="copper" ng-class="getChemicalClassName(chemicalReading.copper_type, chemicalReadingLogs.copper)" 
+                  ng-blur="updateChemicals('reading', 'copper', chemicalReading.copper, chemicalReadingDefault.copper)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.copper_minValue}}" ng-max="{{chemicalReading.copper_maxValue != 0 ? chemicalReading.copper_maxValue : '20'}}" ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.copper_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;border-bottom: solid 1px #c9cfd7;">{{chemicalReadingUnit.copper}}</td>
+                <td class="reading-title">IRON</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.iron == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.iron}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.iron" id="iron" ng-class="getChemicalClassName(chemicalReading.iron_type, chemicalReadingLogs.iron)"
+                  ng-blur="updateChemicals('reading', 'iron', chemicalReading.iron, chemicalReadingDefault.iron)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.iron_minValue}}" ng-max="{{chemicalReading.iron_maxValue != 0 ? chemicalReading.iron_maxValue : '100'}}"  ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.iron_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.iron}}</td>
+              </tr>
+              <tr>
+                <td class="reading-title">ORP</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.oxidationReductionPotential == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.oxidationReductionPotential}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.oxidationReductionPotential" id="oxidationReductionPotential" ng-class="getChemicalClassName(chemicalReading.oxidationReductionPotential_type, chemicalReadingLogs.oxidationReductionPotential)" 
+                  ng-blur="updateChemicals('reading', 'oxidationReductionPotential', chemicalReading.oxidationReductionPotential, chemicalReadingDefault.oxidationReductionPotential)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.oxidationReductionPotential_minValue}}" ng-max="{{chemicalReading.oxidationReductionPotential_maxValue != 0 ? chemicalReading.oxidationReductionPotential_maxValue : '20'}}" ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.oxidationReductionPotential_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value" style="border-right:solid 1px #c9cfd7;border-bottom: solid 1px #c9cfd7;">{{chemicalReadingUnit.oxidationReductionPotential}}</td>
+                <td class="reading-title">H. PEROXIDE</td>
+                <td class="reading-input" title-class="dark {{chemicalReadingLogs.hydrogenPeroxide == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs.hydrogenPeroxide}}"  title-direction="bottom">
+                  <input type="number" step="any" ng-model="chemicalReading.hydrogenPeroxide" id="hydrogenPeroxide" ng-class="getChemicalClassName(chemicalReading.hydrogenPeroxide_type, chemicalReadingLogs.hydrogenPeroxide)" 
+                  ng-blur="updateChemicals('reading', 'hydrogenPeroxide', chemicalReading.hydrogenPeroxide, chemicalReadingDefault.hydrogenPeroxide)"  class="input-number"  mgminmax-validator ng-min="{{chemicalReading.hydrogenPeroxide_minValue}}" ng-max="{{chemicalReading.hydrogenPeroxide_maxValue != 0 ? chemicalReading.hydrogenPeroxide_maxValue : '100'}}"  ng-readonly="canEditReadings ? true : false" allowinputonlytwodecimal data-allowdecimal="{{chemicalsDecimalAllowedData.hydrogenPeroxide_decimalAllowed}}"/>
+                </td>
+                <td class="reading-value">{{chemicalReadingUnit.hydrogenPeroxide}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- <div class="chem-reading-result">Cleaned- Filter PSI: <span class="yesno-icon {{job.chemicalReading.isFilterPsiCleaned}}-icon"></span> |
+          Salt: <span class="yesno-icon {{job.chemicalReading.isFilterPsiCleaned}}-icon"></span> |
+          Has Backwash: <span class="yesno-icon {{job.chemicalReading.isFilterPsiCleaned}}-icon"></span> </div> -->
+      </div>
+      <div class="chemical chemical-input-device">
+        <div class="chemical-title">Chemicals Added</div>
+
+
+        <div class="chemical-data reading no-margin input-box" id="scrollarea">
+          <table width="100%%" border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+              <!-- <tr>
+                <td style="height: 10px; padding: 0" colspan="8"></td>
+              </tr> -->
+              <tr ng-repeat="chemicalData in chemicalStatus">
+                <!-- <td ng-if="chemicalStatus[$index*2].keyValue" style="width: 10px; padding: 0"></td> -->
+                <td ng-if="chemicalStatus[$index*2].keyValue" class="reading-title" style="text-transform: uppercase;"> {{chemicalStatus[$index*2].keyValue}}</td>
+                <td ng-if="chemicalStatus[$index*2].keyValue" class="reading-input" title-class="dark {{chemicalReadingLogs[chemicalStatus[$index*2].keyName+'_added'] == 'noText' ? 'noText' : ''}}"  ptitle="{{chemicalReadingLogs[chemicalStatus[$index*2].keyName+'_added']}}" title-direction="bottom" >
+                  <input  
+                  type="number"
+                  step="any"
+                  id="chemicalStatus[$index*2].keyName"
+                  class="input-number" 
+                  string-to-number 
+                  ng-model="chemicalStatusModel.chemicalStatus[$index*2].value" 
+                  ng-class="getChemicalClassName('added', chemicalReadingLogs[chemicalStatus[$index*2].keyName+'_added'])"
+                  ng-blur="updateChemicals('', chemicalStatus[$index*2].keyName, chemicalStatusModel.chemicalStatus[$index*2].value, chemicalStatusDefault[$index*2].value)"  
+                  ng-keyup="chemicalStatus[$index*2].keyName == 'tabs' ? validateCTabs($event, $index*2) : ''" 
+                  mgminmax-validator 
+                  ng-min="0" 
+                  ng-max="chemicalStatus[$index*2].keyName == 'tabs' ? 99 : 9999999999" 
+                  ng-readonly="canEditReadings ? true : false"
+                  allowinputonlytwodecimal               
+                  />  
+                </td>
+                <td ng-if="chemicalStatus[$index*2].keyValue" class="reading-value" style="border-right:solid 1px #c9cfd7;text-transform: capitalize;">{{chemicalStatus[$index*2].unit}}</td>
+
+                <td ng-if="chemicalStatus[($index*2)+1].keyValue" class="reading-title" style="text-transform: uppercase">{{chemicalStatus[($index*2)+1].keyValue}}</td>
+                <td ng-if="chemicalStatus[($index*2)+1].keyValue" class="reading-input" title-class="dark {{chemicalReadingLogs[chemicalStatus[($index*2)+1].keyName+'_added'] == 'noText' ? 'noText' : ''}}" ptitle="{{chemicalReadingLogs[chemicalStatus[($index*2)+1].keyName+'_added']}}" title-direction="bottom">                 
+                  <input                  
+                  type="number" 
+                  step="any"
+                  id="chemicalStatus[($index*2)+1].keyName" 
+                  class="input-number"
+                  string-to-number 
+                  ng-model="chemicalStatusModel.chemicalStatus[($index*2)+1].value" 
+                  ng-class="getChemicalClassName('added', chemicalReadingLogs[chemicalStatus[($index*2)+1].keyName+'_added'])"
+                  ng-blur="updateChemicals('', chemicalStatus[($index*2)+1].keyName, chemicalStatusModel.chemicalStatus[($index*2)+1].value, chemicalStatusDefault[($index*2)+1].value)"  
+                  ng-keyup="chemicalStatus[($index*2)+1].keyName == 'tabs' ? validateCTabs($event, ($index*2)+1) : ''"                  
+                  mgminmax-validator 
+                  ng-min="0" 
+                  ng-max="chemicalStatus[($index*2)+1].keyName == 'tabs' ? 99 : 9999999999"  
+                  ng-readonly="canEditReadings ? true : false"
+                  allowinputonlytwodecimal
+                  />           
+
+                </td>
+                <td ng-if="chemicalStatus[($index*2)+1].keyValue" class="reading-value" style="text-transform: capitalize;">{{chemicalStatus[($index*2)+1].unit}}</td>
+                <!-- <td ng-if="chemicalStatus[($index*2)+1].keyValue" style="width: 10px;padding: 0"></td> -->
+              </tr>
+              <!-- <tr>
+                <td style="height:10px; padding: 0" colspan="8"></td>
+              </tr> -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="chemical-cost">Chemical Cost:
+          <span class="cost-value">${{fullJobsCost | number : '2'}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-right audit-link p-tb10">
+    <a href="javascript:void(0)" ng-click="openAuditLog()">AUDIT</a>
+  </div>
+</div>
+<div ng-init="initGraphArea(addressId, waterBodyId, 'routeStop')" class="graph-area-parent graph-area-parent-route-stop" ng-controller="graphAreaController" ng-include="'/templates/component/graph-area.html?ver='+PB_WEB_VERSION"></div>
+
+
+<div class="grid chemical-cost" ng-if="!waterBodyObj || (waterBodyObj && !waterBodyObj.jobId)">
+  <div class="white-bg m-tb20 p-lr20  p-tb20 text-center">
+     {{noJobDataAvailable}}
+  </div>
+</div>
+
+
+</div>
+<script type="text/ng-template" id="note.html">
+  <!-- <div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div>
+      <div>{{note}}</div>
+          </div>
+</div> -->
+  <div class="dataTables_wrapper modal-box pupup-sm">
+    <div class="popup-header">
+      <div class="popup-close" ng-click="closeThisDialog('Some value')">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="popup-body text-center">
+      <div>{{note}}</div>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="videoDialog.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup videos-popup">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div ng-if="video">
+
+             <video width="500" height="400" controls>
+                                    <source src="{{video.filePath}}" type="video/mp4">
+
+                                Your browser does not support the video tag.
+                                </video>
+          </div>
+          <div ng-if="!video" style="padding:50px 0; text-align:center">
+            No video found.
+          </div>
+</div>
+</script>
+<script type="text/ng-template" id="sensor.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="popup-close" ng-click="closeThisDialog('Some value')">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div>
+      <div class="p-t10" ng-if="jobSensor.length > 0">
+        <div class="b" style="padding-left: 10px;">SENSORS</div>
+        <div style="padding:5px 10px" ng-repeat="sensor in jobSensor track by $index"> {{sensor.name}} </div>
+        <!-- Left Basket<br />
+              Right Basket -->
+      </div>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="picturesVideos.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup">
+    <div class="popup-header">
+      <div class="popup-close" ng-click="closeThisDialog('Some value')">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div>
+      <ui-carousel slides="slides" slides-to-show="1" slides-to-scroll="1" initial-slide="1" autoplay="false" autoplay-speed="2000"
+        dots="false">
+        <carousel-item>
+          <!-- <div class="image popup"><img src="{{ item.filePath }}"></div> -->
+          <div class="image popup">
+            <!-- <img src="{{ item.filePath }}"> -->
+            <div class="slide-image" ng-show="item.filetype == 'image'" ng-style="{'background-image':'url('+item.filePath+')'}" style="height: 500px;background-size:contain"></div>
+          </div>
+        
+          <div class="carousel-content carousel-subtitle">{{item.assetsType}}
+          <span>{{item.caption}}</span>
+          <button  ng-show="item.filePath.indexOf('no-sync-image') == -1" ng-click="$parent.$parent.downloadFile(item.filePath)" class="btn-download" ng-class="{'btn-no-caption':!item.caption}">Download</button>
+          </div>
+
+        </carousel-item>
+      </ui-carousel>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="alertPictures.html">
+  <div class="modal-box modal-gallery full-screen-gallery full-screen-gallery-customer-job">
+    <div class="full-screen-inner">
+      <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+        <i class="fa fa-close" aria-hidden="true"></i>
+      </div>
+      <div>
+        <ui-carousel slides="alertPictures" slides-to-show="1" slides-to-scroll="1" initial-slide="imageStartIndex" autoplay="false" autoplay-speed="3000" dots="false">
+          <carousel-item>
+            <div class="image popup">
+              <div class="slide-image" >
+                <img src="{{ item.filePath ? item.filePath : item.image  }}" onerror="this.onerror=null; this.src='/resources/images/no-sync-image.jpg'">
+                <div class="modal-gallery-btm" ng-show="item.caption">{{item.caption ? item.caption : ''}}</div>
+              </div>
+            </div>
+          </carousel-item>
+        </ui-carousel>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="activityPictures.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup">
+    <div class="popup-header">
+      <div class="popup-close" ng-click="closeThisDialog('Some value')">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div>
+      <ui-carousel slides="activityPictures" slides-to-show="1" slides-to-scroll="1" initial-slide="1" autoplay="true" autoplay-speed="2000"
+        dots="false">
+        <carousel-item>
+          <!-- <div class="image popup"><img src="{{ item.image }}"></div> -->
+          <div class="image popup">
+            <!-- <img src="{{ item.filePath }}"> -->
+            <div class="slide-image" ng-style="{'background-image':'url('+item.image+')'}" style="height: 500px;background-size:contain"></div>
+          </div>
+          <!-- <div class="carousel-content">{{item.assetsType}}</div> -->
+          <div class="carousel-content carousel-subtitle">
+          <span>{{($parent.$parent.caption)?$parent.$parent.caption:'&nbsp;'}}</span>
+
+          <button ng-show="item.image.indexOf('no-sync-image') == -1" ng-click="$parent.$parent.downloadFile(item.image)" class="btn-download btn-no-caption"  >Download</button>
+          </div>
+        </carousel-item>
+      </ui-carousel>
+
+    </div>
+  </div>
+</script>
+
+
+<style>
+.job-activity-right .carousel-btn{ display: none !important}
+</style>
+
+
+<script type="text/ng-template" id="removeChelistConfirm.html" >
+ <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+   <div class="popup-header">
+     <div class="h-1-5x b white text-center">Confirm</div>    
+   </div>
+    <div class="popup-body text-center">
+      <div class="row-container">
+        <div><label>Are you sure you want to delete checklist item?</label></div>
+        <br />
+        <div class="set-chem-button m-b20" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+          <button class="add-button" type="submit" ng-click="confirmChecklistAction(checkListObj, index)">OK</button>
+        </div>
+      </div>
+    </div>
+
+ </div>
+</script>
+
+
+<script type="text/ng-template" id="deleteJobConfirm.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header text-center">
+      <span class="heading">Confirm</span>      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Do you want to permanently delete this job and all data and pictures associated with it? This cannot be undone.</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red" type="submit" ng-click="deleteJobConfirmAction()">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+ <script type="text/ng-template" id="emailSummaryPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <span class="heading">Email Route Stop Details</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>    
+    <div class="popup-body p-0">
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">   
+        <error ng-if="errorMail" message="{{errorMail}}"></error>
+      </div>
+      <form class="set-chem-form" name="sentEmailSummaryForm" autocomplete="off" ng-submit="submitEmailSummaryForm(sentEmailModel)" novalidate>
+        <div class="detail-box">         
+          <div class="grid text-left box" >
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label>Email Address</label>
+                    <input 
+                        type="text" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="sentEmailSummaryEmail" 
+                        placeholder="Email Address" 
+                        name="emailId"
+                        id="sentEmailSummaryEmail"          
+                        ng-change="getMultipleEmailValidationStatus(); updateEmailSummaryMails(this)"      
+                    />
+                    <span class="route-summary-email-validation" id="validationMessageRouteStopEmail"></span>
+                </div>     
+            </div>
+          </div>      
+          <div class="text-center p-t20">
+            <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <span class="p-l10"><button class="add-button" type="submit" ng-click="sentEmailSummaryForm.submitAttempt=true;" >SEND EMAIL</button></span>            
+          </div>        
+        </div>
+      </form> 
+    </div>  
+  </div>
+  </script>

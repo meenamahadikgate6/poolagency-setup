@@ -1,0 +1,456 @@
+<div ng-controller="techRatingController">
+    
+<div class="new-data-grid">
+  <div class="row sub-btns-row sub-btns-row-alerts" ng-init="getAlertFilterData()">
+    <div class="col-md-8">
+      <div class="flex invoice-filter invoice-filter-alerts">
+        <!--  ng-click="filterByStatus(data.status)"   ng-class="{'disabled': !invoiceStatus[(data.status.toLowerCase())] }" -->
+        <div ng-repeat="data in statusCount track by $index" class="flex" ng-click="filterByTypes(data.title)" ng-class="{'disabled': !data.status,  'alert-count-processing': alertCountLoaders[$index]}">
+          <div class="tag quote-tag" ng-class="{'alert' : data.title == 'Alerts', 'alert-issue' : data.title == 'Issue Reports', 'not-completed' : data.title == 'Not Completed'}">  
+            <span ng-if="data.title == 'Alerts'">{{ alertCountData.totalAlerts ? alertCountData.totalAlerts : 0 }}</span>
+            <span ng-if="data.title == 'Issue Reports'">{{ alertCountData.totalIssues ? alertCountData.totalIssues : 0 }}</span>
+            <span ng-if="data.title == 'Not Completed'">{{ alertCountData.totalNotCompleted ? alertCountData.totalNotCompleted : 0 }}</span>
+          </div>
+          <div class="work-progress-body-wrap">
+            <strong>{{data.title}}</strong>
+          </div>
+        </div>        
+      </div>
+    </div>
+    <div class="col-md-4 text-right filter-btn-area" >
+      <div class="select-wrap-alert-filter-popup" ng-class="showFilterBox ? 'dropdown select-wrap filter-btn open' : 'dropdown select-wrap filter-btn'">
+        <div id="backgroundOverlay" ng-if="showFilterBox"></div>
+        <button id="statusDropdown" tabindex="1" class="btn" type="button" ng-click="showFilter()">Filter 
+          <span ng-if="alertFilters['TECHNICIANS'].length == 0 && alertFilters['ISSUE_REPORTS'].length == 0 && alertFilters['ALERTS'].length == 0 && alertFilters['CUSTOMER_TAG'].length == 0 && alertFilters['WATERDEVICE'].length == 0">OFF</span>
+          <span style="background-color: #D68227;" ng-if="alertFilters['TECHNICIANS'].length > 0 || alertFilters['ISSUE_REPORTS'].length > 0 || alertFilters['ALERTS'].length > 0 || alertFilters['CUSTOMER_TAG'].length > 0  || alertFilters['WATERDEVICE'].length > 0">ON</span>
+          <i class="fa fa-sort-desc"></i>
+        </button>
+        <div class="dropdown-menu scrollable-menu schedule-filter-area schedule-filter-area-alert-page scrollareaCls" id="filterBox">
+          <div class="row">
+            <div class="col-xs-12 col-sm-8">
+              <div class="route-filter-template-section">
+                <div class="route-filter-template-row">
+                  <div class="route-filter-template-left-area">                          
+                    <div class="route-filter-template-actions">
+                        <span>View Template</span>
+                        <span class="route-template-link delete-link" ng-if="selectedRouteFilterTemplate.id != noneRouteFilterTemplate.id" ng-click="confirmRouteFilterTemplateDelete()">delete</span>
+                        <span class="route-template-link" ng-click="confirmRouteFilterTemplateDefault('set')">set as default</span>                        
+                    </div>
+                  </div>
+                  <div class="route-filter-template-right-area"></div>
+                </div>                      
+                <div class="route-filter-template-row">
+                  <div class="route-filter-template-left-area">                          
+                    <div class="route-filter-template-input-area">
+                      <div class="dropdown select-wrap filter-template-group-dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-class="{ 'disable-open-dropdown' : (!routeTemplateFilterTemplates)}">
+                            <span class="selected-filter-template-name">
+                              {{selectedRouteFilterTemplate.templateName}}
+                            </span>
+                            <span class="caret" ng-if="!routeTemplateFilterTemplatesFetching"></span>
+                            <span class="filter-template-fetching" ng-if="routeTemplateFilterTemplatesFetching"></span>
+                        </button>
+                        <ul class="dropdown-menu scrollable-menu scrollareaCls" style="width:100% !important">   
+                            <li class="no-template-exist" ng-if="routeTemplateFilterTemplates.length == 0">
+                              No templates have been saved yet
+                            </li>   
+                            <li ng-if="selectedRouteFilterTemplate.id != noneRouteFilterTemplate.id">
+                                <a href="javascript:void(0)" ng-click="clearFilter()">None</a>
+                            </li>                                                  
+                            <li ng-repeat="template in routeTemplateFilterTemplates" ng-if="selectedRouteFilterTemplate.id != template.id">
+                                <a href="javascript:void(0)" ng-click="setSelecteRouteFilterTemplate(template)">
+                                  {{template.templateName}}
+                                </a>
+                            </li>
+                        </ul>    
+                      </div>
+                    </div>
+                  </div>
+                  <div class="route-filter-template-right-area text-center">
+                      <span class="route-template-link" ng-class="{ 'disabled' : noRouteFilterSelected() }" ng-click="openNewRouteFilterTemplateForm()">save selections below as a new view</span>
+                  </div>
+                </div>                      
+              </div>
+            </div>
+          </div>           
+          <div class="row" ng-if="routesFilterList.length !== 0">
+            <div class="col-md-3">
+              <div class="dropdown-menu-items">
+                <h3 style="max-width: 150px;">Technicians</h3>
+                <ul class="colored-scroll-bar" ng-show="routesFilterList.TECHNICIANS.length > 0">
+                  <li ng-class="alertFilters['TECHNICIANS'].indexOf(route.id) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('TECHNICIANS', route.id)" ng-repeat="route in routesFilterList.TECHNICIANS"><a href="" style="text-transform: capitalize;"><span ng-class="alertFilters['TECHNICIANS'].indexOf(route.id) != -1 ? 'short-name active' : 'short-name'" >{{route.firstName ? (route.firstName | convertToInitial: route.lastName) : '?'}}</span><span ng-if="route.userImage && route.userImage != ''" class="short-name filter-tech-image" style="background-image: url({{route.userImage ? route.userImage : 'resources/images/blank.png'}})"></span>{{route.firstName}} {{route.lastName}} <i ng-show="alertFilters['TECHNICIANS'].indexOf(route.id) != -1" class="fa fa-filter filer-icon"></i></a></li>                 
+                </ul>
+              </div>                    
+            </div>
+            <div class="col-md-3">
+              <div class="dropdown-menu-items">
+                <h3 style="max-width: 170px;">Issue Reports</h3>
+                <!-- <div class="blank-cover" ng-if="!statusCount[1].status"></div> -->
+                <ul ng-show="routesFilterList.ISSUE_REPORTS.length > 0" class="colored-scroll-bar"  style="max-width: 170px;">
+                  <li ng-class="alertFilters['ISSUE_REPORTS'].indexOf(issues.alertKey) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('ISSUE_REPORTS', issues.alertKey)" ng-repeat="issues in routesFilterList.ISSUE_REPORTS"><a href="" class="alert-filter-link"><img ng-src="resources/images/{{issues.alertKey}}.jpg" alt="{{issues.alertName}}"  title="{{issues.alertName}}"/> {{issues.alertName}} <i ng-show="alertFilters['ISSUE_REPORTS'].indexOf(issues.alertKey) != -1" class="fa fa-filter filer-icon"></i></a></li>
+                </ul>
+              </div>   
+              <div class="dropdown-menu-items" >
+                <div class="customer-tag-filter" style="padding-right: 10px;">
+                  <h3>Customer Tags</h3>
+                  <div class="route-cutomer-tag-filter" ng-class="{ 'active' : isCustomerTagListShown }" click-outside="toggleCustomerTagList('close')">                        
+                    <div class="customer-tag-search {{ (filteredTags().length == 0 && searchTextTag == '') ? 'customer-tag-search-mb-0' : ''}}">
+                      <i class="fa fa-search"></i>
+                      <input type="text" class="form-control" id="customerTagSearchRoute" ng-model="searchTextTag" ng-focus="toggleCustomerTagList('open')">                          
+                    </div>                           
+                    <div class="customer-tags-list scrollareaCls" ng-if="isCustomerTagListShown">
+                      <div ng-if="filteredTags().length == 0 && searchTextTag != ''" class="text-center">
+                        No Customer Tags Found
+                      </div>
+                      <ul ng-if="filteredTags().length > 0">
+                        <li ng-repeat="tag in filteredTags()" ng-click="addTagTofilter(tag)">
+                          {{tag}}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="route-customer-tag-filter-selected scrollareaCls" ng-if="selectedCustomerTags && selectedCustomerTags.length > 0">
+                    <ul>
+                      <li ng-repeat="tag in selectedCustomerTags">
+                        <span>{{tag}}</span>
+                        <i ng-click="removeTagFromFilter(tag)">&times;</i>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>  
+            </div>
+            <div class="col-md-3">
+              <div class="dropdown-menu-items">
+                <h3 style="max-width: 200px;">Alerts</h3>
+                <!-- <div class="blank-cover" style="width: 124%; right: 0px;" ng-if="!statusCount[0].status"></div> -->
+                <ul class="colored-scroll-bar">
+                  <li ng-class="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('ALERTS', alert.alertKey)" ng-repeat="alert in routesFilterList.ALERTS.Time">
+                    <div ng-if="$index == 0" style="position: absolute; top: 40px; border-bottom: 3px solid #444; left: -40px; font-weight: bold; opacity: 0.5; pointer-events: none;">Time</div>
+                      <a href="" class="alert-filter-link"><img ng-src="resources/images/{{alert.iconName}}_{{alert.color}}.jpg" alt="{{alert.alertName | htmlToPlaintext}}" title="{{alert.alertName | htmlToPlaintext}}" /> {{alert.alertName}} <i ng-show="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1" class="fa fa-filter filer-icon"></i></a>
+                  </li>
+                  <li ng-class="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('ALERTS', alert.alertKey)" ng-repeat="alert in routesFilterList.ALERTS.PSI">
+                    <div ng-if="$index == 0" style="position: absolute; top: 165px; border-bottom: 3px solid #444; left: -34px; font-weight: bold; opacity: 0.5; pointer-events: none;">PSI</div>
+                    <a href="" class="alert-filter-link"><img ng-src="resources/images/{{alert.iconName}}_{{alert.color}}.jpg" alt="{{alert.alertName | htmlToPlaintext}}" title="{{alert.alertName | htmlToPlaintext}}" /> {{alert.alertName}} <i ng-show="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1" class="fa fa-filter filer-icon"></i></a>
+                  </li>
+                  <li ng-class="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('ALERTS', alert.alertKey)" ng-repeat="alert in routesFilterList.ALERTS.Chems">
+                    <div ng-if="$index == 0" style="position: absolute; bottom: 280px; border-bottom: 3px solid #444; left: -48px; font-weight: bold; opacity: 0.5; pointer-events: none;">Chems</div>
+                    <a href="" class="alert-filter-link"><img ng-src="resources/images/{{alert.iconName}}_{{alert.color}}.jpg" alt="{{alert.alertName | htmlToPlaintext}}" title="{{alert.alertName | htmlToPlaintext}}" /> {{alert.alertName}} <i ng-show="alertFilters['ALERTS'].indexOf(alert.alertKey) != -1" class="fa fa-filter filer-icon"></i></a>
+                  </li>                  
+                </ul>
+              </div>                    
+            </div>
+            <div class="col-md-3">
+              <div class="dropdown-menu-items">
+                <h3 style="max-width: 200px;">Remote Data</h3>
+                <ul class="colored-scroll-bar">
+                  <li ng-class="alertFilters['WATERDEVICE'].indexOf(alert.alertKey) != -1 ? 'selected-filter' : ''" ng-click="filterRouteResult('WATERDEVICE', alert.alertKey)" ng-repeat="alert in routesFilterList.WATERDEVICE.WATERGURU">                    
+                    <a href="" class="alert-filter-link"><img ng-src="resources/images/{{alert.alertKey}}.jpg" alt="{{alert.alertName | htmlToPlaintext}}" title="{{alert.alertName | htmlToPlaintext}}" /> {{alert.alertName}} <i ng-show="alertFilters['WATERDEVICE'].indexOf(alert.alertKey) != -1" class="fa fa-filter filer-icon"></i></a>
+                  </li>                
+                </ul>
+              </div>                    
+            </div>
+          </div>
+          <div class="row" ng-if="routesFilterList.length == 0 && isProcessing">
+            <p class="text-center">Filter data loading...</p>
+          </div>
+        </div>
+      </div>
+      <button ng-click="clearFilter()" ng-if="alertFilters['TECHNICIANS'].length > 0 || alertFilters['ISSUE_REPORTS'].length > 0 || alertFilters['ALERTS'].length > 0 || alertFilters['CUSTOMER_TAG'].length > 0 || alertFilters['WATERDEVICE'].length > 0" class="btn clear-btn">Clear All</button>
+    </div>    
+  </div>
+  <div class="row">
+    <div class="col-md-12 dismiss-all-area">
+      <div ng-if="currentUser.canBulkDismissAlerts == 1 || currentUser.isSuperAdmin == 1">
+        <button class="btn clear-btn" ng-click="dismissAlertConfirm()" ng-disabled="totalRecord.length == 0" style="background: none; color: #007BF8 !important; padding-bottom: 5px;">DISMISS ALL</button>
+      </div>
+      <div ng-if="currentUser.canBulkDismissAlerts == 0" style="padding-bottom: 5px;"> 
+        <a class="icon-required" href="#" style="background: none; color: #007BF8 !important; text-decoration: none; font-weight: bold;">DISMISS ALL
+        <span class="sch-help" style="position: absolute; bottom: 28px; right: -8px; padding: 0px 10px 10px 10px; z-index: 555;">
+          <p>You do not have permission to dismiss alerts in bulk. You can dismiss alerts individually by clicking on the alert row to go to the route stop/job page and click Dismiss next to the alert</p>
+        </span>
+      </a>
+      </div>
+    </div>
+  </div>
+  <div style="position: relative; min-height: 500px;">
+    <div class="spinner" ng-if="alertIsLoading">
+      <div class="spinner-item">
+        <div class="spinner-animation">
+          <img border="0" src="resources/images/spinner.gif" />
+        </div>
+      </div>
+    </div>
+  <div class="head" ng-init="getAlertList()">
+    <div class="date-detail" style="text-align:left">Date</div>
+    <div class="customer-detail" style="text-align:left">Customer</div>
+    <div class="pool-detail">Body of Water</div>
+    <div class="issues-detail">Alerts</div>
+    <div class="tech-detail" style="text-align:center">Technician</div>
+    <div class="viewing-detail">Viewing</div>
+  </div> 
+  <div class="alert-page-list">
+    <ng-container ng-repeat="parentJob in jobListArray"> 
+      <div class="body-title" ng-if="parentJob.data.length > 0">priority: <span>{{parentJob.type}}</span></div>      
+      <div class="body" ng-repeat="job in parentJob.data">     
+        <a ng-if="job.isOneOfJob == '0' && job.deviceId == '0'" href="/app/customerjobdetail/{{job.addressId}}/{{job.jobId}}/{{job.waterBodyId}}" class="alert-top-link"> </a>
+        <a ng-if="job.isOneOfJob == '0' && job.deviceId != '0'" href="/app/remotedata/{{job.addressId}}/{{job.deviceId}}/{{job.waterBodyId}}" class="alert-top-link"> </a>
+        <a ng-if="job.isOneOfJob == '1'"  href="/app/one-time-job/{{job.addressId}}/{{job.jobId}}" class="alert-top-link"> </a>
+        <div class="date-detail">
+          <div class="alert-label">Date :</div>
+          <div class="date-detail-value" ng-if="job.closeTime">
+            <div>{{job.closeTime | date:"MMMM d"}}</div>
+            <div>{{job.closeTime | date:"h:mm a"}}</div>
+          </div>
+          <div class="date-detail-value" ng-if="!job.closeTime">
+            <div>{{job.createTime | date:"MMMM d"}}</div>
+            <div>{{job.createTime | date:"h:mm a"}}</div>
+          </div>
+        </div>
+        <div class="customer-detail">
+          <div class="alert-label">Customer :</div>
+          <div class="customer-detail-value">
+            <a class="name" href="/app/customerdetail/{{job.primeaddressId}}" >{{job.displayName}}</a><br />
+            <a class="address" ng-if="job.address" ng-href="{{job.isPrimary==1 ? '/app/customerdetail/'+job.addressId:'/app/locationdetail/'+job.addressId}}"> 
+              {{job.address}}
+            </a>
+          </div>
+        </div>  
+
+        <div class="pool-detail">
+          <div class="alert-label">Body of Water : </div>
+          <span ng-click="openLink(job)"  title="{{job.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: {{job.color ? job.color : 'inherit'}}; z-index: 3;">{{job.waterBodyName}}</span>
+        </div>
+        <div class="issues-detail">
+          <div class="alert-label">Alerts :</div>
+          <div class="issues-tabs" id="issues-tabs-{{job.jobId}}" ng-class="{'open': job.jobId == openedJobId}">
+            <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.issue.length > 0">
+              <span ng-if="job.isOneOfJob == '0' && job.deviceId == '0'">
+              <a href="/app/customerjobdetail/{{job.addressId}}/{{job.jobId}}/{{job.waterBodyId}}" ng-if="!hideAlertIssueIds['client'][issue.alertIssueId]" ng-repeat="issue in alertIssue.issue"           
+                class="linkClass clientIssue" ng-class="{'selected': issue.alertIssueId == issueObj.alertIssueId}" data-title="{{issue.type}}">
+                <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                <img border="0" ng-src="resources/images/{{issue.type}}.jpg" alt="{{setTitle(issue.type)}}"  title="{{setTitle(issue.type)}}"/>
+                <div class="alertNote" ng-bind="getAlertTabName(issue.type)"></div>
+              </a> 
+              </span>
+              <span ng-if="job.isOneOfJob == '0' && job.deviceId != '0'">
+                <a href="/app/remotedata{{job.addressId}}/{{job.deviceId}}/{{job.waterBodyId}}" ng-if="!hideAlertIssueIds['client'][issue.alertIssueId]" ng-repeat="issue in alertIssue.issue"           
+                  class="linkClass clientIssue" ng-class="{'selected': issue.alertIssueId == issueObj.alertIssueId}" data-title="{{issue.type}}">
+                  <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                  <img border="0" ng-src="resources/images/{{issue.type}}.jpg" alt="{{setTitle(issue.type)}}"  title="{{setTitle(issue.type)}}"/>
+                  <div class="alertNote" ng-bind="getAlertTabName(issue.type)"></div>
+                </a> 
+                </span>
+              <span ng-if="job.isOneOfJob == '1'">
+                <a href="/app/one-time-job/{{job.addressId}}/{{job.jobId}}" ng-if="!hideAlertIssueIds['client'][issue.alertIssueId]" ng-repeat="issue in alertIssue.issue"           
+                  class="linkClass clientIssue" ng-class="{'selected': issue.alertIssueId == issueObj.alertIssueId}" data-title="{{issue.type}}">
+                  <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                  <img border="0" ng-src="resources/images/{{issue.type}}.jpg" alt="{{setTitle(issue.type)}}"  title="{{setTitle(issue.type)}}"/>
+                  <div class="alertNote" ng-bind="getAlertTabName(issue.type)"></div>
+                </a> 
+                </span>
+            </div>
+            <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.systemIssue.length > 0">
+              <span ng-if="job.isOneOfJob == '0' && job.deviceId == '0'">
+              <a href="/app/customerjobdetail/{{job.addressId}}/{{job.jobId}}/{{job.waterBodyId}}" ng-if="!hideAlertIssueIds['system'][issue.systemIssueId]" ng-repeat="issue in alertIssue.systemIssue"
+                class="linkClass {{issue.priority}}" ng-class="{'selected': issue.systemIssueId == issueObj.systemIssueId}" data-title="{{issue.type}}">
+                <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                <img border="0" ng-src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" alt="{{issue.title | htmlToPlaintext}}" title="{{issue.title | htmlToPlaintext}}"/>
+                <div class="alertNote" ng-if="job.jobId == openedJobId">{{issue.title}}</div>
+              </a> 
+              </span>
+              <span ng-if="job.isOneOfJob == '0' && job.deviceId != 0">
+                <a href="/app/remotedata/{{job.addressId}}/{{job.deviceId}}/{{job.waterBodyId}}" ng-if="!hideAlertIssueIds['system'][issue.systemIssueId]" ng-repeat="issue in alertIssue.systemIssue"
+                  class="linkClass {{issue.priority}}" ng-class="{'selected': issue.systemIssueId == issueObj.systemIssueId}" data-title="{{issue.type}}">
+                  <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                  <img ng-if="issue.priority && issue.priority != null && issue.priority != ''" border="0" ng-src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" alt="{{issue.title | htmlToPlaintext}}" title="{{issue.title | htmlToPlaintext}}"/>
+                  <img ng-if="!issue.priority || issue.priority == null || issue.priority == ''" border="0" ng-src="resources/images/{{issue.symbol}}.jpg" alt="{{issue.title | htmlToPlaintext}}" title="{{issue.title | htmlToPlaintext}}"/>
+                  <div class="alertNote" ng-if="job.jobId == openedJobId">{{issue.title}}</div>
+                </a> 
+                </span>
+              <span ng-if="job.isOneOfJob == '1'">
+                <a href="/app/one-time-job/{{job.addressId}}/{{job.jobId}}" ng-if="!hideAlertIssueIds['system'][issue.systemIssueId]" ng-repeat="issue in alertIssue.systemIssue"
+                  class="linkClass {{issue.priority}}" ng-class="{'selected': issue.systemIssueId == issueObj.systemIssueId}" data-title="{{issue.type}}">
+                  <div class="blue-dot-alert"> <span>{{issue.alertCount > 1 ? issue.alertCount : ''}}</span> </div>
+                  <img border="0" ng-src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" alt="{{issue.title | htmlToPlaintext}}" title="{{issue.title | htmlToPlaintext}}"/>
+                  <div class="alertNote" ng-if="job.jobId == openedJobId">{{issue.title}}</div>
+                </a> 
+                </span>
+            </div>
+          </div>
+        </div>
+        <div class="tech-detail" ng-if="!job.alertFromDevice"> 
+            <div class="alert-label">Technician : </div>    
+            <div class="image-radius name-initial" 
+            ng-style="{'background-image': 'url({{(job.techProfileImage ? job.techProfileImage : '')}})'}" style="background-size: cover;" title="{{job.techFirstName}} {{job.techLastName}}" alt="{{job.techFirstName}} {{job.techLastName}}">
+              <span ng-show="!job.techProfileImage">
+                {{job.techFirstName | convertToInitial: job.techLastName}}                
+              </span>
+            </div>
+            <div ng-if="job.technicianId">
+              <a ng-if="job.technicianId" class="tech-name-anchor" href="/app/techniciandetail/{{job.technicianId}}">{{job.techFirstName}} {{job.techLastName}}</a> 
+            </div> 
+        </div>
+        <div class="tech-detail" ng-if="job.alertFromDevice">
+          <div class="alert-label">Technician : </div>     
+          <img src="resources/images/water-guru-logo.svg" class="waterguru-alert-logo" alt="Waterguru" />
+        </div>
+        <div class="viewing-detail"> 
+          <div class="alert-label">Viewing: </div>       
+          <div ng-if="managerArray[job.jobId] && managerArray[job.jobId].managerName && managerArray[job.jobId].managerName != null" class="image-radius name-initial " ng-style="{'background-image': 'url({{(managerArray[job.jobId].managerImage ? managerArray[job.jobId].managerImage : '')}})'}" style="background-size: cover;" title="{{managerArray[job.jobId].managerFirstName}} {{managerArray[job.jobId].managerLastName}}" alt="{{managerArray[job.jobId].managerFirstName}} {{managerArray[job.jobId].managerLastName}}">
+            <span ng-show="!managerArray[job.jobId].managerImage">
+              {{managerArray[job.jobId].managerFirstName | convertToInitial: managerArray[job.jobId].managerLastName}}                  
+            </span>
+          </div>
+          <div ng-if="managerArray[job.jobId] && managerArray[job.jobId].managerName && managerArray[job.jobId].managerName != null" class="manager" >{{managerArray[job.jobId].managerName}}<span>viewing job</span></div>
+          <div class="small-loader" ng-if="showLoader[job.jobId]">
+            <img border="0" src="resources/images/loader.gif" />
+          </div>        
+        </div>
+        
+      </div>  
+    </ng-container> 
+  </div> 
+  </div>
+</div>
+<!--a href="/app/customerjobdetail/{{job.addressId}}/{{job.jobId}}"> </a-->
+<div ng-if="jobList.length < 1">
+ No Pending Alerts 
+</div>
+<div class="pagination-area" ng-if="jobList.length > 0">
+  <div class="pagination-area-left" id="dashTable_info" role="status" aria-live="polite">
+    Showing {{totalRecord > 0 ? showingFrom : 0}} to {{totalRecord >= showingFrom + (limit-1) ? showingFrom + (limit-1) : totalRecord }} of {{totalRecord}} jobs with alerts
+  </div>
+  <div class="pagination pagination-area-right" ng-class="{ 'lessRecords' : ((totalRecord / limit) < 6 ) }">
+    <paging page="currentPage" page-size="limit" total="totalRecord" text-first="First"
+        text-last="Last" text-next="Next" text-prev="Prev"
+        paging-action="goToJobPage(page)"
+        show-prev-next="true" show-first-last="true">
+    </paging>
+  </div>
+</div>
+</div>
+
+<script type="text/ng-template" id="dismissAllConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Bulk dismiss all alerts being viewed</div>       
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label style="font-size: 15px;">You are about to dismiss ({{alertCountData.totalAlerts + alertCountData.totalIssues + alertCountData.totalNotCompleted}}) alerts all at once</label></div>
+         <br />
+         <div class="formGroup" style="text-align: justify;">
+          <p>Reason for dismissing alerts</p>
+          <textarea class="form-control" style="height: 140px!important;" row="1" ng-model="dismissMsg.msg" maxlength="300"></textarea>
+          <span class="c-limit">Characters limit: 300</span>
+         </div>
+          <div class="dismiss-alert-msg-req" ng-show="showDismissMsg">You must provide a reason for dismissing the alerts.</div>
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="confirmdismissAlertAction()" ng-disabled="alertIsLoading" style="width: 175px; background: #ff381f;">DISMISS ALL ALERTS</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+<script type="text/ng-template" id="newRouteFilterTemplateNameModal.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:500px;">
+    <div class="popup-header">
+      <span class="heading">Save new view template</span>     
+    </div>
+     <div class="popup-body">
+      <div class="spinner" ng-if="routeTemplateFilterTemplatesUpdating">
+        <div class="spinner-item">
+          <div class="spinner-animation">
+            <img border="0" src="resources/images/spinner.gif" />
+          </div>
+        </div>
+      </div> 
+       <div class="row">
+        <div class="col-xs-12">
+          <success ng-if="templateFilterSuccess" message="{{templateFilterSuccess}}"></success>
+          <error ng-if="templateFilterError" message="{{templateFilterError}}"></error>
+          <form name="saveFilterTemplateForm" autocomplete="off" ng-submit="saveFilterTemplateForm.$valid && createNewRouteFilterTemplate()" novalidate>          
+            <div class="form-group">                        
+                <input 
+                    type="text" 
+                    autocomplete="off" 
+                    class="form-control" 
+                    ng-model="saveFilterTemplateModel.templateName" 
+                    placeholder="Enter Template Name" 
+                    name="templateName" 
+                    ng-maxlength="100"                    
+                    ng-class="{'has-error': saveFilterTemplateForm.$submitted && saveFilterTemplateForm.templateName.$invalid || saveFilterTemplateForm.templateName.$touched && saveFilterTemplateForm.templateName.$invalid}"
+                    required                         
+                />
+            </div> 
+            <div class="text-center">
+              <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+              <button class="add-button" type="submit" ng-click="!routeTemplateFilterTemplatesUpdating ? saveFilterTemplateForm.submitAttempt=true : null" >SAVE</button>
+            </div>
+          </form> 
+        </div>
+       </div>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="deleteRouteFilterTemplateConfirmModal.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px;">
+    <div class="popup-header">
+      <span class="heading">Confirm</span>     
+    </div>
+     <div class="popup-body">
+      <div class="spinner" ng-if="routeTemplateFilterTemplatesUpdating">
+        <div class="spinner-item">
+          <div class="spinner-animation">
+            <img border="0" src="resources/images/spinner.gif" />
+          </div>
+        </div>
+      </div> 
+       <div class="row">
+        <div class="col-xs-12">
+          <success ng-if="templateFilterSuccess" message="{{templateFilterSuccess}}"></success>
+          <error ng-if="templateFilterError" message="{{templateFilterError}}"></error>
+          <div class="text-center m-b20">
+            <label style="font-weight: normal">Are you sure you want to delete the view template named <b>{{selectedRouteFilterTemplate.templateName}}</b> ?</label>
+          </div>
+          <div class="text-center m-b10">
+            <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <button class="add-button redBtn" type="button" ng-click="!routeTemplateFilterTemplatesUpdating ? deleteRouteFilterTemplate() : null" >DELETE</button>
+          </div>
+        </div>
+       </div>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="defaultRouteFilterTemplateConfirmModal.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px;">
+    <div class="popup-header">
+      <span class="heading">Confirm</span>     
+    </div>
+     <div class="popup-body">
+      <div class="spinner" ng-if="routeTemplateFilterTemplatesUpdating">
+        <div class="spinner-item">
+          <div class="spinner-animation">
+            <img border="0" src="resources/images/spinner.gif" />
+          </div>
+        </div>
+      </div> 
+       <div class="row">
+        <div class="col-xs-12">
+          <success ng-if="templateFilterSuccess" message="{{templateFilterSuccess}}"></success>
+          <error ng-if="templateFilterError" message="{{templateFilterError}}"></error>
+          <div class="text-center m-b20">
+            <label style="font-weight: normal">Are you sure you want to set <b>{{selectedRouteFilterTemplate.templateName}}</b> as the default view template?</label>
+          </div>
+          <div class="text-center m-b10">
+            <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <button class="add-button" type="button" ng-click="!routeTemplateFilterTemplatesUpdating ? changeDefaultRouteFilterTemplate() : null" >CONFIRM</button>
+          </div>
+        </div>
+       </div>
+     </div>
+  </div>
+</script>

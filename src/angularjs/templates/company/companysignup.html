@@ -1,0 +1,169 @@
+<div class="dataTables_wrapper">
+    <div class="spinner" ng-if="isProcessing">
+        <div class="spinner-item">
+            <div class="spinner-animation">
+                <img border="0" src="resources/images/spinner.gif" />
+            </div>
+        </div>
+    </div>
+    <div id="header-top">
+        <div class="row">
+            <div class="col-md-5 col-sm-5 col-xs-12 text-center logo-section">
+                <!-- <img border="0" src="resources/images/triton-logo.png?v=1.8" alt="" /> -->
+                <h1 class="welcomeTextSignup">Welcome</h1>
+            </div>
+            <div>
+                <div class="signup-steps">
+                    <ul>
+                        <li ng-repeat="step in totalSteps track by $index" ng-class="step <= currentStep ? 'active' : ''" > {{step}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="step1" ng-if="currentStep == 1">
+            <form class="comman-form" name="step1"  rc-submit="nextStep()" novalidate>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="text-left">
+                        <h1><span>1</span>  Individual and Business Information</h1>
+                        </div>
+                    </div>
+                </div>
+                 <!-- <div class="row p-t10">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <p class="has-error-label">*All fields are required</p>
+                                </div>
+                        </div> -->
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="text-left p-t20">
+                        <h3>My Information</h3>
+                        <div class="form-group">
+                            <input type="text"  class="form-control" ng-model="signupForm['userInfo'].firstName" placeholder="First name" name="firstName"  maxlength="50"  validator="[alphanum]" autofocus>
+                            <label>First Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"class="form-control" ng-model="signupForm['userInfo'].lastName" placeholder="Last name" name="lastName"  maxlength="50"  validator="[alphanum]" autofocus>
+                            <label>Last Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" ng-disabled="true" class="form-control" ng-model="signupForm['userInfo'].email" placeholder="Email (login email)" name="email"  validator="[email]">
+                            <label>Email (login email)</label>
+                        </div>
+
+                    </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="text-left p-t20">
+                        <h3>Company Information</h3>
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="signupForm['userInfo'].companyName" placeholder="Company Name" name="companyName" maxlength="50" validator="[companyName]" required>
+                            <label>Company Name</label>
+                            <span ng-show="signupForm['userInfo'].companyName && signupForm['userInfo'].companyName.length > 0" class="company-validation-message">(only <kbd>&</kbd><kbd>-</kbd><kbd>.</kbd><kbd>(</kbd><kbd>)</kbd> symbols are allowed)</span>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="signupForm['userInfo'].website" placeholder="www.company.com" maxlength="100" name="website" >
+                            <label>Website</label>
+                        </div>                        
+                        
+                        <div class="form-group">
+                            <input type="text" class="form-control" ng-model="signupForm['userInfo'].address" minlength="5" maxlength="60" placeholder="Company Address" name="address" validator="[required]">
+                            <label>Company Address</label>
+                          </div>
+                          <div class="row">
+                              <div class="col-md-4 col-sm-4 col-xs-12">
+                                   <div class="form-group">
+                                        <input type="text" class="form-control"  ng-model="signupForm['userInfo'].city" placeholder="City" name="city" minlength="3" maxlength="40" validator="[required]" onkeydown="return /[a-z\s]/i.test(event.key)">
+                                      <label>City</label>
+                                      
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                  <div class="form-group">
+                                    <div class="select-style">
+                                      <select name="State"
+
+                                      ng-model="signupForm['userInfo'].state"  validator="[required]">
+                                          <option value=''>State</option>
+                                          <option ng-repeat="state in stateList" value="{{state.key}}">{{state.value}}</option>
+                                      </select>
+                                    </div>
+                                    <label>State</label>
+                                    </div>
+                                  </div>
+
+                                  <div class="col-md-4 col-sm-4 col-xs-12">
+                                      <div class="form-group">
+                                      <input type="text" class="form-control" ng-model="signupForm['userInfo'].zipcode" placeholder="Zipcode" name="zipcode" minlength="5" maxlength="6" required="" ng-pattern="/^(['0-9']+)$/" only-num="" validator="[required]">
+                                      <label>Zipcode</label>
+                                      </div>
+                                  </div>
+
+                          </div>
+                        </div>
+                        </div>
+                      </div>
+
+                      <div class="row text-center">
+                          <div class="col-md-12 col-sm-12 col-xs-12">
+                              <button class="button bt-blue upperCase" ng-disabled="isProcessing" type="submit">Continue</button>
+                                  <success ng-if="success" message="{{success}}"></success>
+                                              <error ng-if="error" message="{{error}}"></error>
+
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+
+<div id="step2" ng-if="currentStep == 2">
+    <form class="comman-form" name="step2"  rc-submit="nextStep()" novalidate>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="text-left">
+            <h1><span>2</span> Billing</h1>
+        </div>
+        </div>
+
+    </div>
+
+
+
+<div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <button class="button bt-blue upperCase" ng-click="openChargeBee()" type="button">BEGIN FREE TRIAL</button>
+        </div>
+</div>
+
+
+<div class="row">
+    <div class="fl">
+            <button style="padding: 6px 20px;" class="button bt-blue upperCase" ng-click="previousStep()" type="button">Back</button>
+    </div>
+    <!-- <div class="fr">
+            <button class="button bt-blue upperCase" ng-disabled="isProcessing" type="submit">Continue</button>
+    </div> -->
+</div>
+<success ng-if="success" message="{{success}}"></success>
+<error ng-if="error" message="{{error}}"></error>
+</form>
+</div>
+
+  <div id="step3" class="signup-step3"  ng-if="currentStep == 3">
+      <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12 text-center">
+              <h3>Registration Complete</h3>
+              <div class="signup-welcome">WELCOME!</div>
+              <p>Managing your pool business just got a whole lot easier.<br>
+              If you need help getting started, we're here for you at <a href="http://help.poolbrain.com" target="_blank">help.poolbrain.com</a>.</p>
+          </div>
+      </div>
+      <div class="row">
+              <button class="button bt-blue upperCase" ng-click="toContinue()" type="button">Continue</button>
+      </div>
+
+   </div>
+</div>
+</div>

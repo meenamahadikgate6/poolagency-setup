@@ -1,0 +1,28 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="h-1-5x b white text-center">Upload Code Files</div>    
+  </div>
+    <form name="codeFileForm" enctype="multipart/form-data" class="form-signin" ng-submit="codeFileForm.$invalid ? null : uploadCodeFiles()" novalidate>
+      <label>Version Name</label>
+      <input type="text" readonly class="form-control"  ng-model="model.versionName" name="versionName"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.versionName.$invalid || codeFileForm.versionName.$touched && codeFileForm.versionName.$invalid}"
+                       required autofocus>
+      <label>Version Description</label>
+      <textarea class="form-control"  ng-model="model.versionDescription" placeholder="Version Description" name="versionDescription"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.versionDescription.$invalid || codeFileForm.versionDescription.$touched && codeFileForm.versionDescription.$invalid}" required></textarea>
+
+      <label>Select Files (.py)</label>
+      <input type="file" class="form-control" ng-file-model="files" multiple  name="codeFiles"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.codeFiles.$invalid || codeFileForm.codeFiles.$touched && codeFileForm.codeFiles.$invalid}"
+                       required autofocus>
+      <br />
+      <button class="" ng-disabled="isProcessing" type="submit">Save</button>
+      <error ng-if="error" message="{{error}}"></error>
+    </form>
+  </div>
+</div>

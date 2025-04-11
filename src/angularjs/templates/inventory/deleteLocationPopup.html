@@ -1,0 +1,17 @@
+<div class="pbx-popup pbx-popup-sm">
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            Delete Location
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <div class="pbx-popup-body text-center">            
+        Are you sure you want to delete this location
+    </div>
+    <div class="pbx-popup-footer">           
+        <button class="pbx-btn pbx-btn-danger" ng-disabled="isProcessing" ng-click="deleteLocation()">DELETE</button>
+        <button class="pbx-btn" ng-click="closeThisDialog()">CANCEL</button>
+    </div>    
+</div>

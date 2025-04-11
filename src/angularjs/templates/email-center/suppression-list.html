@@ -1,0 +1,178 @@
+<div ng-controller="suppressionListController" ng-init="initPayloadForEmailSuppressionList()" class="email-history-section email-suppression-list-section">
+    <div class="row">
+        <div class="col-xs-12 email-center-top-messages">
+            <success ng-if="sendEmailSuccess" message="{{sendEmailSuccess}}"></success>
+            <error ng-if="sendEmailError" message="{{sendEmailError}}"></error>            
+        </div>
+    </div>
+    <div class="ecp-section">                        
+        <div class="ecp-section-body">                          
+            <div class="ecp-section-card">                                
+                <div class="email-history-list-filter">
+                    <div class="email-history-list-filter-search-area">
+                        <img class="email-history-list-filter-search-icon" src="resources/images/magnifiy.png">
+                        <input type="text" class="form-control email-history-list-filter-search" placeholder="search by email" ng-blur="searchEmailSuppressionListByKey($event)" ng-keypress="handleKeyForSearchEmailSuppressionList($event)">
+                    </div>                                    
+                    <div class="email-history-list-filter-dropdown">
+                        <div class="dropdown select-wrap service-level-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                                {{selectedEmailSuppressionListReasonType.label == 'All' ? 'Filter by reason' : selectedEmailSuppressionListReasonType.label}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu scrollable-menu">
+                                <li ng-repeat="reasonType in emailSuppressionListFilterTypes" ng-if="selectedEmailSuppressionListReasonType.id!=reasonType.id" ng-click="setEmailSuppressionListReasonType(reasonType)">
+                                    <a href="javascript:void(0)">{{reasonType.label}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="send-history-filterRange-dropdown-area">
+                        <div class="send-history-custom-date-picker-area" ng-show="emailSuppressionListSelectedFilterRange.value==='custom'">
+                            <div class="datePicker datePicker-rangepicker-static input-daterange">
+                                <div class="date-rangepicker-static-row">
+                                    <div class="date-rangepicker-static-col left">
+                                    <div class="smallview" date-format="MM/dd/yy">
+                                        <input id="emailSuppressionListFromDate" ng-model="emailSuppressionListFromDate" options="emailSuppressionListDatePickerOption" ng-click="emailSuppressionListClickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterEmailSuppressionListByDate('fromDate')" />
+                                    </div>
+                                    </div>
+                                    <div class="date-rangepicker-static-col right">
+                                    <div class="" date-format="MM/dd/yy" min-date="fromDate">
+                                        <input id="emailSuppressionListToDate" ng-model="emailSuppressionListToDate" options="emailSuppressionListDatePickerOption" ng-click="emailSuppressionListClickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterEmailSuppressionListByDate('toDate')" />
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown cust-select-btn">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{emailSuppressionListSelectedFilterRange.title}}</button>
+                            <ul class="dropdown-menu scrollable-menu">   
+                                <li ng-repeat="x in emailSuppressionListRangeFilterData" ng-hide="emailSuppressionListSelectedFilterRange.value==x.value">
+                                    <a href="javascript:void(0)" ng-click="emailSuppressionListFilterRange(x)">{{x.title}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>                                   
+                </div>
+                <!-- Mobile Sorting Start -->
+                <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown dropdown-mobile-sorting flt-rng-drp email-center-sortingResp" ng-if="!listingTab['feedback']">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true" >{{selectedEmailSuppressionListFilterSortingTitle}}</button>
+                    <ul class="dropdown-menu scrollable-menu">   
+                        <li ng-repeat="x in emailSuppressionListFilterSortingData">
+                            <a href="javascript:void(0)" class="sorting-mob" ng-click="orderEmailSuppressionListListBy(x.id,x)" ng-class="{'sorting_mob_asc': emailSuppressionListListColumnName == x.id && emailSuppressionListListDir == 'asc', 'sorting_mob_desc': emailSuppressionListListColumnName == x.id && emailSuppressionListListDir == 'desc', }">{{x.value}}</a>
+                        </li>
+                    </ul>
+                </div>
+            <!-- Mobile Sorting End -->
+                <div class="email-group-table-area email-history-table-area">  
+                    <p class="form-group">Emails are auto-added to suppression list if they bounce (address doesn't exist / is rejected) or on customer complaint (customer marks email as spam, phishing, etc). Once an email is on the suppression list, delivery won't be attempted for any reason unless you remove it from the list.</p>                                  
+                    <div class="email-history-tbody-area scrollareaCls" id="emailSuppressionListTbody">
+                        <div class="spinner" ng-if="isEmailSuppressionListListLoading || signleEmailRemoving">
+                            <div class="spinner-item">
+                                <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                            </div>
+                        </div>                        
+                        <table class="dataTable email-group-table email-group-table-mob-resp">                         
+                            <thead class="dark-gray-bg">
+                                <tr>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailSuppressionListListBy('lastUpdateTime')"
+                                            ng-class="{'sorting_asc': emailSuppressionListListColumnName == 'lastUpdateTime' && emailSuppressionListListDir == 'asc', 'sorting_desc': emailSuppressionListListColumnName == 'lastUpdateTime' && emailSuppressionListListDir == 'desc', }">
+                                            DATE ADDED
+                                        </div>
+                                    </th>                  
+                                    <th>
+                                        <div>
+                                            TIME ADDED
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailSuppressionListListBy('emailAddress')"
+                                            ng-class="{'sorting_asc': emailSuppressionListListColumnName == 'emailAddress' && emailSuppressionListListDir == 'asc', 'sorting_desc': emailSuppressionListListColumnName == 'emailAddress' && emailSuppressionListListDir == 'desc', }">
+                                            EMAIL
+                                        </div>
+                                    </th>                                                    
+                                    <th>
+                                        <div class="sorting"
+                                            ng-click="orderEmailSuppressionListListBy('reason')"
+                                            ng-class="{'sorting_asc': emailSuppressionListListColumnName == 'reason' && emailSuppressionListListDir == 'asc', 'sorting_desc': emailSuppressionListListColumnName == 'reason' && emailSuppressionListListDir == 'desc', }">
+                                            REASON ADDED
+                                        </div>
+                                    </th>                                    
+                                    <th>
+                                        <span ng-if="emailSuppressionListListTotalEmail && emailSuppressionListListTotalEmail > 0" ng-click="addToRemoveList(true)" class="email-suppression-list-selector"><input type="checkbox" ng-checked="emailSuppressionListListTotalEmail == getSelectedEmails().length"></span>
+                                    </th>
+                                </tr>
+                            </thead>    
+                            <tbody ng-if="getSelectedEmails().length > 0">
+                                <tr>
+                                    <td colspan="100%" class="selected-suppression-email-area-td">
+                                        <div class="selected-suppression-email-area">                                                                                                      
+                                            <strong>{{getSelectedEmails().length}} {{getSelectedEmails().length && getSelectedEmails().length > 1 ? 'Emails' : 'Email' }} Selected</strong>  
+                                            <a ng-class="{ 'loading' : bulkEmailRemoving }" href="javascript:void(0)" class="btn btn-sm btn-primary btn-blue btn-bulk-email-remove" ng-click="removeEmailsFromSuppression()">                                                                
+                                                <span class="btn-bulk-email-remove-label">Remove Selected</span>
+                                                <span class="btn-bulk-email-remove-progressbar">{{emailRemoveProgressPercent}}% Processing...</span>
+                                                <span class="btn-bulk-email-remove-progressbar-animation"  ng-style="{'width' : emailRemoveProgressPercent + '%' }"></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>                                           
+                            <tbody ng-repeat="emailRow in emailSuppressionListListData" ng-if="emailSuppressionListListData && emailSuppressionListListData.length > 0">                                                                                 
+                                <tr>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Date: </span>
+                                            {{emailRow.date}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Time: </span>
+                                            {{emailRow.time}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Email: </span>
+                                            {{emailRow.emailAddress}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="email-center-inline-td">
+                                            <span class="email-center-col-mobResp">Reason: </span>
+                                            {{emailRow.reason}}                                            
+                                        </div>
+                                    </td>  
+                                    <td>
+                                        <span class="email-suppression-list-selector" ng-click="addToRemoveList(false, emailRow)"><input type="checkbox" ng-checked="showCheckedIfSelected(emailRow)"/></span>
+                                    </td>                                      
+                                </tr>
+                            </tbody>                                    
+                        </table>
+                        <div class="email-history-tbody-area-no-record-found" ng-if="emailSuppressionListListData.length == 0">
+                            <span>No emails added to suppression list in selected date range</span>
+                        </div>
+                    </div>                                                                                                         
+                    <div class="pagination-area--parent">
+                        <div class="pagination-area" ng-if="emailSuppressionListListTotalEmail > 0">
+                            <div class="pagination-area-left" ng-class="{ 'hide-by-opacity' : isEmailSuppressionListListLoading }">
+                            Showing
+                                {{emailSuppressionListListData.length ? (emailSuppressionListListTotalPage == emailSuppressionListListPage ? (emailSuppressionListListTotalEmail-emailSuppressionListListData.length)+1 : (emailSuppressionListListPage > 0 ? ((emailSuppressionListListPage-1)*emailSuppressionListListData.length)+1 : 1)) : 0 }} 
+                                to
+                                {{ emailSuppressionListListData.length ? (emailSuppressionListListTotalPage == emailSuppressionListListPage ? emailSuppressionListListTotalEmail : emailSuppressionListListPage*emailSuppressionListListData.length) : 0 }}  
+                                of 
+                                {{emailSuppressionListListTotalEmail}} 
+                            </div>
+                            <div class="pagination pagination-area-right" ng-class="{ 'lessRecords' : ((emailSuppressionListListTotalEmail / emailSuppressionListListLength) < 6 ) }">
+                            <paging page="emailSuppressionListListPage" page-size="emailSuppressionListListLength" total="emailSuppressionListListTotalEmail" text-first="First" text-last="Last" text-next="Next" text-prev="Prev"
+                                    paging-action="goToPageEmailSuppressionList(page)" show-prev-next="true" show-first-last="true"> </paging>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>  

@@ -1,0 +1,666 @@
+<div>
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="contianer-fluid invoice-job-listing-title" ng-class="{ 'trans-bg-payment-single-page' : isPaymentListingPage }">
+    <div class="row">
+      <div class="col-md-8 listing-tab-headings">
+        <div class="title" ng-click="showListingTab('jobHistory')" ng-class="{'disabled':!listingTab['jobHistory']}">JOBS</div>
+        <div class="title" ng-click="showListingTab('quotes')" ng-class="{'disabled':!listingTab['quotes']}">QUOTES</div>
+        <div class="title"  ng-click="showListingTab('invoice')" ng-class="{'disabled':!listingTab['invoice']}">INVOICES</div>
+        <div class="title"  ng-click="showListingTab('payment')" ng-class="{'disabled':!listingTab['payment']}">PAYMENTS</div>
+        <div class="title"  ng-click="showListingTab('feedback')" ng-class="{'disabled':!listingTab['feedback']}">FEEDBACK</div>
+      </div>     
+      <!-- <div class="col-md-2 showallproperties"> <input id="show_all_properties_payment" type="checkbox" ng-model="showAllPropertiesPayment.value"   ng-change="getCustomerPaymentList()" ng-true-value="1" ng-false-value="0" name="show_all_properties_payment">
+        {{showAllProperties}}
+        <label for="show_all_properties_payment"> Show all properties</label>
+      </div> -->
+      <div ng-class="{ 'col-md-4' : !isPaymentListingPage, 'col-md-12 payment-list-single-row' : isPaymentListingPage, }">
+        <div class="payment-list-single-left-col" ng-if="isPaymentListingPage">
+          <!--  -->
+        <div class="dropdown csq-dropdown csq-dropdown-status csq-dropdown-status-payment-{{paymentStatusFiltersListingPageSelected}}">
+          <button class="csq-selected-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+            <span>{{paymentStatusFiltersListingPageSelected}}</span>
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu csq-dropdown-menu scrollable-menu">   
+            <li ng-repeat="x in paymentStatusFiltersListingPage" ng-hide="x === paymentStatusFiltersListingPageSelected" class="csq-item-contiainer">
+              <a class="csq-item csq-item-for-payment-{{ x }}" href="javascript:void(0)" ng-click="filterByPaymentStatus(x)">
+                <span>{{x}}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!--  --> 
+        </div>
+        <div class="payment-list-single-right-col">
+          <div ng-if="isPaymentListingPage" class="report-listing-page-report-export excel-download-btn-holder">
+            <span class="excel-download-btn" ng-class="{ 'is-report-export-disabled' : isReportExportDisabled('canExportPaymentReports') }" ng-click="!isReportExportDisabled('canExportPaymentReports') ? downloadPaymentReport() : null"></span>
+            <span class="excel-download-btn-tooltip">You do not have permission to export this report</span>
+          </div>
+          <div ng-if="isPaymentListingPage">
+            <div class="search-box search-box-payment-listing-page" >
+              <i class="fa fa-search searchbtn" ng-click="doSearchPaymentList($event,searchPaymentTextKey)" aria-hidden="true"></i>
+              <input type="search"  ng-blur="doSearchPaymentList($event,searchPaymentTextKey)" ng-model="searchPaymentTextKey" placeholder="Name, payment #, or amount" class="" ng-keyup="$event.keyCode == 13 ? doSearchPaymentList($event,searchPaymentTextKey) : null">
+            </div>
+          </div>
+          <div class="listing-tab-headings-for-single-page">
+            <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown filterRange-dropdown-payment-list">
+              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{selectedPaymentDuration}}</button>
+              <ul class="dropdown-menu scrollable-menu">   
+                <li ng-repeat="x in paymentDurationFiltersListingPage">
+                  <a href="javascript:void(0)" ng-click="changeDuarationFilter(x)">{{x}}</a>
+                </li>
+              </ul>
+            </div>   
+          </div>
+          <div class="datePicker input-daterange" ng-class="{ 'shown' : isPaymentListingPage && selectedPaymentDuration == 'custom' }">
+            <div class="col-6-12 p-lr10 fl">
+              <div class="smallview" date-format="MM/dd/yyyy">
+                <input ng-model="payDate.fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+              </div>
+            </div>
+            <div class="col-6-12 m-l10 text-right fr">
+              <div class="" date-format="MM/dd/yyyy" min-date="payDate.fromDate">
+                <input ng-model="payDate.toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="grid cust-job-history payment-list data-table-grid">
+    <div class="col-1-1">
+      <div class="white-bg">
+        <div class="row" ng-class="{ 'hide-on-payment-single-page' : isPaymentListingPage }">
+          <div class="col-md-6">
+            <div class="flex payment-filter">
+              <div class="flex" ng-click="filterByStatus('applied')" ng-class="{'disabled': !paymentStatus['applied'] }">
+                <div class="tag applied">
+                    {{applied}}
+                </div>
+                <div>
+                  <strong>APPLIED</strong>
+                </div>
+              </div>  
+              <div class="flex" ng-click="filterByStatus('unapplied')" ng-class="{'disabled': !paymentStatus['unapplied'] }">
+                <div class="tag unapplied">
+                    {{unapplied}}
+                </div>
+                <div>
+                  <strong>UNAPPLIED</strong>
+                </div>
+              </div>
+              <div class="flex" ng-click="filterByStatus('partial')" ng-class="{'disabled': !paymentStatus['partial'] }">
+                <div class="tag partial">
+                    {{partial}}
+                </div>
+                <div>
+                  <strong>PARTIAL</strong>
+                </div>
+              </div>      
+            </div>
+          </div>
+          <div class="col-md-2 text-right">
+              <span style="display: inline-block;">
+                  <div class="pb-checklist-add-new" ng-click="addEditPaymentRefund()">
+                    <span>Add New</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+                    </svg>
+                  </div> 
+                </span> 
+          </div>
+          <div class="col-md-4">
+            <div class="search-box" ng-if="!isPaymentListingPage">
+              <i class="fa fa-search searchbtn" ng-click="doSearchPaymentList($event,searchPaymentTextKey)" aria-hidden="true"></i>
+              <input type="search"  ng-blur="doSearchPaymentList($event,searchPaymentTextKey)" ng-model="searchPaymentTextKey" placeholder="Payment # or amount" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchPaymentList($event,searchPaymentTextKey) : null">
+            </div>
+          </div>
+        </div>
+        
+        <div class="dataTables_wrapper" ng-init="getCustomerPaymentList()">
+          <div class="list-box" id="scrollarea">
+            <table class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+              <thead class="dark-gray-bg">
+                <tr >
+                  <th></th>
+                  <th  class="text-center">
+                    <div class="sorting"
+                        ng-click="orderByJobList('createTime')"
+                        ng-class="{'sorting_asc': columnPay == 'createTime' && dirPay == 'asc', 'sorting_desc': columnPay == 'createTime' && dirPay == 'desc', }">
+                      DATE
+                    </div>
+                  </th>
+                  <th ng-if="isPaymentListingPage" style="width: 300px;padding-left: 10px !important;text-align: left !important;">
+                    <div class="sorting"
+                        ng-click="orderByJobList('displayName')"
+                        ng-class="{'sorting_asc': columnPay == 'displayName' && dirPay == 'asc', 'sorting_desc': columnPay == 'displayName' && dirPay == 'desc', }">
+                      NAME
+                    </div>
+                  </th>                  
+                  <th style="width: 15%; text-align: center;" ng-if="!isPaymentListingPage">
+                    <div class="sorting"
+                        ng-click="orderByJobList('transactionType')"
+                        ng-class="{'sorting_asc': columnPay == 'transactionType' && dirPay == 'asc', 'sorting_desc': columnPay == 'transactionType' && dirPay == 'desc', }">
+                      TYPE
+                    </div>
+                  </th>
+                  <th  class="text-center; width: 15%;">
+                    <div class="sorting"
+                        ng-click="orderByJobList('id')"
+                        ng-class="{'sorting_asc': columnPay == 'id' && dirPay == 'asc', 'sorting_desc': columnPay == 'id' && dirPay == 'desc', }">
+                      NUMBER
+                    </div>
+                  </th>
+                  <th  class="text-center">
+                    <div class="sorting"
+                        ng-click="orderByJobList('paymentMethod')"
+                        ng-class="{'sorting_asc': columnPay == 'paymentMethod' && dirPay == 'asc', 'sorting_desc': columnPay == 'paymentMethod' && dirPay == 'desc', }">
+                      METHOD
+                    </div>
+                  </th>
+                  <th  class="text-center" style="width: 18%!important;">
+                    <div class="sorting"
+                        ng-click="orderByJobList('applied')"
+                        ng-class="{'sorting_asc': columnPay == 'applied' && dirPay == 'asc', 'sorting_desc': columnPay == 'applied' && dirPay == 'desc', }">
+                      STATUS
+                    </div>
+                  </th>
+                  <th  class="text-center">
+                    <div class="sorting"
+                        ng-click="orderByJobList('amount')"
+                        ng-class="{'sorting_asc': columnPay == 'amount' && dirPay == 'asc', 'sorting_desc': columnPay == 'amount' && dirPay == 'desc', }">
+                      AMOUNT
+                    </div>
+                  </th>
+                  <th  class="text-center">
+                    <div class="sorting"
+                        ng-click="orderByJobList('unapplied')"
+                        ng-class="{'sorting_asc': columnPay == 'unapplied' && dirPay == 'asc', 'sorting_desc': columnPay == 'unapplied' && dirPay == 'desc', }">
+                      UNAPPLIED
+                    </div>
+                  </th>
+                  <th style="display:none"></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody dt-rows ng-repeat="payment in paymentList" ng-if="paymentList.length > 0">
+                <tr>
+                  <td colspan="7" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr class="text-center">
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}" class="left-td" rowspan="2"></td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}"><div class="darkGray">{{payment.createTime | date:"MM/dd/yy"}}</div></td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}" class="text-left" ng-if="isPaymentListingPage"><div class="darkGray">{{payment.displayName}}</div></td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}" class="inv-number" ng-if="!isPaymentListingPage"><div class="darkGray">{{payment.transactionType}}</div></td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}"><div class="darkGray">{{payment.id}}</div></td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}">
+                    <div class="darkGray pay-method">{{payment.parentId > 0 && payment.applied==3 ? 'Ref Note' : (payment.paymentMethod=='cc' ? 'Credit Card' : (payment.paymentMethod=='ach' ? 'ACH' : payment.paymentMethod))}}</div>
+                  </td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}">
+                    <div ng-if="payment.parentId==0 || payment.parentId==null">
+                      <div class="unapplied badge" ng-if="payment.applied==0">UNAPPLIED</div>
+                      <div class="applied badge" ng-if="payment.applied==1">APPLIED</div>
+                      <div class="partial badge" ng-if="payment.applied==2">PARTIAL</div>
+                      <div class="applied badge" ng-if="payment.applied==3">REFUNDED</div>
+                    </div>
+                  </td>
+                  <td ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}" ><div class="darkGray">{{payment.amount | currency }}</div></td>   
+                  <td colspan="{{payment.isQBSync ? '1' : '2'}}" ng-click="payment.transactionType!='Refund' && addEditPaymentRefund($index)" style="{{payment.transactionType!='Refund' && 'cursor: pointer;'}}">
+                      <div class="darkGray" ng-if="payment.applied!=3">
+                          {{payment.unapplied | currency }}
+                        </div>
+                      <div class="darkGray" ng-if="payment.applied==3">
+                          $0.00
+                        </div>
+                  </td>   
+                  <td ng-if="payment.isQBSync" class="has-sync-error-td">                    
+                    <span class="has-sync-error">
+                      <i ng-click="openSyncErrorPopup(payment, 'payment')" class="has-sync-error__icon fa fa-info-circle"></i>
+                      <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                    </span>
+                  </td>
+                  <td class="right-td" rowspan="2"></td>
+                </tr>
+              </tbody>
+              <tbody ng-if="paymentList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">No payment found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="paging-warp container-fluid" ng-if="paymentList.length > 0">
+            <div class="row p-t10">
+              <div class="col-md-4 text-left p-l20 p-b10">
+                  Showing 
+                  {{paymentList.length ? (pageObj.totalPagePay == pageObj.pagePay ? (pageObj.totalRecordPay-paymentList.length)+1 : (pageObj.pagePay > 1 ? ((pageObj.pagePay-1)*paymentList.length)+1 : 1)) : 0 }} 
+                  to 
+                  {{ paymentList.length ? (pageObj.totalPagePay == pageObj.pagePay ? pageObj.totalRecordPay : pageObj.pagePay*paymentList.length) : 0 }}  
+                  of 
+                  {{pageObj.totalRecordPay}}                               
+              </div>
+              <div class="col-md-8 text-right p-r20 p-b10">                
+                  <span class="p-l20">{{totalPageAmount | currency}} page total</span>
+                  <span class="p-l20">{{totalAmount | currency}} grand total</span>    
+              </div>
+              <div class="col-md-12">
+                <div class="pagination m-t0">                  
+                  <paging
+                  page="pageObj.pagePay" page-size="pageObj.limitPay" total="pageObj.totalRecordPay" text-first="First"
+                  text-last="Last" text-next="Next" text-prev="Prev"
+                  paging-action="goToCustomerPaymentListPage(page)"
+                  show-prev-next="true" show-first-last="true"> </paging>                  
+                    
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="addPaymentRefundPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="{{modeEdit ? 'max-width:1200px' : 'width:370px'}};">  
+    <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    
+    <div class="popup-header">
+      <div class="payment-audit-log-btn" ng-if="modeEdit" ng-click="openPaymentAuditLog()"><i class="fa fa-history" aria-hidden="true"></i></div>
+      <span class="heading">{{modeEdit ? (modelPaymentData.type  == 'Credit' ? 'Account Credit' : modelPaymentData.type) : 'Add Payment'}} <span ng-if="modeEdit">#{{modelPaymentData.custPayTranId}}</span></span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>   
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+      <success ng-if="successMsg" message="{{successMsg}}"></success>
+      <error ng-if="errorMsg" message="{{errorMsg}}"></error> 
+    </div>
+    <div style="max-height:85vh; overflow:auto;" id="scrollarea">
+    <form class="set-chem-form" style="position:relative;" name="payRefundForm" autocomplete="off" ng-submit="payRefundForm.$valid && modelPaymentData.type && (modelPaymentData.type == 'Account Credit' ? addCredit(modelPaymentData) :  checkPaymentType(modelPaymentData))" novalidate>
+     
+      <div class="payment-button" style="position:absolute; width: 100%; z-index: 1; margin-top: -10px;">     
+        <div class="blue-tooltip-large p-r10" ng-if="modeEdit && modelPaymentData.paymentMethod != 'other' && modelPaymentData.accountVaultId != 'QBO' && modelPaymentData.type !='Account Credit'" style="position:absolute; right:20px; top:20px;"><button class="add-button void-btn"  ng-disabled="modelPaymentData.applied==3"
+          ng-click="refundPaymentConfirm(refundText)" type="button">{{modelPaymentData.applied==3 ? "REFUNDED" : refundText}}</button>
+        </div>
+        <div class="blue-tooltip-large p-r10" ng-if="modeEdit && modelPaymentData.accountVaultId == 'QBO' && modelPaymentData.type !='Account Credit'" style="position:absolute; right:20px; top:20px;"><button class="add-button void-btn"  ng-disabled="modelPaymentData.accountVaultId == 'QBO'" type="button" ptitle="Created in QBO, if you would like to refund this please go to QBO.">REFUND</button><span>Created in QBO, if you would like to refund this please go to QBO.</span></div>
+        <div class="payment-error" ng-if="paymentError" >
+            <div ng-repeat="(key, value) in paymentError">
+                <div ng-repeat="item in value">{{item}}</div>
+            </div>
+        </div> 
+      </div>      
+      <div class="text-center m-t10" style="{{modeEdit ? 'position:absolute; left:0; right:0;' : ''}}" >
+        <label class="light-blue" ng-if="!isPaymentListingPage">{{modeEdit ? 'Customer - ': ''}} {{customerBillingDataObj.customer.displayName}}</label>
+        <label class="light-blue" ng-if="isPaymentListingPage">{{modeEdit ? 'Customer - ': ''}} {{selectedRow.displayName}}</label>
+      </div>
+      <div class="detail-box" style="{{modeEdit ? 'width:370px' : ''}}">
+      
+      <!--Common Field Start-->
+      <div >
+        <div class="formGroup" ng-if="!modeEdit">
+          <label >Type<span class="clr-red">*</span> </label>
+          <div class="dropdown select-wrap ">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="modeEdit" >
+              <b>{{modelPaymentData.type ? modelPaymentData.type : '--'   }}</b>
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu scrollable-menu"> 
+              <li ng-hide="modelPaymentData.type == 'Payment'" ng-click="selectPaymentType('Payment')"><a href="javascript:void(0)">Payment</a></li>  
+              <li ng-hide="modelPaymentData.type == 'Account Credit'" ng-click="selectPaymentType('Account Credit')"><a href="javascript:void(0)">Account Credit</a></li>  
+            </ul>                
+          </div> 
+          <div ng-show="payRefundForm.submitAttempt && !modelPaymentData.type">
+            <span class="has-required" >Please select type</span>
+          </div>
+        </div> 
+        <div class="formGroup" ng-if="modeEdit">
+          <div class="row">
+            <div class="col-md-6" ng-if="modelPaymentData.paymentMethod">
+              <label >Method<span class="clr-red">*</span> </label>
+                <input type="text" class="form-control small-input input-number"
+                ng-disabled="modeEdit" 
+                style="width: 127px;"
+                value="{{modelPaymentData.paymentMethod == 'cc' ? 'Credit Card': modelPaymentData.paymentMethod == 'ach' ? 'ACH' : modelPaymentData.paymentMethod}}" 
+                />
+                <span class="h-12x" style="text-transform: capitalize" ng-if="(modelPaymentData.paymentMethod == 'cc' || modelPaymentData.paymentMethod == 'ach') && paymentListingCCDetails.account_type!='' && paymentListingCCDetails.last_four!=''"> {{paymentListingCCDetails.account_type}} ( {{paymentListingCCDetails.last_four}} )</span>
+            </div>
+            <div class="col-md-6">
+              <label >Date<span class="clr-red">*</span> </label>
+              <input type="text" class="form-control small-input input-number" ng-disabled="modeEdit" style="width: 100px;" disabled="true" value='{{modelPaymentData.createTime | date: "MM/dd/yy" }}' />
+            </div>
+          </div>     
+          <div ng-show="payRefundForm.submitAttempt && !modelPaymentData.type">
+            <span class="has-required" >Please select type</span>
+          </div>
+        </div>
+        <div class="formGroup" >
+          <label>Amount<span class="clr-red">*</span> </label>
+          <div class="input-fixed-amount" title-class="dark inpopup" ptitle="{{amountHistoryTooltip}}" title-direction="bottom" style="width: 127px;">
+            <span class="ng-binding">$</span>
+          <!--  <input 
+              class="form-control small-input input-number" 
+              mgminmax-validator=""
+              type="text" 
+              decimals="2" decimal-point="."
+              name="amount" 
+              id="amount" 
+              ng-model="modelPaymentData.amount" 
+              ng-min="0.01" 
+              ng-max="9999999" 
+              style="height:30px" 
+              required  
+              allow-typing="^[0-9. ]+$"
+              ng-disabled="((modelPaymentData.paymentMethod == 'cc' || modelPaymentData.paymentMethod == 'ach' || modelPaymentData.amountApplied != 0 || modelPaymentData.applied==3) && (modelPaymentData.type == 'Payment' || modelPaymentData.type == 'Account Credit') && modeEdit)"
+              ng-blur="modeEdit ?  takePayment(modelPaymentData, '', 'amount', true) : null"
+            />      -->
+              <input 
+              class="form-control small-input input-number" 
+              type="text" 
+              format="currency"  
+              name="amount" 
+              id="amount" 
+              ng-model="modelPaymentData.amount" 
+              style="height:30px" 
+              required  
+              allow-typing="^[$,0-9. ]+$" 
+              ng-disabled="((modelPaymentData.paymentMethod == 'cc' || modelPaymentData.paymentMethod == 'ach' || modelPaymentData.amountApplied != 0 || modelPaymentData.applied==3) && (modelPaymentData.type == 'Payment' || modelPaymentData.type == 'Account Credit') && modeEdit)"
+              ng-blur="modeEdit ?  takePayment(modelPaymentData, '', 'amount', true) : null"
+            />              
+          </div>
+          <div ng-show="payRefundForm.submitAttempt && !modelPaymentData.amount">
+            <span class="has-required" >Please enter amount</span>
+          </div>             
+        </div>   
+      </div>
+      <!--Common Field End-->
+         
+      <!-- Payment Box Start -->
+      <div ng-if="modelPaymentData.type == 'Payment' && !modeEdit">  
+        <div class="formGroup">
+          <label >Payment Method<span class="clr-red">*</span> </label>
+          <div class="dropdown select-wrap ">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  >
+              <b ng-bind-html="selectedPaymentMethod ? selectedPaymentMethod : '--'" ></b>
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu scrollable-menu">           
+                  
+              <li ng-if="modelPaymentData.payaStatus==1" ng-hide="modelPaymentData.paymentMethod == 'cc'" ng-click="modelPaymentData.paymentMethod = 'cc'; selectPaymentMethod('Credit Card')"><a href="javascript:void(0)">Credit Card</a></li>
+              <li ng-if="modelPaymentData.payaStatus==1" ng-hide="modelPaymentData.paymentMethod == 'ach'" ng-click="modelPaymentData.paymentMethod = 'ach'; selectPaymentMethod('ACH')"><a href="javascript:void(0)">ACH</a></li>
+              <li ng-hide="modelPaymentData.paymentMethod == 'check'" ng-click="modelPaymentData.paymentMethod = 'check'; selectPaymentMethod('Check');"><a href="javascript:void(0)">Check</a></li>
+              <li ng-hide="modelPaymentData.paymentMethod == 'cash'" ng-click="modelPaymentData.paymentMethod = 'cash'; selectPaymentMethod('Cash');"><a href="javascript:void(0)">Cash</a></li>  
+              <li ng-if="paymentProfiles.length > 0" class="dropdown-divider"></li>
+              <div class="p-10 text-center light-blue" ng-if="modelPaymentData.payaStatus!=1">Want to accept credit cards and ACH payments?<br/>
+                activate your payments account in settings
+              </div>
+              <h4 ng-if="paymentProfiles.length > 0" class="dropdown-header">Saved Payment Method</h4>
+              <li 
+                ng-repeat="profile in paymentProfiles" 
+                ng-hide="modelPaymentData.paymentMethod == profile.id" 
+                ng-click="modelPaymentData.paymentMethod = profile.id;  selectPaymentMethod(profile.id)">
+                  <a href="javascript:void(0)">{{profile.paymentProfileName}} <small>({{(profile.paymentMethod == 'ach' ? 'ACH ' : '')}}{{(profile.paymentMethod == 'cc' ? profile.accountType : '') | uppercase }} x{{profile.accountLastFourDigits}})</small></a>
+                  
+              </li> 
+            </ul>                
+          </div> 
+         
+        </div> 
+      </div> 
+      <!-- Payment Bos End -->
+      <div class="formGroup" ng-if="modelPaymentData.paymentMethod == 'check' && modelPaymentData.type == 'Payment'" >
+        <label >Check Number<span class="clr-red">*</span> </label>
+        <input type="text" name="checkNumber" class="form-control" ng-model="modelPaymentData.checkNumber" maxlength="21"  ng-required="modelPaymentData.paymentMethod == 'check'"  ng-disabled="modelPaymentData.applied==3 && modeEdit" ng-blur="modeEdit ?  takePayment(modelPaymentData, '', 'checkNumber', true) : null">
+        <span class="has-required" ng-show="payRefundForm.$submitted && modelPaymentData.paymentMethod == 'check' && payRefundForm.checkNumber.$invalid" ng-disabled="modelPaymentData.applied != 0">Please enter check number</span>
+      </div>
+        <div class="formGroup" >
+          <label >Notes </label>
+          <textarea class="form-control" name="notes" style="height: 110px!important;" row='1' ng-model="modelPaymentData.notes" maxLength="300" ng-disabled="modelPaymentData.applied == 3" ng-blur="modeEdit ?  takePayment(modelPaymentData, '', 'notes', true) : null">{{modelPaymentData.notes}}</textarea>
+          <span class="c-limit">Characters limit: 300</span>             
+        </div>  
+        <div class="checkbox-default" ng-if="!modeEdit">
+          <label for="applyOnNextInvoice">
+            Apply balance to next created invoice
+            <input type="checkbox" name="applyOnNextInvoice" id="applyOnNextInvoice"  ng-model="modelPaymentData.applyOnNextInvoice" ng-checked="modelPaymentData.applyOnNextInvoice" ng-disabled="modelPaymentData.applied != 0 && modeEdit" />
+            <span></span>
+          </label>                    
+        </div> 
+        
+      <div class="text-center p-t20 m-b20" ng-if="modelPaymentData.applied != 3 && !modeEdit">
+        <span><button class="add-button" ng-disabled="multipleClickIssue" type="submit" ng-click="payRefundForm.submitAttempt=true" >{{modelPaymentData.type == 'Credit' ? 'SAVE' : ((modelPaymentData.paymentMethod != 'check' && modelPaymentData.paymentMethod != 'cash') && modelPaymentData.type == 'Payment' ? 'CONTINUE' : 'SAVE')}}</button></span>              
+      </div>  
+    </div>
+    </form> 
+    <div ng-if="modeEdit && modelPaymentData.applied!=3" ng-controller="invoicePaymentAppliedListController" ng-include="'/templates/component/invoice-payment-applied-list.html?ver='+PB_WEB_VERSION"></div>
+  </div>
+  </div>
+</script>
+
+
+
+
+
+<script type="text/ng-template" id="refundPaymentPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+   
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm Refund</div>
+    </div>
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+      <success ng-if="successMsgRefund" message="{{successMsgRefund}}"></success>
+      <error ng-if="errorMsgRefund" message="{{errorMsgRefund}}"></error> 
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to mark this payment as refunded?<br /> This cannot be undone.</label></div>
+         <div ng-if="paymentData.applied == 2" class="text-left">
+          <div class="p-l10 p-t5 payment-profile-list " >
+            <div class="radio-default2">
+                <label for="paymentMethodcheck" >
+                    <div style="line-height: 18px; padding-top: 4px;">
+                      Refund full amount of {{paymentData.amount | currency}}
+                    </div>                            
+                    <input type="radio" name="paymentMethod" id="paymentMethodcheck" value="{{paymentData.amount}}" ng-model="modelRefund.amount"  />
+                    <span></span>
+                </label>                    
+            </div> 
+          </div> 
+          <div class="p-l10 p-t5 payment-profile-list" >
+              <div class="radio-default2">
+                  <label for="paymentMethodcash" >
+                      <div style="line-height: 18px; padding-top: 4px;">
+                        Refund overpayment amount of {{paymentData.amountBalance | currency}}
+                      </div>                            
+                      <input type="radio" name="paymentMethod" id="paymentMethodcash" value="{{paymentData.amountBalance}}" ng-model="modelRefund.amount"  />
+                      <span></span>
+                  </label>                    
+              </div> 
+          </div>
+        </div> 
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" ng-disabled="isRefundProcessing" style="background-color:red" type="submit" ng-click="refundAction()">REFUND</button>
+         </div>
+       </div>
+     </div> 
+  </div>
+</script>
+
+<script type="text/ng-template" id="voidPaymentPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+   
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm Void</div>
+    </div>
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+      <success ng-if="successMsgRefund" message="{{successMsgRefund}}"></success>
+      <error ng-if="errorMsgRefund" message="{{errorMsgRefund}}"></error> 
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to void this payment? This will cancel the pending charge and delete this payment entirely</label></div>
+        </div> 
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red; width:auto;" type="submit" ng-click="refundAction()">VOID AND DELETE</button>
+         </div>
+       </div>
+     </div> 
+  </div>
+</script>
+
+<script type="text/ng-template" id="infoPaymentPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">   
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Information</div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>You must remove this payment from all invoices before refunding or voiding</label></div>
+        </div> 
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">OK</button>&nbsp;
+         </div>
+       </div>
+     </div> 
+  </div>
+</script>
+
+  <script type="text/ng-template" id="sentReportEmailPopupReportPage.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+        <div class="popup-header">
+          <span class="heading">Create Report</span>
+          <div class="popup-close" ng-click="closeThisDialog(''); viewtPaymentReportStyle();"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+        </div>  
+        <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendPaymentReport()" novalidate>      
+          <div class="detail-box">         
+          <div class="grid text-left box" >         
+              <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+              <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+              <success ng-if="exportPaymentReportGenerateProcessStart" message="Report will be sent to provided email address."></success>
+              <div class="col-12 sent-email-report-message">
+                Where should we send the report when it's ready? <br> (large reports can take a while)
+              </div>
+              <div class="col-12-12">                 
+                <div class="formGroup">
+                      <label>Email Address</label>
+                      <input 
+                          type="email" 
+                          autocomplete="off" 
+                          class="form-control" 
+                          ng-model="exportPaymentReportEmailModel.email" 
+                          placeholder="Email Address" 
+                          name="emailId" 
+                          ng-maxlength="100" 
+                          ng-minlength="6" 
+                          ng-disabled="exportPaymentReportisSending"
+                          ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                          ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                          required                         
+                      />
+                </div>     
+              </div>
+          </div>      
+          <div class="text-center p-t20">
+              <button class="add-button add-button-report-send" ng-click="closeThisDialog(); viewtPaymentReportStyle()" ng-disabled="exportPaymentReportisSending" type="button">CANCEL</button>
+              <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="exportPaymentReportisSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+          </div>        
+          </div>
+        </form> 
+    </div>
+  </script>
+  <script type="text/ng-template" id="paymentAuditPopup.html">
+    <div class="dataTables_wrapper modal-box picture-videos-popup" ng-init="getPaymentAuditLogs()">
+      <div class="spinner" ng-if="paymentLogLoading">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="dataTables_wrapper customer" style="padding:5px" >
+          <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+          <error message="{{error3}}" ng-if="error3"></error>
+          
+          <div class="popup-header" style="text-align: center;color: white;font-weight:900">
+            <span class="heading">Payment Activity History</span>
+            <div class="popup-close" ng-click="closeThisDialog()" style="float: right"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+          </div>
+          <div class="list-box" style="max-height:70vh;" id="scrollarea">
+            <table class="row-border hover no-footer dataTable" width="100%">
+                <thead>
+                    <tr>
+                        <th style="width:15% !important">Details</th>
+                    </tr>
+                </thead>
+                <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="quoteLog in paymentAuditList track by $index">
+                  <tr>
+                      <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                  </tr>
+                  <tr class="even">
+                      <td class="border-top2 border-bottom2">
+                          <div class="customer-add">
+                            {{quoteLog.firstName}} {{quoteLog.lastName}} - {{quoteLog.createTime | date:"MM/dd/yy"}} at {{quoteLog.createTime | date:"h:mm a"}} - {{ quoteLog.message }} 
+                            
+                          </div>
+                      </td>                      
+                  </tr>
+              </tbody>
+                <tbody ng-if="!isProcessing && paymentAuditList.length == 0">
+                  <tr>                  
+                    <td colspan="100%" class="no-record-found-reports-table">
+                      <div>
+                        No activity for this payment
+                      </div>
+                    </td>                 
+                  </tr>
+                </tbody>
+            </table>
+            <div class="paging-warp container-fluid" ng-show="paymentAuditList.length != 0">
+              <div class="row p-t10" ng-class="{ 'align-footer-table' : isReportListingPage}">
+                <div class="text-left p-l20 p-b10 record-text-inv" ng-class="{ 'col-md-4' : !isReportListingPage, 'col-md-6' : isReportListingPage}">
+                    Showing 
+                    {{paymentAuditList.length ? (pageObjPaymentLog.totalPage == pageObjPaymentLog.page ? (pageObjPaymentLog.totalRecord-paymentAuditList.length)+1 : (pageObjPaymentLog.page > 1 ? ((pageObjPaymentLog.page-1)*paymentAuditList.length)+1 : 1)) : 0 }} 
+                    to 
+                    {{ paymentAuditList.length ? (pageObjPaymentLog.totalPage == pageObjPaymentLog.page ? pageObjPaymentLog.totalRecord : pageObjPaymentLog.page*paymentAuditList.length) : 0 }}  
+                    of 
+                    {{pageObjPaymentLog.totalRecord}}             
+                </div>
+              
+                <div class="col-md-12">
+                  <div class="pagination m-t0">                  
+                      <paging
+                      page="pageObjPaymentLog.page" page-size="pageObjPaymentLog.limitInv" total="pageObjPaymentLog.totalRecord" text-first="First"
+                      text-last="Last" text-next="Next" text-prev="Prev"
+                      paging-action="goToPaymentAuditListPage(page)"
+                      show-prev-next="true" show-first-last="true"> </paging>         
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div> 
+ </script>
+ <div ng-include="'/templates/payment/payment.html?ver='+PB_WEB_VERSION"></div>

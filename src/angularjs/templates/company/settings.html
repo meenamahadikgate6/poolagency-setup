@@ -1,0 +1,1577 @@
+<div class="page-settings dataTables_wrapper">
+  <!-- <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation">
+        <img border="0" src="resources/images/spinner.gif" />
+      </div>
+    </div>
+  </div> -->
+  <div class="row setting-page-logo-emails ">
+    <div class="col-lg-6 setting-page-logo" >      
+      <form class="set-chem-form" name="companyLogoForm" ng-submit="saveCompanySetting('logo')" novalidate>
+        <div class="set-chem-price email-quickBooks-height setting-sm-card-loader-parent" style="width: 100%;height: auto">
+          <div class="setting-sm-card-loader" ng-if="settingPageLoaders.logoSection">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+          <div class="set-chem-title">Logo</div>
+          <div class="set-chem-details set-chem-details-logo-wrapper">
+            <div class="set-chem-list">
+              <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tbody>
+                  <tr>
+                    <td>
+
+                      <div class="add-profile-image profile-logo" class="m-b10">
+                        <a href="javascript:void(0)" ng-click="browseImage()">
+                          <img alt="Company Logo" border="0"
+                            src="{{settingData.companyLogo ? settingData.companyLogo : 'resources/images/add-image.png'}}"
+                            class="{{settingData.companyLogo ? 'comlogo' : 'nologo'}}" title="Company Logo" />
+
+                          <div class="text-center">Company Logo</div>
+                          <span id="logoImgDataHTML">{{compLogo}}</span>
+                        </a>
+                        <input base-sixty-four-input="" id="compLogo" name="compLogo" ng-change="uploadFile($event)"
+                          ng-model="compLogo" style="display: none" type="file" />
+                      </div>
+                      <div class="set-chem-button" style="text-align:center">
+                        <button class="button m-t10" ng-disabled="!companyLogoForm.$valid || !isLogoChange"
+                          type="submit"> SAVE </button>
+                      </div>
+                    </td>
+                    <td style="vertical-align:middle;">
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <success ng-if="successLogo && submitFrom == 'logo'" message="{{successLogo}}"></success>
+            <error ng-if="errorLogo && submitFrom == 'logo'" message="{{errorLogo}}"></error>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-lg-6 setting-page-emails">
+      <form class="set-chem-form " name="otherCRMForm" ng-submit="saveOtherCRM()" novalidate>
+        <div class="set-chem-price email-quickBooks-height setting-sm-card-loader-parent" style="width: 100%;height: auto">
+          <div class="setting-sm-card-loader" ng-if="settingPageLoaders.emailSection">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+          <div class="set-chem-title">Email Settings</div>
+          <div class="p-relative">
+            <div style="position: absolute; z-index: 1; left: 0px; top: -22px; right: 0; padding: 0px;" ng-if="successEmailMessage">
+              <success message="{{successEmailMessage}}"></success>
+            </div>
+            <div style="position: absolute; z-index: 1; left: 0px; top: -22px; right: 0; padding: 0px;" ng-if="errorEmailMessage">
+              <error message="{{errorEmailMessage}}"></error>
+            </div>
+          </div>
+          <div class="set-chem-details content-box" style="margin-top: 15px;
+        ">
+            <label class="title-box">Automatically Send</label>
+            <div class="set-chem-list">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td class="chem-key-title">ROUTE STOP SUMMARY EMAILS</td>
+                    <td class="text-right ">
+                      <label class="switch" ng-click="updateCompanySettings()">
+                        <span ng-class="{'active' : sbModel.jobEmailSummery == '1'}" class="slider round"></span>
+                      </label>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- <div class="msg-box" ng-if="success && sbModel.type == 'settings'">
+              <success message="{{success}}"></success>
+            </div>
+            <div class="msg-box" ng-if="error && sbModel.type == 'settings'">
+              <error message="{{error}}"></error>
+            </div> -->
+          </div>
+
+          <div class="set-chem-details content-box set-replyto">
+            <label class="title-box">
+              <span>Reply to</span>
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help icon-required-tt-aligned">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <span>This is the email address you will receive messages at if any customer replies directly to an email sent using Pool Brain</span>
+              </a>
+            </label>
+            <div class="set-chem-list">
+
+              <div class="form-group m-b0">
+                <input type="text" validator="{{settingData.replyTo ? '[email]' : ''}}" autocomplete="off"
+                  ng-class="checkEmail(settingData.replyTo) ? 'form-control' : 'form-control  has-error'"
+                  ng-model="settingData.replyTo" id="replyTo" name="replyTo"
+                  ng-blur="replyToEmail != settingData.replyTo ? updateReplyTo() : null"
+                  ng-keyup="($event.keyCode == 13 && replyToEmail != settingData.replyTo) ? updateReplyTo() : null" .>
+              </div>
+            </div>
+            <!-- <div class="msg-box" ng-if="successReplyTo">
+              <success message="{{successReplyTo}}"></success>
+            </div>
+            <div class="msg-box" ng-if="errorReplyTo">
+              <error message="{{errorReplyTo}}"></error>
+            </div> -->
+          </div>
+
+          <div class="set-chem-details content-box set-replyto">
+            <label class="title-box">
+              <span>Send From</span>
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help icon-required-tt-aligned">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <span>Customers will see this email as the sender (who the email is from) for all emails sent using Pool Brain. You must use an email from a domain (website URL) that you own and you will have to change some DNS records in order to verify your ownership of this domain. Otherwise, all emails will come from notify@poolbrain.com by default. Emails from mail services such as gmail, yahoo mail, etc are not valid since you don't own those domain names.</span>
+              </a>
+            </label>
+            <div class="set-chem-list">
+              <div class="form-group m-b0">
+                <input type="text" autocomplete="off"  id="replyFrom" name="replyFrom"
+                ng-model="settingData.replyFrom"     validator="{{ settingData.replyFrom? '[email]' : ''}}"
+                ng-class="checkEmail(settingData.replyFrom) ? 'form-control' : 'form-control  has-error'"
+                ng-blur="replyFrom != settingData.replyFrom || domainErrorMsg != '' ? updateReplyFrom() : null"
+                ng-keyup="($event.keyCode == 13 && replyFrom != settingData.replyFrom) ? updateReplyFrom() : null" .>
+              </div>
+            </div>
+            <div class="email-list-add-link ng-scope"  ng-if="settingData.replyFrom && checkEmail(settingData.replyFrom) && !sendFromEmailUpdating && (replyFrom == settingData.replyFrom)">
+              <label class="domainStatus {{sesEmailStatus}}" ng-if="sesEmailStatus == 'Pending'">IMPORTANT: Until you change some DNS records for your domain {{ settingData.replyFrom && settingData.replyFrom.length > 0 ? '(' + settingData.replyFrom.split('@')[1] + ')' : '' }}, emails will continue to be sent from notify@poolbrain.com. This is required to prove you own the domain name and to help bypass spam filters. You may need to hire someone who knows how to alter DNS records as this is not something that can be done automatically.</label>
+              <label class="domainStatus {{sesEmailStatus}}" ng-if="sesEmailStatus == 'Success'">VERIFIED - email will be sent from this address</label>
+              <label class="domainStatus {{sesEmailStatus}}" ng-if="sesEmailStatus == 'Failed'">Proper DNS records could not be detected for your domain</label>
+              <label class="verifyingDNSChanges-label" ng-if="verifyingDNSChanges">Checking dns records</label>
+              <button type="button" ng-click="verifyDNSChanges()" ng-if="(sesEmailStatus != 'Success' && sesEmailStatus != 'PBDomainError') && !verifyingDNSChanges" class="verify-dns-changes-btn" ng-hide="sesEmailStatus == 'Failed' || sesEmailStatus == 'Temporary Failure' || sesEmailStatus == 'Pending' || sesEmailStatus == 'NotFound' ">Verify DNS Changes</button>
+              <button type="button" ng-click="reverifyDNSChanges()" ng-if="sesEmailStatus == 'Failed' || sesEmailStatus == 'Temporary Failure' || sesEmailStatus == 'Pending' || sesEmailStatus == 'NotFound' && settingData.replyFrom != 'notify@poolbrain.com' && !verifyingDNSChanges" class="verify-dns-changes-btn" >Reverify DNS Changes</button>
+              <label class="domainStatus PendingFailed" ng-if="dnsBtnClicked && sesEmailStatus == 'Pending' && !verifyingDNSChanges">Proper DNS records could not be detected for your domain</label>
+            </div>
+
+            <div class="email-list-add-link ng-scope"  ng-if="domainErrorMsg != ''">
+              <label class="Failed">{{domainErrorMsg}}</label>
+            </div>
+            <div class="email-list-add-link-dns" ng-if="settingData.replyFrom && dnsRecordsData && dnsRecordsData.length > 0 && checkEmail(settingData.replyFrom) && !sendFromEmailUpdating && (replyFrom == settingData.replyFrom)">
+              <p><a href="javascript:void(0)" ng-click="opendnsRecordsModal()">CLICK HERE</a>  to view which DNS records need to be added for your domain</p>
+            </div>
+            <!-- <div class="msg-box" ng-if="successReplyFrom">
+              <success message="{{successReplyFrom}}"></success>
+            </div>
+            <div class="msg-box" ng-if="errorReplyFrom">
+              <error message="{{errorReplyFrom}}"></error>
+            </div> -->
+          </div>
+        </div>
+      </form>
+
+
+
+    </div>
+
+  </div>
+  <div class="row ">
+    <div class="col-lg-6">
+      <form class="set-chem-form m-t20" name="customerPortalSettingForm" rc-submit="subDomainUpdateConfirm()"
+        novalidate>
+        <div class="set-chem-price email-quickBooks-height setting-sm-card-loader-parent" style="width: 100%;">
+          <div class="setting-sm-card-loader" ng-if="settingPageLoaders.domainSection">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+          <div class="set-chem-title">Customer Portal</div>
+          <!--If sub domain set-->
+          <div class="set-chem-details content-box" style="margin-top:58px" ng-if="subDomainExist">
+            <label class="title-box">Subdomain </label>
+            <div class="set-chem-list">
+              <div ng-if="!isNppServer" class="text-center" style="font-size: 25px">{{cpModel.domain}}.poolbrain.com</div>
+              <div ng-if="isNppServer" class="text-center" style="font-size: 25px">{{cpModel.domain}}.npp.poolbrain.com</div>
+            </div>
+          </div>
+          <!--If sub domain not set-->
+          <div class="set-chem-details content-box" ng-if="!subDomainExist">
+            <label class="title-box">Choose Subdomain</label>
+            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+              <i class="fa fa-question-circle" aria-hidden="true"></i>
+              <span>Choose a URL you will provide to customers so they can register to view job history and leave
+                feedback</span>
+            </a>
+            <div class="set-chem-list">
+
+              <div class="form-group company-url-form-group">
+                <input type="text" class="form-control" ng-model="cpModel.domain" placeholder="subdomain" name="domain"
+                  validator="[alphaLower]" ng-disabled="subDomainExist" required max-length="20" ng-maxlength="20">
+                <span ng-if="!isNppServer">.poolbrain.com</span>
+                <span ng-if="isNppServer">.npp.poolbrain.com</span>
+
+              </div>
+              <small id="emailHelp" class="form-text text-muted">*Use numbers and lowercase letters with no spaces (max
+                20 characters)</small>
+
+              <div class="set-chem-button">
+                <button class="button" ng-disabled="!customerPortalSettingForm.$valid" type="submit"> SAVE </button>
+              </div>
+            </div>
+            <div ng-if="successCustomerPortal">
+              <success message="{{successCustomerPortal}}"></success>
+            </div>
+            <div ng-if="errorCustomerPortal">
+              <error message="{{errorCustomerPortal}}"></error>
+            </div>
+          </div>
+
+        </div>
+      </form>
+
+
+
+    </div>
+    <div class="col-lg-6 m-t20" ng-init="getAdminAlertSetting()">
+      <div class="set-chem-price alert-dismiss-setting email-quickBooks-height setting-sm-card-loader-parent" style="width: 100%;">
+        <div class="setting-sm-card-loader" ng-if="settingPageLoaders.alertSection">
+          <div class="spinner">
+             <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+             </div>
+          </div>
+       </div>       
+        <div class="p-relative">
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;"
+            ng-if="successUpdateAlert">
+            <success message="{{successUpdateAlert}}"></success>
+          </div>
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;"
+            ng-if="errorUpdateAlert">
+            <error message="{{errorUpdateAlert}}"></error>
+          </div>
+        </div>
+        <div class="set-chem-title">Alerts Settings</div>
+        <div class="flex">
+          <div>
+            <label class="switch" ng-click="alertAdminSettingStatusToggle()">
+              <span ng-class="{'active' : alertModel.status == '1'}" class="slider round active"></span>
+            </label>
+          </div>
+          <div>
+            <div style="font-size: 19px; line-height: 26px;">Automatically Dismiss Alerts after <input type="number"
+                class="input-under-radio input-number" style="width: 50px; text-align:center" name="days" id="days"
+                ng-model="alertModel.days" maxlength="3" ng-min="1" ng-max="365" value="30"
+                oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="updateAlertAdminSetting()" /> days
+            </div>
+          </div>
+        </div>
+        <div class="text-center m-t20" ng-if="loggedInRole != 'viewer'">
+          <button class="button btn-blue btn-red-large" type="button" ng-click="dismissAllAlertConfirm()">Dismiss All
+            Alerts Now</button>
+        </div>
+        <div class="p-lr20">
+          <hr class="m-0" />
+        </div>
+
+        <div class="flex m-b20">
+          <div>
+            <label class="switch" ng-click="alertAdminSettingNotesToggle()">
+              <span ng-class="{'active' : alertModel.validateNotes == '1'}" class="slider round"></span>
+            </label>
+          </div>
+          <div>
+            <div class="h-2x">Require notes when dismissing alerts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <!--  -->
+  <div class="row">    
+    <div class="col-lg-12 col-md-12 m-t20 on-the-way-details">
+      <div class="pb-panel setting-sm-card-loader-parent pb-panel-min-height" ng-init="getTextOnTheWayDetails()">
+        <div class="setting-sm-card-loader" ng-if="textOnTheWayDetailsLoading">
+          <div class="spinner">
+            <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="pb-panel-header">Send "on the way" text message from technician app</div>
+        <div class="pb-panel-body">                        
+          <form novalidate name="textOnTheWayDetailsForm" autocomplete="off">
+            <div class="form-group">
+              <label class="form-label">Message to customer</label>
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>                
+                <span>The default message sent to customer when a technician texts them from the app. They'll select how many minutes until they arrive which will display at the top of the message. You can give them permission to edit the message if you choose.</span>
+              </a>
+              <textarea                
+              ng-blur="!textOnTheWayDetailsForm.$invalid && isTextOnTheWayDetailsUpdate() && saveTextOnTheWayDetails()" 
+              ng-model="textOnTheWayDetails.messageBody" 
+              name="messageBody"
+              type="text" 
+              class="form-control"  
+              style="height: 100px;"
+              maxlength="105" 
+              ng-class="{ 'has-error': errorMessageMessageBody }"
+              ng-focus="resetErrorMessageMessageBody()"                
+              ></textarea>   
+              <div class="text-on-the-way-bottom-row">
+                <div class="text-on-the-way-bottom-col"><span class="has-required">{{errorMessageMessageBody}}</span></div>
+                <div class="text-on-the-way-bottom-col"><span class="gsm-hint">105 character max, no URLs, only GSM 3.38 characters</span></div>
+              </div>       
+            </div>
+            <div class="form-group">
+              <label class="form-label">If customer replies:</label>
+              <div class="on-the-way-details-radio">
+                <div class="on-the-way-details-radio-item">
+                  <label><input type="radio" ng-change="saveTextOnTheWayDetails()" ng-model="textOnTheWayDetails.textOnTheWayAction" name="textOnTheWayAction" value="1" checked>Send reply to phone #</label>
+                </div>
+                <div class="on-the-way-details-radio-item">
+                  <label><input type="radio" ng-change="saveTextOnTheWayDetails()" ng-model="textOnTheWayDetails.textOnTheWayAction" name="textOnTheWayAction" value="2">Send customer No-Reply message</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group"  ng-if="textOnTheWayDetails.textOnTheWayAction=='1'">
+              <label class="form-label">Reply to text number</label>
+              <input                
+              ng-blur="!textOnTheWayDetailsForm.$invalid && isTextOnTheWayDetailsUpdate() && saveTextOnTheWayDetails()" 
+              ng-model="textOnTheWayDetails.replyToNumber" 
+              name="replyToNumber"
+              type="text" 
+              class="form-control" 
+              maxLength="12" 
+              ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" 
+              phone-input="" 
+              ng-class="{
+                'has-error': 
+                  textOnTheWayDetailsForm.$submitted && (
+                    textOnTheWayDetailsForm.replyToNumber.$invalid || 
+                    textOnTheWayDetailsForm.replyToNumber.$error.pattern
+                  ) || 
+                  textOnTheWayDetailsForm.replyToNumber.$touched && (
+                    textOnTheWayDetailsForm.replyToNumber.$invalid || 
+                    textOnTheWayDetailsForm.replyToNumber.$error.pattern
+                  )
+              }"
+              >
+            </div>            
+            <div class="form-group" ng-if="textOnTheWayDetails.textOnTheWayAction=='2'">
+              <label class="form-label">No-Reply message</label>
+              <textarea                
+              ng-blur="!textOnTheWayDetailsForm.$invalid && isTextOnTheWayDetailsUpdate() && saveTextOnTheWayDetails()" 
+              ng-model="textOnTheWayDetails.noReplyMessage" 
+              name="noReplyMessage"
+              type="text" 
+              class="form-control"  
+              style="height: 100px;"
+              maxlength="160"
+              ng-class="{ 'has-error': errorMessageNoReplyMsg }"
+              ng-focus="resetErrorMessageNoReplyMsg()"
+              ></textarea>
+              <div class="text-on-the-way-bottom-row">
+                <div class="text-on-the-way-bottom-col"><span class="has-required">{{errorMessageNoReplyMsg}}</span></div>
+                <div class="text-on-the-way-bottom-col"><span class="gsm-hint">160 character max, no URLs, only GSM 3.38 characters</span></div>
+              </div>      
+            </div>
+          </form>
+          <success ng-if="textOnTheWayDetailsSuccessMsg" message="{{textOnTheWayDetailsSuccessMsg}}"></success>
+          <error ng-if="textOnTheWayDetailsErrorMsg" message="{{textOnTheWayDetailsErrorMsg}}"></error>
+        </div>
+    </div>
+    </div>    
+  </div>
+  <!--  -->
+  <div ng-controller="adminServiceLevelSettingController" ng-include="'/templates/component/admin-services-level-setting.html?ver='+PB_WEB_VERSION"></div>
+  <div ng-controller="technicianPaySettingController" ng-include="'/templates/component/technician-pay-setting.html?ver='+PB_WEB_VERSION"> </div>
+  <div ng-controller="adminQuoteSettingController" ng-include="'/templates/component/admin-quote-settings.html?ver='+PB_WEB_VERSION"></div>
+  <div ng-include="'/templates/component/job-scheduling-controller.html?ver='+PB_WEB_VERSION"></div>
+  <div ng-controller="adminPayaController" ng-include="'/templates/component/admin-paya-setting.html?ver='+PB_WEB_VERSION"></div>
+  <div ng-controller="billingSettingController" ng-include="'/templates/component/billing-setting.html?ver='+PB_WEB_VERSION"></div>
+  <div class="row ">
+
+    <div class="col-lg-12"> 
+      <div class="set-chem-form m-t20" name="qb_online" ng-controller="quickbookController" ng-init="getCompanyPreferences()">
+        <div class="set-chem-price setting-sm-card-loader-parent" style="width: 100%; background: #fff;">
+          <div class="setting-sm-card-loader" ng-if="
+            settingPageLoaders.qboSection.qboConnected || 
+            settingPageLoaders.qboSection.accountV1 || 
+            settingPageLoaders.qboSection.accountV2 ||
+            settingPageLoaders.qboSection.invoiceSyncToggle ||
+            settingPageLoaders.qboSection.productToggle ||
+            settingPageLoaders.qboSection.incomeAccountUpdating || 
+            settingPageLoaders.qboSection.qboSyncing ||
+            settingPageLoaders.qboSection.companyPreferences ||
+            settingPageLoaders.qboSection.defaultAccount
+            ">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+          <!-- <div class="spinner" ng-if="isQbProcessing">
+            <div class="spinner-item">
+              <div class="spinner-animation">
+                <img border="0" src="resources/images/spinner.gif" />
+              </div>
+            </div>
+          </div> -->
+          <div class="set-chem-title">QuickBooks Online</div>
+          <div class="set-chem-details set-che-height">
+            <div class="xrow m-t10">
+              <div class="row set-chem-button" style="text-align: left;">
+                <div class="col-lg-6" style="text-align: center;">
+                  <img border="0" style="max-width: 200px;margin-bottom: 15px;"
+                    src="resources/images/quickbooks_logo.png" />
+                  <div class="retry-sync-btn-holder">
+                    <p type="submit" ng-if="qbConnectedNow" style="color:#285fc6;font-size:18px;">Connected</p>
+                    <button style="width:auto !important;" class="button btn-blue" type="submit"
+                      ng-click="quickBookIntegration()" ng-if="!qbConnectedNow">Connect to QuickBooks</button>
+                    <button style="width:auto !important;" class="button btn-blue" type="button" ng-if="qbConnectedNow"
+                      ng-click="SyncCompanyCustomers()">Retry Sync <span>(customer info)</span></button>
+                    <button style="width:auto !important;" class="button btn-blue" type="button" ng-if="qboSyncEnabled && qbConnectedNow"
+                      ng-click="enableQBOSync(currentProductAccount, currentRefundAccount, true)">Retry Sync <span>(payments/invoices)</span></button>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <!-- <div class="dropdown select-wrap m-t10 m-l20">
+                        <label class="label-title" style="margin:10px 0px 0px;">Expense Account <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span>Choose an expense account to associate with products and services on invoices</span>
+                        </a></label>
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  style="margin:0">
+                          <b>{{currentProductAccount}}</b>
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu scrollable-menu">
+                          <li ng-click="setIncomeAccount(accountsDataForProductAccountName.accountId, 'expense')" ng-repeat="accountsDataForProductAccountName in incomeAccountDetails.accountsDataForProduct"><a href="javascript:void(0)">{{accountsDataForProductAccountName.accountName}}</a></li>
+                        </ul>
+                      </div>  -->
+
+                  <div class="dropdown select-wrap m-t10">
+                    <label class="label-title" style="margin:10px 0px 0px;">Account <a href="javascript:void(0)"
+                        class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>Select an account to associate payments and refunds with in QBO. The most commonly selected option is "Undeposited Funds"</span>
+                      </a></label>
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"
+                      ng-disabled="!qbConnectedNow" style="margin:0">
+                      <b>{{currentRefundAccount}}</b>
+                      <span class="caret"></span></button>
+                    <ul class="dropdown-menu scrollable-menu">
+                      <li ng-click="setRefundAccount(accountsDataForRefundAccountName.accountId, 'refund')"
+                        ng-repeat="accountsDataForRefundAccountName in incomeAccountDetails.accountsDataForRefund"
+                        ng-hide="currentRefundAccount == accountsDataForRefundAccountName.accountName"><a
+                          href="javascript:void(0)">{{accountsDataForRefundAccountName.accountName}}</a></li>
+                      <!--<li ng-click="setIncomeAccount(incomeAccount.accountId)" ng-repeat="incomeAccount in incomeAccountDetails.incomeAccountsData"><a href="javascript:void(0)">{{incomeAccount.accountName | uppercase}}</a></li>-->
+                    </ul>
+                  </div>
+                  <div class="dropdown select-wrap m-tb20 qb-connect">
+                    <div class="ws-nowrap"><span class="v-align-top p-r10 blue-text">Sync invoices, payments and
+                        refunds</span>
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>To activate billing sync, a bank account must be selected. </span>
+                      </a>
+                      <!-- <div class="overlay-white" ng-if="!activateBilling"></div> -->
+                      <label class="switch small" ng-click="enableQBOSync(currentProductAccount, currentRefundAccount)">
+                        <span ng-class="{'active' : qboSyncEnabled && currentRefundAccount != '--'}"
+                          class="slider round"></span>
+                      </label>
+                    </div>                    
+                  </div>
+                  <div class="dropdown select-wrap m-tb20 qb-connect">
+                    <div class="ws-nowrap"><span class="v-align-top p-r10 blue-text">Sync Products and
+                        Services</span>
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>This will sync all existing and future products/services between Quickbooks Online and
+                          Pool Brain.</span>
+                      </a>
+                      <!-- <div class="overlay-white" ng-if="!activateBilling"></div> -->
+                      <label class="switch small"
+                        ng-click="toggleQboItemsSync(currentProductAccount, currentRefundAccount)">
+                        <span ng-class="{'active' : isQboItemsSyncEnabled }" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="dropdown select-wrap m-tb20 qb-connect">
+                    <div class="ws-nowrap"><span class="v-align-top p-r10 blue-text">Enable location assigning</span>
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>Enable location assigning</span>
+                      </a>
+                      <label class="switch small"
+                        ng-click="isQBODeptSyncEnabled ? toggleTrackLocation() : checkTrackLocation()">
+                        <span ng-class="{'active' : isQBODeptSyncEnabled }" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="m-t10 company-preferences-data" ng-if="showTrackLocationError">
+                    <div class="company-preferences-data-item company-preferences-data-item-ON">No locations detected in QBO. Please make sure "Track Locations" setting is activated in your QBO account.</div>
+                  </div>
+                  <div class="m-t10 company-preferences-data {{companyPreferencesData.AutoApplyPayments == 'OFF' && companyPreferencesData.AutoApplyCredit == 'OFF' ? 'company-preferences-data-success' : ''}}" ng-if="companyPreferencesDataLoaded > 0" >
+                    <div class="company-preferences-data-item company-preferences-data-item-{{companyPreferencesData.AutoApplyPayments}}"><i class="fa {{ companyPreferencesData.AutoApplyPayments == 'ON' ? 'fa-exclamation-triangle' : 'fa-check-circle'}}"></i> Auto Apply Bill Payments setting in QBO is <strong>{{companyPreferencesData.AutoApplyPayments}}</strong></div>
+                    <div class="company-preferences-data-item company-preferences-data-item-{{companyPreferencesData.AutoApplyCredit}}"><i class="fa {{ companyPreferencesData.AutoApplyCredit == 'ON' ? 'fa-exclamation-triangle' : 'fa-check-circle'}}"></i> Auto Apply Credits setting in QBO is <strong>{{companyPreferencesData.AutoApplyCredit}}</strong></div>                    
+                    <div class="company-preferences-note" ng-if="companyPreferencesData.AutoApplyPayments == 'ON' || companyPreferencesData.AutoApplyCredit == 'ON'">
+                      <p>Both of these settings need to be OFF for sync to function properly.</p>
+                      <p><a href="https://help.poolbrain.com/en/articles/6809260-quickbooks-online-troubleshooting-for-invoices-payments" target="_blank">How to disable these settings</a></p>
+                    </div>
+                  </div>                  
+                </div>
+              </div>
+              <div class="col set-chem-button" style="text-align: left;">
+                <div style="position: absolute;width: 90%;z-index: 1;left: 4%;bottom: -5px;">
+                  <success ng-if="successSync" message="{{successSync}}"></success>
+                </div>
+              </div>
+            </div>
+            <div class="row m-t20 text-left" ng-if="qbConnectedNow && isQboItemsSyncEnabled">
+              <div class="col-xs-12 default-qbo-account-area" ng-init="getDefaultQboAccount()">
+                <div class="default-qbo-account-area-card">
+                  <div class="row">
+                    <div class="col-xs-12 col-md-6 col-lg-3">
+                      <div>
+                        <span class="edit-procuct-text-label">Income Account (Products)</span>
+                      </div>
+                      <div class="account-name-dropdown">
+                        <div class="dropdown select-wrap ">
+                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <b>{{getQboAccountNameById(defaultQboAccounts.product_income)}}</b>
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu scrollable-menu scrollareaCls">                         
+                            <li ng-click="updateDefaultQboAccount('product_income')" ng-hide="defaultQboAccounts.product_income==0"><a href="javascript:void(0)">None</a></li>
+                            <li ng-repeat="account in qboAccounts" ng-click="updateDefaultQboAccount('product_income',account)" ng-hide="defaultQboAccounts.product_income==account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                          </ul>
+                        </div> 
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-lg-3">
+                      <div>
+                        <span class="edit-procuct-text-label">Expense Account (Products)</span>
+                      </div>
+                      <div class="account-name-dropdown">
+                        <div class="dropdown select-wrap ">
+                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <b>{{getQboAccountNameById(defaultQboAccounts.product_expense)}}</b>
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu scrollable-menu scrollareaCls">
+                            <li ng-click="updateDefaultQboAccount('product_expense')" ng-hide="defaultQboAccounts.product_expense==0"><a href="javascript:void(0)">None</a></li>                         
+                            <li ng-repeat="account in qboAccounts" ng-click="updateDefaultQboAccount('product_expense',account)" ng-hide="defaultQboAccounts.product_expense==account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                          </ul>
+                        </div> 
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-lg-3">
+                      <div>
+                        <span class="edit-procuct-text-label">Income Account (Services)</span>
+                      </div>
+                      <div class="account-name-dropdown">
+                        <div class="dropdown select-wrap ">
+                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <b>{{getQboAccountNameById(defaultQboAccounts.service_income)}}</b>
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu scrollable-menu scrollareaCls">    
+                            <li ng-click="updateDefaultQboAccount('service_income')" ng-hide="defaultQboAccounts.service_income==0"><a href="javascript:void(0)">None</a></li>                        
+                            <li ng-repeat="account in qboAccounts" ng-click="updateDefaultQboAccount('service_income',account)" ng-hide="defaultQboAccounts.service_income==account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                          </ul>
+                        </div> 
+                      </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-lg-3">
+                      <div>
+                        <span class="edit-procuct-text-label">Expense Account (Services)</span>
+                      </div>
+                      <div class="account-name-dropdown">
+                        <div class="dropdown select-wrap ">
+                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <b>{{getQboAccountNameById(defaultQboAccounts.service_expense)}}</b>
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu scrollable-menu scrollareaCls">    
+                            <li ng-click="updateDefaultQboAccount('service_expense')" ng-hide="defaultQboAccounts.service_expense==0"><a href="javascript:void(0)">None</a></li>                      
+                            <li ng-repeat="account in qboAccounts" ng-click="updateDefaultQboAccount('service_expense',account)" ng-hide="defaultQboAccounts.service_expense==account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                          </ul>
+                        </div> 
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <success ng-if="invoiceGenerated" message="{{invoiceGenerated}}"></success>
+          <error ng-if="invoiceGeneratedError" message="{{invoiceGeneratedError}}"></error>
+
+          <div style="width: 100%; max-width: calc(100% - 30px);margin: 0 auto;" ng-if="quick_book_success">
+            <success message="{{quick_book_success}}"></success>
+          </div>
+          <div style="width: 100%; max-width: calc(100% - 30px);margin: 0 auto;" ng-if="quick_book_error">
+            <error message="{{quick_book_error}}"></error>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="set-chem-form m-t20 customQuickBooksResp" ng-init="getHeritageDetails()">
+        <div class="set-chem-price setting-sm-card-loader-parent" style="width: 100%; background: #fff;">
+          <div class="setting-sm-card-loader" ng-if="heritageDataLoading">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+         <div class="p-relative">
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="successMessageHeritage">
+            <success message="{{successMessageHeritage}}"></success>
+          </div>
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="errorMessageHeritage">
+            <error message="{{errorMessageHeritage}}"></error>
+          </div>
+        </div>
+          <div class="set-chem-title">Supplier Integrations</div>
+           <div class="set-chem-details set-che-height">
+             <div class="xrow m-t10">
+              <div class="row set-chem-button supplier-integration">
+                <div class="col-lg-6 supplier-main">
+                  <div class="supplier-header">
+                    <img class="supplier-logo" src="resources/images/heritage_logo.png" />
+                    <div class="retry-sync-holder" ng-if="heritageIntegration.status == 1">
+                      <div class="retry-sync-btn-holder">
+                        <div class="connected-text" ng-if="heritageIntegration.status == 1"><i class="fa fa-check-circle"></i> Connected</div>
+                        <div class="disconnect-button" ng-if="heritageIntegration.status == 1" ng-click="confirmDisconnectHeritage()"><i class="fa fa-times-circle"></i> Disconnect</div>
+                      </div>
+                    </div>
+                  </div>
+                  <form class="paya-setting-form" name="heritageSettingForm" novalidate>
+                    <div class="dropdown select-wrap m-t10" ng-if="heritageIntegration.status && heritageBranchData.length == 0">
+                      <label>Default Branch <a href="javascript:void(0)"
+                          class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span class="sch-help2">Select the branch you want to use to auto-update product costs. Different branches can have different pricing and the best option is likely the one you purchase from the most. Each night, any product costs that have changed in Heritage will auto-update in Pool Brain if you've entered a matching Heritage Number for the product. If you have markup set for the product, the price will auto-update as well.</span>
+                        </a></label>
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin:0" ng-disabled="true">
+                        <b>No branches available for this heritage account</b>
+                        <span class="caret"></span></button>
+                        <span ng-if="heritageIntegration.selectedBranch == 'None'"  class="no-branch-selected">selection is required for auto-sync</span>
+                    </div>
+                    <div class="dropdown select-wrap m-t10" ng-if="heritageIntegration.status && heritageBranchData.length > 1">
+                      <label>
+                        Default Branch <a href="javascript:void(0)"
+                          class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span class="sch-help2">Select the branch you want to use to auto-update product costs. Different branches can have different pricing and the best option is likely the one you purchase from the most. Each night, any product costs that have changed in Heritage will auto-update in Pool Brain if you've entered a matching Heritage Number for the product. If you have markup set for the product, the price will auto-update as well.</span>
+                        </a>
+                      </label>                      
+                      <span ng-if="heritageIntegration.selectedBranch == 'None'" class="no-branch-selected">selection is required for auto-sync</span>
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="margin:0">
+                        <b>{{heritageIntegration.selectedBranch}}</b>
+                        <span class="caret"></span></button>
+                      <ul class="dropdown-menu scrollable-menu">
+                        <li ng-click="selectHeritageBranch(branch)"
+                          ng-repeat="branch in heritageBranchData"
+                          ng-hide="heritageIntegration.selectedBranch == branch.displayName">
+                          <a href="javascript:void(0)">{{ branch.branchName != 'None' ? branch.displayName : 'None' }}</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <table class="m-t20" width="100%" border="0" cellspacing="0" cellpadding="0" >
+                        <tbody>
+                            <tr>
+                                <td>
+                                  <label>Account ID</label>
+                                  <div class="form-group">
+                                    <input class="form-control" type="text"  id="customerAccountId" name="customerAccountId" ng-model="heritageIntegration.customerAccountId" autocomplete="off" ng-readonly="heritageIntegration.status" />
+                                  </div>
+                                  </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <label>API Key</label>
+                                  <div class="form-group">
+                                    <input class="form-control" type="text"  id="customerApiKey" name="customerApiKey" ng-model="heritageIntegration.customerApiKey" autocomplete="off" ng-readonly="heritageIntegration.status" />
+                                  </div>
+                                  </td>
+                              </tr>
+                            <tr>
+                            <td>
+                              <div class="set-chem-button">
+                                  <button id="saveSetting" class="button" type="submit" ng-if="heritageButtonText == 'Connect'" ng-click="saveHeritageDetails(true)"> Connect </button>
+                                  <button id="saveSetting" class="button" type="submit" ng-if="isSuperAdmin && heritageButtonText == 'Disconnect'" ng-click="heritageIntegration.selectedBranch == 'None' ? return : heritageCronRun(heritageButtonText == 'Disconnect' ? true : false)" ng-disabled="heritageIntegration.selectedBranch == 'None'"> INITIATE HERITAGE SYNC PROCESS </button>
+                              </div>
+                              </td>
+                            </tr>
+                        </tbody>
+                      </table>
+                    </form>
+                </div>
+                <div class="col-lg-6"></div>
+              </div>
+             </div>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="set-chem-form m-t20" id="chemical-setting-area">
+    <form class="set-chem-form" name="settingForm" ng-submit="settingForm.$valid ? addEditSetting(settingForm) : null"
+      novalidate>
+      <div class="set-chem-price setting-sm-card-loader-parent" style="width:100% !important">
+        <div class="setting-sm-card-loader" ng-if="!doseTargetModalOpened && settingPageLoaders.chemicalSettingSection">
+          <div class="spinner">
+             <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+             </div>
+          </div>
+       </div>
+        <div class="set-chem-title">Chemical Settings</div>
+        <div class="set-chem-details">
+          <div ng-init="getChemicalsSetting()">
+            <div class="pool-datagrid">
+              <div class="row">
+                <div class="chemical-setting-dosing-table">                
+                  <table class="row-border">
+                    <thead>
+                      <tr>
+                        <th class="csdt--chemical-name">
+                          CHEMICAL NAME
+                        </th>
+                        <th class="csdt--dose-target align-content-center">
+                          AUTO-DOSE
+                        </th>
+                        <th class="csdt--price">
+                          PRICE
+                        </th>
+                        <th class="csdt--cost">
+                          COST
+                        </th>
+                        <th class="csdt--unit">
+                          UNIT
+                        </th>
+                        <th class="csdt--display-name">
+                          DISPLAY NAME
+                        </th>
+                        <th class="csdt--swim-wait align-content-center">
+                          SWIM WAIT
+                        </th>
+                        <th class="csdt--product-link align-content-center">
+                          <div class="link"></div>
+                        </th>
+                        <th class="csdt--status-toggle align-content-center"></th>
+                      </tr>
+                    </thead>
+                    <tbody ng-repeat="cOption in chemicalOption">
+                      <tr ng-repeat="chemicals in cOption">
+                        <td class="csdt--chemical-name">
+                          <label>{{chemicals.name}} <span class="csdt--chemical-name-range" ng-if="chemicals.chemicalRange">({{chemicals.chemicalRange}})</span></label>
+                          <span class="dosing-deault-link" ng-class="{ 'default': chemicals.chemicalStatus == 1}" ng-click="removeDefaults(cOption);chemicals.chemicalStatus = (chemicals.chemicalStatus == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals, 'chemical_dosing', 'Default Dosing')">
+                            <span ng-if="chemicals.chemicalStatus != 1">set as dosing default</span>
+                            <span ng-if="chemicals.chemicalStatus == 1"> 
+                              <span ng-if="chemicals.parent == 'chlorine'">chlorine</span> 
+                              <span ng-if="chemicals.parent == 'ph'">acid</span> 
+                              dosing default</span>
+                          </span>
+                        </td>
+                        <td class="csdt--dose-target align-content-center">
+                          <div class="dose-target-link" ng-click="chemicals.dosingStatus = (chemicals.dosingStatus == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals, 'chemical_dosing', 'dosingStatus')"> 
+                            {{ chemicals.dosingStatus == 0 ? 'OFF' : 'ON'}}                            
+                          </div>
+                        </td>
+                        <td class="csdt--price">                                
+                          <input class="form-control input-number"
+                          ng-model-options="{updateOn: 'blur'}"
+                          ng-change="editChemical(settingForm, $index, chemicals)"
+                            ng-click="clearInterval()" name="{{chemicals.keyName}}"
+                            ng-model="chemicals.priceCharge" placeholder="$"
+                            ng-class="{'has-error': settingForm.$submitted && settingForm[chemicals.keyName].$invalid || settingForm[chemicals.keyName].$touched && settingForm[chemicals.keyName].$invalid}"
+                            ng-min="0" ng-max="9999999" type="text" format="currency" allow-typing="^[$,0-9. ]+$"
+                            allowinputonlytwodecimal />
+                        </td>
+                        <td class="csdt--cost">                                
+                          <input class="form-control"
+                            ng-model-options="{updateOn: 'blur'}"
+                            ng-change="editChemical(settingForm, $index, chemicals)"
+                            ng-click="clearInterval()" name="{{chemicals.keyName}}"
+                            ng-model="chemicals.price" placeholder="$" type="text"
+                            format="currency" allow-typing="^[$,0-9. ]+$" allowinputonlytwodecimal
+                            ng-class="{'has-error': settingForm.$submitted && settingForm[chemicals.keyName].$invalid || settingForm[chemicals.keyName].$touched && settingForm[chemicals.keyName].$invalid}" />
+                        </td>
+                        <td class="csdt--unit" ng-if="chemicals.chemicalKey == 'tabs'">
+                          {{chemicals.unit}}
+                        </td>
+                        <td class="csdt--unit" ng-if="chemicals.chemicalKey != 'tabs'">
+                          <div class="dropdown select-wrap">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"
+                              ng-click="clearInterval()">
+                              {{chemicals.unit ? chemicals.unit : ''}}                                    
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li ng-repeat="chemicalUnit in chemicalUnits[chemicals.chemicalKey]"
+                                ng-hide="chemicals.unit == chemicalUnit"
+                                ng-click="priceUnitCalcModel(chemicals, chemicalUnit, chemicals.defaultUnit)">
+                                <a href="#">{{chemicalUnit}}</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        <td class="csdt--display-name">
+                          <input class="form-control" name="{{chemicals.keyName+'_displayName'}}"
+                            ng-model-options="{updateOn: 'blur'}"
+                            ng-change="editChemical(settingForm, $index, chemicals)" ng-click="clearInterval()"
+                            ng-model="chemicals.displayName" placeholder="Display Name"
+                            type="text" />
+                        </td>
+                        <td class="csdt--swim-wait align-content-center">                          
+                          <span class="swim-wait-link" ng-click="chemicals.swimWait = (chemicals.swimWait == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals)">{{ chemicals.swimWait == 1 ? "YES" : "NO"}}</span>
+                        </td>
+                        <td class="csdt--product-link align-content-center">
+                          <div class="product-sevices-category Product"
+                            ng-click="chemicalProductsPopUp(chemicals)" style="cursor: pointer;"></div>
+                        </td>
+                        <td class="csdt--status-toggle align-content-center">
+                          <div class="dosing-delete-icon">
+                            <label class="switch-medium" ng-click="chemicals.appStatus = (chemicals.appStatus == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals, 'chemical_dosing', 'appStatus')">
+                              <span class="slider-medium round" ng-class="{ 'active': chemicals.appStatus == 1}"></span>
+                            </label>
+                            <div class="csdt--status-toggle--tooltip">
+                              <span ng-if="chemicals.appStatus == 1">Displayed</span>
+                              <span ng-if="chemicals.appStatus == 0">Not displayed</span>
+                              in app
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="100%">
+                          <div class="chemical-hr"></div>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tbody>
+                      <tr ng-repeat="chemicals in combineOrderedChemical | orderBy: 'orderBy'" ng-if="!chemicals.inputType || chemicals.inputType!='select'">
+                        <td class="csdt--chemical-name">
+                          <label>{{chemicals.name}} <span class="csdt--chemical-name-range" ng-if="chemicals.chemicalRange">({{chemicals.chemicalRange}})</span></label>
+                        </td>
+                        <td class="csdt--dose-target align-content-center">
+                          <div class="dose-target-link" ng-click="chemicals.dosingStatus = (chemicals.dosingStatus == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals, 'chemical_dosing', 'dosingStatus')">                                                                                    
+                            {{ chemicals.dosingStatus == 0 ? 'OFF' : 'ON' }}
+                          </div>
+                        </td>
+                        <td class="csdt--price">                                
+                          <input class="form-control input-number"
+                          ng-model-options="{updateOn: 'blur'}"
+                          ng-change="editChemical(settingForm, $index, chemicals)"
+                            ng-click="clearInterval()" name="{{chemicals.keyName}}"
+                            ng-model="combineOrderedChemical[$index].priceCharge" placeholder="$"
+                            ng-class="{'has-error': settingForm.$submitted && settingForm[chemicals.keyName].$invalid || settingForm[chemicals.keyName].$touched && settingForm[chemicals.keyName].$invalid}"
+                            ng-min="0" ng-max="9999999" type="text" format="currency" allow-typing="^[$,0-9. ]+$"
+                            allowinputonlytwodecimal />
+                        </td>
+                        <td class="csdt--cost">                                
+                          <input class="form-control"
+                            ng-model-options="{updateOn: 'blur'}"
+                            ng-change="editChemical(settingForm, $index, chemicals)"
+                            ng-click="clearInterval()" name="{{chemicals.keyName}}"
+                            ng-model="combineOrderedChemical[$index].price" placeholder="$" type="text"
+                            format="currency" allow-typing="^[$,0-9. ]+$" allowinputonlytwodecimal
+                            ng-class="{'has-error': settingForm.$submitted && settingForm[chemicals.keyName].$invalid || settingForm[chemicals.keyName].$touched && settingForm[chemicals.keyName].$invalid}" />
+                        </td>
+                        <td class="csdt--unit" ng-if="combineOrderedChemical[$index].chemicalKey == 'tabs'">
+                          {{chemicals.unit}}
+                        </td>
+                        <td class="csdt--unit" ng-if="combineOrderedChemical[$index].chemicalKey != 'tabs'">
+                          <div class="dropdown select-wrap">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"
+                              ng-click="clearInterval()" >
+                              {{combineOrderedChemical[$index].unit ? combineOrderedChemical[$index].unit : ''}}                                    
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li ng-repeat="chemicalUnit in chemicalUnits[chemicals.chemicalKey]"
+                                ng-hide="chemicals.unit == chemicalUnit"
+                                ng-click="priceUnitCalcModel(chemicals, chemicalUnit, chemicals.defaultUnit)">
+                                <a href="#">{{chemicalUnit}}</a>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        <td class="csdt--display-name">
+                          <input class="form-control" name="{{chemicals.keyName+'_displayName'}}"
+                            ng-model-options="{updateOn: 'blur'}"
+                            ng-change="editChemical(settingForm, $index, chemicals)" ng-click="clearInterval()"
+                            ng-model="combineOrderedChemical[$index].displayName" placeholder="Display Name"
+                            type="text" />
+                        </td>
+                        <td class="csdt--swim-wait align-content-center">
+                          <span class="swim-wait-link" ng-click="combineOrderedChemical[$index].swimWait = (combineOrderedChemical[$index].swimWait == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals)">{{ combineOrderedChemical[$index].swimWait == 1 ? "YES" : "NO"}}</span>
+                        </td>
+                        <td class="csdt--product-link align-content-center">
+                          <div class="product-sevices-category Product"
+                            ng-click="chemicalProductsPopUp(chemicals)" style="cursor: pointer;"></div>
+                        </td>
+                        <td class="csdt--status-toggle align-content-center">
+                          <div class="dosing-delete-icon">
+                            <label class="switch-medium" ng-click="combineOrderedChemical[$index].appStatus = (combineOrderedChemical[$index].appStatus == 1 ? 0 : 1);editChemical(settingForm, $index, chemicals, 'chemical_dosing', 'appStatus')">
+                              <span class="slider-medium round" ng-class="{ 'active': combineOrderedChemical[$index].appStatus == 1}"></span>
+                            </label>
+                            <div class="csdt--status-toggle--tooltip">
+                              <span ng-if="combineOrderedChemical[$index].appStatus == 1">Displayed</span>
+                              <span ng-if="combineOrderedChemical[$index].appStatus == 0">Not displayed</span>
+                              in app
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>                    
+                    <tfoot>
+                      <tr>
+                        <td colspan="100%">                         
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+              <div class="row">
+                <div class="chemical-setting-dosing-table chemical-setting-dosing-table-custom">                
+                  <table class="row-border">
+                    <thead>
+                      <tr>
+                        <th class="csdt--chemical-name">
+                          CHEMICAL NAME
+                        </th>                        
+                        <th class="csdt--price">
+                          PRICE
+                        </th>
+                        <th class="csdt--cost">
+                          COST
+                        </th>
+                        <th class="csdt--unit">
+                          UNIT
+                        </th>
+                        <th class="csdt--swim-wait align-content-center">
+                          SWIM WAIT
+                        </th>
+                        <th class="csdt--product-link align-content-center">
+                          <div class="link"></div>
+                        </th>
+                        <th class="csdt--status-toggle align-content-center"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="customChemical in customChemicals">
+                        <td class="csdt--chemical-name">                          
+                          <label ng-if="customChemical.chemicalKey=='tabs'">{{customChemical.name}}</label>
+                          <input ng-if="customChemical.chemicalKey!='tabs'" class="form-control"
+                            name="{{'name_'+customChemical.chemicalKey}}" ng-model="customChemicals[$index].name"
+                            placeholder=""
+                            ng-model-options="{updateOn: 'blur'}"
+                            ng-change="createChemicalKey($index, customChemicals[$index].name); editChemical('', true, customChemical)"
+                            ng-click="clearInterval()" required="" type="text"
+                            ng-class="{'has-error': settingForm.$submitted && settingForm['name_'+customChemical.chemicalKey].$invalid || settingForm['name_'+customChemical.chemicalKey].$touched && settingForm['name_'+customChemical.chemicalKey].$invalid}" />
+                        </td>                        
+                        <td class="csdt--price">                                
+                          <input class="form-control input-number"
+                            name="{{'priceCharge_'+customChemical.chemicalKey}}"
+                            ng-model="customChemicals[$index].priceCharge"
+                            ng-model-options="{updateOn: 'blur'}"
+                            placeholder="$"
+                            ng-change="editChemical('', true, customChemical)" ng-click="clearInterval()"
+                            ng-class="{'has-error': settingForm.$submitted && settingForm['priceCharge_'+customChemical.chemicalKey].$invalid || settingForm['priceCharge_'+customChemical.chemicalKey].$touched && settingForm['priceCharge_'+customChemical.chemicalKey].$invalid}"
+                            type="text" format="currency" allow-typing="^[$,0-9. ]+$" allowinputonlytwodecimal />
+                        </td>
+                        <td class="csdt--cost">                                
+                          <input class="form-control" name="{{'price_'+customChemical.chemicalKey}}"
+                            ng-model="customChemicals[$index].price"
+                            ng-model-options="{updateOn: 'blur'}"
+                            placeholder="$"
+                            ng-change="editChemical('', true, customChemical)" ng-click="clearInterval()" type="text"
+                            format="currency" allow-typing="^[$,0-9. ]+$" allowinputonlytwodecimal
+                            ng-class="{'has-error': settingForm.$submitted && settingForm['price_'+customChemical.chemicalKey].$invalid || settingForm['price_'+customChemical.chemicalKey].$touched && settingForm['price_'+customChemical.chemicalKey].$invalid}" />
+                        </td>
+                        <td class="csdt--unit">
+                          <div class="dropdown select-wrap"
+                              ng-class="{'has-error': settingForm.$submitted && !customChemicals[$index].unit}"
+                              style="width: 98px;">
+                              <button style="min-height:35px;" class="btn btn-primary dropdown-toggle" type="button"
+                                data-toggle="dropdown" ng-click="clearInterval()">
+                                {{customChemicals[$index].unit ? customChemicals[$index].unit : ''}}
+                                <span class="caret"></span>
+                              </button>
+                              <input type="text" name="chemicalsUnit" ng-model="customChemicals[$index].unit"
+                                required hidden>
+                              <ul class="dropdown-menu" style="width: 98px;">
+                                <li ng-repeat="chemicalUnit in chemicalUnits['custom'] track by $index"
+                                  ng-hide="{{customChemicals[$parent.$index].unit == chemicalUnit ? true : false}}"
+                                  ng-click="customChemicals[$parent.$index].unit=chemicalUnit; editChemical('', true, customChemical)"
+                                  >
+                                  <a href="#" style="padding: 5px 0px 5px 20px;">{{chemicalUnit}}
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                        </td>                       
+                        <td class="csdt--swim-wait align-content-center">            
+                          <span class="swim-wait-link" ng-click="customChemicals[$index].swimWait = (customChemicals[$index].swimWait == 1 ? 0 : 1); editChemical('', true, customChemical)">
+                            {{ customChemicals[$index].swimWait == 1 ? "YES" : "NO"}}
+                          </span>              
+                        </td>
+                        <td class="csdt--product-link align-content-center">
+                          <div class="product-sevices-category Product"
+                            ng-click="chemicalProductsPopUp(customChemical)" style="cursor: pointer;">
+                          </div>
+                        </td>
+                        <td class="csdt--status-toggle align-content-center">
+                          <span class="dosing-delete-icon" ng-if="!customChemicals[$index].chemicalOnJob">
+                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help"
+                              ng-click="removeCustomChemical(customChemical, $index);clearInterval()">
+                              <i class="fa fa-question-circle" aria-hidden="true">
+                                <b ng-if="$index > 0" class="btn-trash" border="0"
+                                  ng-class="{'disabled-dosing-delete-icon' : customChemicals[$index].chemicalOnJob }"
+                                  title=""></b>
+                              </i>
+                            </a>
+                          </span>
+                          <span ng-if="customChemicals[$index].chemicalOnJob" class="dosing-delete-icon">
+                            <ng-container ng-if="customChemical.chemicalKey!='tabs'">
+                              <label class="switch-medium" ng-click="customChemicals[$index].status = (customChemicals[$index].status==1 ? 0 : 1); editChemical('', true, customChemical)">
+                                <span ng-class="{'active' : customChemicals[$index].status == '1'}" class="slider-medium round"></span>
+                              </label>
+                              <div class="csdt--status-toggle--tooltip">
+                                <span ng-if="customChemicals[$index].status == 1">Displayed</span>
+                                <span ng-if="customChemicals[$index].status == 0">Not displayed</span>
+                                in app
+                              </div>
+                            </ng-container>
+                            <ng-container ng-if="customChemical.chemicalKey=='tabs'" >
+                              <label class="switch-medium" ng-click="customChemicals[$index].appStatus = (customChemicals[$index].appStatus==1 ? 0 : 1); editChemical('', true, customChemical, 'chemical_dosing','appStatus')">
+                                <span ng-class="{'active' : customChemicals[$index].appStatus == '1'}" class="slider-medium round"></span>
+                              </label>   
+                              <div class="csdt--status-toggle--tooltip">
+                                <span ng-if="customChemicals[$index].appStatus == 1">Displayed</span>
+                                <span ng-if="customChemicals[$index].appStatus == 0">Not displayed</span>
+                                in app
+                              </div>
+                            </ng-container>                                                     
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>                                       
+                    <tfoot>
+                      <tr>
+                        <td colspan="100%">
+                          <div>                            
+                              <div class="add-new-row" ng-click="addNewRow()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                  <path fill="#285FC6" fill-rule="evenodd"
+                                    d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z" />
+                                </svg>      
+                                <span> Add New </span>
+                            </div>
+                          </div>
+                          <div class="pool-datagrid">
+                            <div class="row thead">
+                              <div class="col-md-12 m-t30 m-b10 p-l0">
+                                <span style="padding:unset;font-size:16px">SWIM WAIT MESSAGE</span><span
+                                  style="font-weight: 500;"> (will automatically appear in route stop emails)</span>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-12 pool-body-wrap">
+                                <textarea class="form-control minH-50" maxlength="3000" ng-model="swimWaitNotes"
+                                  name="swimWaitNotes" ng-blur="changeSwimWaitNotes(swimWaitNotes)"></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <div class="pool-datagrid">                
+
+                <div class="pool-datagrid" ng-init="getChemicalReadingSetting()"
+                  style="padding-left: 15px;padding-right: 15px;">
+                  <div class="row thead">
+                    <div class="col-md-12 m-t20 m-b10" style="padding:unset">Chemical Readings </div>
+                  </div>
+                  <div class="row" ng-repeat="chemicalReadingService in chemicalReadingServiceArray"
+                    ng-if="chemicalReadingService.isSystem == -1">
+                    <div class="col-md-12 pool-body-wrap" style="border: solid 2px #285fc6; padding-bottom: 0;">
+                      <div class="row chemical-reading-grid">
+                          <div class="col-md-2 chemical-reading-grid-col" ng-repeat="chemicalReadingSetting in getSortedChemicalGrid(chemicalReadingService.data); track by $index">
+                            <div class="chemical-reading-required-setting chem-reading-col">
+                              <div class="chem-reading-title">
+                                <span class="h-1x">
+                                  <b>{{(chemicalReadingSetting.value == 'PH' ? 'pH' : chemicalReadingSetting.value)}}</b>
+                                </span>
+                              </div>                              
+                              <div class="chem-reading-toggle">
+                                <span style="color: #285fc6;">display in app</span>
+                                <label class="taxable-switch switchh smalll"
+                                  ng-click="chemicalReadingSettingToggleCheckLSI(chemicalReadingSetting)">
+                                  <span ng-class="{'active' : chemicalReadingSetting.status == '1' }"
+                                    class="sliderr round"></span>
+                                </label>
+                              </div>
+                              <div class="chem-reading-dose-target-link" ng-click="openDoseTargetModal(chemicalReadingSetting)" ng-hide="chemicalReadingSetting.target<0">
+                                <span>dose target = {{chemicalReadingSetting.target}}</span>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    <success ng-if="successChemical" message="{{successChemical}}"></success>
+                    <error ng-if="errorChemical" message="{{errorChemical}}"></error>
+                  </div>
+                </div>
+                <div class="row m-t10" style="display: none;" ng-if="combineOrderedChemical.length > 0">
+                  <div class="col set-chem-button" style="text-align: center;">
+                    <button class="button btn-blue" id="chemicalSettingSubmitButton" type="submit">SAVE</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="clearfix"></div>
+  <div class="set-chem-form m-tb20" style="display: none;">
+    <form class="set-chem-form" name="companyEmaiForm" ng-submit="saveCompanySetting(emailsetting)" novalidate>
+      <div class="set-chem-price setting-sm-card-loader-parent" style="width: auto;">
+        <div class="setting-sm-card-loader" ng-if="settingPageLoaders.emailSectionTemplate">
+          <div class="spinner">
+             <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+             </div>
+          </div>
+       </div>
+        <div class="set-chem-title">Email Settings</div>
+        <div class="set-chem-details">
+          <div class="set-chem-list">
+            <success ng-if="successLogo && submitFrom == 'emailsetting'" message="{{successLogo}}"></success>
+            <error ng-if="errorLogo && submitFrom == 'emailsetting'" message="{{errorLogo}}"></error>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tbody>
+                <tr>
+                  <td class="p-b10">
+                    <label>Subject Line</label>
+                    <div class="form-group">
+                      <input class="form-control" type="text" id="subject" name="subject" ng-model="settingData.subject"
+                        autocomplete="off" validator="{{settingData.subject ? '[required]' : ''}}" />
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="froalaOptionsEmailSetting">
+                  <td id="emailSettingsPageFroala">
+                    <label>Content</label>
+                    <textarea froala="froalaOptionsEmailSetting" id="emailContent" name="emailContent" ng-model="settingData.emailContent"></textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="set-chem-button m-t10">
+                      <button id="saveSetting" class="button"
+                        ng-disabled="!(settingData.replyTo || settingData.emailContent)" type="submit"> SAVE </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row" style="text-align: justify;">
+            <div class="col-md-4">
+              <div class="dropdown select-wrap m-t10 qb-connect">
+                <div class="m-tb20 ws-nowrap">
+                  <span class="v-align-top p-r10"><strong>Include chemical readings</strong></span>
+                  <label class="switch small" ng-click="toggleInclude('reading')">
+                    <span ng-class="{'active' : includeEmail.includeChemicalReading }"
+                      class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="dropdown select-wrap m-t10 qb-connect">
+                <div class="m-tb20 ws-nowrap">
+                  <span class="v-align-top p-r10"><strong>Include chemicals added</strong></span>
+                  <label class="switch small" ng-click="toggleInclude('added')">
+                    <span ng-class="{'active' : includeEmail.includeChemicalAdded }"
+                      class="slider round"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!--Invalid Address List: Start-->
+  <div class="m-tb20" ng-controller="invalidAddressListController" ng-include="'/templates/component/invalid-address-list.html?ver='+PB_WEB_VERSION"></div>
+  <div class="m-tb20 ">
+    <ng-container ng-hide="companyId != 61 || companyId != 40">
+      <success ng-if="invoiceGenerated" message="{{invoiceGenerated}}"></success>
+      <error ng-if="invoiceGeneratedError" message="{{invoiceGeneratedError}}"></error>
+      <!-- <error ng-if="isChangingStatusError" message="{{isChangingStatusError}}"></error> -->
+      <button type="button" class="button btn-blue" ng-click="checkCustomerStatus()" style="font-size: 20px;">{{ isChangingStatus ? 'Please wait...' : 'Update Customer Status' }}</button>
+      <button type="button" class="button btn-blue m-l20" ng-click="generateInvoice()" style="font-size: 20px;">Generate Invoices (Advance)</button>
+      <button type="button" class="button btn-blue m-l20" ng-click="generateInvoice('arrears')" style="font-size: 20px;">Generate Invoices (Arrears)</button>
+      <button type="button" class="button btn-blue m-l20" ng-disabled="!qbConnectedNow && !incomeAccountDetails.currentIncomeAccount" ng-click="syncInvoicesToQBO()" style="font-size: 20px;margin-top: 5px;">Sync Invoices To QBO</button>
+    </ng-container>
+  </div>
+
+
+
+  <script type="text/ng-template" id="removeChemicalConfirm.html">
+ <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+   <div class="popup-header">
+     <div class="fl h-1-5x b white text-center" style="width:100%">Confirm</div>
+     <div class="popup-close" >
+       <i class="fa " aria-hidden="true"></i>
+     </div>
+   </div>
+    <div class="popup-body text-center">
+      <div class="row-container">
+        <div><label>Are you sure you want to delete?</label></div>
+        <br />
+        <div class="set-chem-button m-b20" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+          <button class="add-button" type="submit" ng-click="confirmAction(chemicalObj, index)">OK</button>
+        </div>
+      </div>
+    </div>
+
+ </div>
+</script>
+  <script type="text/ng-template" id="priceUnitCalcModel.html">
+ <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:450px; ">
+   <div class="popup-header">
+     <div class="h-1-5x b white">How many {{defaultUnit}}s are in the new unit? ({{selectedUnit}})</div>
+   </div>
+    <div class="popup-body text-center">
+      <div class="row-container">
+          <form class="form-signin reset-form-style" name="calcForm" novalidate >
+            <div class="row-container fl" style="width: 100%;">
+              <div class="row-item">
+                <input
+                  autofocus
+                  class="form-control input-width"
+                  name="newValue"
+                  ng-class="{'has-error': calcForm.$submitted && calcForm.newValue.$invalid || calcForm.newValue.$touched && calcForm.newValue.$invalid}"
+                  ng-maxlength="25"
+                  ng-model="calModal.newValue"
+                  ng-pattern="/^([0-9 '._-]+)$/"
+                  placeholder="Enter new default value"
+                  required=""
+                  type="text"/>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <button class="add-button blue-bg" type="submit" ng-click="closeModal()">CANCEL</button>
+                </div>
+                <div class="col-md-6">
+                    <button class="add-button blue-bg"  type="submit" ng-click="calculatePriceperNewUnit(chemicalObj, index)">OK</button>
+                  </div>
+              </div>
+          </form>
+      </div>
+    </div>
+
+ </div>
+</script>
+</div>
+<script type="text/ng-template" id="subDomainUpdateConfirm.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure the URL name is spelled correctly? It cannot be changed later.</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="saveCustomerPortalSetting()">confirm</button>
+         </div>
+       </div>
+     </div>
+
+  </div>
+ </script>
+
+
+
+<script type="text/ng-template" id="dismissAllAlertConfirm.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to dismiss all alerts?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background:#ff0000" type="submit" ng-click="confirmDismissAllAlertAction()">YES</button>
+         </div>
+       </div>
+     </div>
+
+  </div>
+ </script>
+<script type="text/ng-template" id="chemicalProductsPopUp.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:600px;overflow: inherit;">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">{{chemicalProduct.name}}</div>
+    </div>
+     <div class="popup-body">
+       <div class="row-container">
+           <label for="desc" style="font-size:14px">This chemical is associated with the product shown below. This is the product that will be added to invoices automatically if you charge extra for chemicals on route stops.</label>
+           <form class="form-signin reset-form-style" name="calcForm" novalidate >
+             <div class="row-container fl m-t10" style="width: 100%;">
+              <div>
+                <span class="product-sevices-category Product"></span>
+                <b for="name" style="text-align: start;top: -8px;position: relative;">
+                  {{ selectedCategoryForFilter.name}}</b>
+              </div>
+              <div class="showallproperties p-lr0">
+               <label class="font-size-link-psc click-arrow" ng-click="addBundleProductSearch()">Choose a different product</label>
+
+               <table class="product-services-list invoice-list" style="width:100%;margin-top: 10px;
+               margin-bottom: 10px;">
+                <tbody ng-if="bundleSearchForm">
+                  <tr>
+                    <td colspan="5" class="bundle-search">
+                      <div class="product-search-widget-holder --fixed --scrollable">
+                        <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('chemicalMapping',[])"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody ng-repeat="productBundleListNewCategory in productBundleListNew" ng-if="productBundleList.length > 0" class="productBundleListNew">
+                  <tr><td colspan="5"></td></tr>
+                  <tr>
+                    <td>
+                        <div class="row li-t-row">
+                            <div class="col-md-6 li-t-col li-t-col-name"><div class="product-sevices-category" ng-class="productBundleListNewCategory.category">{{productBundleListNewCategory.name}}<br>{{productBundleListNewCategory.sku}}</div></div>
+                            <div class="col-md-2 li-t-col li-t-col-qty"><input type="number" class="form-control input-number form-control-small bundle-qty" ng-model="productBundleListNewCategory.qty" ng-keyup="calculateBundleCost()" style="margin: auto;" /></div>
+                            <div class="col-md-2 li-t-col"></div>
+                            <div class="col-md-2 li-t-col">{{productBundleListNewCategory.qty==0 || !productBundleListNewCategory.qty? productBundleListNewCategory.price : productBundleListNewCategory.price * productBundleListNewCategory.qty | currency}}</div>
+                        </div>
+                    </td>
+                  </tr>
+                  <!-- <tr class="even" style="cursor: pointer;">
+                    <td><button class="btn btn-primary" ng-click="saveInvoiceItem()">Save </button><button class="btn btn-primary btn-bordered" ng-click="cancelInvoiceItem()">Cancel </button></td>
+                    <td style="text-align:center"><button class="btn btn-primary button red-bg" ng-click="" style="background-color: #ff0000;">Delete </button></td>
+                  </tr>-->
+                </tbody>
+              </table>
+             </div>
+               <!-- <div class="dropdown select-wrap" >
+                   <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="padding-left: 12px;height:40px;font-size: 14px" ng-click="clearInterval()">
+                     {{ selectedCategoryForFilter.name ? selectedCategoryForFilter.name :
+                      'None'}}
+                   <span class="caret"></span></button>
+                   <ul class="dropdown-menu scrollareaCls">
+                    <li class="cat-search-li">
+                      <div class="search cat-search" style="margin: 0;
+                      border: 1px solid #34495e;
+                      border-radius: 22px;
+                      height: 37px;
+                      outline: none !important;
+                      padding: 0 10px 0 40px;background:unset;">
+                        <span class="search-icon" style="top: 5px;left: 15px;"></span>
+                        <input autocomplete="off" type="search" placeholder="Products" ng-keyup="filterCatList()"
+                          id="filterCatListInput" style="padding: 5px;margin:2px">
+                          <a href="javascript:void(0)" class="resetCatSearch-link"
+                          ng-click="$event.stopPropagation();resetCatSearch()" style="position: absolute;
+                          top: 3px;
+                          background: unset;
+                          color: black !important;
+                          font-weight: unset;">clear</a>
+                      </div>
+                    </li>
+                    <li class="dropdown-menu-inner-ul-parent">
+                      <ul class="dropdown-menu-inner-ul scrollareaCls" id="filterCatListUl" style="margin-top:4px">
+                        <li ng-if="allCategories.length == 0"><a href="javascript:void(0)"
+                          ng-click="filterByCategoryID({})">No product to Display</a></li>
+                        <li ng-if="allCategories.length > 0"><a href="javascript:void(0)"
+                          ng-click="filterByCategoryID({})">None</a></li>
+                        <li ng-class="{'active': selectedCategoryForFilter.id == cat.id}" ng-repeat="cat in allCategories"><a
+                            href="javascript:void(0)" ng-click="filterByCategoryID(cat)">{{cat.name}}</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                 </div> -->
+            </div>
+            <div style="text-align: start;color: red;">{{errorSelectProduct}}</div>
+            <!-- <div class="row-container fl" style="width: 100%;margin-top:20px;margin-bottom:10px">
+              <div class="col-md-6" style="padding-left:unset;">
+                <button class="add-button blue-bg"  type="submit" ng-click="chemicalSettingWithProduct()">Save</button>
+              </div>
+              <div class="col-md-6" style="padding-right:unset;">
+                <button class="add-button blue-bg" type="submit" ng-click="closeModal()">CANCEL</button>
+                </div>
+            </div> -->
+            <div class="row-container fl" style="width: 100%;">
+              <success message="{{successMessage}}" ng-if="successMessage"></success>
+              <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+            </div>
+           </form>
+       </div>
+     </div>
+
+  </div>
+</script>
+<script type="text/ng-template" id="dnsRecordsModal.html">
+  <div class="dataTables_wrapper modal-box dnsRecordsModal" style="width:100%;max-width:1000px">
+    <div class="popup-header h-1-5x b white text-center">
+        <span class="heading">DNS Records</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+     <div class="popup-body">
+       <success ng-if="copySuccessMsg"  message="{{copySuccessMsg}}"></success>
+       <div class="row-container">
+         <div class="dnsRecordsModalHeaderData">
+           <div class="dnsInstructionsLink">
+            <a href="https://help.poolbrain.com/en/articles/6873690-setting-up-your-send-from-email-address" target="_blank">Click here for instructions</a>
+          </div>
+          <p><label>DKIM</label></p>
+         </div>
+         <div class="dnsRecordsModalTableWrapper">
+          <table class="dnsRecordsModalTable">
+            <thead>
+              <tr>
+                <th style="width: 10%">Type</th>
+                <th style="width: 45%">Name</th>
+                <th style="width: 45%">Value</th>
+              </tr>
+            </thead>
+            <tbody ng-if="dnsRecordsData.length == 0">
+              <tr>
+                <td colspan="100%">
+                  <p>No record found</p>
+                </td>
+              </tr>
+            </tbody>
+            <tbody ng-if="dnsRecordsData.length > 0">
+              <tr ng-repeat="record in dnsRecordsData">
+                <td>{{record[0]}}</td>
+                <td><span class="dns-record-row"> <span class="dns-record-copy-btn" ng-click="copyDnsRecord(record, 'Name')"> <i class="fa fa-copy"></i></span> <span  title="{{record[1]}}" class="dns-record-string">{{record[1]}}</span></span></td>
+                <td><span class="dns-record-row"> <span class="dns-record-copy-btn" ng-click="copyDnsRecord(record, 'Value')"><i class="fa fa-copy"></i></span> <span  title="{{record[2]}}" class="dns-record-string">{{record[2]}}</span></span></td>
+              </tr>
+              </tbody>
+          </table>
+        </div>
+       </div>
+     </div>
+
+  </div>
+ </script>
+ <script type="text/ng-template" id="doseTargetModal.html">
+  <div class="dataTables_wrapper modal-box dose-taget-popup">
+    <div class="popup-header h-1-5x b white text-center">
+        <span class="heading">{{selectedChemicalForDoseTarget.value}} Auto Dose Target</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+     <div class="popup-body">
+      <input type="hidden">
+      <div class="spinner" ng-if="isProcessing">
+        <div class="spinner-item">
+          <div class="spinner-animation">
+            <img border="0" src="resources/images/spinner.gif" />
+          </div>
+        </div>
+      </div>
+        <div class="dose-target-info">
+          <p>In the technician app, this will be the default dosing target for this chemical</p>
+        </div>
+        <div class="dose-target-input">
+          <div class="dose-target-input-inner">
+            <input type="number" step="any" class="form-control input-number" ng-model="selectedChemicalForDoseTarget.target"
+            ng-model="selectedChemicalForDoseTarget.target"
+            ng-model-options="{updateOn: 'blur'}"
+            ng-change="editChemReadingTarget(settingForm, true, selectedChemicalForDoseTarget, 'chemical_dosing', 'target')" 
+            ng-click="clearInterval()"            
+            ng-class="{ 'dose-target-input-error' : selectedChemicalForDoseTarget.isRangeError }"  
+            allowinputonlytwodecimal data-allowdecimal="{{selectedChemicalForDoseTarget.targetStepSize==0.1}}"                
+            >
+            <span>
+              <span>{{selectedChemicalForDoseTarget.unit}}</span> 
+            </span>
+          </div>
+        </div>        
+        <div ng-if="selectedChemicalForDoseTarget.isRangeError" class="dose-target-info dose-target-info-has-range-error">
+          <p>Please enter a number between 
+            <span>{{selectedChemicalForDoseTarget.minimumTarget}}</span> 
+            <span>{{selectedChemicalForDoseTarget.unit}}</span> 
+            - 
+            <span>{{selectedChemicalForDoseTarget.maximumTarget}}</span> 
+            <span>{{selectedChemicalForDoseTarget.unit}}</span> 
+          </p>
+        </div>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="requiredLSIReading.html">
+  <div class="dataTables_wrapper modal-box lsi-confirm-popup">
+    <div class="popup-header h-1-5x b white text-center">
+        <span class="heading">Confirm</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+     <div class="popup-body">      
+        <label>This chemical reading is required in order to calculate LSI in the app. If you turn this reading off, LSI will never be calculated in the app. Do you still want to disable this reading in the app?</label>
+        <br>
+        <div class="set-chem-button set-chem-button m-t20 m-b10" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+          <button class="add-button btn-red" type="submit" ng-click="chemicalReadingSettingToggle(confirmLsiModalReadings)" >
+            Disable Reading
+          </button>
+        </div>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="confirmDisconnect.html">
+  <div class="dataTables_wrapper modal-box lsi-confirm-popup">
+    <div class="popup-header h-1-5x b white text-center">
+        <span class="heading">Confirm</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+     <div class="popup-body">      
+        <label>Are you sure you want to disconnect Heritage Pool Supply from Pool Brain?</label>
+        <br>
+        <div class="set-chem-button set-chem-button m-t20 m-b10" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+          <button class="add-button btn-red" type="submit" ng-click="saveHeritageDetails(false)" >
+            DISCONNECT
+          </button>
+        </div>
+     </div>
+  </div>
+</script>

@@ -1,0 +1,381 @@
+<div class="spinner" ng-if="isProcessing">
+  <div class="spinner-item">
+    <div class="spinner-animation">
+      <img border="0" src="resources/images/spinner.gif" />
+    </div>
+  </div>
+</div> 
+<style>
+  .latlong-box .icon-required{
+    border: 2px solid #183f88;
+    padding: 0 3px 1px;
+    background: #275fc6;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 5px;
+    position: absolute;
+    font-weight: 700;
+    z-index: 1;
+    box-shadow: 5px 6px 8px rgb(0 0 0 / 20%);
+    height:25px;
+    bottom:3px !important;
+    right:3px !important;
+    
+  }
+
+  .tooltip-pos-bottom{width: 230px !important;z-index: 55;top: inherit;bottom: -7px !important;transform: inherit;right: 35px !important;}
+  .tooltip-pos-bottom:after{top:inherit !important;bottom:13px !important;transform: translate(0px, 0) rotate(274deg) !important;right: -9px !important;left: inherit !important;}
+</style>
+<div class="disable-overlay" ng-if="addressForNearest != ''" >
+        <button class="button button-blue-small white" ng-click="clearNearestLocation()">ENABLE</button>
+      </div>
+      
+      <div class="button button-blue-small blue-bar-date-view" style="width: 100%;text-align: center;border-radius:0;" >{{selectedDate| date : 'MM/d'}}&nbsp;&nbsp;{{selectedDate| date : 'EEEE'}}</div>
+
+      <div class="bottom-col colored-scroll-bar date-data-box">
+        <div class="text-center" ng-show="routes[routeIdx].length == 0">
+          <button class="button button-blue-small mt-10" ng-click="checkDaysForRoutePopup('','',routeIdx)">NEW ROUTE</button>
+        </div>
+        <ul class="rt-route-list" ui-tree-nodes ng-model="routes[routeIdx]" data-date-index="{{routeIdx}}" data-type="route">
+          <!--Route List-->
+          <li ng-repeat="route in routes[routeIdx]" ui-tree-node="" ng-class="{'hiddenColor': route.isHidden}" data-date-index="{{routeIdx}}" data-type="route-item" data-scroll-container=".bottom-col"
+            class="route-droppable" data-li-id="{{route.id}}" ng-init="calculateDuration(route)" ng-hide="
+            (
+              route.isAddressLoaded 
+              && route.addresses.length == 0 
+              && route.movedAddress.length == 0 
+              && (filters['JOB_TYPE'].length != 0 || filters['JOB_STATUS'].length != 0)
+              && filters['TECHNICIAN'].length == 0
+            )
+            || (
+              route.isAddressLoaded 
+              && route.addresses.length == 0 
+              && route.movedAddress.length == 0 
+              && (filters['CUSTOMER_TAG'].length != 0)
+              && filters['TECHNICIAN'].length == 0
+            )
+            || (
+              filters['TECHNICIAN'].length != 0 && !filters['TECHNICIAN'].includes(route.techId)
+            )          
+          ">
+            <div class="route-box {{route.id}}">
+              <div class="pick-icon in_{{$index}}" ui-tree-handle>
+                <style>
+                  .rt-route-list .route-box>.pick-icon.in_ {
+                      {
+                      $index
+                    }
+                  }
+
+                  svg circle {
+                    fill: {
+                        {
+                        route.color
+                      }
+                    }
+                  }
+                </style>
+                <svg enable-background="new 0 0 12 50" version="1.1" viewBox="0 0 12 50" xml:space="preserve">
+                  <circle cx="3.1" cy="1.4" r="1.4" />
+                  <circle cx="9" cy="1.4" r="1.4" />
+                  <circle cx="3.1" cy="6.7" r="1.4" />
+                  <circle cx="9" cy="6.7" r="1.4" />
+                  <circle cx="3.1" cy="11.9" r="1.4" />
+                  <circle cx="9" cy="11.9" r="1.4" />
+                  <circle cx="3.1" cy="17.1" r="1.4" />
+                  <circle cx="9" cy="17.1" r="1.4" />
+                  <circle cx="3.1" cy="22.4" r="1.4" />
+                  <circle cx="9" cy="22.4" r="1.4" />
+                  <circle cx="3.1" cy="27.6" r="1.4" />
+                  <circle cx="9" cy="27.6" r="1.4" />
+                  <circle cx="3.1" cy="32.9" r="1.4" />
+                  <circle cx="9" cy="32.9" r="1.4" />
+                  <circle cx="3.1" cy="38.1" r="1.4" />
+                  <circle cx="9" cy="38.1" r="1.4" />
+                  <circle cx="3.1" cy="43.3" r="1.4" />
+                  <circle cx="9" cy="43.3" r="1.4" />
+                  <circle cx="3.1" cy="48.6" r="1.4" />
+                  <circle cx="9" cy="48.6" r="1.4" />
+                </svg>
+              </div>
+              <div ng-if="route.techId" class="avatar" ng-click="openAssignTechnicianPopup(route.techId, route.id, $index, routeIdx)" style="background-image:url({{route.userImage}});background-size: cover; border-color:{{route.color}}; color:{{route.color}}; font-size:{{!route.techFirstname && '34px'}}">
+                <span ng-show="!route.userImage">
+                  {{route.techFirstname ? (route.techFirstname | convertToInitial: route.techLastname) : '?'}}
+                </span>
+              </div>
+              <i ng-click="openAssignTechnicianPopup(route.techId, route.id, $index, routeIdx)" ng-if="!route.techId" class="fa fa-user-circle notech-assigned-route" ng-if="!technicianId"></i>   
+              <div class="route-name" style="color:{{route.color}}" ng-click="route.isAddressLoaded ? (((route.addresses && route.addresses.length > 0) || (route.movedAddress && route.movedAddress.length > 0)) ? expandCollapsed('showAddress', route.id+'_'+$index) : null) : getAddress(route)">
+                {{route.title}}
+                <span>{{route.techFirstname}} {{route.techLastname}}</span>
+                <span class="hidden-on-map-label" >HIDDEN ON MAP</span>
+              </div>
+              <div class="marker-count" ng-click="((route.addresses && route.addresses.length > 0) || (route.movedAddress && route.movedAddress.length > 0)) ? expandCollapsed('showAddress', route.id+'_'+$index) : null">
+                <i class="fa fa-map-marker" style="color:{{route.color}}" aria-hidden="true">
+                  <i class="fa fa-circle" aria-hidden="true"></i>
+                </i>
+                <div ng-if="route.isAddressLoaded">{{route.addresses.length}} </div>
+                <div ng-if="!route.isAddressLoaded">&nbsp;</div>
+              </div>
+              <div class="action-icon-wrapper">
+                <i class="fa fa-cog" aria-hidden="true" ng-click="route.isAddressLoaded ? checkDaysForRoutePopup(route, $index, routeIdx) : getAddress(route); setSelectedDateForRouteModification(selectedDate)" title="Edit Route"></i>
+                </br>
+                <i class="fa fa-eye" aria-hidden="true" ng-click="hideRoute(route, $index, 'routed', routeIdx)" title="{{route.isHidden ? 'Show Map Markers' : 'Hide Map Markers'}}"></i>
+                <br>
+                <i ng-class="route.isLocked ? 'fa fa-lock lock' : 'fa fa-unlock'" aria-hidden="true" ng-click="lockRoute(route, $index, routeIdx)" title="Prevent technician from changing order in app"></i>
+                <a href="javascript:void(0)" ng-class="$last && !showAddress[route.id+'_'+$index] ? '' : 'invalid-add-tooltip'" ng-if="zeroRoute[route.id]" class="icon-required" style="top: 21px;position: relative;z-index: 55;right: 3px;">
+                  <i ng-if="!isCheckingProp[route.id]" class="fa fa-exclamation-triangle icon-required checklist-help" style="color: red;font-size: 22px;margin: 0;" id="fa-map-marker" aria-hidden="true" ng-click="showAddress[route.id+'_'+$index]=!showAddress[route.id+'_'+$index];checkInvalidProp(route, 0)"></i>
+                  <i ng-if="isCheckingProp[route.id]" id="fa-refresh" class="fa fa-refresh fa-spin" aria-hidden="true"></i>
+                          
+                  <span class="sch-help tooltip-pos-right"><p style="font-size: 14px;">This route has at least 1 property address that Google has determined to be invalid. Please change this to a valid address for routing to work properly.<br>Click on icon to detect invalid property.</p></span>
+                </a>
+                
+              </div>
+              <div class="process-bar" ng-if="route.addresses.length > 0">
+                <div id="pb_{{(!add.oneOfJobId || add.oneOfJobId == 0) ? (add.addressId+'_'+selectedDate) : add.oneOfJobId}}" ng-repeat="add in route.addresses track by $index" ng-class="getClass(add)"></div>               
+                </div>
+                
+              <div class="distance-duration">
+                <ul>
+                  <li><i class="fa fa-car" aria-hidden="true"></i> {{routeDuration[route.id].duration && route.addresses.length > 0 ? (routeDuration[route.id].duration | toHHMMSS) : "0min"}}</li>
+                  <li><i class="fa fa-tachometer" aria-hidden="true"></i> {{routeDuration[route.id].distance && route.addresses.length > 0 ? routeDuration[route.id].distance : "0mi"}}</li>
+                  <li><i class="fa fa-clock-o" aria-hidden="true"></i> {{route.jobDuration && route.addresses.length > 0 ? route.jobDuration : "0min"}}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="properties-wrapper" ng-class="{hidden: !showAddress[route.id+'_'+$index] || (route.isAddressLoaded && route.addresses.length == 0 && route.movedAddress.length == 0 )}">
+              <div class="route-action" >
+                <div class="row">
+                  <div class="col-md-8">
+                    <button ng-if="!route.isHidden && !isOptimize[routeIdx][$index] && ((route.custStartAddrLatLong && route.addresses.length > 1) || (!route.custStartAddrLatLong && route.addresses.length > 2)) && !isPastDate"
+                      class="button button-blue-tiny" ng-disabled="optimizeProcess[routeIdx][$index]" ng-click="optimizeRoute(route,$index,routeIdx,selectedDate,routeIdx,activeDate)">Optimize Route</button>
+
+                    <button ng-if="isOptimize[routeIdx][$index] && !route.isHidden && !isPastDate" class="button button-blue-tiny" ng-click="undoOptimize(route,$index,routeIdx,selectedDate,routeIdx,activeDate)"
+                      ng-disabled="optimizeProcess[routeIdx][$index]">Undo Optimization</button>
+                  </div>
+                  <div class="col-md-4">
+                    <button 
+                    data-xid="moveBtn" 
+                    data-visible="{{selectAddressIdArray.length > 0 && selectedCheckboxRoute == route.id && !isMarkerMove}}" 
+                    data-sdate="{{selectedDate}}"
+                    class="button button-blue-tiny" 
+                    style="float:right" 
+                    ng-show="selectAddressIdArray.length > 0 && selectedCheckboxRoute == route.id && !isMarkerMove"
+                    ng-click="!isopenMoveAddressPopupOpen && checkOpenMoveAddressPopup(route.id, '', $index, null,selectedDate, true); setTechIDForMove('from', route.techId ? route.techId : 0)">Move</button>
+                  </div>
+                </div>
+              </div>
+              <div class="custom-box-wrapper p-relative">
+                <div class="custom-address-box" ng-class="{'width-auto': route.addresses.length == 0 || route.noAddressForMove}" >
+                  <div class="address-icon" ng-click="openStartLocationPopup(route, $index, routeIdx)">
+                    <i class="fa fa-play" style="color:#558f3e;"></i>
+                  </div>
+                  <div class="address-name" ng-click="openStartLocationPopup(route, $index, routeIdx)">
+                    <span class="start-location">Start Location</span>
+                    <span class="address" ng-if="route.custStartAddrLatLong">{{route.customStartAddress | addressFormat}}</span>
+                    <span class="address" ng-if="!route.custStartAddrLatLong">Add New</span>
+                  </div>
+                </div>
+                <div class="address-select-all" ng-show="route.addresses.length > 0 && !route.noAddressForMove">
+                  All &nbsp;
+                  <div  class="address-checkbox">
+                    <input type="checkbox" ng-model="selectedAllAddressModel['_'+route.id]" ng-click="selectAllAddressOfRoute(route.id, $index, routeIdx)" />
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+              <ul class="rt-route-address-wrapper" data-pm-route-id="{{route.id}}">
+                <li ng-repeat="address in route.movedAddress" class="permanent-moved" data-pm-address-id="{{address.addressId}}">
+                  <div class="address-box">
+                    <div class="new-pick-icon" ng-show="!address.isMoved && !address.isTemporary">
+                      <img src="/resources/images/move-icon.png" />
+                    </div>
+                    <div class="marker-count">
+                      <i class="fa fa-map-marker" style="color:{{route.color}}" aria-hidden="true">
+                        <span></span>
+                        <i class="fa fa-circle" aria-hidden="true"></i>
+                      </i>
+                    </div>
+                    <div class="address-name">
+                      <a ng-href="{{}}" class="decoration-none">{{address.displayName}}</a>
+                      <span>{{address.address}}
+                        <br />{{address.city}}, {{address.state}} {{address.zipcode}}</span>
+                    </div>
+                    <div class="availability">
+                      <span class="availability--days" ng-if="address.days.length > 0">
+                        <strong title="{{address.days | capitalizeDays}}"> {{address.isTemporary ? address.movedDetail[2] : selectedDate | convertDateToDaysInitial}}</strong>
+                      </span>
+                      <span class="getNextOccuranceDateTitle" ng-show="address.weekFrequency == 2 && !address.isOneOfJob" title="{{ getNextOccuranceDate(address, selectedDate) }}">
+                        <img src="/resources/images/alternate-icon.png" />
+                      </span>
+                      <span class="getNextOccuranceDateTitle" ng-show="address.weekFrequency > 2 && !address.isOneOfJob" title="{{ getNextOccuranceDate(address, selectedDate) }}">
+                        <img src="/resources/images/alternate-4-icon.png" />
+                      </span>
+                    </div>
+                    <div class="skip-address">
+                      <span ng-if="address.jobCloseTime">
+                        <span class="time">{{address.jobCloseTime | date :  "hh:mm a"}}</span>            
+                      </span>
+                      <span ng-if="!address.jobCloseTime">
+                        <span class="time"  ng-show="((address.jobId && !address.jobStatusWeb) || (address.jobId && address.jobStatusWeb =='Completed') || address.jobStatusWeb =='No Access' || (address.jobDetail && (address.jobDetail.jobStatus == 2 ||address.jobDetail.jobStatus == 4))) && !address.isMoved && !address.isTemporary">{{ address.joblocalSyncTime ? address.joblocalSyncTime : address.localSyncTime | date :  "hh:mm a"}}</span>
+                      </span>
+                      <span style="font-size: 10px;position: absolute;top: 9px;right: 22px;" fixed-position="true"
+                        title-direction="bottom" ng-show="address.isMoved || address.isTemporary" class="moved-btn">MOVED
+                        <span class="moved-tooltip">Moved to<b> {{address.movedDetail[0]}} </b><br /> {{address.movedDetail[1] | pbCapitalize}} {{address.movedDetail[2] | date : 'MM/dd/yyyy'}} <br> <span  class="moved-tooltip-subtext"  ng-if="address.movedToData && address.movedToData.length > 0">by <b>{{address.movedToData[0]}}</b> on {{address.movedToData[1] | date : 'MM/dd/yyyy'}} at <span class="moved-tooltip-subtext-time">{{address.movedToData[2] | date : 'hh:mm a'}}</span></span></span>
+                      </span>
+                    </div>
+                    <div class="action-icon-wrapper">
+                      <div class="eleStatusBox" ng-show="address.IsDoneProgressNoAccess && !address.isMoved && !address.isTemporary">
+                        <img ng-src="{{address.jobStatusImage}}" />
+                     </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+        
+              <ul class="rt-route-address-wrapper" ui-tree-nodes ng-model="route.addresses" data-type="address" data-tech-id="{{route.techId ? route.techId : 0}}" data-route-id="{{route.id}}" data-date-index="{{routeIdx}}">
+                
+                <li id="addBox_{{route.id}}_{{(!address.oneOfJobId || address.oneOfJobId == 0) ? address.addressId : address.oneOfJobId}}" ng-repeat="address in route.addresses" ui-tree-node="" ng-class="getAddBoxClass(address)"
+                  data-type="address-item" data-date-index="{{routeIdx}}" data-tech-id="{{route.techId ? route.techId : 0}}" data-route-id="{{route.id}}" data-address-id="{{address.addressId}}" data-job-id="{{address.jobDetail.jobId}}" data-scroll-container=".bottom-col" ng-init="pIdx = $parent.$index;">
+                  <div class="sync-latlong" ng-if="!address.latitude && !address.longitude">                    
+                    <div class="fl map-icon">
+                      <div id="coordinate-box" class="latlong-box noselect">
+                        <span ng-show="!latLongBox[route.id][$index]" >
+                          <div href="javascript:void(0)" class="icon-required">
+                            <i id="fa-refresh" class="fa fa-refresh" ng-class="{'fa-spin':isCoordinateProcess[routeIdx + '_' + pIdx + '_' + $index]}" ng-click="updateCoordinate(address.addressId, pIdx, $index)" aria-hidden="true"></i>                                    
+                            <span class="sch-help tooltip-pos-bottom"><p>Click to refresh map coordinates based on Google's records. If this still doesn't work, you may need to double check on Google Maps that the address is valid and entered exactly as it is entered there</p></span>
+                          </div>
+                          
+                          <!-- &nbsp;&nbsp;&nbsp;
+                          <button id="fa-pencil" class="button p-0" ng-click="showEditLatLong(route.id, $index)" type="button"><i id="fa-pencil" class="fa fa-pencil"  aria-hidden="true"></i></button>                          -->
+                          
+                        </span>                           
+                        <form name="editLatLongForm" id="latLongBox" ng-show="latLongBox[route.id][$index]"  ng-submit="editLatLongForm.$valid && editLatLong(address.addressId, pIdx, $index)" novalidate>
+
+                          <input type="text" id="latBox" placeholder="latitude" class="lat-long-input" ng-model="latLongModel.lat"  ng-pattern="/^(\+|-)?(?:90(?:(?:\.0{1,8})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,8})?))$/" required="" /> 
+                          <input type="text" id="longBox" placeholder="longitude" class="lat-long-input" ng-model="latLongModel.long"  ng-pattern="/^(\+|-)?(?:180(?:(?:\.0{1,8})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,8})?))$/" required="" />
+                          &nbsp;&nbsp;&nbsp;
+                          <button  class="button p-0 m-l10" type="button" ng-click="showEditLatLong(route.id, $index)"><i id="fa-pencil" class="fa fa-times "  aria-hidden="true"></i></button> 
+                          &nbsp;&nbsp;&nbsp; &nbsp;
+                          <button id="fa-pencil" class="button p-0" type="submit"><i id="fa-pencil" class="fa fa-check"  type="submit" ng-click="editLatLong(addressObj.addressId)" aria-hidden="true"></i></button> 
+                        </form>                            
+                       
+                      </div> 
+                      
+                    </div>
+                  </div>
+                  <div class="address-box" ng-init="setAddressIndex(routeIdx, $parent.$index, $index, address, activeDate);">
+                    <div class="new-pick-icon new-pick-icon-csq"
+                    id="dragicon_pb_{{(!address.oneOfJobId || address.oneOfJobId == 0) ? (address.addressId+'_'+selectedDate) : address.oneOfJobId}}"
+                    ng-class="{ 'drag-shown' : !address.IsDoneProgressNoAccess }"
+                    ui-tree-handle>
+                      <img src="/resources/images/move-icon.png" />
+                    </div>
+                    <div class="marker-count" ng-if="!address.isOneOfJob">
+                      <i class="fa fa-map-marker" style="color:{{route.color}}" aria-hidden="true">
+                        <span>{{$index+1}}</span>
+                        <i class="fa fa-circle" aria-hidden="true"></i>
+                      </i>
+
+                    </div>
+                    <style>
+                      #oneOfJobIcon_{{route.id}}:after,#oneOfJobIcon_{{route.id}}:before{
+                        border-top-color: {{route.color}};
+                      }
+                    </style>
+                    <div class="marker-count" ng-if="address.isOneOfJob">
+                      <i id="oneOfJobIcon_{{route.id}}" class="map-marker oneOfJobIcon" style="border-color:{{route.color}};background:{{route.color}};color:#fff; -webkit-text-stroke: 1px black;" aria-hidden="true">
+                        <span style="-webkit-text-stroke: 0px;
+                                  color: #FFF;">{{$index+1}}</span>
+                      </i>
+                    </div>
+                    <div class="address-name">
+                      <a ng-href="{{'/app/customerdetail/'+(address.primaryAddressId ? address.primaryAddressId : address.primaryAddressDetails.addressId)}}"> {{address.displayName}}</a> 
+                      <span>
+                        <a class="addressLink-to-text" ng-href="{{'/app/locationdetail/'+address.addressId}}">
+                        {{address.address}}
+                        <br />{{address.city}}, {{address.state}} {{address.zipcode}}
+                        </a>
+                      </span>
+                        <div class="job-title" ng-if="address.jobDetail.jobTitle">{{address.jobDetail.jobTitle}}</div>
+                    </div>
+                    <div class="availability">
+                      <span class="availability--days" ng-if="address.days.length > 0 && !address.isOneOfJob && address.assignRouteDate">
+                        <strong title="{{address.days | capitalizeDays}}">{{address.days | fixedDays : (selectedDate | date : 'EEEE')}}</strong>
+                      </span>
+                      <span class="getNextOccuranceDateTitle" ng-show="address.weekFrequency == 2 && !address.isOneOfJob" title="{{ getNextOccuranceDate(address, selectedDate) }}">
+                        <img src="/resources/images/alternate-icon.png" />
+                      </span>
+                      <span class="getNextOccuranceDateTitle" ng-show="address.weekFrequency > 2 && !address.isOneOfJob" title="{{ getNextOccuranceDate(address, selectedDate) }}">
+                        <img src="/resources/images/alternate-4-icon.png" />
+                      </span>
+                    </div>
+                    <div class="skip-address-job">
+                      <span ng-if="address.jobCloseTime">
+                        <span class="time">{{address.jobCloseTime | date :  "hh:mm a"}}</span>                        
+                      </span>
+                      <span ng-if="!address.jobCloseTime">
+                        <span class="time"  ng-show="(address.jobId && !address.jobStatusWeb) || (address.jobId && address.jobStatusWeb =='Completed') || address.jobStatusWeb =='No Access' || (address.jobDetail && (address.jobDetail.jobStatus == 2 ||address.jobDetail.jobStatus == 4))">{{( address.joblocalSyncTime ? address.joblocalSyncTime : (address.localSyncTime ? address.localSyncTime : (address.jobDetail.endTime ? address.jobDetail.endTime : address.localSyncTime))) | date :  "hh:mm a"}}</span>
+                      </span>
+                      <button ng-show="!address.isMoved && !address.isTemporary && !address.IsDoneProgressNoAccess && !address.isOneOfJob" class="skip-button" type="button" ng-click="skipAddress(route, $parent.$index, address, $index, routeIdx)">SKIP
+                        <i class="fa fa-close"></i>
+                      </button>
+                      <a ng-href="{{'/app/one-time-job/'+address.addressId+'/'+address.jobDetail.jobId}}" ng-if="address.isOneOfJob" class="skip-button view-button">VIEW</a>
+                      <span style="font-size: 10px;position: absolute;top: 9px;right: 22px;cursor: pointer;" class="moved-btn green" ng-show="address.isMoved || address.isTemporary">MOVED
+                        <span class="moved-tooltip">Moved from <b>{{address.movedDetail[0]}}</b><br />{{address.movedDetail[1] | pbCapitalize}} {{address.movedDetail[2] | date : 'MM/dd/yyyy'}} <br> <span class="moved-tooltip-subtext" ng-if="address.movedFromData && address.movedFromData.length > 0">by <b>{{address.movedFromData[0]}}</b> on {{address.movedFromData[1] | date : 'MM/dd/yyyy'}} at <span class="moved-tooltip-subtext-time">{{address.movedFromData[2] | date : 'hh:mm a'}}</span></span></span>
+                      </span>
+                      <div ng-if="address.isOneOfJob && address.jobDetail" class="isOneOfJobData">
+                        <ul>
+                          <li style="padding: 0;">{{address.jobDetail.period | uppercase}}</li>
+                          <li><i class="fa fa-clock-o icon"></i> {{address.jobDetail.duration ? address.jobDetail.duration : '00:00' | duration}}</li>
+                          <li><i class="fa fa-dollar icon"></i> {{address.jobDetail.totalAmount ? address.jobDetail.totalAmount : '0.00' | currency:""}}</li>
+                        </ul>                       
+                      </div>
+                      <div class="action-icon-wrapper action-icon-wrapper-csq" 
+                      ng-class="{ 'chk-shown' : !address.isMoved && !address.IsDoneProgressNoAccess}"
+                      id="chk_pb_{{(!address.oneOfJobId || address.oneOfJobId == 0) ? (address.addressId+'_'+selectedDate) : address.oneOfJobId}}">
+                        <div class="address-checkbox">
+                          <input type="checkbox" 
+                          data-xid="selectedDateForCheckBoxInput"
+                          data-sdate="{{selectedDate}}"
+                          ng-model="selectedAddressIdArrayModel[address.oneOfJobId && address.oneOfJobId > 0 ? address.addressId+'-'+address.oneOfJobId : address.addressId+'_'+address.id]" 
+                          ng-click="setOpenRoute(route.id, address.oneOfJobId && address.oneOfJobId > 0 ? address.addressId+'-'+address.oneOfJobId : address.addressId+'_'+address.id, $parent.$parent.$index, routeIdx, address.groupAddress)"                                                   
+                          />
+                          <!-- 
+                            ng-if="!address.oneOfJobId || address.oneOfJobId == 0"
+                            <input ng-if="address.oneOfJobId && address.oneOfJobId > 0" type="checkbox" ng-model="selectedJobIdArrayModel[address.addressId+'-'+address.oneOfJobId]" ng-click="setOpenJobRoute(0, oneOfJobId.addressId+'-'+job.oneOfJobId, $parent.$parent.$index)"/> -->
+                          <span></span>
+                          <button class="skip-button-mobile" type="button" ng-click="skipAddress(route, $parent.$index, address, $index, routeIdx)">SKIP</button>
+                        </div>
+
+                        <div class="pointer eleStatusBox" ng-click="openSetBoxStatusPopup(address.id+'_'+address.addressId+'_'+address.oneOfJobId, $event)" >
+                           <img id="i_pb_{{(!address.oneOfJobId || address.oneOfJobId == 0) ? (address.addressId+'_'+selectedDate) : address.oneOfJobId}}" ng-src="{{address.jobStatusImage}}" />
+                        </div>
+                        <div class="set-job-status-box eleStatusBox" ng-if="setBoxStatusPopup['_'+address.id+'_'+address.addressId+'_'+address.oneOfJobId]">
+                          <b >Change Status</b>
+                          <ul ng-if="!address.oneOfJobId || address.oneOfJobId == 0">
+                            <li ng-hide="!address.IsDoneProgressNoAccess" ng-click="changeJobStatus(selectedDate, 'Pending', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">Not Started</span> <span class="checkbox-placeholder"></span></li>
+                            <li ng-hide="address.jobStatusWeb == 'In Progress'" ng-click="changeJobStatus(selectedDate, 'In Progress', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">In Progress</span> <img src="/resources/images/job-in-progress-icon.png" /></li>
+                            <li ng-hide="(address.jobId && !address.jobStatusWeb) || (address.jobId && address.jobStatusWeb =='Completed')" ng-click="changeJobStatus(selectedDate, 'Completed', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">Completed</span> <img src="/resources/images/job-done-icon.png" /></li>
+                            <li ng-hide="address.jobStatusWeb == 'No Access'" ng-click="changeJobStatus(selectedDate, 'No Access', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">No Access</span> <img src="/resources/images/no-access-icon.png" /></li>
+                          </ul>
+
+                          <ul ng-if="address.oneOfJobId && address.oneOfJobId > 0">
+                            <li ng-hide="address.jobDetail.jobStatus == 1" ng-click="changeJobStatus(selectedDate, 'Pending', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">Not Started</span> <span class="checkbox-placeholder"></span></li>
+                            <li ng-hide="address.jobDetail.jobStatus == 3" ng-click="changeJobStatus(selectedDate, 'In Progress', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">In Progress</span> <img src="/resources/images/job-in-progress-icon.png" /></li>
+                            <li ng-hide="address.jobDetail.jobStatus == 4" ng-click="changeJobStatus(selectedDate, 'Completed', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">Completed</span> <img src="/resources/images/job-done-icon.png" /></li>
+                            <li ng-hide="address.jobDetail.jobStatus == 2" ng-click="changeJobStatus(selectedDate, 'No Access', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">No Access</span> <img src="/resources/images/no-access-icon.png" /></li>
+                            <li ng-hide="address.jobDetail.jobStatus == 5" ng-click="changeJobStatus(selectedDate, 'Closed', address.addressId, $index, route.id, address.oneOfJobId, routeIdx)"><span class="text">Closed</span>  <img src="/resources/images/check-black.jpg" /></li>
+                          </ul>
+
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+        
+      </div>

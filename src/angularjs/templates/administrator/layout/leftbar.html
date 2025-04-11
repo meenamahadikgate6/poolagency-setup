@@ -1,0 +1,49 @@
+<div id="content">
+    <section  class="sidebar">
+       <div style="width:100%; margin-bottom:5px; display: block;" ng-if="loggedInRole == 'administrator' && displayDropDown"  class="select custom-select custom-select-noimage">
+
+      <select class="change-company-dropdown"  ng-model="selectedCompany" ng-change="setCompany(selectedCompany)" ng-options="company.companyId as company.companyName for company in adminCompanyList | orderBy:'companyName' | filter: {status:'1'}" >
+        <!-- <option ng-repeat="company in adminCompanyList" ng-selected="company.companyId == selectedCompany" value="{{company.companyId}}">{{company.companyName}}</option> -->
+      </select>
+    </div>
+    <div id="menubar">
+      <nav class="menu">
+        <ul>
+          <li ng-class="{'active' : currentState === 'app.dashboard' || currentState == 'login'}">
+            <a ui-sref="app.dashboard" title="Alerts">ALERTS</a>
+          </li>
+          <li ng-class="{'active' : currentState === 'app.technicians' || currentState === 'app.techniciandetail'}">
+            <a ui-sref="app.technicians" title="Technicians">Technicians</a>
+          </li>
+          <li ng-class="{'active' : currentState === 'app.customer' || currentState === 'app.customerdetail' || currentState === 'app.installdetail' || currentState === 'app.customerjobdetail'}">
+            <a ui-sref="app.customer" title="Customers">Customers</a>
+          </li>
+
+          <li ng-class="{'active' : currentState === 'technicianroute'}"><a ui-sref="technicianroute" title="Scheduling">Scheduling</a></li>
+          <li ng-class="{'active' : currentState === 'app.products' }"><a ui-sref="app.products" title="Products & Services">Products & Services</a></li>
+          <li ng-if="permissions.canAccessTrucksAndToolsURL == 1" ng-class="{'active' : currentState === 'app.trucks' }"><a ui-sref="app.trucks" title="Trucks & Tools">Trucks & Tools</a></li>
+          <li ng-if="permissions.canAccessTrucksAndToolsURL == 0">
+            <a class="button blue-bg icon-required" href="#" style="color: #fff;">Trucks & Tools
+              <span class="sch-help" style="bottom: 46px; left: 4px; right: 4px; width: auto;">
+                <p>You will need a permission<br/>to view this section</p>
+              </span>
+            </a>
+          </li>
+          <li ng-if="permissions.canAccessInventoryURL == 1" ng-class="{'active' : currentState === 'app.inventory' }"><a ui-sref="app.inventory" title="Inventory">Inventory</a></li>
+          <li ng-if="permissions.canAccessInventoryURL == 0">
+            <a class="button blue-bg icon-required" href="#" style="color: #fff;">Inventory
+              <span class="sch-help" style="bottom: 46px; left: 4px; right: 4px; width: auto;">
+                <p>You will need a permission<br/>to view this section</p>
+              </span>
+            </a>
+          </li>
+          <li ng-class="{'active' : currentState === 'app.emailcenter' }"><a ui-sref="app.emailcenter" title="Email Center">Email Center</a></li>
+          <li ng-class="{'active' : currentState === 'app.reports' }"><a ui-sref="app.reports" title="Reports">Reports</a></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+  <section em-Height-Source class="mainContent">
+    <div class="page-view" ui-view="app-view"></div>
+  </section>
+</div>

@@ -1,0 +1,147 @@
+<div class="m-tb20" ng-init="getPayaSettings();">
+    
+      <div class="set-paya setting-sm-card-loader-parent" style="width: auto;">
+        <div class="setting-sm-card-loader" ng-if="settingPageLoaders.payaSection">
+          <div class="spinner">
+             <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+             </div>
+          </div>
+       </div>
+        <div class="set-chem-title">Accept Credit Card and Bank Payments</div>
+        <div class="set-chem-details text-left">
+          <div class="row">
+            <div class="col-md-6 set-paya-text">
+              <div><i class="fa fa-check-circle" aria-hidden="true"></i>Auto charge or manually charge customer</div>
+              <div><i class="fa fa-check-circle" aria-hidden="true"></i>Save Payment methods for future use</div>
+              <div><i class="fa fa-check-circle" aria-hidden="true"></i>Customers can pay invoices with a click</div>
+              <div><i class="fa fa-check-circle" aria-hidden="true"></i>Cheaper processing rates than Quickbooks Online</div>              
+              <a ng-if="payaData.paymentGateway==paymentGateWayNames.paya" href="https://offers.paya.com/poolbrain/" target="_default">Click here to get started</a>
+              <a ng-if="payaData.paymentGateway==paymentGateWayNames.nuvei" href="https://pages.nuvei.com/poolbrain-referral" target="_default">Click here to get started</a>
+            </div>
+            
+            <div class="col-md-6">
+            <success ng-if="successPayaSetting" message="{{successPayaSetting}}"></success>
+            <error ng-if="errorPayaSetting" message="{{errorPayaSetting}}"></error>
+
+            <div class="text-center p-t20 paya-setting-btn" ng-if="!settingDataAvailableFormOpen">
+              <button id="saveSetting" class="button  btn-blue h-2x m-b20" ng-click="openPayaSetting()"> Enter Credentials </button>
+            </div>
+            <form class="paya-setting-form" name="payaSettingForm" ng-if="settingDataAvailableFormOpen" novalidate>
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" >
+                <tbody ng-if="payaData.paymentGateway==paymentGateWayNames.paya">
+                   <tr>
+                      <td>
+                         <label>User Id</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="userId" name="userId" ng-model="payaData.userId" autocomplete="off" />
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                      <td>
+                         <label>User Api Key</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="userApiKey" name="userApiKey" ng-model="payaData.userApiKey"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                      <td>
+                         <label>User Hash Key</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="userHashKey" name="userHashKey" ng-model="payaData.userHashKey"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                </tbody>
+                <tbody ng-if="payaData.paymentGateway==paymentGateWayNames.nuvei">
+                   <tr>
+                      <td>
+                         <label>Merchant Id</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="merchantId" name="merchantId" ng-model="payaData.merchantId" autocomplete="off" />
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                      <td>
+                         <label>Merchant Site Id</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="merchantSiteId" name="merchantSiteId" ng-model="payaData.merchantSiteId"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                      <td>
+                         <label>Merchant Secret Key</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="merchantSecretKey" name="merchantSecretKey" ng-model="payaData.merchantSecretKey"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                      <td>
+                         <label>Client Request Id</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="clientRequestId" name="clientRequestId" ng-model="payaData.clientRequestId"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                </tbody>
+                <tbody ng-if="payaData.paymentGateway==paymentGateWayNames.ab">         
+                  <tr>
+                     <td>
+                        <label>Merchant Id</label>
+                        <div class="form-group">
+                           <input class="form-control" type="text"  id="merchantId" name="merchantId" ng-model="payaData.merchantId"  autocomplete="off"/>
+                        </div>
+                     </td>
+                  </tr>        
+                   <tr>
+                      <td>
+                         <label>Merchant Secret Key</label>
+                         <div class="form-group">
+                            <input class="form-control" type="text"  id="merchantSecretKey" name="merchantSecretKey" ng-model="payaData.merchantSecretKey"  autocomplete="off"/>
+                         </div>
+                      </td>
+                   </tr>
+                   <tr>
+                     <td>
+                        <label>Merchant Key Id</label>
+                        <div class="form-group">
+                           <input class="form-control" type="text"  id="merchantKeyId" name="merchantKeyId" ng-model="payaData.merchantKeyId" autocomplete="off" />
+                        </div>
+                     </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                   <tr>
+                      <td>
+                         <div class="set-chem-button">
+                            <button id="saveSetting" class="button" type="submit" ng-click="updatePayaSettings()"> SAVE </button>
+                         </div>
+                      </td>
+                   </tr>
+                </tfoot>
+             </table>
+            </form>
+          <div class="row cred-pay-ach-settings" ng-style="{'opacity': !settingDataAvailable ? '0.5' : '1' , 'pointer-events': !settingDataAvailable ? 'none' : 'all'}">
+            <div class="col-xs-12">
+              <span class="p-r10"><strong>Allow customers to pay with credit cards</strong></span>
+              <label class="switch small" ng-click="settingDataAvailable && togglePaymentSetting('credit')">
+                <span ng-class="{'active' : credSetting.credPay }" class="slider round"></span>
+              </label>
+            </div>
+            <div class="col-xs-12">
+              <span class="p-r10"><strong>Allow customers to pay with ACH</strong></span>
+              <label class="switch small" ng-click="settingDataAvailable && togglePaymentSetting('ach')">
+                <span ng-class="{'active' : credSetting.achPay, 'disabled': $scope.credSetting.status }" class="slider round"></span>
+              </label>
+            </div>
+          </div>
+          </div>
+        </div>
+        </div>
+      </div>
+  </div>

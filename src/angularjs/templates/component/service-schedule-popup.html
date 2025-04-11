@@ -1,0 +1,554 @@
+<div>
+    <div class="{{(custAddrSchData.status ? 'service-schedule-calender-icon-wrap on' : 'service-schedule-calender-icon-wrap off')}}" ng-class="{'disabled': !isRouteActive }"   ng-click="(isRouteActive && scheduler.status == 0 || scheduler.status == 1) ? showSchedulerDetail() : ''">
+      Route
+      <span class="service-schedule-calender-icon" >              
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 24.4 26.8" style="enable-background:new 0 0 24.4 26.8;" xml:space="preserve">
+      
+       <g>
+           <g>
+               <path class="st0" d="M16.7,12.7v-0.9c0-0.4-0.5-0.6-0.8-0.3l-1,1c-0.8-0.5-1.7-0.9-2.8-0.9c-1.7,0-3.3,0.9-4,2
+                   c-0.2,0.3,0,0.7,0.4,0.7l0,0c0.1,0,0.3-0.1,0.4-0.2c0.6-0.8,1.6-1.1,2.8-1.1c0.8,0,1.6,0.2,2.2,0.5l-1,1c-0.3,0.3-0.1,0.8,0.3,0.8
+                   h0.9h2.1l0,0c0.3,0,0.5-0.2,0.5-0.5V12.7L16.7,12.7z"/>
+               <path class="st0" d="M15.8,17.8L15.8,17.8c-0.2,0-0.3,0.1-0.4,0.2c-0.5,0.8-1.6,1.1-2.8,1.1c-0.9,0-1.8-0.2-2.3-0.7l0.8-0.8
+                   c0.2-0.3,0-0.8-0.4-0.8H9.9H7.8c-0.3,0-0.5,0.2-0.5,0.5v2.1v0.9c0,0.4,0.5,0.6,0.8,0.3l1.1-1.1c0.8,0.6,1.8,1,3,1
+                   c1.8,0,3.3-0.9,4-2C16.4,18.2,16.2,17.8,15.8,17.8z"/>
+           </g>
+           <path class="st0" d="M20,4.3h-0.9V1.8H17v2.5H7.2V1.8H5v2.5H4c-1.7,0-3,1.3-3,3v15.4c0,1.7,1.3,3,3,3h16c1.7,0,3-1.3,3-3V7.3
+               C23,5.6,21.7,4.3,20,4.3z M20.6,22.7H3.4V9.6h17.3V22.7z"/>
+       </g>
+       </svg>
+    </span>
+    </div>
+  <script type="text/ng-template" id="schedulerDetails.html">
+    <div class="dataTables_wrapper modal-box common-popup scheduler-detail-popup ">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="schedulerForm" ng-submit="schedulerForm.$valid  ? saveSchedulerDetail(model) : focusOnInvalidInput(schedulerForm.$valid)" novalidate>
+        <div class="popup-header">
+          <span class="heading">Route Schedule</span>
+          <span class="route-audit-log-history" ng-click="routeActivitySchedulePopup()"><i class="fa fa-history" ></i></span>
+          <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+        </div>
+        <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+          <success ng-if="successMsg && !crossClicked" message="{{successMsg}}"></success>
+          <error ng-if="error" message="{{error}}"></error>
+        </div>
+        <div class="detail-box">
+          <div class="grid text-left" style="overflow: inherit;">
+            <div class="col-12-12 p-0">
+              <a href="javascript:void(0)" ng-if="selectedScheduler[0].value" ng-click="eraseData()" class="delete-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17">
+                  <path fill="#34495E" fill-rule="evenodd" d="M11.816 15.622l.665-11.747H2.356l.67 11.706 8.79.041zM7.418 2.04c-.441 0-.848.18-1.155.475h2.309a1.672 1.672 0 0 0-1.154-.475zm6.766.475c.36 0 .652.304.652.68 0 .375-.291.68-.652.68h-.398v.001l-.675 11.787c-.045.741-.614 1.319-1.295 1.319H3.022c-.685 0-1.255-.58-1.298-1.32L1.05 3.877l.001-.001H.652A.666.666 0 0 1 0 3.195c0-.376.292-.68.652-.68h4.032C5.169 1.423 6.225.68 7.419.68c1.192 0 2.248.743 2.733 1.835h4.033zm-9.24 11.97a.664.664 0 0 1-.651-.641L3.86 5.74a.67.67 0 0 1 .614-.716c.357-.026.667.266.687.64l.435 8.104c.02.375-.255.696-.615.717h-.037zm4.91 0a.67.67 0 0 1-.615-.717l.435-8.103c.02-.375.335-.669.686-.642a.67.67 0 0 1 .615.718l-.434 8.103a.664.664 0 0 1-.65.641h-.037zm-2.437 0a.666.666 0 0 1-.652-.68V5.703c0-.375.292-.68.652-.68.361 0 .653.305.653.68v8.104c0 .375-.292.68-.653.68z"></path>
+                </svg>
+              </a> 
+              
+              <div class="row">
+                <div class="col-md-12 top-title">
+                  <span>
+                    <span class="text">Activate Route Schedule</span>
+                    <label class="switch" ng-click="setActionPerformed('route_schedule_status_changed');model.status = !model.status; checkInvCreation()">
+                      <span ng-class="{'active' : model.status}" class="slider round"></span>
+                    </label>
+                  </span>           
+                </div>
+              </div>
+              <div id="scrollarea" class="sch-box">
+                <ul class="sch-route-list" style="overflow:hidden" ng-if="!model.status || scheduler.addressRouteDetails.length == 0">
+                  <li style="flex-basis: 70%;">
+                    <div  class="route-detail">
+                      <div class="avatar" style="border: 3px #000 dashed;"></div>
+                      <div class="route-name" >
+                        Not Routed
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <ul class="sch-route-list" ng-if="model.status && scheduler.addressRouteDetails.length > 0">
+                  <li ng-repeat="addressRouteDetails in scheduler.addressRouteDetails" ng-style="{'flex-basis': scheduler.addressRouteDetails.length > 1 ? '50%' : '70%'}" >
+                    <div class="route-detail">               
+                      <div class="avatar" style="background-image:url({{addressRouteDetails.userImage}});background-size: cover; border-color:{{addressRouteDetails.color}}; color:{{addressRouteDetails.color}}; font-size:{{!addressRouteDetails.techFirstname && '34px'}}">
+                        <span ng-show="!addressRouteDetails.userImage">
+                          {{addressRouteDetails.techFirstname ? (addressRouteDetails.techFirstname | convertToInitial: addressRouteDetails.techLastname) : '?'}}
+                        </span>
+                      </div>
+                      <div class="route-name" style="color:{{addressRouteDetails.color}}">
+                        {{addressRouteDetails.title}}
+                        <span>{{addressRouteDetails.techFirstname}} {{addressRouteDetails.techLastname}}</span>
+                      </div>
+                      <div class="route-day">
+                        {{addressRouteDetails.day | pbCapitalize}}
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <div ng-show="!model.status" class="disable-overlay-schedule-popup" style="{{modelBillingSettingObj.activateBilling ? 'height:calc(100vh - 215px); bottom:0px;' : ''}}"></div>               
+                <div class="row">  
+                    <div class="col-md-6" >
+                      <div class="formGroup">
+                        <div class="main-title">How Often?</div>
+                        <div class="radio-default2">
+                          <label for="weekFrequency1" >
+                            Once a week
+                            <input type="radio" name="weekFrequency" id="weekFrequency1" value="1" ng-model="model.weekFrequency" ng-checked="scheduler.weekFrequency == '1'" ng-change="setActionPerformed('how_often_changed_to_once_a_week');toggleFrequencyType('week'); saveSchedulerDetail(model)" />
+                            <span></span>
+                          </label>
+                        </div>
+                        <div class="radio-default2">
+                          <label for="weekFrequency2" >
+                            Every other week
+                            <input type="radio" name="weekFrequency" id="weekFrequency2" value="2" ng-model="model.weekFrequency" ng-checked="scheduler.weekFrequency == '2'" ng-change="setActionPerformed('how_often_changed_to_every_other_week');toggleFrequencyType('week'); saveSchedulerDetail(model)" />
+                            <span></span>
+                          </label>
+                        </div>
+                        <div class="radio-default3">
+                          <label for="weekFrequency4" >
+                            Every (x) weeks
+                            <input type="radio" name="weekFrequency" id="weekFrequency4" value="custom" ng-model="model.weekFrequency" ng-checked="scheduler.weekFrequency > '2'" ng-change="showCustomValue(model)" ng-click="setActionPerformed('how_often_changed_to_every_x_week');toggleFrequencyType('week'); focusOnweekFrequencyValueInput()"/>
+                            <span></span>
+                            <input maxlength="2" ng-if="model.weekFrequency == 'custom'" id="form-control-x-week" type="text" class="form-control form-control-x-week" name="weekFrequencyValue" id="weekFrequencyValue" ng-model="model.weekFrequencyValue" ng-blur="setActionPerformed('how_often_every_x_week_count_changed');saveSchedulerDetail(model, 'custom')" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                          </label>                          
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6" >
+                      <div class="formGroup">
+                        <div class="main-title">Ends On:</div>
+                        <div class="radio-default2">
+                          <label for="endDate1" >
+                            Never
+                            <input type="radio" name="endDateInput" id="endDate1" value="1" ng-model="model.endDateInput" ng-checked="scheduler.endDateInput == '1'"  ng-change="setActionPerformed('end_on_changed_to_never');saveSchedulerDetail(model)"/>
+                            <span></span>
+                          </label>
+                        </div>
+                        <div class="radio-default2">
+                          <label for="endDate2" class="date-picker-icon pointer" >
+                            Date <input ng-model="model.endDate"  class="datepicker-custom-input" ng-change="setActionPerformed('ends_on_date_changed');chooseDate(model)" readonly/> <i class="fa fa-calendar-o light-blue " ></i>
+                            <input type="radio" name="endDateInput" id="endDate2" value="2" ng-model="model.endDateInput" ng-checked="scheduler.endDateInput == '2'" /> {{model.endDateInput == 2 ? model.endDate : ''}}                          
+                            <span></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="formGroup">
+                      <div class="main-title"><span ng-click="toggleDaysSelection()" style="cursor:pointer; color:#285fc6">Multiple visits per week</span><a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span class="sch-help"><p>Do NOT select a day of the week for most properties. You will assign routes/days in the Routing section instead.</p>
+
+                      <p>If you service this property multiple times per week, you will need to select which days you service so multiple instances of this property show up in the Routing section.</p>
+
+                        <p>Alternatively, you can use this section to require the property be routed on a certain day of the week. For example, if you promised the customer you would always service them on Fridays, you can select "Fri" which will prevent the property from being routed to any day other than Friday.</p></span>
+                  </a></div>
+                      <div class="days-box" ng-show="showWeekDays || daysSelected"><ng-container ng-repeat="day in weekDays"><span ng-class="{ 'selected' : day.status }" ng-click="setActionPerformed('multiple_visit_days_selected',day,'');selectDay($index, model)">{{day.label}}</span></ng-container></div>
+
+                  </div>
+                  <div class="formGroup">
+                      <div class="main-title">Notes </div>
+                      <textarea class="form-control" style="height: 140px!important;" row='1' ng-model="model.notes" ng-model-options="{updateOn: 'blur'}" ng-change="setActionPerformed('notes_changed');saveSchedulerDetail(model)" maxLength="6000" >{{model.value}}</textarea>
+                      <span class="c-limit">Character limit: 6000</span>
+                  </div>  
+                  <!--Start-->
+                <hr style="border-top: 1px solid #b5b5b5; max-width: 268px;"/>
+                <div ng-if="!modelBillingSettingObj.activateBilling" class="h-2x light-blue p-tb20 text-center">
+                  BILLING CAN BE ACTIVATED IN SETTINGS
+                </div>
+                <ng-container ng-if="modelBillingSettingObj.activateBilling">
+                  <div class="text-center clr-regular h-2x p-b20"><strong>Billing Schedule<strong></div>
+                  <section class="customer-pool-billing-setting" ng-repeat="data in waterBodyBilling">
+                    <div class="flex parent-box align-items-center" >
+                      <div style="color:{{data.color}}" class="name" title="{{data.waterBodyName}}">
+                        {{data.waterBodyName}}
+                      </div>                     
+                      <div>
+                        <div class="flex type-box align-items-center">
+                          <div>service level</div>
+                          <div class="dropdown select-wrap label-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                              <span>{{data.serviceLevelTitle ? data.serviceLevelTitle : '--'}}</span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu scrollable-menu dropdown-menu-servicelevel-routepopup scrollareaCls">
+                              <li ng-repeat="serviceLevel in serviceLevelArray" ng-hide="data.serviceLevelTitle == serviceLevel.title" ng-click="assignServiceLevel('billing_schedule_selected',serviceLevel.serviceLevelId, serviceLevel.title, data.waterBodyId, $index, $parent.$index, data.waterBodyName)"><a href="javascript:void(0)"> {{serviceLevel.title}}</a></li>                                                            
+                            </ul>
+                          </div>
+                        </div>
+                        <div class="flex type-box align-items-center" ng-show="data.serviceLevelTitle != '--'">
+                          <div>type</div>
+                          <div class="dropdown select-wrap label-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                              <span>{{data.poolType ? data.poolType : '--'}}</span>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu scrollable-menu dropdown-menu-servicelevel-routepopup scrollareaCls">
+                              <li ng-repeat="poolType in serviceLevelArray[data.selectedServiceLevelIndex].poolTypes" ng-hide="poolType.status == 0 || data.poolTypeId==poolType.id" ng-click="assignPoolType('billing_schedule_selected',poolType.id, poolType.poolType, data.waterBodyId, $index, $parent.$index,data.waterBodyName)"><a href="javascript:void(0)">{{poolType.poolType}}</a></li>
+                            </ul>
+                          </div> 
+                        </div> 
+                      </div>
+                      <div ng-if="data.serviceLevelTitle != '--' && data.poolTypeId" class="price-box">
+                        Charge for Chems  
+                        <span class="blue-tooltip-large"> 
+                          <label class="switch small" ng-click="toggleCharge($index, 'isChargeForChemicals','billing_schedule_charge_for_chems')" style="vertical-align: text-bottom;" >
+                            <span ng-class="{'active' : waterBodyBillingModel[$index].isChargeForChemicals }" class="slider round" ></span>
+                          </label>
+                          <!-- <span class="cfcbd-popup-no-help" ng-show="modelBillingSettingObj.invoicedOn != 'End of Month'">Charge for chems is deactivated when billing in advance for the upcoming month because there's no way to calculate which chemicals will be used in advance. To auto calculate and charge for chemicals, select the Paid in Arrears option for "Invoiced On:" at the bottom of this window</span> -->
+                        </span>
+                        <div class="flex type-box align-items-center relative">
+                          <small>Price</small>
+                          <span>
+                            <span class="h-1-5x">$</span> <input type="number" decimals="2" decimal-point="." mgminmax-validator class="input-number maxWidth80 text-right" name="crate" id="crate{{$index}}" ng-model="waterBodyBillingModel[$index].rate" ng-min="0" ng-max="9999999" value="" ng-blur="isUpcomingInvoiceAvailable ? openChangePriceOfUpcomingInvoicePopup($index) : updateServiceLevelPay({ index: $index})" ng-disabled="waterBodyBillingModel[$index].isLocked" />  <a href="javascript:void(0)" ng-class="waterBodyBillingModel[$index].isLocked ? 'icon-required-show' : 'icon-required-hide'"  class="icon-required lock-icon"><i ng-class="waterBodyBillingModel[$index].isLocked ? 'fa fa-lock clr-red ' : 'fa fa-unlock light-blue '" ng-click="lockPrice($index, waterBodyBillingModel[$index].isLocked)">
+                         </i>
+                     
+                        
+                          <span class="ng-binding">Price is locked. It will not update when type is changed. Unlock to edit.</span>
+                        </a>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div ng-show="!data.serviceLevelId || !data.poolTypeId" class="type-error">Must select service level and type for billing  
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true" style="font-size:12px"></i>
+                        <span>If you want this to appear on the invoice but not be charged, select the service level and type and then change the price to $0.00. If service level and type are NOT selected, this body of water will not appear on the invoice. Service levels, types and default prices can be configured in settings.</span>
+                      </a> 
+                    </div>
+                  </section>
+                  <section>
+                    <div class="">
+                      <div class="row">
+                        <div class="col-sm-4 p-b10">
+                          <label class="label-title">Discount</label> 
+                          <div class="dropdown select-wrap label-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="font-size: 13px;display:inline-block;width:170px">
+                              <b>{{modelBillingSettingObj.discountTitle ? modelBillingSettingObj.discountTitle : 'None'}}</b>
+                            <span class="caret"></span></button> <span  style="font-weight:400">{{modelBillingSettingObj.discountTitle != 'None' && modelBillingSettingObj.discountNumber && modelBillingSettingObj.discountNumber > 0 ? modelBillingSettingObj.discountNumber + " Remaining" : ''}}</span>
+                            <ul class="dropdown-menu scrollable-menu" style="width: 170px;">
+                              <li ng-repeat="discount in modelBillingSettingObj.discountData" ng-hide="modelBillingSettingObj.discountId == discount.id || discount.status == 3" ng-click="modelBillingSettingObj.discountId = discount.id; modelBillingSettingObj.discountTitle = discount.title; updateBillingSettings('discountId','discount_change_selected')"><a href="javascript:void(0)"> {{discount.title}}</a></li>
+                            </ul>
+                          </div> 
+                        </div>
+                        <div class="col-sm-8 p-b10">
+                        </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-sm-4">
+                          <label class="label-title">Customer Pays:</label>
+                          <div style="min-height: 100px;">
+                            <div class="radio-default2">               
+                              <label for="customersPay1">
+                                Monthly Flat Rate
+                                <input type="radio" name="customersPay" id="customersPay1" value="Monthly Flat Rate" ng-model="modelBillingSettingObj.customersPay"  ng-checked="true" ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('customersPay','customer_pays_monthly_flat_rate')" />
+                                <span></span>
+                              </label>                   
+                            </div>
+                            <div class="radio-default2">               
+                              <label for="customersPay2">
+                                Per Visit
+                                <input type="radio" name="customersPay" id="customersPay2" value="Per Visit" ng-model="modelBillingSettingObj.customersPay"  ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('customersPay','customer_pays_per_visit')" />
+                                <span></span>
+                              </label>                   
+                            </div>
+                          </div>  
+                        </div>
+                        <div class="col-sm-4">
+                          <label class="label-title">Billing Method:</label>
+                          <div style="min-height: 100px;">
+                            <div class="radio-default2">               
+                              <label for="invoicedOn1">
+                                Paid in advance
+                                <input type="radio" name="invoicedOn" id="invoicedOn1" value="First of Month" ng-model="modelBillingSettingObj.invoicedOn"  ng-checked="true" ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('invoicedOn','invoiced_on_first_of_month_advance')" />
+                                <span></span>
+                              </label>                   
+                            </div>
+                            <div class="radio-default2">               
+                              <label for="invoicedOn2">
+                                Paid in arrears 
+                                <input type="radio" name="invoicedOn" id="invoicedOn2" value="End of Month" ng-model="modelBillingSettingObj.invoicedOn"  ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('invoicedOn','invoiced_on_first_of_month_arrears')" />
+                                <span></span>
+                              </label>                   
+                            </div>
+                          </div>                          
+                        </div>
+                        <div class="col-sm-4">
+                          <label class="label-title">Invoice Creation Day:</label>
+                          <input maxlength="2" id="form-control-x-day" type="text" class="form-control form-control-x-day" name="invoiceDay" id="invoiceDay" ng-model="invCreatDateDetails.invoiceDateDay" ng-blur="saveInvoiceCreationDate(invCreatDateDetails.invoiceDateDay, 'custom')" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                          each month
+                          <div style="font-size: x-small;margin-top: 5px;" class="ng-binding">next invoice created on {{invCreatDateDetails.invoiceDate}}</div>
+                          <div class="flex align-items-center flex-small-pad">                    
+                            <strong style="font-size:13px;">Hide Service Dates</strong>                   
+                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                              <i class="fa fa-question-circle" aria-hidden="true"></i>
+                              <span style="width: 130px; right: -48px;">Turn this setting on if you want to prevent this customer from seeing service dates on their route stop invoices. They will still be able to see invoice date and due date.</span>
+                            </a>                   
+                            <div>
+                              <label class="switch small" ng-click="serviceDateToggle()" style="vertical-align: text-bottom;" >
+                                <span ng-class="{'active' : isRouteServiceDatesHidden }" class="slider round"></span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-12 p-t20"> 
+                          <div class="col-sm-6">
+                            <div class="flex align-items-center flex-small-pad">                    
+                              <strong>Auto Charge</strong>                   
+                              <a href="javascript:void(0)" class="icon-required customer-subdomain-help auto-charge-help-popup">
+                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                <span>PoolBrain will automatically charge the selected payment method on the 1st of the month when this invoice is created</span>
+                              </a>                   
+                              <div>
+                                <label class="switch" ng-click="toggleSwitch('isAutoCharge','auto_charge')" style="vertical-align: text-bottom;" >
+                                  <span ng-class="{'active' : modelBillingSettingObj.isAutoCharge}" class="slider round" ></span>
+                                </label>
+                              </div>
+                            </div> 
+                            <div class="blue-tooltip-large">                        
+                              <div class="dropdown select-wrap label-dropdown dropup" ng-show="modelBillingSettingObj.isAutoCharge" style="width: 220px;">
+                                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="font-size: 13px;" >
+                                  <b>{{modelBillingSettingObj.paymentProfileObj.id ? modelBillingSettingObj.paymentProfileObj.paymentProfileName : 'Select Payment Method'}}</b>
+                                <span class="caret"></span></button>
+                                <ul class="dropdown-menu scrollable-menu">
+                                  <li ng-repeat="profile in paymentProfiles" ng-hide="modelBillingSettingObj.paymentProfileObj.id==profile.id" ng-click="modelBillingSettingObj.paymentProfileObj = profile; modelBillingSettingObj.customerPaymentProfileId = profile.id; updateBillingSettings('customerPaymentProfileId','auto_charge_select_payment')"><a href="javascript:void(0)">{{profile.paymentProfileName}}</a></li>
+                                </ul>                            
+                              </div> 
+                              <span class="payment-method-no-help" ng-show="paymentProfiles.length == 0">To automatically charge a credit card or bank account, you must first create a stored payment method in the billing tab for this customer</span>
+                            </div> 
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="flex align-items-center flex-small-pad">                    
+                              <strong>Auto Email Invoice</strong>                   
+                              <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                <span>PoolBrain will automatically email the invoice to the billing contact on the 1st of the month. If auto charge is activated and payment is successful, a paid invoice receipt will be sent</span>
+                              </a>                   
+                              <div>
+                                <label class="switch" ng-click="toggleSwitch('isAutoEmailInvoice','auto_email_invoice')" style="vertical-align: text-bottom;" >
+                                  <span ng-class="{'active' : modelBillingSettingObj.isAutoEmailInvoice}" class="slider round"></span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!--div class="col-sm-12 p-t20">                        
+                          <div class="flex align-items-center flex-small-pad">                    
+                            <strong>Reattempt Charge</strong>                   
+                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                              <i class="fa fa-question-circle" aria-hidden="true"></i>
+                              <span>Help Text</span>
+                            </a>                   
+                            <div>
+                              <label class="switch" ng-click="toggleSwitch('isReattemptCharge'); modelBillingSettingObj.reattemptDays = 14" style="vertical-align: text-bottom;">
+                                <span ng-class="{'active' : modelBillingSettingObj.isReattemptCharge}" class="slider round"></span>
+                              </label>
+                            </div>
+                          </div>
+                          <div class="flex align-items-center flex-small-pad m-t10 p-l20" ng-if="modelBillingSettingObj.isReattemptCharge">                    
+                            <strong>Once per day for</strong>                   
+                            <input type="number" mgminmax-validator class="input-number width50 text-center small-input" style="height: 25px;" name="reattemptDays" id="reattemptDays" ng-model="modelBillingSettingObj.reattemptDays" ng-min="1" ng-max="60" value="" ng-disabled="!modelBillingSettingObj.activateBilling" ng-blur="updateBillingSettings('reattemptDays')" allow-typing="^[0-9]+$"  />                                         <strong>days</strong> 
+                          </div>
+                        </div-->
+                      </div>                   
+                    </div>
+                  </section>
+                </ng-container>
+                <!--End--> 
+                </div>
+                
+
+                <!--div class="text-center">
+                    <span class="p-r10"><button class="add-button" type="submit" >SAVE</button></span>
+                    <button class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>
+                </div-->
+            </div>
+          </div>
+        </div>
+        
+      </form>    
+     
+    </div>
+  </script>
+</div>
+<script type="text/ng-template" id="activateRouteSchedulePopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to erase all data for {{selectedScheduler[0].label}}?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="eraseData()">CONFIRM</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+
+ <script type="text/ng-template" id="confirmClose.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:530px;">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>
+      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div>          
+           <label>You have not selected a payment profile for auto charge. If you close this window, the auto charge setting will be toggled off. You can come back any time to change the setting</label>
+          </div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="button" ng-click="closeThisDialog()">Go Back</button>&nbsp;
+         <button class="add-button"  type="button" style="width: 152px;" ng-click="!closeAllPopupProcessing && closeAllPopup()">Close Window</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+
+<script type="text/ng-template" id="routeActivitySchedulePopup.html">
+    <div class="dataTables_wrapper modal-box picture-videos-popup" ng-init="getCustomerAuditLogs()">
+      <div class="dataTables_wrapper customer" style="padding:5px" >
+          <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+          <error message="{{error3}}" ng-if="error3"></error>
+          
+          <div class="popup-header" style="text-align: center;color: white;">
+            <span class="heading"><strong>Route Schedule Activity History</strong></span>
+            <div class="popup-close" ng-click="closeThisDialog()" style="float: right"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+          </div>
+          <div class="list-box" style="max-height:70vh;" id="scrollarea">
+            <table class="row-border hover no-footer dataTable" width="100%">
+                <thead>
+                    <tr>
+                        <!-- <th style="width:2% !important">Action</th> -->
+                        <th style="width:15% !important">Details</th>
+                    </tr>
+                </thead>
+                <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="routeAuditLogs in routeAuditLogsList track by $index">
+                  <tr>
+                      <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                  </tr>
+                  <tr class="even">
+                      <!-- <td class="border-top2 border-bottom2">
+                          <div class="customer-add">{{routeAuditLogs.action}}</div>
+                      </td> -->
+                      <td class="border-top2 border-bottom2">
+                          <div class="customer-add">
+                            {{routeAuditLogs.firstName}} {{routeAuditLogs.lastName}} - {{routeAuditLogs.createTime | date:"MM/dd/yy"}} at {{routeAuditLogs.createTime | date:"h:mm a"}} - {{ routeAuditLogs.message }} 
+                            <span ng-if="routeAuditLogs.action == 'Activate'" style="color:green">Activated</span>
+                            <span ng-if="routeAuditLogs.action == 'Deactivate'" style="color:red">Deactivated</span>
+                          </div>
+                      </td>                      
+                  </tr>
+              </tbody>
+                <tbody ng-if="routeAuditLogsList.length == 0">
+                  <tr>                  
+                    <td colspan="100%" class="no-record-found-reports-table">
+                      <div>
+                        No audit logs found
+                      </div>
+                    </td>                 
+                  </tr>
+                </tbody>
+            </table>
+            <div class="paging-warp container-fluid" ng-show="routeAuditLogsList.length != 0">
+              <div class="row p-t10" ng-class="{ 'align-footer-table' : isReportListingPage}">
+                <div class="text-left p-l20 p-t10 record-text-inv" ng-class="{ 'col-md-4' : !isReportListingPage, 'col-md-6' : isReportListingPage}" style="position: relative; top: 32px;" >
+                    Showing 
+                    {{routeAuditLogsList.length ? (pageObj.totalPageInv == pageObj.pageInv ? (pageObj.totalRecordInv-routeAuditLogsList.length)+1 : (pageObj.pageInv > 1 ? ((pageObj.pageInv-1)*routeAuditLogsList.length)+1 : 1)) : 0 }} 
+                    to 
+                    {{ routeAuditLogsList.length ? (pageObj.totalPageInv == pageObj.pageInv ? pageObj.totalRecordInv : pageObj.pageInv*routeAuditLogsList.length) : 0 }}  
+                    of 
+                    {{pageObj.totalRecordInv}}             
+                </div>
+              
+                <div class="col-md-12">
+                  <div class="pagination m-t0">                  
+                      <paging
+                      page="pageObj.pageInv" page-size="pageObj.limitInv" total="pageObj.totalRecordInv" text-first="First"
+                      text-last="Last" text-next="Next" text-prev="Prev"
+                      paging-action="goToCustomerInvoiceListPage(page)"
+                      show-prev-next="true" show-first-last="true"> </paging>         
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div> 
+ </script>
+
+ <script type="text/ng-template" id="confirmInvoiceCreation.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:600px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>       
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>An upcoming invoice exists for this property in the amount of {{invoiceTotalAmount | currency}}.</label></div>
+         <br />
+         <div class="confirm-invCreation--btns">
+          <span class="can-not-modify-invoice-holder">
+            <button ng-disabled="userCanCreateInvoice==0" class="add-button" type="submit" ng-click="deactivateTyp('create');closeThisDialog()">CREATE INVOICE & DEACTIVATE</button>   
+            <div class="can-not-modify-invoice-tooltip-message" ng-if="userCanCreateInvoice==0">
+              You do not have permission to create invoices
+             </div>
+          </span>       
+        </div>
+        <div class="confirm-invCreation--btns bottom-area">
+           <span class="can-not-modify-invoice-holder">
+             <button ng-disabled="userCanDeleteInvoice==0" class="add-button confirm-inv-no" type="submit" ng-click="deactivateTyp('delete');closeThisDialog()">DELETE INVOICE & DEACTIVATE</button>
+             <div class="can-not-modify-invoice-tooltip-message" ng-if="userCanDeleteInvoice==0">
+              You do not have permission to delete invoices
+             </div>
+           </span>
+          <button class="add-button confirm-inv-cancel" type="submit" ng-click="deactivateTyp('cancel');closeThisDialog()">CANCEL</button>
+        </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+
+ <script type="text/ng-template" id="changePriceOfUpcomingInvoice.html">
+  <div class="dataTables_wrapper modal-box change-price-upcoming-invoice-popup" style="width:500px;">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>       
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+        <input type="text" id="hiddenInput" style="position: absolute; left: -9999px;">
+         <div><label>When should this price change take effect?</label></div>
+          <div class="action-btn-holder">
+            <div class="action-btn-holder-row">
+              <div class="action-btn-holder-col">
+                <button tabindex="-1" type="button" class="add-button" ng-click="changePriceOfUpcomingInvAction('rightNow')">RIGHT NOW</button>
+                <div class="action-btn-hint">
+                  (current upcoming invoice)
+                </div>
+              </div>
+              <div class="action-btn-holder-col">
+                <button tabindex="-1" type="button" class="add-button" ng-click="changePriceOfUpcomingInvAction('nextMonth')">NEXT MONTH</button>
+                <div class="action-btn-hint">
+                  (next upcoming invoice)
+                </div>
+              </div>
+            </div>
+            <div class="action-btn-holder-row">
+              <div class="action-btn-holder-col">
+                <button tabindex="-1" type="button" class="add-button bg-red" ng-click="changePriceOfUpcomingInvAction('cancel')">CANCEL</button>
+              </div>
+            </div>
+            
+          </div>
+       </div>
+     </div> 
+  </div>
+ </script>

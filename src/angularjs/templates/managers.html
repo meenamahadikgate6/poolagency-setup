@@ -1,0 +1,245 @@
+<div class="data-table-grid mangager-profile">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <div class="white-bg text-left p-tb20 p-lr20">
+    <div class="grid" ng-init="getProfile()" ng-if="!showForm">
+      <success message="{{successMsg}}" ng-if="successMsg"></success>
+      <div class="fl manager-small" >
+        <div class="grid">
+          <div class="fl add-profile-image">
+            <div class="image-radius name-initial large"
+                 ng-style="{'background-image': 'url({{managerModel.userImage}})'}"
+                 style="background-size: cover;" alt="{{managerModel.firstName}} {{managerModel.lastName}}" title="{{managerModel.firstName}} {{managerModel.lastName}}">
+                <span ng-show="!managerModel.userImage">
+                  {{managerModel.firstName | convertToInitial: managerModel.lastName}}
+                </span>
+            </div>
+          </div>
+          <div class="fl">
+            <div class="technician-name"> <span class="h-4x b darkGray">{{managerModel.firstName}} {{managerModel.lastName}} </span> </div>
+            <div class="h-1x b technician-title" ng-if="managerModel.contactNumber"><img border="0" class="phone-icon p-r5" src="resources/images/phone-icon.png" style="vertical-align: middle"/> <a href="tel:{{managerModel.contactNumber}}">
+              <phone-Number number="{{managerModel.contactNumber}}"></phone-Number>
+              </a> </div>
+            <div class="manager-email"><img border="0" class="phone-icon p-r5" src="resources/images/email-icon.png" style="vertical-align: middle"/> <a href="mailto:{{managerModel.email}}">{{managerModel.email}}</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fl p-t5"> <img border="0" src="resources/images/setting-icon.png" class="setting-icon p-r5" style="vertical-align: middle" /> <a href="javascript:void(0)" ng-click="editManager()" class="m-l10">Edit</a> </div>
+      </div>
+    </div>
+
+
+    <div class="meid-form-container" ng-if="showForm">
+      <form class="form-signin" name="managerForm" ng-submit="saveManager(managerForm)" novalidate>
+        <div class="grid">
+          <error message="{{error}}" ng-if="error"> </error>
+
+
+          <div class="add-profile-image fl"> 
+            <a href="javascript:void(0)" ng-click="browseImage()">
+              <div class="image-radius" ng-if="manager.userImage == ''" ng-style="{'background-image': 'url(resources/images/customer-icon.jpg)'}" style="background-size: cover;"></div>
+              <img alt="Add Profile Image" border="0" src="{{managerModel.userImage ? managerModel.userImage : 'resources/images/add-image.png'}}" title="Add Profile Image"/>
+              <div class="text-center" style="text-decoration: underline;">Add Photo</div>
+            </a>
+        
+            <a href="javascript:void(0)"><div ng-if="managerModel.userImage" class="text-center" ng-click="removeProfilePicture()">Remove Photo</div></a>
+            <input base-sixty-four-input="" id="image" name="image" ng-change="uploadFile(this)" ng-model="userImage.image" style="display: none" type="file"/>
+          </div>
+
+          <div class="row-container fl ">
+          <div class="p-b10">
+            <div class="row-item">
+              <input autofocus class="form-control" name="firstName" ng-class="{'has-error': managerForm.$submitted && managerForm.firstName.$invalid || managerForm.firstName.$touched && managerForm.firstName.$invalid}" ng-maxlength="50" ng-model="managerModel.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+              <input autofocus class="form-control" name="lastName" ng-class="{'has-error': managerForm.$submitted && managerForm.lastName.$invalid || managerForm.lastName.$touched && managerForm.lastName.$invalid}" ng-maxlength="50" ng-model="managerModel.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+
+            </div>
+            <div class="row-item">
+              <input autofocus class="form-control" name="contactNumber" ng-class="{'has-error': managerForm.$submitted && managerForm.contactNumber.$invalid || managerForm.contactNumber.$touched && managerForm.contactNumber.$invalid}" ng-model="managerModel.contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input="" placeholder="Phone Number" required="" type="text"/>
+              <input autofocus class="form-control" name="email" ng-disabled="true"  ng-model="managerModel.email" placeholder="Email" type="email"/>
+            </div>
+            <div class="row-item">&nbsp;</div>
+            <div class="row-item text-right"><a href="javascript:void(0)" ng-click="togglePass()" class="underline-none h-15x b" >Change password</a></div>
+          </div>
+          <div class="border-top0 p-t0 reset-pswrd"  ng-if="isPassShow">
+              <div class="row-item">
+                <input type="password" placeholder="Enter current password"  ng-maxlength="30" maxlength="30"
+                   ng-focus="isFocusOnPassword=true" ng-blur="isFocusOnPassword=false"
+                   ng-class="{'has-error': managerForm.$submitted && managerForm.opassword.$invalid || managerForm.opassword.$touched && managerForm.opassword.$invalid}"
+                   ng-model="managerModel.opassword" id="opassword" name="opassword" class="form-control" required>
+              </div>
+              <div class="row-item">
+                <input type="password" ng-pattern="/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$/" placeholder="Enter new password" ng-minlength="8" ng-maxlength="30" maxlength="30"
+                   ng-focus="isFocusOnPassword=true" ng-blur="isFocusOnPassword=false"
+                   ng-class="{'has-error': managerForm.$submitted && managerForm.password.$invalid || managerForm.password.$touched && managerForm.password.$invalid}"
+                   ng-model="managerModel.password" ng-required="managerModel.opassword != ''" id="password" name="password" class="form-control">
+                   <div class="password-note old-password" ng-class='{"password-note-red":managerForm.$submitted && managerForm.password.$invalid || managerForm.password.$touched && managerForm.password.$invalid}'>(Minimum 8 characters with 1 uppercase, 1 lowercase and 1 number)</div>
+              </div>
+              <div class="row-item">
+                <input type="password"  class="form-control" ng-model="managerModel.cpassword" placeholder="Confirm new password" name="cpassword"
+                         ng-maxlength="30" maxlength="30" ng-required="managerModel.opassword != ''"
+                        wj-validation-error="managerModel.password != '' && managerModel.cpassword != managerModel.password ? 'Password does not match' : ''"
+                        ng-class="{'has-error': managerForm.$submitted && managerForm.password.$valid && managerForm.cpassword.$invalid || managerForm.cpassword.$touched && managerForm.cpassword.$invalid}"
+                        >
+                        <span class="has-required"><span ng-show="managerForm.$submitted && managerForm.password.$valid && managerForm.cpassword.$invalid || managerForm.cpassword.$touched && managerForm.cpassword.$invalid">Password does not match</span> 
+              </div>
+          </div>
+          </div>
+
+
+          <div class="technicians-button" style="width: 99%">
+            <button class="add-button" ng-disabled="!managerForm.$dirty && !imageUpdated" type="submit"> Update </button>
+     
+            <button class="add-button"  type="button" ng-click="closeForm()"> Cancel </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-1-1 p-r0 p-t20" ng-if="loggedInRole=='companyadmin' || loggedInRole=='companymanager'" >
+    <div class="white-bg text-left p-tb20 p-lr20 ">
+      <div class="grid">
+        <div class=" p-l0">
+          <div class="" >
+            <div class="grid">
+              <div class=" p-0">
+                    <div class="nav nav-tabs">
+                      <li class="{{tabType == 'business'? 'active' : ''}}">
+                          <a href="javascript:void(0)" ng-click="openTab('business')"><h1>Company Information</h1></a>
+                      </li>
+                      <li class="{{tabType == 'billing'? 'active' : ''}}">
+                          <a href="javascript:void(0)" ng-click="openChargeBee()"><h1>Billing Information</h1></a>
+                      </li>
+                    </div>
+                    <form class="comman-form" ng-if="tabType == 'business'" name="companyInfoForm" rc-submit="companyInfoForm.$valid && updateCompanyInfo('business')" novalidate>
+                      <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                          <h3>Company Information</h3>
+                          <div class="form-group">
+                              <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].companyName" placeholder="Company Name" name="companyName" minlength="3" maxlength="50" validator="[companyName]">
+                              <label>Company Name</label>
+                              <span class="company-validation-message">(only <kbd>&</kbd><kbd>-</kbd><kbd>.</kbd><kbd>(</kbd><kbd>)</kbd> symbols are allowed)</span>
+                          </div>
+                          <div class="form-group">
+                              <input type="text"  class="form-control" ng-model="companyInfoModel['companyInfo'].website" placeholder="Website" maxlength="100" name="website">
+                              <label>Website</label>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                              <div class="form-group" ng-class="{
+                                'has-error': 
+                                  companyInfoForm.$submitted && (
+                                    companyInfoForm.phoneNumber.$invalid || 
+                                    companyInfoForm.phoneNumber.$error.pattern ||
+                                    companyInfoForm.phoneNumber.$error.required
+                                  )
+                              }">
+                                <input type="text"  class="form-control" ng-model="companyInfoModel['companyInfo'].phoneNumber" placeholder="Company Phone" 
+                                maxLength="12" 
+                                ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" 
+                                phone-input="" 
+                                name="phoneNumber"    
+                                required                            
+                                >
+                                <label>Company Phone</label>                                
+                              </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                              <div class="form-group" ng-class="{
+                                'has-error': 
+                                  companyInfoForm.$submitted && (
+                                    companyInfoForm.email.$invalid || 
+                                    companyInfoForm.email.$error.pattern ||
+                                    companyInfoForm.email.$error.required
+                                  )
+                              }">
+                                <input type="text"  class="form-control" ng-model="companyInfoModel['companyInfo'].email" placeholder="Company Email"  
+                                maxlength="100" 
+                                ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                                name="email"    
+                                required                            
+                                >
+                                <label>Company Email</label>                                
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                              <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].address" placeholder="Company Address" minlength="5" maxlength="60" name="address" validator="[required]">
+                              <label>Company Address</label>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                     <div class="form-group">
+                        <input type="text" class="form-control"  ng-model="companyInfoModel['companyInfo'].city" placeholder="City" name="city" minlength="3" maxlength="40"  validator="[alphanum]">
+                                        <label>City</label>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                      <div class="select-style" ng-class="{'has-error-select': companyInfoForm.$submitted && !companyInfoModel['companyInfo'].state}" style="color:#333!important">
+                                        <select name="State" ng-model="companyInfoModel['companyInfo'].state"  validator="[required]">
+                                            <option value=''>State</option>
+                                            <option ng-repeat="state in stateList" value="{{state.key}}">{{state.value}}</option>
+                                        </select>
+                                      </div>
+                                      <label>State</label>
+                                      </div>
+                                    </div>
+
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <div class="form-group">
+                                        <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].zipcode" placeholder="Zipcode" name="zipcode" minlength="5" maxlength="6"  validator="[required, numeric]" >
+                                        <label>Zipcode</label>
+                                        </div>
+                                    </div>
+
+                            </div>
+                          </div>
+
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12 text-right">
+                                    <button class="button bt-blue" ng-disabled="isProcessing" type="submit">Update</button>
+                            </div>
+                        </div>
+                      </div>
+
+
+
+                </form>
+                    <form class="comman-form" ng-if="tabType == 'billing'" name="companyInfoForm">
+                      
+                      <div class="row">
+                          <div class="col-md-12 col-sm-12 col-xs-12">
+                              <h3>Billing Contact Information</h3>
+                              <button class="button bt-blue upperCase" ng-click="openChargeBee()" type="button">Manage account</button>
+                          </div>
+                      </div>
+                      
+                </form>
+
+                <success ng-if="success" message="{{success}}"></success>
+                <error ng-if="error" message="{{error}}"></error>
+              </div>
+            </div>
+            <div class="p-t10">
+              <div class="fl">
+                <div class="graphDiv" id="CHEMICALCOST1" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>

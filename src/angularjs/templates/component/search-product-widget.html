@@ -1,0 +1,50 @@
+<div class="product-search-widget product-search-widget--{{ smallWidgetAreas.includes(widgetArea) ? 'small' : 'normal'}}">  
+  <div class="bundle-search-box" ng-init="focusInput()">
+    <span class="search-icon"></span>
+    <input type="search" placeholder="{{widgetArea=='inventory' ? 'Product or tools' : 'Product or service name/part number'}}" ng-model="bundleSearchText" class="form-control product-search-widget-input" ng-paste="loadCategories()" ng-keypress="loadCategories()" ng-change="SPWShowListForBundle(bundleSearchText, false)" >
+    <a ng-hide="widgetArea=='chemicalMapping' || widgetArea=='invoiceList'" href="" class="close-search-bar" ng-click="hideProdctWidget()"><i class="fa fa-times"></i></a>
+</div>
+<div class="ps-picker colored-scroll-bar">
+  <table class="product-list-table">      
+      <tbody class="product-list-table-item" ng-if="spwProductData.length > 0" ng-repeat="item in spwProductData" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+        <tr class="even" style="cursor: pointer;" ng-click="addProductToBundle(item)">
+          <td><div class="product-sevices-category" ng-class="widgetArea=='inventory' ? item.itemType == 'Tool' ? 'Tool': 'Product' : item.category"></div></td>
+          <td>{{item.name}}<br>
+              <span style="color: #9b9999;font-size: 11px;" ng-if="item.sku" class="ng-binding ng-scope">part #{{item.sku}}
+              </span></td>
+          <td >{{ currencyTrimmer(item.price) | currency}}</td>
+        </tr>                            
+      </tbody>
+      <tbody ng-if="spwProductData.length > 0 && spwPayLoad.hasMoreData">
+          <tr>
+              <td colspan="100" style="padding: 0 ">
+                  <div class="loadMoreProductData-btn-holder">
+                      <a href="javascript:void(0)" class="loadMoreProductData-btn" ng-class="{ 'disabled' : isSPWProductPopupSearching}" ng-click="SPWLoadMoreProductData()">
+                          <span ng-if="!isSPWProductPopupSearching">Load more</span>
+                          <span ng-if="isSPWProductPopupSearching">Loading...</span>
+                      </a>
+                  </div>
+              </td>
+          </tr>
+      </tbody>
+      <tbody ng-if="bundleSearchText != '' && spwProductData.length == 0 && !isSPWProductPopupSearching">
+          <tr class="even">
+              <td colspan="3" cellpadding="10" class="text-center"><strong class="p-tb10" style="display: block;">No result to display</strong></td>
+            </tr>
+            <tr style="cursor: pointer;" ng-hide="widgetArea=='productServicePage' || widgetArea=='inventory'">
+               <td colspan="3" cellpadding="10">
+                 <div class="add-product-link" ng-class="{ 'disabled-product-adding' : loggedInuserPS.canCreateProducts == 0 }" ng-click="loggedInuserPS.canCreateProducts != 0 && openProductForm(undefined, 'Product', bundleSearchText)"> create new product<i class="fa fa-plus-circle" style="color: green; padding-left: 10px;"></i></div>
+               </td>
+            </tr>
+           <tr style="cursor: pointer;" ng-hide="widgetArea=='productServicePage' || widgetArea=='chemicalMapping' || widgetArea=='inventory'">
+             <td colspan="3" cellpadding="10">
+               <div class="add-product-link" ng-class="{ 'disabled-product-adding' : loggedInuserPS.canCreateProducts == 0 }" ng-click="loggedInuserPS.canCreateProducts != 0 && openProductForm(undefined, 'Service', bundleSearchText)"> create new service<i class="fa fa-plus-circle" style="color: green; padding-left: 10px;"></i></div>
+             </td>
+           </tr>
+      </tbody>
+    </table>
+</div>
+</div>
+<ng-container ng-if="widgetArea!='productServicePage'">
+  <div ng-controller="productsnservicesController" ng-include="'/templates/products-services/productsnservices.html?ver='+PB_WEB_VERSION" ng-init="isCommonFormToggle()"></div>
+</ng-container>

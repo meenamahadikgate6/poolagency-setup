@@ -1,0 +1,28 @@
+.nestedSortable-item, .nestedSortable-placeholder {
+	display: block;
+	position: relative;
+	margin: 0px;
+	padding: 0px;
+}
+.nestedSortable-handle {
+    cursor: move;
+    text-decoration: none;
+    font-weight: bold;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.nestedSortable-placeholder {  
+    background: #f0f9ff;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.nestedSortable-drag {
+    position: absolute;
+    pointer-events: none;
+    z-index: 999;
+    opacity: .8;
+}

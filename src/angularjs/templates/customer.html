@@ -1,0 +1,658 @@
+<success ng-if="dromoSuccess!=''" message="{{dromoSuccess}}"></success>
+<error ng-if="dromoError!=''" message="{{dromoError}}"></error>
+<div class="data-table-grid" ng-init="getCustomerList();initCustomerFilter()">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation">
+        <img border="0" src="resources/images/spinner.gif" />
+      </div>
+    </div>
+  </div>
+  <!--No Customers Found - Service Bridge Section start-->
+  <div class="col-md-8 job-dataTable">
+    <div class="flex invoice-filter invoice-filter-bg filter-text customer-filter-improvement">
+      <div class="flex" ng-click="customerFilterByStatus('Active')">
+        <div class="tag ng-binding bg-green" ng-class="{'disabled': !statusType['Active'] }">
+            {{counts.activeRouteCustomers.toLocaleString()}}
+        </div>
+        <div style="width:max-content">
+          <div><strong>ACTIVE (routed)</strong></div>
+        </div>
+      </div> 
+      <div class="flex" ng-click="customerFilterByStatus('Active_noroute')">
+        <div class="tag ng-binding bg-green" ng-class="{'disabled': !statusType['Active_noroute'] }">
+            {{counts.activeNoRouteCustomers.toLocaleString()}}
+        </div>
+        <div style="width:max-content">
+          <div><strong>ACTIVE (no route)</strong></div>
+        </div>
+      </div>       
+      <div class="flex" ng-click="customerFilterByStatus('Inactive')">
+        <div class="tag ng-binding bg-orange" ng-class="{'disabled': !statusType['Inactive'] }">
+          {{counts.inActiveCustomer.toLocaleString()}}
+        </div>
+        <div>
+          <div><strong>INACTIVE</strong></div>
+        </div>
+      </div>  
+      <div class="flex" ng-click="customerFilterByStatus('Lead')">
+        <div class="tag ng-binding bg-pink" ng-class="{'disabled': !statusType['Lead'] }">
+          {{counts.leadCustomer.toLocaleString()}}
+        </div>
+        <div>
+          <div><strong>LEADS</strong></div>
+        </div>
+      </div> 
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="customer-filter-and-excel-btn-holder">
+      <div class="customer-filter filter-btn-area">
+        <div class="select-wrap-alert-filter-popup" ng-class="showFilterBox ? 'dropdown select-wrap filter-btn open' : 'dropdown select-wrap filter-btn'">
+          <div id="backgroundOverlay" ng-if="showFilterBox"></div>
+          <button id="statusDropdown" tabindex="1" class="btn" type="button" ng-click="archiveCustomer ? return : showFilter()" ng-disabled="archiveCustomer">Filter 
+            <span ng-if="selectionsMade.length == 0">OFF</span>
+            <span style="background-color: #D68227;" ng-if="selectionsMade.length > 0">ON</span>
+            <i class="fa fa-sort-desc"></i>
+          </button>
+          <div class="dropdown-menu scrollable-menu schedule-filter-area schedule-filter-area-alert-page scrollareaCls email-center-page" id="filterBox" style="left: auto; right: 0; width: 100vw; max-width: 934px;">         
+            <div class="ecp-section">
+              <div class="ecp-section-body">
+                  <div class="spinner" ng-if="masterFilterLoading">
+                      <div class="spinner-item">
+                        <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                      </div>
+                  </div>
+                  <div class="ecp-section-card">
+                      <div class="row">
+                          <div class="col-xs-12">
+                              <div class="ecp-section-equipment-area">
+                                  <ul class="ecp-section-equipment-list">
+                                      <li ng-repeat="equipment in equipments" ng-if="!['waterguru'].includes(equipment.icon)">
+                                          <div class="ecp-equipment-card" ng-click="toggleEquipmentDropdown(equipment.eqId)">
+                                              <div class="ecp-equipment-card-icon ecp-equipment-card-icon-{{equipment.icon}}"></div>
+                                              <div class="ecp-equipment-card-title">{{equipment.label}}</div>
+                                              <div class="ecp-equipment-card-dropdown" ng-if="equipmentDropdownStatus[equipment.eqId]" click-outside="closeEquipmentDropdown()">
+                                                  <ul class="ecp-equipment-card-dropdown-list">
+                                                      <li class="ecp-equipment-card-dropdown-list-item " ng-repeat="equipmentType in equipment.eqType" ng-click="$event.stopPropagation();addToSelections({labelSuffix: equipment.label, label: equipmentType.eqType, id: equipmentType.typeId }, 'equipment')">
+                                                          {{equipmentType.eqType}}
+                                                      </li>
+                                                  </ul>
+                                              </div>
+                                          </div>
+                                      </li>
+                                  </ul>
+                              </div> 
+                          </div>
+                      </div>       
+                      <div class="row">
+                          <div class="col-xs-12">                                        
+                              <div class="ecp-section-dropdown-area">
+                                  <div class="ecp-section-dropdown">
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('serviceLevel')">
+                                          <span>SERVICE LEVEL</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['serviceLevel']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">                                                        
+                                              <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                                  <ul class="ecp-section-dropdown-content-list" ng-show="serviceLevelArray.length > 0">
+                                                      <li class="ecp-section-dropdown-content-list-item" ng-repeat="serviceLevel in serviceLevelArray" ng-click="addToSelections(serviceLevel, 'serviceLevel')">{{serviceLevel.serviceLevel.title}}</li>
+                                                  </ul>                                                            
+                                                  <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="serviceLevelArray.length > 0">
+                                                      No service level found
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="ecp-section-dropdown">
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('city')">
+                                          <span>CITY</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['city']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">
+                                              <div class="ecp-section-dropdown-content-search"  ng-show="citiesMaster.length > 0">
+                                                  <i class="fa fa-search"></i>
+                                                  <input type="text" placeholder="Search" id="searchCity" ng-keyup="filterList('searchCity','cityList')" >
+                                              </div>
+                                              <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                                  <ul class="ecp-section-dropdown-content-list" id="cityList" ng-show="citiesMaster.length > 0">
+                                                      <li class="ecp-section-dropdown-content-list-item" ng-repeat="city in citiesMaster" ng-click="addToSelections(city, 'city')">
+                                                          {{city.label}}
+                                                      </li>
+                                                  </ul>
+                                                  <div class="ecp-section-dropdown-content-list-no-result" ng-hide="citiesMaster.length > 0 || isFilterMasterLoading['city']">
+                                                      No city found
+                                                  </div>
+                                                  <div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+                                                      <i></i>
+                                                      <span>Loading cities</span>
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="ecp-section-dropdown">
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('zipCode')">
+                                          <span>ZIP CODE</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['zipCode']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">
+                                              <div class="ecp-section-dropdown-content-search" ng-show="zipCodesMaster.length > 0">
+                                                  <i class="fa fa-search"></i>
+                                                  <input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','zipCodeList')" >
+                                              </div>
+                                              <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                                  <ul class="ecp-section-dropdown-content-list" id="zipCodeList" ng-show="zipCodesMaster.length > 0">
+                                                      <li class="ecp-section-dropdown-content-list-item" ng-repeat="zip in zipCodesMaster" ng-click="addToSelections(zip, 'zip')">
+                                                          {{zip.label}}
+                                                      </li>
+                                                  </ul>
+                                                  <div class="ecp-section-dropdown-content-list-no-result" ng-hide="zipCodesMaster.length > 0 || isFilterMasterLoading['city']">
+                                                      No zipcode found
+                                                  </div>
+                                                  <div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+                                                      <i></i>
+                                                      <span>Loading zipcodes</span>
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="ecp-section-dropdown" >
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('tags')">
+                                          <span>TAGS</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['tags']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">
+                                              <div class="ecp-section-dropdown-content-search" ng-show="tagsMaster.length > 0">
+                                                  <i class="fa fa-search"></i>
+                                                  <input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','tagList')" >
+                                              </div>
+                                              <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                                  <ul class="ecp-section-dropdown-content-list" id="tagList" ng-show="tagsMaster.length > 0" >
+                                                      <li class="ecp-section-dropdown-content-list-item" ng-repeat="tag in tagsMaster" ng-click="addToSelections(tag, 'tag')">
+                                                          {{tag.label}}
+                                                      </li>
+                                                  </ul>
+                                                  <div class="ecp-section-dropdown-content-list-no-result" ng-hide="tagsMaster.length > 0">
+                                                      No tags were found. You can create and add tags on any customer page.
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="ecp-section-dropdown">
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('invoiceStatus')">
+                                          <span>INVOICE STATUS</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content ecp-section-dropdown-content-fullwidth-options" ng-if="ecpDropwDownOpen['invoiceStatus']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">                                                        
+                                              <div class="ecp-section-dropdown-content-list-area">
+                                                  <ul class="ecp-section-dropdown-content-list" ng-show="invoiceStatuses.length > 0">
+                                                      <li class="ecp-section-dropdown-content-list-item" ng-repeat="status in invoiceStatuses" ng-click="addToSelections(status, 'invoiceStatus')">{{status.label}}</li>
+                                                  </ul>                                                            
+                                                  <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="invoiceStatuses.length > 0">
+                                                      No status found
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>                                            
+                                  <div class="ecp-section-dropdown">
+                                      <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('route')">
+                                          <span>ROUTE</span>
+                                          <i class="fa fa-sort-desc"></i>
+                                      </a>
+                                      <div class="ecp-section-dropdown-content ecp-section-dropdown-content-route-list" ng-if="ecpDropwDownOpen['route']" click-outside="closeEcpDropDown()">
+                                          <div class="ecp-section-dropdown-content-inner">
+                                              <div class="ecp-section-dropdown-content-slider">
+                                                  <div class="ecp-section-dropdown-content-slider-left">
+                                                      <a href="javascript:void(0)"  ng-click="modifyRouteListDate('left')"><i class="fa fa-caret-left"></i></a>
+                                                  </div>
+                                                  <div class="ecp-section-dropdown-content-slider-center">
+                                                      {{routeListDate.format('dddd, MMMM D, YYYY')}}
+                                                  </div>
+                                                  <div class="ecp-section-dropdown-content-slider-right">
+                                                      <a href="javascript:void(0)" ng-click="modifyRouteListDate('right')"><i class="fa fa-caret-right"></i></a>
+                                                  </div>
+                                              </div> 
+                                              <div class="ecp-section-dropdown-content-search">
+                                                  <i class="fa fa-search"></i>
+                                                  <input type="text" placeholder="Route or technician name" id="searchRoute" ng-keyup="filterList('searchRoute','routeList')" >
+                                              </div>                                                       
+                                              <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                                  <ul class="ecp-section-dropdown-content-list" id="routeList" ng-show="routes.length > 0 && !isRoutesLoading">
+                                                      <li class="ecp-section-dropdown-content-list-item ecp-section-dropdown-content-list-item-route" ng-repeat="route in routes" ng-click="addToSelections(route, 'routes')">
+                                                          <div class="route-item">
+                                                              <div class="route-item-left">
+                                                                  <div class="route-item-image" ng-style="{'color': route.color }">
+                                                                      <img ng-if="route.userImage" ng-src="{{route.userImage}}" alt="">
+                                                                      <span ng-if="!route.userImage">{{route.techFirstname ? (route.techFirstname | convertToInitial: route.techLastname) : '?'}}     </span>
+                                                                  </div>
+                                                              </div>
+                                                              <div class="route-item-right">
+                                                                  <div class="route-item-title" ng-style="{'color': route.color }">{{route.label}}</div>
+                                                                  <div class="route-item-tech-name">{{route.techFirstname}} {{route.techLastname}}</div>
+                                                              </div>
+                                                          </div>
+                                                      </li>
+                                                  </ul>                                                            
+                                                  <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="routes.length == 0 && !isRoutesLoading">
+                                                      No route found
+                                                  </div>                                                           
+                                                  <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="isRoutesLoading">
+                                                      <i></i>
+                                                      <span>Loading routes</span>
+                                                  </div>
+                                              </div>                                                        
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>                
+                  </div>
+              </div>
+            </div>
+            <div class="ecp-section">
+              <div class="ecp-section-header">
+                  <div class="ecp-section-title">
+                      <span>SELECTIONS MADE</span>
+                      <a href="javascript:void(0)" class="icon-required clear-all-link" ng-click="removeFromSelections('all')" ng-hide="selectionsMade.length == 0">
+                          clear all
+                      </a>
+                      <span class="selection-made-query-type-area" ng-hide="selectionsMade.length == 0">
+                          <div class="dropdown" style="margin-right: 5px;">
+                              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="closeAllFilterDropdown()" style="border: none !important;">
+                                  {{selectedFilterPayloadQueryType.label}}
+                                  <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu" style="width: 160px; left: 0; padding: 5px 0 5px 0;" style="border: none;">
+                                  <li ng-repeat="type in filterPayloadQueryTypes" ng-click="selectedFilterPayloadQueryType.id != type.id && filterPayloadQueryType(type)">
+                                      <a href="javascript:void(0)">{{type.label}}</a>
+                                  </li>
+                              </ul>
+                          </div>
+                          must match
+                      </span>
+                  </div>
+              </div>
+              <div class="ecp-section-body">                          
+                  <div class="ecp-section-card ecp-section-card-selection-made">
+                      <div class="selection-made-tag-area" ng-if="selectionsMade.length > 0">   
+                          <span class="selection-made-tag " ng-class="{ 'selection-made-tag-disabled' : isComposeMailWindow, 'selection-made-tag-highlight': selectionTag.alreadyExist }" ng-repeat="selectionTag in selectionsMade">                                        
+                              <ng-container ng-bind-html="selectionTag.selectionLabel"></ng-container>                                                                                
+                              <i class="selection-made-tag-delete" ng-click="removeFromSelections(selectionTag.uid)">&times;</i>
+                          </span>
+                      </div>
+                      <div class="selection-made-tag-area selection-made-tag-area-blank" ng-if="selectionsMade.length == 0">   
+                          <p>choose options above to filter customer based on your selections</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <button ng-click="archiveCustomer ? return : removeFromSelections('all')" ng-if="selectionsMade.length > 0" class="btn clear-btn" ng-disabed="archiveCustomer" style="margin-left: 6px;">Clear All</button>
+      </div>
+      <div class="customer-excel-download-btn-holder">
+        <div class="excel-download-btn-holder">
+          <span class="excel-download-btn cust-exl-dwn" ng-class="{ 'is-report-export-disabled' : isReportExportDisabled('canExportCustomerReports') }" ng-click="shownExcelReport && !isReportExportDisabled('canExportCustomerReports') ? downloadEmailReport() : ''" style="right: 10px;top: 10px" ng-class="{'disabledExcel': !shownExcelReport }"></span>
+          <span class="excel-download-btn-tooltip">You do not have permission to export this report</span>
+        </div>        
+     </div> 
+   </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 text-left m-t20">
+      <span>Show archived customers</span>
+      <span>
+        <input type="checkbox" ng-model="archiveStatus" ng-click="showArchivedCustomers()" style='width: 20px;
+        height: 15px;'/>
+      </span>
+    </div>
+    <div class="col-md-6 add-customer-button add-customer-dromo-btn">
+      <div class="fr p-b10 add-customer-dromo-btn-inner">
+        <div ng-if="!preventDefaultAction" class="fl dropdown">
+            <button class="btn btn-primary button blue-bg" ng-click="addEditCustomerForm()"> Add Customer </button>
+        </div>
+        <div>
+          <button class="btn btn-primary button blue-bg add-customer-dromo-btn-element" ng-click="dromo.open()" ng-disabled="bulkCustomerAdding">
+            <span ng-if="!bulkCustomerAdding">Import Customers</span>
+            <span ng-if="bulkCustomerAdding">{{progressPercent}}% Importing...</span>
+            <b class="dromo-progress-bar" ng-if="bulkCustomerAdding"  ng-style="{ width: progressPercent + '%' }"></b>
+          </button>
+        </div>
+      </div> 
+    </div>
+  </div>
+  <div class="dataTables_wrapper customer" ng-if="customerList.length == 0 && !searchKey && !ifCustomerExists" ng-controller="companySettingsController">
+    
+    <div ng-if="refreshCustomerPgae" ng-init="getCustomerList()"></div>
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation">
+          <img border="0" src="resources/images/spinner.gif" />
+        </div>
+      </div>
+    </div>
+    <div class="h-4x darkGray  p-t20 p-b10 b">Import Customers With A Method Below</div>
+    <div class="service-bridge white-bg" ng-if="!preventDefaultAction">
+      <div ng-controller="quickbookController">
+          <div class="spinner" ng-if="isProcessing">
+            <div class="spinner-item">
+              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+            </div>
+          </div>
+          <div>
+              <img border="0" src="resources/images/quickbooks_logo.png" />
+            <div class="h-0-5x darkGray p-t10">Sign into QuickBooks to import your customers.</div>
+            <success ng-if="qbConnectedNow" message="You are already authorized with QuickBooks!">
+              <div class="set-chem-list"></div>
+            </success>
+            <success ng-if="isQuickBookConnected" message="Import process started successfully."></success>
+
+            <div ng-if="!isQuickBookConnected" class="set-chem-details form-signin">
+              <div>
+                <button  ng-click="quickBookIntegration()">Import From QuickBooks</button>
+              </div>
+              <success ng-if="quick_book_success" message="{{quick_book_success}}"></success>
+              <error ng-if="quick_book_error" message="{{quick_book_error}}"></error>
+            </div>
+          </div>
+      </div>
+
+    <!--
+      <div class="or-separation">
+        <span>OR</span>
+      </div>
+
+
+
+        <div class="h-0-5x darkGray p-t10">Upload your customer list as a CSV.</div>
+        <button class="browse-btn" ng-disabled="isProcessing" type="button" onclick="document.getElementById('csvFile').click()">Browse Files</button>
+        <div class="h-0-5x darkGray p-t10"><a target="_blank" href="resources/Sample_Customer_List.csv">Download Sample File</a></div>
+
+        <!--<input type="file" required id="csvFile" onchange="angular.element(this).scope().onCSVSelect(this)" />-- >
+        <input style="display: none" type="file" id="csvFile" custom-on-change="uploadCsvFile"/>
+        <success ng-if="successBrowse" message="{{successBrowse}}"></success>
+        <error ng-if="errorBrowse" message="{{errorBrowse}}"></error>
+
+    -->
+
+      <div class="or-separation"></div>
+      <div class="row p-tb10">
+        <div class="col-md-6 col-sm-6 col-xs-12" ng-if="!responseData.otherCRM">
+          <div class="h-0-5x darkGray text-left">
+            Not a QuickBook user? Which CRM are you using?
+          </div>
+        </div>
+
+        <div class="col-md-6 col-sm-6 col-xs-12" ng-if="!responseData.otherCRM">
+          <form class="set-chem-form" name="otherCRMForm" ng-submit="sbModel.otherCRM.length > 0 ? saveOtherCRM() : null" novalidate>
+            <div class="crm-number">
+              <input autofocus class="form-control" name="otherCRM" value="" autocomplete="off" ng-model="sbModel.otherCRM" ng-maxlength="100"
+                type="text" required ng-class="{'has-error': otherCRMForm.$submitted && otherCRMForm.otherCRM.$invalid || otherCRMForm.otherCRM.$touched && serviceBridgeSettingForm.otherCRM.$invalid}"
+              />
+              <button class="send-crm" ng-disabled="isProcessing" type="submit">SEND</button>
+
+            </div>
+          </form>
+        </div>
+        <div ng-if="responseData.otherCRM" class="h-0-5x darkGray text-center p-lr20">Thank you for the information! We are working hard to integrate more platforms soon.</div>
+      </div>
+      <error ng-if="error && sbModel.type == 'saveOtherCRM'" message="{{error}}"></error>
+    </div>
+
+  </div>
+  <!--No Customers Found - Service Bridge Section End-->
+
+
+  <div class="dataTables_wrapper customer" ng-show="customerList.length > 0 || searchKey || ifCustomerExists">
+    <div class="search">
+      <span class="search-icon"></span>
+      <input type="search" ng-model="searchKey" placeholder="Search name, address, email or phone" ng-keyup="$event.keyCode == 13 ? doSearchCustomerList($event) : null">
+    </div>
+    <table class="row-border hover no-footer dataTable" width="100%">
+      <thead class="dark-gray-bg">
+        <tr>
+          <th>CUSTOMER</th>
+          <th>ADDRESS</th>
+          <th>PHONE</th>
+          <th>EMAIL</th>
+          <!-- <th style="width:10%!important"> ACTION </th> -->
+        </tr>
+      </thead>
+      <tbody dt-rows ng-repeat="customer in customerList" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{'shown': customer.customerId == selectedCustomerId}">
+        <tr>
+          <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+        </tr>
+        <tr class="even">
+          <td class="customer-name border-top2 border-left2 border-bottom2">
+              <div class="image-radius customer-image name-initial small" style="background-image:url(resources/images/customer-icon.jpg); background-size:cover;">
+                  <!--span>
+                      {{customer.firstName | convertToInitial: customer.lastName}}
+                  </span-->
+              </div>
+            
+            <a id="{{customer.customerId}}" ui-sref="app.customerdetail({addressId: customer.primeaddressId})" title="{{customer.displayName}}">
+              {{customer.displayName}}</a>
+          </td>
+          <td class="border-top2 border-bottom2">
+            <div class="customer-add" id="pool_location_{{customer.customerId}}">
+              <span style="cursor: pointer" ng-if="customer.addressList.length == 1" ui-sref="app.customerdetail({addressId: customer.addressList[0].addressId})">
+                <span>{{customer.addressList[0].address}}
+                  <br>{{customer.addressList[0].city}}, {{customer.addressList[0].state}} {{customer.addressList[0].zipcode}}</span>
+                <!--format-Address address="{{customer.addressList[0].address}}"></format-Address-->
+              </span>
+              <span class="multiple-adds" ng-if="customer.addressList.length > 1" ng-click="showAddressList(customer.addressList, customer.customerId)">
+                <i class="fa fa-map-marker p-r5" aria-hidden="true"></i>{{customer.addressList.length}} Addresses</span>
+            </div>
+          </td>
+          <td class="border-top2 border-bottom2">
+            <div class="customer-add">
+              <a href="tel:{{customer.contactNumber}}" class="underline-none darkGray">
+                <!--phone-Number number="{{customer.contactNumber}}"></phone-Number-->
+                {{customer.contactNumber}}
+              </a>
+            </div>
+          </td>
+          <td class="border-top2 border-right2 border-bottom2">
+            <div class="customer-add">
+              <ng-container ng-if="customer.email && customer.email != 'None'">                  
+                  <a  ng-repeat="email in customer.email | convertToArrayByComma" href="mailto:{{email}}" class="underline-none darkGray">{{email}}</a>
+              </ng-container>
+            </div>
+          </td>
+          <!-- <td > 
+            <a title="Edit" class="underline-none" ng-click="addEditCustomerForm(customer, $index)" href="javascript:void(0)"> Edit </a>
+  
+        </td> -->
+        </tr>
+      
+      </tbody>
+      <tbody ng-if="customerList.length < 1">
+        <tr class="even">
+          <td colspan="4" style="text-align: center;">Sorry, no results found!</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="row">
+      <div class="col-md-4 p-t20">
+          <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite">
+              Showing {{totalRecord > 0 ? showingFrom : 0}} to {{totalRecord >= showingFrom + (limit-1) ? showingFrom + (limit-1) : totalRecord }} of {{totalRecord}} entries </div>
+        </div>
+        <div class="col-md-8">
+            <div class="pagination">
+                <paging page="page" page-size="limit" total="totalRecord" text-first="First" text-last="Last" text-next="Next" text-prev="Prev"
+                  paging-action="goToCustomerPage(page)" show-prev-next="true" show-first-last="true"> </paging>
+              </div>
+          </div>
+        </div>
+
+
+   
+   
+  </div>
+</div>
+<script type="text/ng-template" id="addressList.html">
+  <div class="dataTables_wrapper modal-box">
+    <div class="popup-header">
+      <div class="popup-title">CUSTOMER ADDRESSES</div>
+      <div class="popup-close" ng-click="closeThisDialog('Some value')">
+        <i class="fa fa-times-circle" aria-hidden="true"></i>
+      </div>
+      <div class="search">
+        <span class="search-icon"></span>
+        <input type="search" ng-model="searchAddress" placeholder="Search address">
+      </div>
+    </div>
+    <div class="popup-scroll" id="scrollarea">
+      <table class="row-border hover no-footer dataTable popup-table" width="100%">
+        <tbody dt-rows ng-repeat="address in addressListOnModel | filter:searchAddress.replace('  ', '')">
+          <tr>
+            <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+          </tr>
+          <tr class="even">
+            <td>
+              <div class="customer-add">
+                <span style="cursor: pointer" ng-click="goToDetail(address.addressId,address.isPrimary);">
+                  <span>{{address.address}}
+                    <br>{{address.city}}, {{address.state}} {{address.zipcode}}</span>
+                    <!--format-Address address="{{address.address}}" format="single"></format-Address-->
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="sentReportEmail.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+     <div class="popup-header">
+        <span class="heading">Create Report</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+     </div>  
+     <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+        <div class="detail-box">         
+        <div class="grid text-left box" >         
+           <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+           <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+           <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+           <div class="col-12 sent-email-report-message">
+             Where should we send the report when it's ready? <br> (large reports can take a while)
+           </div>
+           <div class="col-12-12">                 
+              <div class="formGroup">
+                    <label>Email Address</label>
+                    <input 
+                       type="email" 
+                       autocomplete="off" 
+                       class="form-control" 
+                       ng-model="reportPageSentReportEmailModel.email" 
+                       placeholder="Email Address" 
+                       name="emailId" 
+                       ng-maxlength="100" 
+                       ng-minlength="6" 
+                       ng-disabled="reportPageIsReportSending"
+                       ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                       ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                       required                         
+                    />
+              </div>     
+           </div>
+        </div>      
+        <div class="text-center p-t20">
+           <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+           <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+        </div>        
+        </div>
+     </form> 
+  
+  </div>
+  </script>
+<!-- <script type="text/ng-template" id="addCustomerTemplate.html" >
+  <div class="dataTables_wrapper modal-box" style="max-width: 600px;min-height: auto;width: auto;">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+   <div class="popup-header">
+     <div class="fl white">{{customerModel.customerId ? 'Edit' : 'Add'}} Customer</div>
+     <div class="popup-close" ng-click="closeCustomerPopup()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   </div>
+     <div>
+           <form class="form-signin" id="customerModelForm" name="customerModelForm" ng-submit="customerModelFormIsSubmit = true; customerModelForm.$valid && addEditCustomer(customerModel)" novalidate>           
+              <div class="row">
+                <div class="col-md-6">
+                 <input autocomplete="off" class="form-control" name="firstName" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.firstName.$invalid}" ng-maxlength="50" ng-model="customerModel.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+                 <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.firstName.$invalid">First Name should contain letters and numbers only</span> </span>
+                </div>
+
+                <div class="col-md-6">
+                  <input autocomplete="off" class="form-control" name="lastName" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.lastName.$invalid}" ng-maxlength="50" ng-model="customerModel.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+                  <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.lastName.$invalid">Last Name should contain letters and numbers only</span> </span>
+                 </div>
+                           
+               <div class="col-md-6">
+                  <input autocomplete="off" class="form-control" name="contactNumber"
+                  ng-class="{'has-error': customerModelFormIsSubmit && phoneError}" maxLength="12"
+                  ng-model="customerModel.contactNumber" phone-input=""
+                  placeholder="Phone" type="text" />      
+                  <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && phoneError">Please enter valid Phone</span> </span>           
+               </div>
+               <div class="col-md-6">
+                 <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="customerModel.email" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" type="email"/>
+                 <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.email.$invalid">Please enter valid Email</span> </span>
+               </div>
+              </div>
+              <hr />
+              <label class="p-b10" >Addresses <span ng-show="customerModel.addressList && customerModel.addressList.length > 0" class="btn btn-primary button blue-bg add-address-btn fr" ng-click="customerModelFormIsSubmit = false; addNewAddress()" >ADD ADDRESS</span></label>
+              <div class="customerAddressFieldBox">
+                <div class="text-center p-tb10"  ng-show="customerModel.addressList && customerModel.addressList.length == 0"><span class="btn btn-primary button blue-bg add-address-btn" ng-click="customerModelFormIsSubmit = false; addNewAddress()" >ADD ADDRESS</span></div>
+                <div class="row" ng-repeat="addressListPopupModel in customerModel.addressList">
+                  <div class="col-md-1{{customerModel.addressList[$index].addressId ? 2 : 1}}">
+                    <input autocomplete="off" class="form-control" name="address{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['address'+$index].$invalid}" maxlength="150" ng-model="customerModel.addressList[$index].addressLine1"  placeholder="Address" required type="text" />
+                    <span class="has-required p-b10">
+                    <span ng-show="customerModelFormIsSubmit && customerModelForm['address'+$index].$invalid">Please enter Address</span></span>
+                
+                  </div>
+                  <div class="col-md-1" ng-show="!customerModel.addressList[$index].addressId"> <img  ng-click="deleteAddress(customerModel, $index)" class="btn-trash" border="0" src="resources/images/icon-trash.png" /></div>
+                  <div class="col-md-4">
+                    <input autocomplete="off" class="form-control" name="city{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['city'+$index].$invalid}" maxlength="25" ng-model="customerModel.addressList[$index].city"  placeholder="City" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"/>
+                    <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm['city'+$index].$invalid">City should contain letters only</span> 
+                  </span>
+                  </div>             
+                  <div class="col-md-4">
+                      <input autocomplete="off" class="form-control" name="state{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['state'+$index].$invalid}" maxlength="25" ng-model="customerModel.addressList[$index].state"  placeholder="State" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text" /> 
+                      <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm['state'+$index].$invalid">State should contain letters only</span> 
+                     </span>                  
+                  </div>
+                  <div class="col-md-4">
+                    <input autocomplete="off" class="form-control" name="zipcode{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['zipcode'+$index].$invalid}" maxlength="6"  ng-model="customerModel.addressList[$index].zipcode" placeholder="Zipcode" required="" ng-pattern="/^(['0-9']+)$/" only-num="" type="text"/>
+                    <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm['zipcode'+$index].$invalid">Zipcode should contain numbers only</span> 
+                   </span>
+                  </div>               
+                </div>
+              
+              </div>
+              <error message="{{errorCustomerForm}}" ng-if="errorCustomerForm"></error>
+             <success message="{{successCustomerForm}}" ng-if="successCustomerForm"></success>
+             <div class="technicians-button">
+               <button style="position: inherit !important;" id="addCustomerSubmitButton" class="add-button " type="submit">{{customerModel.customerId ? 'Update' : 'Add'}} CUSTOMER</button>
+             </div>
+             
+           </form>
+     </div>
+  </div>
+  </script> -->

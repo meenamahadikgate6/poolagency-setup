@@ -1,0 +1,94 @@
+<div class="pbx-popup pbx-popup-sm">
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            Update Quantity
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <form name="updateQtyForm" ng-submit="itemFormSubmitted = true; updateQtyForm.$valid && updateInventoryItemQty()" novalidate>
+        <div class="pbx-popup-body text-left">         
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <!-- <label class="form-label">New Quantity for {{selectedItemDetails.name}}</label> -->
+                        <div class="inventory-update-qty-form">
+                            <div class="inventory-update-qty-form-left" ng-click="selectedItemDetails.newQty > 0 ? updateQtyDelta('decrement') : ''">
+                                <span>-</span>
+                            </div>
+                            <div class="inventory-update-qty-form-center">
+                                <input 
+                                type="text" 
+                                class="pbx-form-control" 
+                                ng-model="selectedItemDetails.qtyDelta" 
+                                ng-change="updateQtyDelta('qtyDelta')"
+                                allow-typing="^[0-9.+-]+$"
+                                ng-pattern="/^[-+]?[0-9]*\.?[0-9]*$/"
+                                name="qtyDelta"
+                                ng-class="{ 'has-error' : updateQtyForm.qtyDelta.$error.pattern}"
+                                ng-blur="sanitizeDeltaValue()"
+                                >
+                            </div>
+                            <div class="inventory-update-qty-form-right" ng-click="updateQtyDelta('increment');">
+                                <span>+</span>
+                            </div>
+                        </div>
+                        <span class="inventory-update-qty-error" ng-show="itemFormSubmitted && updateQtyForm.qtyDelta.$error.pattern">
+                            Invalid Quantity Delta
+                        </span>
+                    </div>
+                </div>
+            </div>  
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">New Quantity</label>
+                        <input 
+                        type="text" 
+                        class="pbx-form-control" 
+                        ng-model="selectedItemDetails.newQty" 
+                        ng-change="updateQtyDelta('newQty')"
+                        allow-typing="^[0-9.]+$"
+                        ng-pattern="/^(0|([1-9]\d*(\.\d+)?))$/"
+                        name="newQty"
+                        ng-class="{ 'has-error' : itemFormSubmitted && updateQtyForm.newQty.$error.pattern}"
+                        ng-blur="sanitizeNewQty()"
+                        >
+                        <span class="inventory-update-qty-error" ng-show="itemFormSubmitted && updateQtyForm.newQty.$error.pattern">
+                            Invalid Quantity
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Reason</label>
+                        <select class="pbx-form-control">
+                            <option value="">Select Reason</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="pbx-form-control"></textarea>
+                    </div>
+                </div>
+            </div> -->
+            <div class="row">
+                <div class="col-xs-12 error_display">
+                    <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                    <success message="{{successMessage}}" ng-if="successMessage"></success>
+                </div>
+            </div>
+        </div>        
+        <div class="pbx-popup-footer">           
+            <button tabindex="-1" class="pbx-btn" ng-disabled="isProcessing" type="submit">Update</button>
+            <button tabindex="-1" class="pbx-btn" ng-click="closeThisDialog()" type="button">Cancel</button>
+        </div>   
+    </form> 
+</div>

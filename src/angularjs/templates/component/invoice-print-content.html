@@ -1,0 +1,527 @@
+<div class="white-bg text-left p-20 p-relative m-b20 invoice-wrapper add-for-print print-page multi-invoice-print-area" ng-repeat="invoiceDetails in allInvoiceDetails" style="width:7.8in"> 
+    <div class="container-fluid invoice-detail-page darkGray">
+      <div class="envalop-window-wrapper">
+        <div class="row print-top-header" style="display: flex;width:7.8in;">
+          <div class="col-lg-6 company-add company-address-print">
+            <div class="flex">
+              <div ng-if="invoiceDetails.companyDetails.logo">
+                <img style="max-width: 150px!important; max-height:100px; padding-right: 20px;"
+                   src="{{invoiceDetails.companyDetails.logo}}" />
+              </div>
+              <div class="customer">
+                <div class="h-2x print-16x">
+                  {{invoiceDetails.companyDetails.address}}</br>
+                  {{invoiceDetails.companyDetails.city}}, {{invoiceDetails.companyDetails.state}}
+                  {{invoiceDetails.companyDetails.zipCode}}
+                </div>
+                <p class="h-2x print-16x">
+                  <phone-Number ng-if="invoiceDetails.companyDetails.phone"
+                    number="{{invoiceDetails.companyDetails.phone}}"></phone-Number>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="col-md-12">
+              <div class="h-3x text-right">
+                <strong>Invoice #{{invoiceDetails.invoiceNumber}}</strong>
+                <span ng-if="invoiceDetails.qboTxnDate" class="p-l20">{{invoiceDetails.qboTxnDate | date:
+                  'MM/dd/yy'}}</span>
+                <span ng-if="!invoiceDetails.qboTxnDate" class="p-l20">{{invoiceDetails.createdOn | convertDateOffset:
+                  companyTimeZone: 'MM/dd/yy'}}</span>
+              </div>
+            </div>
+            <div class="col-md-12 text-right">
+              <p class="upperCase h-2x darkGray p-t10"><strong>DUE ON {{invoiceDetails.dueDate | convertDateOffset:
+                  companyTimeZone: 'MM/dd/yy'}}</strong></p>
+              <div class="status upperCase {{invoiceDetails.invoiceStatus}}">
+                {{ invoiceDetails.invoiceStatus =='Awaiting Payment'? 'NOT PAID': invoiceDetails.invoiceStatus}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row com-service-address-print">
+          <div class="col-md-6 second-address-bulk-print">
+            <div class="container-fluid">
+              <a href="javascript:void(0)" class="i-title print-clr-dark print-20x">{{invoiceDetails.billingDetails.name}}</a><br>
+              <div class="h-2x print-16x">
+                {{invoiceDetails.billingDetails.address}}</br>
+                {{invoiceDetails.billingDetails.city}}, {{invoiceDetails.billingDetails.state}}
+                {{invoiceDetails.billingDetails.zipCode}}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 service-address-bulk-print">
+              <div ng-repeat="invoice in invoiceDetails.details">
+                <div class="sub-title-custom">Service Address</div>
+                <div class="h-2x print-16x">
+                  {{invoice.serviceAddress.address}}</br>
+                  {{invoice.serviceAddress.city}}, {{invoice.serviceAddress.state}} {{invoice.serviceAddress.zipCode}}
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="row bottom-section" ng-repeat="invoice in invoiceDetails.details">
+        <div class="col-md-12">
+          <table style="font-size: 90%;width: 100%">
+            <tr>
+              <td style="vertical-align: top;">
+                <div class="row" ng-if="invoiceDetails.invoiceType != 'Manual' && invoiceDetails.invoiceType != 'OneOffJob'">
+                  <div class="col-md-2 col-xs-12">
+                    <div class="sub-title-date p-t0 p-l0 invoice-service-date-title">Service Date</div>
+                  </div>
+                </div>
+                <div class="row" ng-if="invoiceDetails.invoiceType != 'Manual'" >
+                  <div class="col-md-3 m-b20">
+                    <div ng-repeat="waterBody in invoice.serviceDetails">
+                      <div ng-if="waterBody.customerPayType == 'Per Visit'" class="print-18x"
+                        ng-repeat="job in waterBody.jobDetails" ng-init="uniqueDatePrint(job,invoiceDetails)">
+                        <div class="invoice-service-date-text invoice-service-date-text-print-position" ng-if="$parent.$parent.$last && $parent.$last && $parent.$parent.$parent.$first"
+                          ng-repeat="date in jobArrayObj[invoiceDetails.invoiceNumber] track by $index">
+                          <span ng-class="{'invoice-date-shown': IsVisible, 'invoice-date-hidden': !IsVisible }">{{date | date: 'MM/dd/yy' }} </span>
+                          </div>
+                      </div>
+                      <div class="nowrap invoice-service-date-text"
+                        ng-if="((waterBody.customerPayType == 'Monthly Flat Rate' && invoiceDetails.invoiceTo && invoiceDetails.invoiceFrom) || (waterBody.jobDetails.length == 0 && invoice.serviceTotalAmount.totalAmount == 0 )) && $index==0"
+                        class="print-18x">
+                        <div ng-if="waterBody.jobDetails.length == 0"
+                          ng-hide="invoiceDetails.invoiceFrom && invoiceDetails.invoiceTo">No route stops from </div>
+                        <span ng-class="{'invoice-date-shown': IsVisible, 'invoice-date-hidden': !IsVisible }"> {{invoiceDetails.invoiceFrom | date: 'MM/dd/yy' }} - {{invoiceDetails.invoiceTo | date: 'MM/dd/yy' }} </span>
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+                <div class="row m-t20">
+                  <div class="col-md-3 m-b20 invoice-service-date-text">
+                    <div class="sub-title-custom" ng-if="invoiceDetails.invoiceType == 'Manual'">Service Date </div>
+                    <span ng-if="invoiceDetails.invoiceType == 'Manual'"
+                      style="position: absolute; top: 33px;" ng-class="{'invoice-date-shown': IsVisible, 'invoice-date-hidden': !IsVisible }">{{invoiceDetails.createdOn | convertDateOffset: companyTimeZone:
+                      'MM/dd/yy'}}</span>
+                    <span ng-if="invoiceDetails.invoiceType == 'OneOffJob'" style="top: -42px;position: relative;">
+                      <span ng-show="invoice.serviceDetails[0].jobDetails[0].jobDate">
+                        <div class="sub-title-date  p-t0 p-l0">Service Date</div>
+                        <span ng-class="{'invoice-date-shown': IsVisible, 'invoice-date-hidden': !IsVisible }">{{ invoice.serviceDetails[0].jobDetails[0].jobDate | date: 'MM/dd/yy' }} </span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td style="vertical-align: top;">
+                <div class="col-md-12">          
+                  <!-- <div class="row m-t20">
+                    <div class="col-md-12">
+                      <div class="row">
+                        <div class="col-md-2 col-xs-12 m-b20">
+                          &nbsp;
+                        </div>
+                        <div class="col-md-4 col-xs-12 m-b20 text-center">
+                          QTY
+                        </div>
+                        <div class="col-md-2 col-xs-12 m-b20 text-center">
+                          PRICE
+                        </div>
+                        <div class="col-md-2 col-xs-12 m-b20 text-right">
+                          AMOUNT
+                        </div>
+                      </div>
+                    </div>
+                  </div> -->
+                  <div class="row">
+                      <div class="grey-box invoice-box">
+                        <div class="product-services-list">
+                          <div ng-repeat="lineItem in invoice.lineData" class="edit-invoice"
+                            ng-hide="!IsTextFieldVisible[$index] && lineItem.qty==0 && (lineItem.title && lineItem.title.toLowerCase().indexOf('late fee') == -1)">
+                            <div ng-if="$index==0">
+                              <div class="row row-page-break-inside">                                  
+                                  <div class="col-md-4 title-invoice">
+                                    &nbsp;
+                                  </div>
+                                  <div class="col-md-2 text-center">
+                                    <span style="display: inline-block;margin-bottom: 15px;">
+                                    QTY
+                                    </span>
+                                  </div>
+                                  <div class="col-md-2 text-center">
+                                    <span style="display: inline-block;margin-bottom: 15px;">
+                                    PRICE
+                                    </span>
+                                  </div>
+                                  <div class="col-md-2 text-center">
+                                    <span style="display: inline-block;margin-bottom: 15px;">
+                                    AMOUNT
+                                    </span>
+                                  </div>
+                              </div>
+                              <div ng-if="lineItem.bundleItemReference">
+                                <div class="product-services-list table-two">
+                                  <div ng-repeat="bundleItem in lineItem.bundleItemReference">
+                                        <div class="row row-page-break-inside">
+                                          <div class="col-md-2 empty-column">
+                                            &nbsp;
+                                          </div>
+                                          <div class="col-md-4">
+                                            <h3 class="bundleItem-title" style="margin-left: 5px;font-size: 17px;">{{bundleItem.title}}</h3>
+                                            <p class="bundleItem-content" style="margin-left: 2px;"
+                                              ng-hide="IsBunddleVisible[$parent.$parent.$index][$index]">
+                                              {{bundleItem.description}}</span>
+                                          </div>
+                                          <div class="col-md-2 text-center">
+                                            <span ng-if="lineItem.bundleItemReference"
+                                              ng-hide="IsTextFieldVisible[$parent.$parent.$index]">{{
+                                              qtyDecimalConverter(bundleItem.qty) }}</span>
+                                          </div>
+                                          <div class="col-md-2 text-center">
+                                            <span ng-hide="lineItem.showIndividualPrice == 0">{{ currencyTrimmer(bundleItem.unitPrice) | currency}}</span>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                          <span ng-hide="lineItem.showIndividualPrice == 0">{{ currencyTrimmer(bundleItem.amount) | currency}}</span>
+                                        </div>
+                                        </div>
+                                  </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div>
+                              <div class="row row-page-break-inside">
+                                  <!-- <div class="col-md-2 empty-column">
+                                     pppp
+                                   </div> -->
+                                  <div class="col-md-4 title-invoice">
+                                    <p class="install-invoice" style="font-size: 17px;">
+                                      {{getLineItemTitleFormatted(lineItem.title)}}
+                                    </p>
+                                    <p>
+                                      {{lineItem.description}}
+                                    </p>
+                                  </div>
+                                  <div class="col-md-2 text-center">
+                                    <div ng-hide="IsTextFieldVisible[$index] || lineItem.qty == 0" ng-model="lineItem.qty"> {{
+                                      qtyDecimalConverter(lineItem.qty) }}</div>
+                                  </div>
+                                  <div class="col-md-2 text-center">
+                                    <span ng-hide="IsTextFieldVisible[$index]" ng-model="lineItem.unitPrice">{{
+                                      currencyTrimmer(lineItem.unitPrice) | currency}}</span>
+                                  </div>
+                                  <div class="col-md-2 text-center" ng-hide="lineUnitPrice[$index]">
+                                    {{ currencyTrimmer(lineItem.amount) | currency}}
+                                  </div>
+                                  <div class="col-md-2 text-center" ng-show="lineUnitPrice[$index]">
+                                    {{ currencyTrimmer(lineUnitPrice[$index]) | currency}}
+                                  </div>
+                              </div>
+                              <div ng-if="lineItem.bundleItemReference">
+                                <div class="product-services-list table-two">
+                                  <div ng-repeat="bundleItem in lineItem.bundleItemReference">
+                                        <div class="row row-page-break-inside">
+                                          <div class="col-md-2 empty-column">
+                                            &nbsp;
+                                          </div>
+                                          <div class="col-md-4">
+                                            <h3 class="bundleItem-title" style="margin-left: 5px;">{{bundleItem.title}}</h3>
+                                            <p class="bundleItem-content" style="margin-left: 2px;"
+                                              ng-hide="IsBunddleVisible[$parent.$parent.$index][$index]">
+                                              {{bundleItem.description}}</span>
+                                          </div>
+                                          <div class="col-md-2 text-center">
+                                            <span ng-if="lineItem.bundleItemReference"
+                                              ng-hide="IsTextFieldVisible[$parent.$parent.$index]">{{
+                                              qtyDecimalConverter(bundleItem.qty) }}</span>
+                                          </div>
+                                          <div class="col-md-2 text-center">
+                                            <span ng-hide="lineItem.showIndividualPrice == 0">{{ currencyTrimmer(bundleItem.unitPrice) | currency}}</span>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                          <span ng-hide="lineItem.showIndividualPrice == 0">{{ currencyTrimmer(bundleItem.amount) | currency}}</span>
+                                        </div>
+                                        </div>
+                                  </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="row row-page-break-inside m-b20">
+                              <!-- <div class="col-md-2 empty-column">
+                                &nbsp;
+                              </div> -->
+                              <div class="col-md-12" style="padding-left: 30px;">
+                                <hr style="margin: 0;">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        
+      </div>
+  
+      <div class="col-md-12 m-t20" ng-if="invoiceDetails.details.length == 1 && invoiceDetails.subTotalAmount >=0">
+        <div class="row">
+          <div class="col-md-6">
+            &nbsp;
+          </div>
+          <div class="col-md-3">
+            <div class="h-2x print-20x"><strong>Subtotal</strong></div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-right h-2x print-20x" ng-if="!isProcessing && !isTotalProcessing">{{
+              currencyTrimmer(invoiceDetails.subTotalAmount) | currency}}</div>
+          </div>
+        </div>
+        <div class="row m-t20">
+          <div class="col-md-6">
+            &nbsp;
+          </div>
+          <div class="col-md-3">
+            <div class="h-2x print-20x"><small><strong>Taxable Subtotal</strong></small></div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-right h-2x print-20x" ng-if="!isProcessing && !isTotalProcessing"><small>{{
+                currencyTrimmer(invoiceDetails.details[0].taxableSubtotalAmount ?
+                invoiceDetails.details[0].taxableSubtotalAmount : 0) | currency}}</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 m-t20" ng-if="invoiceDetails.details.length == 1">
+        <div class="row">
+          <div class="col-md-6">
+            &nbsp;
+          </div>
+          <div class="col-md-3">
+            <div class="row">
+              <div class="col-md-12 h-2x print-20x"><strong>Discount</strong>
+                <div class="h-12x" ng-if="invoiceDetails.discountTitle !=''">{{invoiceDetails.discountTitle}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 discount-td">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="discount-editer" ng-if="invoiceEditable && customerDiscountData.discountDataShow">
+                  <input class="form-control small-input input-number discount-value" mgminmax-validator type="number"
+                    name="discount-value" ng-min="0" ng-model="customerDiscountData.discountValue"
+                    ng-max="customerDiscountData.dtype == '%' ? 100 : 9999999" required ng-change="discountValueChange()"
+                    allow-typing="^[0-9. ]+$" ng-keypress="saveDiscountByInput($event)" allowinputonlytwodecimal />
+                  <div class="dropdown select-wrap label-dropdown discount-type">
+                    <button class="btn btn-primary dropdown-toggle no-elipsis" type="button" data-toggle="dropdown">
+                      <b>{{customerDiscountData.dtype}}</b>
+                      <span class="caret"></span></button>
+                    <ul class="dropdown-menu scrollable-menu">
+                      <li ng-click="updateDiscountType('%')" ng-if="customerDiscountData.dtype!='%'"><a
+                          href="javascript:void(0)">%</a></li>
+                      <li ng-click="updateDiscountType('$')" ng-if="customerDiscountData.dtype!='$'"><a
+                          href="javascript:void(0)">$</a></li>
+                    </ul>
+                  </div>
+                  <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">
+                    <div ng-if="errorMsg">{{errorMsg}}"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-right h-2x">
+                  <div ng-class="{'clr-red':invoiceDetails.discountValue }"
+                    ng-if="!isProcessing && !isTotalProcessing && invoiceDetails.discountTitle!=''">
+                    {{invoiceDetails.discountValue>0 ? '-':''}}{{ currencyTrimmer(invoiceDetails.discountValue) |
+                    currency}}</div>
+                  <div ng-if="!invoiceEditable && invoiceDetails.discountTitle==''">{{0 | currency}}</div>
+                  <!-- <div ng-if="invoiceEditable && invoiceDetails.discountTitle!='' && invoiceDetails.discountValue == 0">{{0 | currency}}</div> -->
+                  <div
+                    ng-if="invoiceEditable && invoiceDetails.discountTitle=='' && !customerDiscountData.discountDataShow">
+                    <div class="add-for-print print-20x">{{0 | currency}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <error ng-if="errorDiscount" message="{{errorDiscount}}"></error>
+        <div class="col-md-12 m-tb20" ng-if="invoiceDetails.details.length == 1">
+          <div class="message-absolute discount-error" ng-if="customerTaxData.errorMsg">
+            <error message="{{customerTaxData.errorMsg}}"></error>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              &nbsp;
+            </div>
+            <div class="col-md-3">
+              <div class="h-2x print-20x"><strong>Tax</strong>
+                <div>
+                  <div ng-if="invoiceDetails.taxTitle != ''" class="h-12x">{{invoiceDetails.taxTitle}} <span
+                      ng-if="invoiceDetails.taxPercentValue !='' && invoiceDetails.taxTitle.indexOf('%') === -1">
+                      ({{invoiceDetails.taxPercentValue}}%) </span>
+                  </div>
+                  <div class="h-12x" ng-if="invoiceDetails.qbTaxChange == 1">
+                    <span style="color:red"> tax rate changed by QBO
+                      <a target="_blank" class="icon-required customer-subdomain-help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="color:rgb(0, 204, 255);margin-left: 2px;width: 14px;height: 14px;
+                                            margin-bottom: 1px;" fill="currentColor" class="bi bi-question-circle"
+                          viewBox="0 0 16 16" class="has-sync-error">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                          <path
+                            d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z" />
+                        </svg>
+                        <span style="right: -96px;">Quickbooks Online has changed the tax rate for this invoice to
+                          something different than you created it as. To learn more about why this happens and how to
+                          resolve it, <b ng-click="taxRateHelp()" style="text-decoration: underline;cursor: pointer">CLICK
+                            HERE</b></span>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+  
+              </div>
+            </div>
+            <div class="col-md-3" style="padding-right: 0;">
+              <div
+                ng-if="invoiceEditable && !isProcessing && !isTotalProcessing && invoiceDetails.taxValue==0 && invoiceDetails.taxTitle == ''"
+                class="text-right h-2x">
+              </div>
+              <div ng-if="!invoiceEditable && invoiceDetails.taxValue==0" class="text-right h-2x print-20x">{{0 |
+                currency}}</div>
+              <div ng-if="!isProcessing && !isTotalProcessing && invoiceDetails.taxValue>0"
+                class="text-right h-2x print-20x">{{ currencyTrimmer(invoiceDetails.taxValue) | currency}}</div>
+              <div
+                ng-if="!isProcessing && !isTotalProcessing && invoiceEditable && invoiceDetails.taxValue == 0 && invoiceDetails.taxTitle != ''"
+                class="text-right h-2x">{{0 | currency}}</div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="{{invoiceDetails.details.length > 1 ? 'subtotal-box' :'m-t40' }}">
+          <div class="row flex align-items-bottom">
+            <div class="col-md-6"> </div>
+            <div class="col-md-6 h-2x print-22x {{invoiceDetails.details.length > 1 ? 'd-small-text' :'' }}">
+              <div class="row">
+                <div class="col-xs-8"><span
+                    class=" print-22x  print-bold {{invoiceDetails.details.length == 1 ? 'bb' :'' }}">{{invoiceDetails.details.length
+                    > 1 ? 'Subtotal' : 'TOTAL'}}</span></div>
+                <div class="col-xs-4 text-right"><strong class="darkGray print-22x "
+                    ng-hide="isTotalProcessing  || isProcessing"> <span ng-if="invoiceDetails.details.length == 1">{{
+                      currencyTrimmer(invoiceDetails.totalAmount) | currency}}</span> <span
+                      ng-if="invoiceDetails.details.length > 1">{{ currencyTrimmer(invoice.serviceTotalAmount.totalAmount)
+                      | currency}}</span></strong> </div>
+              </div>
+              <div class="row print-20x print-bold" ng-if="invoiceDetails.details.length == 1">
+                <div class="col-xs-8 print-22x">BALANCE DUE</div>
+                <div class="col-xs-4 print-22x text-right"> <span ng-hide="isTotalProcessing || isProcessing">{{
+                    currencyTrimmer(invoiceDetails.balanceDue) | currency}}</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 text-left m-t20">
+              <ng-container ng-if="invoiceDetails.details.length == 1">
+                <strong>Notes</strong>
+                <p class="add-for-print print-notes print-notes-no-auth"> {{invoiceDetails.invoiceNotes}}</p>
+  
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="col-md-12 m-tb20" ng-if="invoiceDetails.details.length > 1 && invoiceDetails.subTotalAmount">
+          <div class="row">
+            <div class="col-md-6">
+              &nbsp;
+            </div>
+            <div class="col-md-3">
+              <div class="h-2x print-20x"><strong>Subtotal</strong></div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-right h-2x print-20x">{{ currencyTrimmer(invoiceDetails.subTotalAmount) | currency}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-12 m-t20" ng-if="invoiceDetails.details.length > 1">
+          <div class="message-absolute discount-error" ng-if="customerDiscountData.errorMsg">
+            <error message="{{customerDiscountData.errorMsg}}"></error>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              &nbsp;
+            </div>
+            <div class="col-md-3">
+              <div class="row">
+                <div class="col-md-12 h-2x print-20x"><strong>Discount</strong> <span class="h-2x text-muted"
+                    ng-if="customerDiscountData.discountDataUpdated && (customerDiscountData.dtype=='%' || invoiceDetails.discountTitle.charAt(0)!='$')">{{invoiceDetails.discountTitle}}</span>
+                </div>
+  
+              </div>
+            </div>
+            <div class="col-md-3 discount-td">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="discount-editer"
+                    ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated && customerDiscountData.addDiscountButton">
+                    <input class="form-control small-input input-number discount-value" mgminmax-validator type="number"
+                      name="discount-value" ng-min="0" ng-model="customerDiscountData.discountValue"
+                      ng-max="customerDiscountData.dtype == '%' ? 100 : 9999999" required
+                      ng-class="{'has-error':customerDiscountData.errorMsg }" ng-change="discountValueChange()"
+                      allow-typing="^[0-9. ]+$" ng-keypress="saveDiscountByInput($event)" allowinputonlytwodecimal />
+                    <error ng-if="errorDiscount" message="{{errorDiscount}}"></error>
+                    <div class="dropdown select-wrap label-dropdown discount-type">
+                      <button class="btn btn-primary dropdown-toggle no-elipsis" type="button" data-toggle="dropdown">
+                        <b>{{customerDiscountData.dtype}}</b>
+                        <span class="caret"></span></button>
+                      <ul class="dropdown-menu scrollable-menu">
+                        <li ng-click="updateDiscountType('%')" ng-if="customerDiscountData.dtype!='%'"><a
+                            href="javascript:void(0)">%</a></li>
+                        <li ng-click="updateDiscountType('$')" ng-if="customerDiscountData.dtype!='$'"><a
+                            href="javascript:void(0)">$</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="text-right h-2x">
+                    <div class="clr-red" ng-if="customerDiscountData.discountDataUpdated"> -{{
+                      currencyTrimmer(invoiceDetails.discountValue) | currency}}</div>
+                    <div class="clr-red"
+                      ng-if="!customerDiscountData.discountDataUpdated && !customerDiscountData.addDiscountButton"> -{{
+                      currencyTrimmer(invoiceDetails.discountValue) | currency}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 m-tb20"
+          ng-if="invoiceDetails.details.length > 1 && customerTaxData.taxSettingArray.length > 0">
+          <div class="row">
+            <div class="col-md-6">
+              &nbsp;
+            </div>
+            <div class="col-md-3">
+              <div class="h-2x print-20x"><strong>Tax</strong>
+                <div ng-if="invoiceDetails.taxValue>0 && invoiceDetails.taxTitle == ''">
+                  <div class="h-12x">{{invoiceDetails.taxTitle}}</div>
+                </div>
+  
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div ng-if="invoiceDetails.taxValue>0" class="text-right h-2x">{{ currencyTrimmer(invoiceDetails.taxValue) |
+                currency}}</div>
+              <div ng-if="!invoiceDetails.taxValue && !customerTaxData.addTaxButton" class="text-right h-2x">{{0 |
+                currency}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<style>
+  @media print {
+    #content {display: flex;}
+  }
+</style>

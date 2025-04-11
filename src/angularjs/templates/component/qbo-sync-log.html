@@ -1,0 +1,124 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="dataTables_wrapper customer" style="padding:5px" >
+      <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+      <error message="{{error3}}" ng-if="error3"></error>
+
+      <div class="popup-header">
+          <div class="h-1-5x white row">
+            <div class="col-md-4">Quickbooks online sync activity</div>
+            <div class="col-md-4 text-center">{{customerName}}</div>
+            <div class="col-md-4">
+                <div class="popup-header-right-btns">
+                    <span ng-if="qbConnectedNow" class="link-cust--popup-icon"  ng-click="openLinkCustomerPopup()">
+                        <img src="/resources/images/link-icon.png" alt="">
+                    </span>
+                    <div class="popup-close" ng-click="closeThisDialog()">
+                        <i class="fa fa-times-circle" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div> 
+        </div>          
+      </div>
+      <div class="list-box" style="max-height:70vh;" id="scrollarea">
+        <table class="row-border hover no-footer dataTable" width="100%">
+            <thead>
+                <tr>
+                    <th style="width:10% !important">Direction</th>
+                    <th style="width:15% !important">Type</th>
+                    <th style="width:15% !important"> Date </th>
+                    <th style="width:10% !important"> Action </th>
+                    <th style="width:15% !important; min-width: 80px;">Status</th>
+                    <th style="width:25% !important"> Details </th>
+                </tr>
+            </thead>
+            <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="auditLog in auditLogList track by $index">
+                <tr>
+                    <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                </tr>
+                <tr class="even">
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add"><div class="log-image {{auditLog.processDirection}}"></div> </div>
+                    </td>
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add">{{auditLog.processType=='Customer_address'?'Customer address':auditLog.processType=='refundReceipt'?'Refund':auditLog.processType}} </div>
+                    </td>
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add">
+                         {{auditLog.createTime | date:"MM/dd/yyyy hh:mm:ss a"}}
+                        </div>
+                    </td>
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add">
+                         <strong>{{auditLog.action=='Insert'?'Added':auditLog.action=='Update'?'Updated':auditLog.action}}</strong>
+                        </div>
+                    </td>
+                    <td class="border-top2 border-bottom2">
+                        <div class="audit-status-success" ng-if="auditLog.status=='1'">
+                            <i class="fa fa-check-circle" aria-hidden="true"></i>Success
+                        </div>
+                        <div class="audit-status-failed" ng-if="auditLog.status!='1'">
+                            <a style="margin: 6px 0px 0 10px; color: #ff0000;"  href="javascript:void(0)" class="icon-required customer-subdomain-help" ng-if="payaData.status==0 || !payaData.status">
+                                <i class="fa fa-times-circle"></i>Failed
+                                <span style="right: -109px; width: 242px; font-size: 14px; background-color: #ff0000;">{{auditLog.response}}</span>
+                              </a>
+                            
+                        </div>
+                    </td>
+
+                    <td class="border-top2 border-bottom2" ng-if="auditLog.status=='1'" style="overflow-wrap: anywhere;">
+                        <div ng-if="auditLog.processType=='Customer'">
+                            <div ng-if="auditLog.action=='Insert'">
+                               <div> <span class="b">Added</span> {{parseAddressLog(auditLog.log)}}</div>
+                            </div>
+                            <div ng-if="auditLog.action=='Update'">                                
+                                <p ng-bind-html="getHContent(parseLog(auditLog.log))"></p>                                
+                             </div>
+                        </div>
+                        <div ng-if="auditLog.processType=='Customer_address'">
+                            <div ng-if="auditLog.action=='Insert'">
+                                <span class="b">Added</span> {{parseAddressLog(auditLog.log)}}
+                            </div>
+                            <div ng-if="auditLog.action=='Update'">                                                                
+                                <p ng-bind-html="getHContent(parseLog(auditLog.log))"></p>                                
+                             </div>
+                        </div>
+                        <div ng-if="auditLog.processType=='Payment' || auditLog.processType=='Account Credit' ||  auditLog.processType=='Invoice'">
+                            <div ng-if="auditLog.action=='Insert'">
+                                <span class="b">Added</span> {{auditLog.log}}
+                            </div>
+                            <div ng-if="auditLog.action!='Insert'">
+                                <span class="b">{{auditLog.action=='Update'?'Updated':auditLog.action}}</span> {{auditLog.log}}
+                            </div>
+                        </div>
+                        <div ng-if="auditLog.processType=='refundReceipt'">
+                            <div>
+                                 {{auditLog.log}}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="border-top2 border-bottom2" ng-if="auditLog.status!='1'" style="overflow-wrap: anywhere;">
+                        <div class="customer-add">
+                            {{auditLog.response}}
+                           </div>
+                    </td>
+
+                    
+                    <!-- <td class="border-top2 border-right2 border-bottom2">
+                        <div class="customer-add">
+                            <a title="{{auditLog.email}}" class="underline-none darkGray" href="mailto:{{auditLog.email}}"> {{auditLog.email}} </a>
+                        </div>
+                    </td> -->
+
+                </tr>
+
+            </tbody>
+            <tbody ng-if="auditLogList.length < 1">
+                <tr class="even">
+                    <td colspan="6" style="text-align: center;">No sync activity for this customer.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+  </div>
+
+</div>

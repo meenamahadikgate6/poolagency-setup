@@ -1,0 +1,158 @@
+<div class="pbx-popup">
+  <form name="addEditTruckToolForm" ng-submit="formSubmitted = true; addEditTruckToolForm.$valid && updateVehicle()" novalidate>
+	<div class="pbx-popup-header">
+		<div class="pbx-popup-header-title">Edit vehicle</div>
+		<div class="pbx-popup-header-close">
+			<i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+		</div>
+	</div>
+	<div class="pbx-popup-body">
+		<div class="spinner" ng-if="isTruckProcessing">
+			<div class="spinner-item">
+			  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 col-sm-6">
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="form-label">Vehicle Name</label>
+							<input ng-model="model.name" type="text" class="pbx-form-control" name="name" id="name" required="" maxlength="50" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.name.$invalid }" ng-blur="blurTechSaveForm('name')" />
+							<span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.name.$invalid">
+								<span ng-show="addEditTruckToolForm.name.$error.required">Truck Name is required</span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">Make</label>
+							<input ng-model="model.make" type="text" name="make" id="make" class="pbx-form-control" maxlength="15" ng-blur="blurTechSaveForm('make')" >
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">Model</label>
+							<input ng-model="model.model" type="text" name="model" id="model" maxlength="15" class="pbx-form-control" ng-blur="blurTechSaveForm('model')" >
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">Year</label>
+							<input ng-model="model.year" type="text" name="year" id="year" class="pbx-form-control" maxlength="4" ng-blur="blurTechSaveForm('year')" >
+							<!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.year.$invalid">
+								ng-minlength="4" ng-maxlength="4" allow-typing="^[0-9]+$" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.year.$invalid }"
+								<span ng-show="formSubmitted && addEditTruckToolForm.year.$error.pattern">Year should be valid.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.year.$error.minlength">Year should be in 4 digits.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.year.$error.maxlength">Year should be in 4 digits.</span>
+							</span> -->
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">Color</label>
+							<input ng-model="model.color" type="text" name="color" id="color" class="pbx-form-control" maxlength="15" ng-blur="blurTechSaveForm('color')" >
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">License Plate</label>
+							<input ng-model="model.licensePlate" type="text" name="licensePlate" id="licensePlate" class="pbx-form-control" maxlength="8" ng-blur="blurTechSaveForm('licensePlate')" >
+							<!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.licensePlate.$invalid">
+								ng-minlength="5" ng-maxlength="10" required="" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.licensePlate.$invalid }"
+								<span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.required">License plate is required.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.minlength">License plate should be minimum 5 digits.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.maxlength">License plate should be maximum 10 digits.</span>
+							</span> -->
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<div class="form-group">
+							<label class="form-label">VIN</label>
+							<input ng-model="model.vin" type="text" name="vin" id="vin" class="pbx-form-control" maxlength="17" ng-blur="blurTechSaveForm('vin')" >
+							<!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.vin.$invalid">
+								ng-minlength="10" ng-maxlength="20" required="" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.vin.$invalid }"
+								<span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.required">VIN is required.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.minlength">VIN should be minimum 10 digits.</span>
+								<span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.maxlength">VIN should be maximum 20 digits.</span>
+							</span> -->
+						</div>
+					</div>
+				</div>   
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="form-label">Notes</label>
+							<textarea ng-model="model.notes" name="notes" id="nodes" class="pbx-form-control" maxlength="3000" ng-blur="blurTechSaveForm('notes')" ></textarea>
+						</div>
+					</div>
+					<div class="col-xs-12 error_display">
+						<error message="{{errorMessage}}" ng-if="errorMessage"></error>
+						<success message="{{successMessage}}" ng-if="successMessage"></success>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6">      
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="form-label">Photos</label>
+							<div class="truck-photo-area">
+								<div class="tuck-cover-photo">
+									<img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto==1" ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)" />
+								</div>
+								<div class="tuck-photo-list">
+									<div class="truck-photo-list-item" ng-repeat="img in model.images track by $index" ng-if="img.status == 1">
+										<span class="delete-truck-photo-icon" ng-click="deleteVehicleImage(img)">
+											<i class="fa fa-trash"></i>
+										</span>
+										<span class="set-as-link" ng-if="img.isCoverPhoto==0" ng-click="setVehicleCover(model.images, img)">Set as cover</span>
+										<img ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)">
+									</div>                                            
+									<div class="truck-photo-list-item" ng-if="!model.images || model.images.length < 8">
+										<div class="truck-photo-list-add">
+											<label class="uploader-ui" ng-class="{ 'uploading' : truckImageProcessing[imageIndex] }"  title="Attach Image">
+												<input type="file" id="file" name="file" ng-disabled="imageProcessing" accept="image/png, image/jpeg, image/jpg" onchange="angular.element(this).scope().techPageInputChange(event)" />
+												<span class="image-add-icon"></span>
+												<span class="upload-processing"></span>
+											</label>    
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="form-label">Assigned To:</label>
+							<div>
+								<span class="technician-card clickable" ng-click="openTechnicianPopup()">
+									<span class="technician-card-photo lg">
+										<div ng-if="!model.assignedTechName" class="image-radius name-initial">
+											<i class="fa fa-user-circle assign-tech"></i>
+										</div>
+										<div ng-if="model.assignedTechName" class="image-radius name-initial" style="background-image:url('{{model.assignedTechImage}}');">
+											<span ng-show="!model.assignedTechImage" style="line-height: 33px;">
+												{{(model.assignedTechName) ? (model.assignedTechName | convertToInitial: model.assignedTechName.split(' ')[1]) : 'N'}}
+											</span>
+										</div>
+									</span>
+									<span class="technician-card-title">
+										{{(model.assignedTechName) ? model.assignedTechName : 'None'}}
+									</span>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>  
+			</div> 
+		</div>
+	</div>
+  </form>
+</div>

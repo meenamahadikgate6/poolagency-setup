@@ -1,0 +1,709 @@
+ <div class="white-bg text-left p-20 p-relative m-b20 invoice-wrapper" style="min-height:800px;" ng-init="getCustomerDetails()">
+    <div class="container-fluid invoice-detail-page darkGray">
+        
+        <div class="envalop-window-wrapper">
+            <div class="row add-for-print print-top-header">
+                <div class="col-md-6 company-add">
+                    <div class="flex">
+                        <div ng-if="invoiceDetails.companyDetails.logo">
+                            <img style="max-width: 150px!important; max-height:100px; padding-right: 20px;" src="{{invoiceDetails.companyDetails.logo}}" />
+                        </div>                   
+                        <div class="customer">
+                        
+                            <div class="h-2x print-16x">
+                                {{invoiceDetails.companyDetails.address}}</br>
+                                {{invoiceDetails.companyDetails.city}}, {{invoiceDetails.companyDetails.state}} {{invoiceDetails.companyDetails.zipCode}}
+                            </div>
+                            <p class="h-2x print-16x">
+                                <phone-Number ng-if="invoiceDetails.companyDetails.phone" number="{{invoiceDetails.companyDetails.phone}}"></phone-Number>                      
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="col-md-12">  
+                        <div class="h-3x text-right">
+                            <strong>Invoice #{{invoiceDetails.invoiceNumber}}</strong> 
+                           <span class="p-l20">{{invoiceDetails.createdOn | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</span>                
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-right">  
+                        <p class="upperCase h-2x darkGray p-t10"><strong>DUE ON {{invoiceDetails.dueDate | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</strong></p>
+                        <div class="status upperCase {{invoiceDetails.invoiceStatus}}">
+                            {{invoiceDetails.invoiceStatus}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row top-section">
+                <div class="col-md-1 add-for-print"><br/><br/></div>
+                <div class="col-md-5">                               
+                    <div class="customer remove-for-print ">
+                        <a href="{{'/app/locationdetail/' }}{{customerDetails.customer.addressId}}" class="i-title print-clr-dark print-22x remove-for-print">{{customerDetails.customer.firstName}} {{customerDetails.customer.lastName}}</a>
+                        <div class="h-2x print-16x">
+                            {{customerDetails.customer.address}}</br>
+                            {{customerDetails.customer.city}}, {{customerDetails.customer.state}} {{customerDetails.customer.zipCode}}
+                        </div>
+                        <p class="h-0-5x remove-for-print">
+                            <span ng-if="customerDetails.customer.contactNumber">
+                            <phone-Number number="{{customerDetails.customer.contactNumber}}"></phone-Number><br /></span>
+                            <span  ng-if="customerDetails.customer.email">{{customerDetails.customer.email}}</span>
+                        </p>
+                    </div>                
+                </div>
+                <div class="col-md-1 add-for-print"></div>
+                <div class="col-md-7 remove-for-print">
+                    <div class="row">
+                        <div class="col-md-5 text-center flex ">
+                            <div class="m-r20">
+                                <span ng-class="{'viewed-on sent-on': }">
+                                    <i ng-click="showEmailInvoicePopup()" class="fa fa-envelope icon-large pointer light-blue"></i>      
+                                    <div ng-if="sentOnData.length > 0" class="h-12x">  
+                                            Sent {{date | convertDateOffset: companyTimeZone: 'MM/dd/yy' }}
+                                    </div>
+                                    <div ng-if="sentOnData.length == 0" class="h-12x"  >
+                                        Not Sent 
+                                    </div>
+                                    <div class="e-tooltip" >
+                                        <strong>EMAIL SENT</strong> 
+                                        <div ng-repeat="data in sentOnData" class="m-b5">                                        
+                                            <div ><span ng-if="data.userName !== null">{{data.userName}}</span><span ng-if="data.userName === null">Automated</span> - <span class="lowerCase">{{data.sentOn | convertDateOffset: companyTimeZone: 'MM/dd/yy - h:mm a'}}</span></div>                                           
+                                            <div class="break-word" ng-if="data.email">({{data.email}})</div>                
+                                        </div>
+                                    </div> 
+                                </span>
+                            </div>
+                            <div >
+                                <span ng-if="viewedOnData.length > 0" class="viewed-on">
+                                    <i class="fa fa-eye icon-large pointer light-blue"></i>
+                                    <div class="h-12x">                                  
+                                        Viewed {{viewedOnData[0].viewedOn | convertDateOffset: companyTimeZone: 'MM/dd/yy' }}
+                                    </div> 
+                                    <div class="e-tooltip">
+                                        <strong>CUSTOMER VIEWED</strong> 
+                                        <div ng-repeat="data in viewedOnData" class="lowerCase">{{data.viewedOn |  convertDateOffset: companyTimeZone: 'MM/dd/yy - h:mm a' }}</div>
+                                    </div> 
+                                </span>
+                                <span ng-if="viewedOnData.length == 0" class="light-grey">
+                                    <i class="fa fa-eye icon-large pointer"></i>                           
+                                    <div class="h-12x">
+                                        Not Viewed 
+                                    </div>
+                                </span>
+                            </div>             
+                        </div>
+                        <div class="col-md-7">
+                            
+                            <div class="flex justify-content-flex-end">
+                                <!-- <div  class="m-r20">
+                                    <div class="flex align-items-center">
+                                        <span ng-click="generatePdf()" class="custom-pdf-icon m-r20">PDF</span>
+                                        <i class="fa fa-print light-blue icon-large pointer" ng-click="printInvoice()"></i>
+                                    </div>
+                                
+                                </div> -->
+                                <div class="text-right m-l20">
+                                    <button ng-click=" getPaymentProfile()" type="button" class="btn btn-take-payment ">Take Payment</button>
+                                    <p class="upperCase h-2x darkGray p-t10 "><strong>DUE ON {{date | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</strong></p>
+                                    <div class="status upperCase {{invoiceDetails.invoiceStatus}}">
+                                        {{invoiceDetails.invoiceStatus}}
+                                    </div>
+                                        <label>Invoice Type</label>
+                                          <div class="">
+                                            <div class="dropdown select-wrap service-level-dropdown">
+                                              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                                                <b>{{invoiceType}}</b>
+                                              <span class="caret"></span></button>
+                                              <ul class="dropdown-menu scrollable-menu">
+                                                <li ng-click="saveInvoiceType('Advanced') "><a href="javascript:void(0)">Advanced</a></li>
+                                                <li ng-click="saveInvoiceType('Arrears') "><a href="javascript:void(0)">Arrears</a></li>
+                                                <li ng-click="saveInvoiceType('OneOffJob') "><a href="javascript:void(0)">OneOffJob</a></li>
+                                              </ul>
+                                            </div>
+                                            <span class="service-level-no-item-help" ng-show="serviceLevelArray.length==1 && serviceLevelArray[0].title=='--'">To use Service Levels, they first need to be created in Settings by an Admin user. (Complete Care, Chemicals Only, etc) Checklist items will appear for the property based on the settings and service level you select. Alerts can be triggered based on service level.</span>
+                                          </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> 
+                           
+            </div>
+        </div>
+        <div class="row bottom-section">
+            <div class="col-md-5 remove-for-print m-b20">                   
+                <div class="sub-title-custom">Service Address</div>                
+                <div class="h-2x">
+                    {{customerDetails.customer.address}}</br>
+                    {{customerDetails.customer.city}}, {{customerDetails.customer.state}} {{customerDetails.customer.zipCode}}
+                </div>                
+            </div>
+            <div class="col-md-12" ng-if="invoiceDetails.invoiceType != 'OneOffJob'">
+                <div class="row">      
+                    <div class="col-md-3 col-xs-12 m-b20">
+                        <div class="sub-title-date p-t0 p-l0">Service Dates</div>
+                    </div>     
+                </div>
+                <div class="row">                   
+                    <div class="col-md-3 m-b20"> 
+                        <div>
+                            <div class="print-18x">
+                                <div >{{date | date: 'MM/dd/yy' }}</div>
+                            </div>   
+                            <div class="nowrap" ng-if="((waterBody.customerPayType == 'Monthly Flat Rate' && invoiceDetails.invoiceTo && invoiceDetails.invoiceFrom) || (waterBody.jobDetails.length == 0 && invoice.serviceTotalAmount.totalAmount == 0 )) && $index==0" class="print-18x">
+                            <div  ng-if="waterBody.jobDetails.length == 0">No route stops from </div>  {{invoiceDetails.invoiceFrom | date: 'MM/dd/yy' }} - {{invoiceDetails.invoiceTo | date: 'MM/dd/yy' }}                          
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+            </div>   
+
+            <div class="col-md-12">
+                
+                <div class="row">                   
+                    <div class="col-md-3 m-b20 h-2x"> 
+                        <label>Invoice From</label>
+                        <div class="smallview" date-format="dd-MM-yyyy">
+                            <input ng-model="invoiceFrom" ng-click="clickDate($event)" type="text" class="angular-datepicker-input " placeholder="Invoice From" ng-change="saveInvoice()" id="fromDateInput"/>
+                        </div>
+                    </br>
+                        <label>Invoice To</label>
+                        <div class="smallview" date-format="dd-MM-yyyy">
+                            <input ng-model="invoiceTo" ng-click="clickDate($event)" type="text" class="angular-datepicker-input " placeholder="Invoice To" ng-change="saveInvoice()" id="fromDateInput"/>
+                        </div>
+                    </br>
+                        <label>Due On</label>
+                        <div class="smallview" date-format="dd-MM-yyyy">
+                            <input ng-model="dueDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input " placeholder="Due On" ng-change="saveInvoice()" id="fromDateInput"/>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="product-add-new-form-top">
+                          <label>Products & Services</label>
+                          <a class="btn" ng-click="addBundleProductSearch()"> Add New <i class="fa fa-plus-circle "></i></a>
+                        </div>
+                        <div class="grey-box">
+                          <div id="scrollarea" >
+                          <table class="product-services-list" style="width:100%">
+                            <thead>
+                              <tr colspan="5">
+                                <td style="width:40px" ></td>
+                                <td style="width:215px; text-align:left">NAME</td>
+                                <td style="width:50px; text-align:left">QTY</td>
+                                <td style="width:50px; text-align:left">PRICE</td>
+                                <td style="width:50px; text-align:left"></td>
+                                <td style="width:30px;"></td>
+                              </tr>
+                            </thead>
+                            <tbody ng-if="productNoItem">
+                              <tr><td colspan="5" style="text-align:center">No item in list</td></tr>
+                            </tbody> 
+                            <tbody ng-if="bundleSearchForm">
+                              <tr>
+                                <td colspan="5" class="bundle-search">
+                                  <div class="bundle-search-box">
+                                      <span class="search-icon"></span>
+                                      <input type="search" placeholder="Search name or part number" ng-model="bundleSearchText" class="form-control" ng-keyup="showListForBundle(bundleSearchText)">
+                                  </div>
+                                  <table id="product-list" ng-if="isBundleSearch">
+                                    <tbody ng-repeat="productBundleListCategory in productBundleList" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                                      <tr class="even" style="cursor: pointer;" ng-click="addProductToBundle(productBundleListCategory)">
+                                        <td><div class="product-sevices-category" ng-class="productBundleListCategory.category"></div></td>
+                                        <td>{{productBundleListCategory.name}}</td>
+                                        <td style="text-align:center">${{productBundleListCategory.price}}</td>
+                                      </tr>                            
+                                    </tbody>
+                                    <tbody ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="productBundleList.length < 1">                              
+                                      <tr class="even" style="cursor: pointer;" ng-click="addProductToBundle(productBundleListCategory)">
+                                        <td colspan="3" cellpadding="10" class="text-center"><strong class="p-tb10" style="display: block;">No results match your search</strong></td>
+                                      </tr>                            
+                                    </tbody>
+                                  </table>
+                                </td>
+                              </tr>
+                            </tbody>
+                            <tbody ng-repeat="productBundleListNewCategory in productBundleListNew">
+                              <tr><td colspan="5"></td></tr>
+                              <tr>
+                                <td><div class="product-sevices-category" ng-class="productBundleListNewCategory.category"></div></td>
+                                <td>{{productBundleListNewCategory.name}}<br>{{productBundleListNewCategory.sku}}</td>
+                                <td style="text-align:center"><input type="number" class="form-control input-number form-control-small bundle-qty" ng-model="productBundleListNewCategory.qty" ng-keyup="calculateBundleCost()" /></td>
+                                <td style="text-align:left">{{productBundleListNewCategory.qty==0 || !productBundleListNewCategory.qty? productBundleListNewCategory.price : productBundleListNewCategory.price * productBundleListNewCategory.qty | currency}}</td>
+                                <td style="width:30px;">
+                                    <!-- <a class="delete-btn"  href="javascript:void(0)" ng-click="removeProductToBundle(productBundleListNew, $index)"><i class="fa fa-times"></i></a>--></td> 
+                                <!-- <td style="width:30px;"><a class="delete-btn"  href="javascript:void(0)" ng-click="saveInvoice()">Save</a></td> -->
+                              </tr>
+                              
+                            </tbody> 
+                          </table>
+                          <!-- <a class="delete-btn"  href="javascript:void(0)" ng-click="saveInvoice()">Save</a> -->
+                          <button ng-if="productBundleListNew.length > 0" class="discount-save-button remove-for-print pull-right" type="button" ng-click="saveInvoice()">Save</button>
+                        </div>
+                      </div>
+                      </div>
+
+                   
+                </div>  
+            </div>
+
+            <!--div class="col-md-12 m-t20" ng-if="invoice.serviceTotalAmount.discountValue">
+                <div class="row">
+                    <div class="col-md-3">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-7">
+                        <div class="h-2x print-20x"><strong>Discount</strong></div>
+                        <div class="h-1-5x print-16x">{{invoice.serviceTotalAmount.discountTitle}}</div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-right h-2x clr-red print-20x">-{{invoice.serviceTotalAmount.discountValue | currency}}</div>
+                    </div>
+                </div>
+            </div--> 
+            <!--div class="col-md-12 m-t20" ng-if="invoiceDetails.details.length == 1 && invoiceDetails.creditPaymentAdjustment">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-4">
+                        <div class="h-2x print-20x"><strong>Credit/Payment Adjustment</strong></div>            
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-right h-2x clr-red print-20x">-{{invoiceDetails.creditPaymentAdjustment | currency}}</div>
+                    </div>
+                </div>
+            </div-->
+            
+                <div class="col-md-12 m-t20">
+                    <div class="row">
+                        <div class="col-md-12 m-tb20">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    &nbsp;
+                                </div>                   
+                                <div class="col-md-3">
+                                    <div class="h-2x print-20x"><strong>Subtotal</strong></div>            
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-right h-2x print-20x">{{invoiceDetails.subTotalAmount | currency}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 m-t20" >
+                    <div class="row">
+                        <div class="col-md-6">
+                            &nbsp;
+                        </div>
+                        <div class="col-md-3">
+                            <div class="row">
+                                <div class="col-md-12 h-2x print-20x"><strong>Discount</strong> <div class="h-12x" ng-if="customerDiscountData.discountDataUpdated && customerDiscountData.discountTitle !=''">{{customerDiscountData.discountTitle}}</div>
+                                    <div ng-if="customerDiscountData.discountDataUpdated && customerDiscountData.discountTitle!=''">
+                                        <a href="#"  class="h-1x remove-for-print" ng-click="removeDiscount()">remove</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 discount-td">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="discount-editer" ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated && customerDiscountData.addDiscountButton">
+                                        <input 
+                                        class="form-control small-input input-number discount-value" 
+                                        mgminmax-validator 
+                                        type="number" 
+                                        name="discount-value" 
+                                        ng-min="0" 
+                                        ng-model="customerDiscountData.discountValue"
+                                        ng-max="customerDiscountData.dtype == '%' ? 100 : 9999999" 
+                                        required 
+                                        ng-change="discountValueChange()"
+                                        allow-typing="^[0-9. ]+$"
+                                        ng-keypress="saveDiscountByInput($event)"
+                                        />                     
+                                        <div class="dropdown select-wrap label-dropdown discount-type">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <b>{{customerDiscountData.dtype}}</b>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu scrollable-menu">
+                                            <li ng-click="updateDiscountType('%')" ng-if="customerDiscountData.dtype!='%'"><a href="javascript:void(0)">%</a></li>
+                                            <li ng-click="updateDiscountType('$')" ng-if="customerDiscountData.dtype!='$'"><a href="javascript:void(0)">$</a></li>
+                                        </ul>
+                                        </div>
+                                        <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">    
+                                            <div ng-if="errorMsg">{{errorMsg}}"></div>
+                                          </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="text-right h-2x">
+                                        <div ng-class="{'clr-red':customerDiscountData.discountAmount>0 }" ng-if="customerDiscountData.discountDataUpdated && customerDiscountData.discountTitle!=''">{{customerDiscountData.discountAmount>0 ? '-':''}}{{customerDiscountData.discountAmount  | currency}}</div>
+                                        <div  ng-if="!customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton"><button class="discount-button remove-for-print" type="button" ng-click="showDiscountInput()">Add</button><div class="add-for-print print-20x" >{{0 | currency}}</div></div>
+                                        <div ng-if="customerDiscountData.discountTitle==''">{{0 | currency}}</div>
+                                        <span class="remove-for-print" ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton"> {{customerDiscountData.discountAmount  | currency}}</span>
+                                        <button  ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton" class="discount-save-button remove-for-print" type="button" ng-click="saveDiscount()">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <error ng-if="errorDiscount" message="{{errorDiscount}}"></error>  
+                </div>
+                <div class="col-md-12 m-tb20" >
+                    <div class="message-absolute discount-error" ng-if="customerTaxData.errorMsg">  <error  message="{{customerTaxData.errorMsg}}"></error></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            &nbsp;
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h-2x print-20x"><strong>Tax</strong>
+                                <div ng-if="customerTaxData.selectedTaxTitle != ''">
+                                    <div class="h-12x">{{customerTaxData.selectedTaxTitle}}</div>
+                                    <a href="#" class="h-1x remove-for-print" ng-if="customerTaxData.addTaxButton" ng-click="removeTax()">remove</a>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-3" >
+                            <div  ng-if="customerTaxData.selectedTaxValue==0 && customerTaxData.addTaxButton  && customerTaxData.selectedTaxTitle == ''" class="text-right h-2x">
+                                <button  ng-disabled="customerTaxData.selectedTaxTitle != ''" class="tax-button remove-for-print" type="button"  ng-click="showTaxPopup()">Add</button>
+                                <div class="add-for-print print-20x" >{{0 | currency}}</div></div>
+                            <div  ng-if="customerTaxData.selectedTaxValue>0" class="text-right h-2x print-20x">{{customerTaxData.selectedTaxValue | currency}}</div> 
+                            <div  ng-if="(customerTaxData.selectedTaxValue==null || customerTaxData.selectedTaxValue=='' || customerTaxData.selectedTaxValue==0) && !customerTaxData.addTaxButton" class="text-right h-2x">{{0 | currency}}</div>
+
+                            <div ng-if="customerTaxData.taxDataPopup && customerTaxData.addTaxButton" class="tax-popup remove-for-print">
+                                <span class="light-grey">{{customerTaxData.taxSettingArray.length > 0 ? "Select Tax Rate" : "No tax found! Add Tax from Settings"}}</span>
+                                <ul>
+                                    <li id="{{tax.id}}" ng-click="taxSelected(tax.id)" ng-repeat="tax in customerTaxData.taxSettingArray">{{tax.title}} ({{tax.amount}}%)</li>
+                                </ul>   
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="col-md-12 subtotal-box">
+                <div class="col-md-6 text-left"> 
+                    <textarea placeholder="Invoice Notes" class="form-control remove-for-print" name="invoiceNotes" style="height: 54px!important;" row='1' ng-model="invoiceModel.invoiceNotes" maxLength="300" ng-blur="saveNotes(invoiceModel.invoiceNotes)">
+                        {{invoiceModel.invoiceNotes}}
+                    </textarea> 
+                    <p class="add-for-print print-notes"> {{invoiceModel.invoiceNotes}}</p>
+                </div>  
+                <div class="col-md-6 h-2-5x print-22x">
+                    <div class="row">
+                        <div class="col-xs-4"><span class=" print-22x  print-bold bb" >TOTAL</span></div>
+                        <div class="col-xs-8 text-right"><strong class="darkGray print-22x ">{{invoiceDetails.totalAmount | currency}}</strong> </div>
+                    </div>
+                    <div class="row print-20x print-bold">
+                        <div class="col-xs-8 print-22x">BALANCE DUE</div>
+                        <div class="col-xs-4 print-22x text-right">{{invoiceDetails.balanceDue | currency}}</div>
+                    </div>                  
+                </div>      
+            </div> 
+        </div>   
+        <!--div class="row" ng-if="invoiceDetails.details.length > 1 && invoiceDetails.creditPaymentAdjustment">
+            <div class="col-md-12 m-t20 m-b20">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-4">
+                        <div class="h-2x print-20x"><strong>Credit/Payment Adjustment</strong></div>            
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-right h-2x clr-red print-20x">-{{invoiceDetails.creditPaymentAdjustment | currency}}</div>
+                    </div>
+                </div>
+            </div>
+        </div-->
+        <!-- <div class="row">
+            <div class="col-md-12 m-tb20" ng-if="bundleSubTotal">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-3">
+                        <div class="h-2x print-20x"><strong>Subtotal</strong></div>            
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-right h-2x print-20x">{{bundleSubTotal | currency}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 m-t20">
+                <div class="message-absolute discount-error" ng-if="customerDiscountData.errorMsg">  <error  message="{{customerDiscountData.errorMsg}}"></error></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-3">
+                        <div class="row">
+                            <div class="col-md-12 h-2x print-20x"><strong>Discount</strong> <span class="h-2x text-muted" ng-if="customerDiscountData.discountDataUpdated && (customerDiscountData.dtype=='%' || customerDiscountData.discountTitle.charAt(0)!='$')">{{customerDiscountData.discountTitle}}</span>
+                                <div ng-if="customerDiscountData.discountTitle!=''">
+                                    <a href="#"  class="h-1x remove-for-print" ng-click="removeDiscount()">remove</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 discount-td">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="discount-editer" ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated && customerDiscountData.addDiscountButton">
+                                    <input 
+                                    class="form-control small-input input-number discount-value" 
+                                    mgminmax-validator 
+                                    type="number" 
+                                    name="discount-value" 
+                                    ng-min="0" 
+                                    ng-model="customerDiscountData.discountValue"
+                                    ng-max="customerDiscountData.dtype == '%' ? 100 : 9999999" 
+                                    required 
+                                    ng-class="{'has-error':customerDiscountData.errorMsg }"
+                                    ng-change="discountValueChange()"
+                                    allow-typing="^[0-9. ]+$"
+                                    ng-keypress="saveDiscountByInput($event)"
+                                     />    
+                                     <error ng-if="errorDiscount" message="{{errorDiscount}}"></error>                          
+                                    <div class="dropdown select-wrap label-dropdown discount-type">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <b>{{customerDiscountData.dtype}}</b>
+                                    <span class="caret"></span></button>
+                                    <ul class="dropdown-menu scrollable-menu">
+                                        <li ng-click="updateDiscountType('%')" ng-if="customerDiscountData.dtype!='%'"><a href="javascript:void(0)">%</a></li>
+                                        <li ng-click="updateDiscountType('$')" ng-if="customerDiscountData.dtype!='$'"><a href="javascript:void(0)">$</a></li>
+                                    </ul>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-right h-2x">
+                                    <div class="clr-red" ng-if="customerDiscountData.discountDataUpdated"> -{{customerDiscountData.discountAmount  | currency}}</div>
+                                    <div class="clr-red" ng-if="!customerDiscountData.discountDataUpdated && !customerDiscountData.addDiscountButton"> -{{customerDiscountData.discountAmount  | currency}}</div>
+                                    <button  ng-if="!customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton" class="discount-button remove-for-print" type="button" ng-click="showDiscountInput()">Add</button>
+                                    <span class="remove-for-print" ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton"> {{customerDiscountData.discountAmount  | currency}}</span>
+                                    <button  ng-if="customerDiscountData.discountDataShow && !customerDiscountData.discountDataUpdated  && customerDiscountData.addDiscountButton" class="discount-save-button remove-for-print" type="button" ng-click="saveDiscount()">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 m-tb20" ng-if="customerTaxData.taxSettingArray.length > 0">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h-2x print-20x"><strong>Tax</strong>
+                            <div ng-if="customerTaxData.selectedTaxValue>0 && customerTaxData.selectedTaxTitle == ''">
+                                <div class="h-12x">{{customerTaxData.selectedTaxTitle}}</div>
+                                <a href="#" class="h-1x remove-for-print" ng-if="customerTaxData.addTaxButton" ng-click="removeTax()">remove</a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-3" >
+                        <div  ng-if="customerTaxData.selectedTaxValue==0 && customerTaxData.addTaxButton" class="text-right h-2x"><button class="tax-button remove-for-print" type="button"  ng-click="showTaxPopup()">Add</button></div>
+                        <div  ng-if="customerTaxData.selectedTaxValue>0" class="text-right h-2x">{{customerTaxData.selectedTaxValue | currency}}</div> 
+                        <div  ng-if="!customerTaxData.selectedTaxValue && !customerTaxData.addTaxButton" class="text-right h-2x">{{0 | currency}}</div>                            
+                        <div ng-if="customerTaxData.taxDataPopup && customerTaxData.addTaxButton" class="tax-popup remove-for-print">
+                            <span class="light-grey">Select Tax Rate</span>
+                            <ul>
+                                <li id="{{tax.id}}" ng-click="taxSelected(tax.id)" ng-repeat="tax in customerTaxData.taxSettingArray">{{tax.title}} ({{tax.amount}}%)</li>
+                            </ul>   
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         -->
+        
+        <!-- <div class="row flex align-items-bottom">            
+            <div class="col-md-6 text-left"> 
+                <textarea placeholder="Invoice Notes" class="form-control remove-for-print" name="invoiceNotes" style="height: 54px!important;" row='1' ng-model="invoiceModel.invoiceNotes" maxLength="300" ng-blur="saveNotes(invoiceModel.invoiceNotes)">
+                    {{invoiceModel.invoiceNotes}}
+                </textarea> 
+                <p class="add-for-print print-notes"> {{invoiceModel.invoiceNotes}}</p>
+            </div>  
+            <div class="col-md-6 h-2-5x print-22x">
+                <div class="row">
+                    <div class="col-xs-4"><span class=" print-22x  print-bold bb" >TOTAL</span></div>
+                    <div class="col-xs-8 text-right"><strong class="darkGray print-22x ">{{totalAmount | currency}}</strong> </div>
+                </div>
+                <div class="row print-20x print-bold">
+                    <div class="col-xs-8 print-22x">BALANCE DUE</div>
+                    <div class="col-xs-4 print-22x text-right">{{invoiceDetails.balanceDue | currency}}</div>
+                </div>                  
+            </div>                     
+        </div> -->
+        
+    </div>
+
+</div> 
+<script type="text/ng-template" id="sentEmailPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="popup-header">
+        <span class="heading">Email Invoice</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">    
+        <error ng-if="sentEmailError" message="{{sentEmailError}}"></error>
+      </div>
+      <form class="set-chem-form" name="sentEmailForm" autocomplete="off" ng-submit="sentEmailForm.$valid && emailInvoice(sentEmailModel)" novalidate>
+          
+        <div class="detail-box">         
+          <div class="grid text-left box" >
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label>Email Address</label>
+                    <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="sentEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentEmailForm.$submitted && sentEmailForm.emailId.$invalid || sentEmailForm.emailId.$touched && loginForm.emailId.$invalid}"
+                        required                         
+                    />
+                </div>     
+            </div>
+          </div>      
+          <div class="text-center p-t20">
+            <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <span class="p-l10"><button class="add-button" type="submit" ng-click="sentEmailForm.submitAttempt=true;" >SEND EMAIL</button></span>            
+          </div>        
+        </div>
+      </form> 
+    
+    </div>
+  </script>
+
+  
+<script type="text/ng-template" id="selectPaymentMethodPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px" ng-init="getPayaSettings()">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="popup-header">
+        <span class="heading">{{ paymentSuccess ? '&nbsp;&nbsp;&nbsp;&nbsp;Success' : 'Add Payment'}}</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -10px;">     
+       
+        <div class="payment-error" ng-if="paymentError" >
+            <div ng-repeat="(key, value) in paymentError">
+                <div ng-repeat="item in value">{{item}}</div>
+            </div>
+        </div> 
+      </div> 
+      <form ng-show="!paymentSuccess" class="set-chem-form" name="paymentForm" autocomplete="off" ng-submit="paymentForm.$valid && checkPaymentType(model)" novalidate>      
+     
+        <div class="detail-box">         
+          <div class="grid text-left colored-scroll-bar" style="height: 350px; overflow: auto;">
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label >Payment Method<span class="clr-red">*</span> </label>
+                    <div class="dropdown select-wrap ">
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  >
+                        <b ng-bind-html="selectedPaymentMethod ? selectedPaymentMethod : '--'" ></b>
+                      <span class="caret"></span></button>
+                      <ul class="dropdown-menu scrollable-menu"> 
+                        <li ng-if="payaStatus==1" ng-hide="model.paymentMethod == 'cc'" ng-click="model.paymentMethod = 'cc'; selectPaymentMethod('Credit Card')"><a href="javascript:void(0)">Credit Card</a></li>
+                        <li ng-if="payaStatus==1" ng-hide="model.paymentMethod == 'ach'" ng-click="model.paymentMethod = 'ach'; selectPaymentMethod('ACH')"><a href="javascript:void(0)">ACH</a></li>
+                        <li ng-hide="model.paymentMethod == 'check'" ng-click="model.paymentMethod = 'check'; selectPaymentMethod('Check');"><a href="javascript:void(0)">Check</a></li>
+                        <li ng-hide="model.paymentMethod == 'cash'" ng-click="model.paymentMethod = 'cash'; selectPaymentMethod('Cash');"><a href="javascript:void(0)">Cash</a></li> 
+                        <li ng-if="paymentProfiles.length > 0" class="dropdown-divider"></li>
+                        <div class="p-10 text-center light-blue" ng-if="payaStatus!=1">Want to accept credit cards and ACH payments?<br/>
+                            activate your payments account in settings
+                          </div>
+                        <h4 ng-if="paymentProfiles.length > 0" class="dropdown-header">Saved Payment Method</h4>
+                        <li 
+                          ng-repeat="profile in paymentProfiles" 
+                          ng-hide="model.paymentMethod == profile.id" 
+                          ng-click="model.paymentMethod = profile.id;  selectPaymentMethod(profile.id)">
+                          <a href="javascript:void(0)">{{profile.paymentProfileName}} <small>({{(profile.paymentMethod == 'ach' ? 'ACH ' : '')}}{{(profile.paymentMethod == 'cc' ? profile.accountType : '') | uppercase }} x{{profile.accountLastFourDigits}})</small></a>
+                        </li> 
+                      </ul>
+                      
+                    </div>                    
+                </div> 
+                 
+                <div class="formGroup" ng-if="model.paymentMethod == 'check'" >
+                    <label >Check Number<span class="clr-red">*</span> </label>
+                    <input type="text" name="checkNumber" class="form-control" ng-model="model.checkNumber" maxlength="50"  ng-required="model.paymentMethod == 'check'" >
+                    <span class="has-required" ng-show="paymentForm.$submitted && model.paymentMethod == 'check' && paymentForm.checkNumber.$invalid">Please enter check number</span>
+                  </div>
+              <div class=" formGroup" ng-if="model.paymentMethod == 'check' || model.paymentMethod == 'cash'" >
+                <label >Notes </label>
+                <textarea class="form-control" name="notes" style="height: 140px!important;" row='1' ng-model="model.notes" maxLength="300">{{model.notes}}</textarea>
+                <span class="c-limit">Characters limit: 300</span>             
+              </div>            
+            </div>
+          </div>  
+
+          <div class="text-center p-t20 m-b20">         
+            <span><button class="add-button" type="submit" ng-click="payRefundForm.submitAttempt=true;" >{{model.paymentMethod == 'check' || model.paymentMethod == 'cash' ? 'SAVE' : 'CONTINUE'}}</button></span>              
+          </div> 
+        
+        </div>
+      </form> 
+      
+    </div>
+  </script>
+
+<script type="text/ng-template" id="payaPaymentPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px; min-height:300px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>  
+      <div class="popup-header">
+        <span class="heading">Pay by {{model.paymentMethod == 'ach' ? 'ACH' : 'Credit Card'}}</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <div class="detail-box">         
+        <div class="grid text-left box colored-scroll-bar" style="max-height:437px; overflow: auto;">
+          <div id="ccIframeContainer" class="pay-form-container"></div>  
+          <div id="achIframeContainer" class="pay-form-container"></div>    
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="payaErrorPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px; min-height:200px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+   
+      <div class="popup-header">
+        <span class="heading">Error Code <small ng-if="payaErrorCode">- {{payaErrorCode}}</small></span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <div class="detail-box text-center">         
+        <div class="grid box clr-red p-tb20 text-center" style="max-height:300px; overflow: auto;"> 
+            Transaction is declined.
+        </div>
+        <button class="btn btn-primary" ng-click="closeThisDialog('')">OK</div>
+      </div>
+    </div>
+  </script>

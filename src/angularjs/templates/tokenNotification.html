@@ -1,0 +1,16 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:450px">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">User logged in</div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="dataTables_wrapper" ng-init="getMeidList()">
+          <div class="meid-form-container p-tb20 text-center h-2x p-lr20">
+            You are already logged in with another account. Do you want to log out from that account and continue?
+              <div class="p-t20">
+                <button type="button" ng-click="logoutUser()" class="button bt-blue">Yes</button>
+                <button type="button" ng-click="closeThisDialog()" class="button">No</button>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>

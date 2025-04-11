@@ -1,0 +1,903 @@
+<div ng-if="remoreReview"  ng-click="openCloseReadMore(false)" class="pop-overlay-box"></div>
+
+<div class="technicians-profile dataTables_wrapper" ng-controller="techRatingController">
+  <div class="spinner" ng-if="isProcessing" style="z-index: 9999;">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <div class="grid technician-add-moreinfo" ng-init="getTechnicianInfo()">
+    <div class="col-md-6 col-sm-6 col-xs-12 p-l0">
+      <div class="white-bg text-left p-tb20 p-l20" id="infotechnician" style="min-height: 302px;">
+        <div class="grid">
+           
+
+
+          <div class="fl" > 
+              <div class="image-radius name-initial large p-tech-detail-avatar"  ng-show="!technicianinfo.userImage" >
+                  <span>
+                      {{technicianinfo.firstName | convertToInitial: technicianinfo.lastName}}
+                  </span>
+                </div>  
+
+            <img ng-if="technicianinfo.userImage" alt="{{technicianinfo.firstName}}" border="0" class="technician-image" ng-src="{{technicianinfo.userImage}}" style="vertical-align: middle" title="{{technicianinfo.firstName}} {{technicianinfo.lastName}}"/> 
+          </div>
+          <div class="fl" style="max-width: 280px; min-height: 190px; padding-left: 20px;">
+            <div class="technician-name"> <span class="h-4x b darkGray" style="z-index: 1; position: relative;"> {{technicianinfo.firstName}} {{technicianinfo.lastName}} </span> </div>
+            <!-- <div class="technician-title"> <span class="h-1x b darkGray"> {{technicianinfo.rolesText}} </span> </div> -->
+            <!-- <div class="like-dislike-wrap">
+              <a title="Rating UP" style="display: inline-block; text-decoration: none;" class="underline-none" href="javascript:void(0)"
+                ng-click="rateTach('', technicianinfo.id, userSession.userId, 'up')">
+               <span class="like-inner-wrap"> <img src="resources/images/like.png"> </span>{{techRating.up ? techRating.up : '0'}}
+              </a>
+              <a style="display: inline-block; text-decoration: none;" title="Rating DOWN" class="underline-none p-l5" href="javascript:void(0)"
+                ng-click="rateTach('', technicianinfo.id, userSession.userId, 'down')">
+                <span style="border: 1px solid #bc1010;"><img src="resources/images/dislike.png"> </span>{{techRating.down ? techRating.down : '0'}}
+              </a>
+            </div> -->
+
+            <div class="row" style="margin: 0; padding: 0;">
+              <div class="col-md-4" style="min-width: 190px; position: relative; margin: 0; padding: 0;">
+                <div class="like-dislike-new">
+                  <a style="display: inline-block; text-decoration: none; cursor: pointer;" class="underline-none"
+                    href="javascript:void(0)" ng-click="rateTach('', technicianinfo.id, userSession.userId, 'up')">
+                    <span class="like-inner-new icon-required"> 
+                      <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                      <span class="sch-help awesome-tooltip" style="min-width: 100px; left: -30px; bottom: 50px;">Leave Feedback</span>
+                    </span> 
+                    <span class="like-dislike-count">{{techRating.up ? techRating.up :'0'}}</span>
+                  </a>
+                  <a style="display: inline-block; text-decoration: none; cursor: pointer;" class="underline-none p-l5"
+                    href="javascript:void(0)" ng-click="rateTach('', technicianinfo.id, userSession.userId, 'down')">
+                    <span class="dislike-inner-new icon-required" style="border: 2px solid #bc1010;">
+                      <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                      <span class="sch-help awesome-tooltip" style="min-width: 100px; left: -30px; bottom: 50px;">Leave Feedback</span>
+                    </span>
+                    <span class="like-dislike-count">{{techRating.down ? techRating.down : '0'}}</span>
+                  </a>
+                </div>
+              </div>
+              <div id="FEEDBACKCHART" class="report-chart tech-feedback-report-chart" style="position: relative; top: -40px; left: 50%;"></div>
+              <div ng-if="hasFeedback === false" ng-hide="isProcessing" style="min-width: 200px; position: relative; top: 60px; right: 16px; white-space: nowrap; opacity: 0.5;">no feedback received yet</div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="tech-progress-bar">
+          <span
+              ng-repeat="num in totalProgressTileCount track by $index"
+              ng-class="{'up-prog-active': $index < ratingCount && ratingType=='positive', 'down-prog-active': $index < ratingCount && ratingType=='negative'}">
+          </span>
+        </div> -->
+
+        <!-- <div class="technician-add-block">
+          <div class="technician-add"> <img border="0" class="phone-icon p-r5" src="resources/images/phone-icon.png" style="vertical-align: middle"/> <a class="" href="tel:{{technicianinfo.contactNumber}}" ng-if="technicianinfo.contactNumber">
+            <phone-number number="{{technicianinfo.contactNumber}}"> </phone-number>
+            </a> </div>
+          <div class="technician-add p-t10"> <img border="0" class="phone-icon p-r5" src="resources/images/email-icon.png" style="vertical-align: middle"/> <a class="" href="mailto:{{technicianinfo.email}}"> {{technicianinfo.email}} </a> </div>
+          <!!--  <div class="technician-add p-t10 b grid">
+            <div class="fl"><img border="0" src="resources/images/map-icon.png" class="phone-icon p-r5" style="vertical-align: middle" /></div>
+            <div class="fl" ng-if="technicianinfo.address">
+              <format-Address address="{{technicianinfo.address}}"></format-Address>
+            </div>
+          </div> --!!>
+        </div> -->
+        <div class="technician-add-new">
+          <div style="width: 100%; text-align: center;">
+            <!-- <img border="0" class="phone-icon p-r5" src="resources/images/phone-icon.png" style="vertical-align: middle"/>  -->
+            <i class="fa fa-phone" aria-hidden="true"></i>
+            <a class="" href="tel:{{technicianinfo.contactNumber}}" ng-if="technicianinfo.contactNumber">
+              <phone-number number="{{technicianinfo.contactNumber}}"> </phone-number>
+            </a> 
+              <img border="0" class="phone-icon p-r5" src="resources/images/email-icon.png" style="vertical-align: middle; width: 20px; height: 16px; margin-top: -2px; margin-left: 10px;"/> 
+              <a class="" href="mailto:{{technicianinfo.email}}"> {{technicianinfo.email}} </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12 p-r0" ng-init="getChemicalCost()">
+      <div class="spinner" ng-if="techStatsProgress && !isProcessing" style="z-index: 9999;">
+        <div class="spinner-item">
+          <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+        </div>
+      </div>
+      <div class="white-bg text-left p-tb20 p-lr20 stats-height" id="infostatstechnician" ng-init="technicianStats()">
+
+          <div class="row">
+              <div class="col-md-2">
+                 <div class="collapseClass"> <span class="title">STATS</span></div>
+              </div>
+              <div class="col-md-10" >
+
+                <div class="chemical-cost-select">
+                  <div class="tech-page-date-box">
+                    <div class="datePicker input-daterange" ng-show="filterModel.statsFilterMonth == 'custom'">
+                      <div class="col-6-12 p-r10 fl">
+                        <div class="smallview" date-format="MM/dd/yyyy">
+                          <input class="angular-datepicker-input" ng-change="filterByDate('fromDate', 'stat')" ng-click="clickDate($event)" ng-model="dateRangeModel.statFromDate" placeholder="From Date" type="text"/>
+                        </div>
+                      </div>
+                      <div class="col-6-12 m-l10 text-right fr">
+                        <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                          <input class="angular-datepicker-input" ng-change="filterByDate('toDate', 'stat')" ng-click="clickDate($event)" ng-model="dateRangeModel.statToDate" placeholder="To Date" type="text"/>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="select custom-select custom-select-noimage">
+                      <select ng-model="filterModel.statsFilterMonth" ng-options="x for x in filterGraphData" ng-change="filterGraph('stat')"></select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          <div class="stats-data m-t10">
+
+            <div class="row">
+              <div class="col-md-6 text-right"> Average start time:</div>
+                <div class="col-md-6">{{jobTimining.avgStartTime}}</div>
+              </div>
+            <div class="row">
+                <div class="col-md-6 text-right">Average finish time:</div>
+                  <div class="col-md-6">{{jobTimining.avgEndTime}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 text-right">Average time on site:</div>
+                  <div class="col-md-6">{{jobTimining.onSite}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 text-right">Average chem cost per pool:</div>
+                  <div class="col-md-6">${{parseCostAvg(jobTimining.rowCount, jobTimining.totalJobsCost) | number}} </div>
+            </div>
+
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="grid technician-add-moreinfo m-t10 m-b20">
+    <div class="col-md-6 col-sm-6 col-xs-12 p-l0">
+      <div class="white-bg text-left p-tb20 p-lr20 " id="alerttrendchary" style="height: 390px">
+        <div class="grid">
+          <div class=" p-l0">
+            <div class="CHEMICALCOST " >
+              <div class="grid">
+                <div class="darkGray collapseClass tech-det-zoom fl">                 
+                    <span class="title">ALERT TREND</span>
+                    <a style="position: relative; top: 3px; right: 0; left: 0;" href="javascript:void(0)" id="href-PIEALERTTREND" ng-click="showAlertTrend(1)"> </a>
+                    <a style="position: relative; top: 0; right: 0; left: 0;" href="javascript:void(0)" class="costchart selectchart tech-chart-icon {{!showAlertPie ? 'pie' : ''}}"
+                    id="href-PIEALERTTREND" ng-click="showAlertPie=!showAlertPie"></a>                                
+                </div>
+                <div class="tech-page-date-box m-b40">
+                  <div class="datePicker input-daterange" ng-show="filterModel.filterMonthAlert == 'custom'">
+                    <div class="col-6-12 p-r10 fl">
+                      <div class="smallview" date-format="MM/dd/yyyy">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('fromDate','alert')" ng-click="clickDate($event)" ng-model="dateRangeModel.alertFromDate" placeholder="From Date" type="text"/>
+                      </div>
+                    </div>
+                    <div class="col-6-12 m-l10 text-right fr">
+                      <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('toDate','alert')" ng-click="clickDate($event)" ng-model="dateRangeModel.alertToDate" placeholder="To Date" type="text"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select custom-select custom-select-noimage">
+                    <select ng-model="filterModel.filterMonthAlert" ng-change="filterGraph('alert')" ng-options="x for x in filterGraphData"></select>
+                  </div>
+                </div>
+              </div>
+                <div class="p-t10">
+
+                  <div ng-hide="showAlertPie" id="ALERTTREND" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin:5px 0 0"></div>
+
+                  <div ng-hide="!showAlertPie" id="PIEALERTTREND" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" ></div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-sm-6 col-xs-12 p-r0">
+      <div class="white-bg text-left p-tb20 p-lr20" id="chemicalcost" style="height: 390px">
+        <div class="chemical-loader" ng-if="isChemicalGraphProcessing && !isProcessing">
+          <div class="spinner">
+             <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+             </div>
+          </div>
+       </div>
+        <div class="grid">
+          <div class=" p-l0">
+            <div class="CHEMICALCOST " >
+              <div class="grid">
+                <div class="darkGray collapseClass collapseClass-chemical-parent tech-det-zoom fl" ng-class=" totalJobsCost > 90000 ? 'collapseClassccblock' : '' ">                 
+                    <span class="title">
+                      <div class="select custom-select custom-select-chemical-dd cgd">
+                        <span>
+                           <span ng-if="reportMode=='spent'">CHEMICAL COST</span>
+                           <span ng-if="reportMode=='charged'">CHEMICAL PRICE</span>
+                           <i class="chem-dd-icon"></i>
+                        </span>
+                        <select ng-model="reportModeDDValue" ng-click="reportModeChange($event)">
+                           <option value="spent">CHEMICAL COST</option>
+                           <option value="charged">CHEMICAL PRICE</option>
+                        </select>
+                     </div>                    
+                    </span>
+                    <span class="tech-cost">${{totalJobsCost | number}}</span>
+                    <div class="collapseClass-chemical" ng-class=" totalJobsCost > 90000 ? 'ccblock' : '' ">
+                      <a href="javascript:void(0)" id="href-CHEMICALCOST" ng-click="showChemicalCost(1)"> </a>
+                      <a href="javascript:void(0)" class="costchart selectchart tech-chart-icon {{!showPie ? 'pie' : ''}}" id="href-CHEMICALCOST" ng-click="showPie=!showPie"></a>  
+                      <span ng-click="downloadChemicalReport()" class="excel-download-btn" ></span> 
+                    </div>                                                    
+                </div>
+                <div class="tech-page-date-box m-b40">
+                  <div class="datePicker input-daterange" ng-show="filterModel.filterMonth == 'custom'">
+                    <div class="col-6-12 p-r10 fl">
+                      <div class="smallview" date-format="MM/dd/yyyy">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('fromDate','chemical')" ng-click="clickDate($event)" ng-model="dateRangeModel.chemicalFromDate" placeholder="From Date" type="text" id="fromTPChemDate"/>
+                      </div>
+                    </div>
+                    <div class="col-6-12 m-l10 text-right fr">
+                      <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('toDate','chemical')" ng-click="clickDate($event)" ng-model="dateRangeModel.chemicalToDate" placeholder="To Date" type="text" id="toTPChemDate"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="select custom-select custom-select-noimage">
+                    <select ng-model="filterModel.filterMonth" ng-change="filterGraph('chemical')" ng-options="x for x in filterGraphData"></select>
+                  </div>
+                </div>                
+              </div>
+              <div class="p-t10">
+                  <div ng-hide="showPie" class="graphDiv" id="CHEMICALCOST1"  ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"> </div>
+                  <div ng-hide="!showPie" class="graphDiv" id="PIECHEMICALCOSTONPAGE"  ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"> </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="grid p-t10" >
+      <div class="col-md-6 col-sm-6 col-xs-12 p-l0">
+        <div class="white-bg text-left p-tb20 p-lr20">
+          <h4 class="m-t0">MEID</h4>
+          <success message="{{techMeidDeviceSuccess['meid']}}" ng-if="techMeidDeviceSuccess['meid']"></success>
+          <error message="{{techMeidDeviceError['meid']}}" ng-if="techMeidDeviceError['meid']"></error>
+          <hr class="m-tb5" />
+
+          <div class="grid" ng-if="techMeidDevice.meid.meid && technicianinfo.status">
+            <div class="col-md-8">
+              {{techMeidDevice.meid.meid}}
+            </div>
+            <div class="col-md-4 text-right">
+              <button class="add-button" ng-click="removeMeidDevice(techMeidDevice.meid, 'meid')" type="submit"><i class="fa fa-trash" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="grid" ng-if="!technicianinfo.status">
+            <div class="col-md-8">
+                Technician is Inactive. Please make it active to assign MEID.
+            </div>
+          </div>
+          <div class="grid text-center" ng-if="!techMeidDevice.meid.meid && technicianinfo.status">
+              <button class="add-button" type="submit" ng-click="assignMeidDeviceModal('meid', techMeidDevice.meid)">Assign</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-sm-6 col-xs-12 p-r0">
+        <div class="white-bg text-left p-tb20 p-lr20">
+          <h4 class="m-t0">Device</h4>
+          <success message="{{techMeidDeviceSuccess['device']}}" ng-if="techMeidDeviceSuccess['device']"></success>
+          <error message="{{techMeidDeviceError['device']}}" ng-if="techMeidDeviceError['device']"></error>
+          <hr class="m-tb5" />
+          <div class="grid" ng-if="techMeidDevice.device && techMeidDevice.device.deviceName && technicianinfo.status">
+            <div class="col-md-8">
+              {{techMeidDevice.device.deviceName}}
+            </div>
+            <div class="col-md-4 text-right">
+              <button class="add-button" ng-click="removeMeidDevice(techMeidDevice.device, 'device')" type="submit"><i class="fa fa-trash" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="grid" ng-if="!technicianinfo.status">
+            <div class="col-md-8">
+                Technician is Inactive. Please make it active to assign Device.
+            </div>
+          </div>
+          <div class="grid text-center" ng-if="(!techMeidDevice.device || !techMeidDevice.device.deviceName) && technicianinfo.status">
+              <button class="add-button" ng-click="assignMeidDeviceModal('device', techMeidDevice.device)" type="submit">Assign</button>
+          </div>
+        </div>
+      </div>
+    </div> -->
+<!-- Assign Truck Area -->
+<div>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="assigned-truck-details">
+        <div class="assigned-truck-details-header">
+          <div class="assigned-truck-details-header-title">ASSIGNED VEHICLE</div>
+          <div class="assigned-truck-details-header-action">
+            <button class="pbx-btn-transparent" ng-disabled="isProcessing || isTruckProcessing" ng-click="openVehicleSwitchPopup(technicianinfo.assignedTruckDetails)">
+              {{technicianinfo.assignedTruckDetails && technicianinfo.assignedTruckDetails.name ? 'switch' : 'add'}} vehicle
+            </button>
+            <button ng-if="technicianinfo.assignedTruckDetails && technicianinfo.assignedTruckDetails.name" class="pbx-btn-transparent" ng-disabled="isProcessing || isTruckProcessing" ng-click="openEditTruck(technicianinfo.assignedTruckDetails.id)">edit vehicle</button>
+          </div>
+          <div class="assigned-truck-details-header-error">
+            <div class="error_display">
+              <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+              <success message="{{successMessage}}" ng-if="successMessage"></success>
+            </div>
+          </div>
+        </div>
+        <div class="assigned-truck-details-details" ng-if="technicianinfo.assignedTruckDetails && technicianinfo.assignedTruckDetails.name">
+          <div class="assigned-truck-image">
+            <img ng-if="!technicianinfo.assignedTruckDetails.coverPhoto" ng-src="../resources/images/image_not_available.jpg" alt="" />
+            <img ng-if="technicianinfo.assignedTruckDetails.coverPhoto" ng-src="{{technicianinfo.assignedTruckDetails.coverPhoto ? technicianinfo.assignedTruckDetails.coverPhoto.mediaPath : null}}" onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'" alt="">
+          </div>
+          <div class="assigned-truck-info">
+            <h3>{{technicianinfo.assignedTruckDetails.name}}</h3>
+            <div class="row">
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                <p><b>Make:</b> {{technicianinfo.assignedTruckDetails.make}}</p>
+                <p><b>Model:</b> {{technicianinfo.assignedTruckDetails.model}}</p>
+                <p><b>Year:</b> {{technicianinfo.assignedTruckDetails.year}}</p>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                <p><b>Color:</b> {{technicianinfo.assignedTruckDetails.color}}</p>
+                <p><b>VIN#:</b> {{technicianinfo.assignedTruckDetails.vin}}</p>
+                <p><b>License Plate:</b> {{technicianinfo.assignedTruckDetails.licensePlate}}</p>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="vehicle-notes">
+                  <p><b>Notes:</b></p>
+                  <p ng-if="!technicianinfo.assignedTruckDetails.notes || technicianinfo.assignedTruckDetails.notes.length <= 150"> {{technicianinfo.assignedTruckDetails.notes}}</p>
+                  <p ng-if="technicianinfo.assignedTruckDetails.notes && technicianinfo.assignedTruckDetails.notes.length > 150" class="notes-scrollable">
+                    {{ isExpanded ? technicianinfo.assignedTruckDetails.notes : (technicianinfo.assignedTruckDetails.notes | limitTo: 150) + '...' }} <span class="more-less" ng-click="isExpanded = !isExpanded">  {{ isExpanded ? 'view less' : 'view more' }} </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="assigned-truck-details-details" ng-if="!technicianinfo.assignedTruckDetails || !technicianinfo.assignedTruckDetails.name">
+          <div class="assigned-truck-info">
+            <div class="row">
+              <div class="col-xs-12">
+                <p class="pbx-gray-text">no vehicle is currently assigned for this technician</p>
+              </div>
+            </div>
+          </div>
+        </div> 
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delete Popup -->
+<script type="text/ng-template" id="assignTruckPopup.html">
+  <div class="pbx-popup pbx-popup-sm">
+      <div class="pbx-popup-header">
+          <div class="pbx-popup-header-title">
+              Assign Truck
+          </div>
+          <div class="pbx-popup-header-close">
+              <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+          </div>
+      </div>
+      <div class="pbx-popup-body text-center">
+          <div class="spinner" ng-if="fetchingTrucks">
+            <div class="spinner-item">
+                <div class="spinner-animation">
+                    <img src="/resources/images/spinner.gif">
+                </div>
+            </div>
+          </div>
+          <ul class="truck-list-popup scrollareaCls">
+            <li ng-repeat="truck in trucksList">
+                <div class="truck-list-item" ng-click="closeThisDialog()">
+                  <div class="truck-list-image">
+                    <img ng-src="{{truck.photos[0].url}}" alt="">
+                  </div>
+                  <div class="truck-list-name">
+                    <p class="truck-list-name-title">{{truck.name}}</p>
+                    <p class="truck-list-name-sub-title">{{truck.make}} - {{truck.model}} - {{truck.year}}</p>
+                  </div>
+                </div>
+            </li>
+          </ul>
+      </div>  
+  </div>
+</script>
+<!-- Assign Truck Area -->
+<div ng-controller="technicianPayReportController" ng-include="'/templates/component/technician-pay-report.html?ver='+PB_WEB_VERSION"></div>
+<div class="grid chemical-cost chemical-cost-job" ng-show="gridType!=='quotes'">
+    <div class="col-1-1 ">
+      <div class="white-bg p-t20 p-lr20">
+        <div class="grid">
+          <div class="col-1-2 p-t10 p-lr0 fl">
+            <div class="col-10-12 p-0 job-feedbak job-feedbak-aligned">
+              <div class="title" ng-class="{'disabled': gridType !='jobhistory'}" ng-click="changeGridType('jobhistory')">JOBS</div>
+              <div class="title" ng-class="{'disabled': gridType !='quotes'}" ng-click="changeGridType('quotes')">QUOTES</div>
+              <div class="title" ng-class="{'disabled': gridType !='feedback'}" ng-click="changeGridType('feedback')">FEEDBACK</div>
+            </div>
+          </div>
+          <div class="col-1-2 p-t10 p-lr0 fl">
+            <div class="grid">
+              <div class="col-8-12 p-lr0 fr">
+                <div class="dropdown select-wrap filterRange-dropdown" ng-class="{'mr-80': gridType == 'feedback'}">
+                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true" style="margin-bottom: 4px;">{{jobRangeFilterData[filterRangeSelected].title}}</button>
+                  <ul class="dropdown-menu scrollable-menu">   
+                    <li ng-repeat="x in jobRangeFilterData">
+                      <a href="javascript:void(0)" ng-click="filterRange($index)">{{x.title}}</a>
+                    </li>
+                  </ul>
+                  <div class="hide-dates-text" ng-if="hideShownDatesText" ng-hide="gridType=='feedback'"  >
+                    <span style="cursor: pointer;margin-right: 37px;" ng-click="hideShowDates()"
+                      ng-if="hideShowDatesText == 'Hide future dates'">{{hideShowDatesText}}</span>
+                    <span style="cursor: pointer;margin-right: 32px;" ng-click="hideShowDates()"
+                      ng-if="hideShowDatesText == 'Show future dates'">{{hideShowDatesText}}</span>
+                  </div>
+                  <span ng-show="gridType == 'feedback'" class="excel-download-btn" ng-click="downloadFeedbackReport()" style="top: 0px; right: -60px; float: right;"></span>
+                </div>
+                <div class="grid chemical-cost-grid" ng-show="jobRangeFilterData[filterRangeSelected].type == 'custom'">
+                  <div class="datePicker input-daterange" style="position:unset">
+                    <div class="col-6-12 p-l10 p-r0 fl">
+                      <div class="smallview" date-format="MM/dd/yyyy">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('fromDate','job')" ng-click="clickDate($event)"
+                          ng-model="dateRangeModel.jobFromDate" placeholder="From Date" type="text" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="datePicker input-daterange" style="position:unset">
+                    <div class="col-6-12 p-r0 p-l10 text-right fr">
+                      <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                        <input class="angular-datepicker-input" ng-change="filterByDate('toDate','job')" ng-click="clickDate($event)"
+                          ng-model="dateRangeModel.jobToDate" placeholder="To Date" type="text" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+  <div class="grid cust-job-history data-table-grid job-dataTable" ng-show="gridType!=='quotes'" style="overflow: inherit;">
+    <div class="">
+      <div class="white-bg p-lg20 p-t10">
+        <div class="row" ng-if="routeCount || oneOfJobCount">
+          <div class="col-md-8">
+            <div class="flex invoice-filter" ng-hide="gridType=='feedback'">
+              <div class="flex" ng-class="{'disabled':!jobFilter['RoutedJob']}" ng-click="jobFilterByType('RoutedJob')">
+                <div class="tag route-stops">
+                    {{routeCount}}
+                </div>
+                <div>
+                  <div><strong>Route Stops</strong></div>
+                </div>
+              </div>        
+              <div class="flex" ng-class="{'disabled':!jobFilter['OneOfJob']}" ng-click="jobFilterByType('OneOfJob')">
+                <div class="tag jobs">
+                  {{oneOfJobCount}}
+                </div>
+                <div>
+                  <div><strong>Jobs</strong></div>
+                </div>
+              </div>        
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="search-box">
+              <i class="fa fa-search searchbtn" ng-click="doSearchJobList($event,searchText)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchJobList($event,searchText)" ng-model="searchText" placeholder="address, job title" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchJobList($event,searchText) : null">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="white-bg p-t10">
+        <div class="dataTables_wrapper" ng-init="getTechnicianJobList()">
+          <div class="list-box" id="scrollarea">
+            <table ng-if="gridType=='jobhistory'" class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th style="border-left: 10px solid transparent;"><div aria-label="DATE: activate to sort column descending" aria-sort="ascending" class="sorting"
+                    ng-class="{'sorting_asc': column == 'createTime' && dir == 'asc', 'sorting_desc': column == 'createTime' && dir == 'desc', }"
+                    colspan="1" ng-click="orderByJobList('createTime')" rowspan="1" > DATE </div>
+                </th>
+                  <th>
+                    <div class="sorting"
+                     ng-class="{'sorting_asc': column == 'customerFName' && dir == 'asc', 'sorting_desc': column == 'customerFName' && dir == 'desc', }"
+                      ng-click="orderByJobList('customerFName')">CUSTOMER</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('isOneOfJob')"
+                         ng-class="{'sorting_asc': column == 'isOneOfJob' && dir == 'asc', 'sorting_desc': column == 'isOneOfJob' && dir == 'desc', }">
+                      TYPE
+                    </div>
+                  </th>
+
+                  <th style="min-width: 190px;">
+                    <div class="sorting"
+                     ng-class="{'sorting_asc': column == 'address' && dir == 'asc', 'sorting_desc': column == 'address' && dir == 'desc', }"
+                      ng-click="orderByJobList('address')"> ADDRESS </div>
+                  </th>
+
+                  <th style="min-width: 180px !important;">
+                    <div class="row" style="display: flex;align-items: center;">
+                      <div class="col-md-5 p-r0">BODY OF WATER</div>
+                      <div class="col-md-7 text-center">ALERT(S)</div>
+                    </div>
+                    
+                  </th>
+                  <th style="min-width: 168px;">
+                    <div class="sorting"
+                          ng-click="orderByJobList('jobTitle')"
+                          ng-class="{'sorting_asc': column == 'jobTitle' && dir == 'asc', 'sorting_desc': column == 'jobTitle' && dir == 'desc', }">
+                      TITLE / SERVICE LEVEL
+                    </div>
+                  </th>
+                  <th> <div > STATUS </div></th>
+                  <th> <div > VIEWING </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody dt-rows="" ng-class="{'shown': job.jobId == openedJobId}" ng-repeat="job in dataList">
+                <tr>
+                  <td class="border-td" colspan="6" style="background: #fff;"></td>
+                </tr>
+                <tr ng-click="job.status == 1 && goToDetail(job,job.isOneOfJob)" style="cursor: pointer;" ng-class="{'deleted-jobs': job.status == 0}"
+                title-class="dark"  
+                ptitle='{{ job.status == 0 ? "Deleted by " + job.jobDeleteLogs[0].firstName +" "+ job.jobDeleteLogs[0].lastName + " - " + (job.jobDeleteLogs[0].createTime |  date:"MM/dd/yy") + " at " + (job.jobDeleteLogs[0].createTime |  date:"hh:mm a")  : ""}}' 
+                title-direction="bottom">
+                               
+                  <td ng-class="job.isOneOfJob ? 'jobs' : 'route-stops'"><div class="darkGray date-col"> {{job.createTime |  date:"MM/dd/yy"}} </div></td>
+                  <td><div class="darkGray"> {{job.displayName }}</div></td>
+                  <td>
+                    <span class="darkGray" id="job_type_{{job.jobId}}">
+                      <span ng-if="job.isOneOfJob==0">Route</span>
+                      <span ng-if="job.isOneOfJob==1">Job</span>
+                    </span>
+                    
+                  </td>
+                  <td ><div class="darkGray" id="pomeidListResponseol_location_{{job.jobId}}"> <span>{{job.address}}<br>
+                      {{job.city}}, {{job.state}} {{job.zipcode}}</span>
+                      <!--format-address address="{{job.address}}"></format-address-->
+                    </div></td>
+                    
+                    <td align="center"> 
+                      
+                      <div class="row" ng-if="job.isMwb==0">
+                        <div class="col-md-5 p-r0">
+                          <span title="{{job.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: '{{job.color ? job.color : 'inherit'}}';">{{job.waterBodyName}}</span>
+                        </div>
+                        <div class="col-md-7">
+                          <div class="alerts-icon" >
+                            <div class="tech-action-buttons" ng-if="alertIssue.issue.length > 0" ng-repeat="alertIssue in job.alerts">
+                                <a class="linkClass clientIssue"
+                                data-title="{{issue.type}}"
+                                href="javascript:void(0)"
+                                ng-repeat="issue in alertIssue.issue" style="cursor: text;">
+                                    <img alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                                    <div class="alertNote" ng-bind="getAlertTabName(issue.type)"> </div>
+                                </a>
+                              </div>
+                            <div class="tech-action-buttons" ng-if="alertIssue.systemIssue.length > 0" ng-repeat="alertIssue in job.alerts">
+                              <div ng-repeat="issue in alertIssue.systemIssue" class="tech-action-buttons alert-button">
+                                <a class="linkClass {{issue.priority}}"
+                                  data-title="{{issue.type}}"
+                                  href="javascript:void(0)" style="cursor: text;">
+      
+                                  <img alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}"/>
+                                  <div class="alertNote"> {{issue.description}} </div>
+                                  </a>
+                                </div>
+                            </div>
+                          </div> 
+                        </div>
+                      </div>
+  
+  
+                      <div ng-if="job.isMwb==1 && job.waterBodies && job.waterBodies.length > 0">
+                        <div class="row" ng-repeat="waterBody in job.waterBodies">
+                          <div class="col-md-5 p-r0">
+                            <div><span title="{{waterBody.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: '{{waterBody.color ? waterBody.color : 'inherit'}}';">{{waterBody.waterBodyName}}</span></div>                        
+                          </div>
+                          <div class="col-md-7">                          
+                            <div ng-if="job.isMwb==1" style="display: flex; margin:2px 0px; flex-wrap: wrap;" >
+                              <img style="width: 26px; margin:2px 1px" ng-repeat="issue in waterBody.alertIssueArray"  alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                              <img style="width: 26px; margin:2px 1px;" ng-repeat="issue in waterBody.alertSystemIssueArray"  alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                    
+                    
+                    </td>
+                  <!-- <td><div class="darkGray"> {{(job.isDisplinary)?'Yes':''}} </div></td> -->
+                  <td>
+                    <span class="darkGray status-col" id="job_title_{{job.jobId}}">
+                      {{job.jobTitle ? job.jobTitle : 'Untitled Job' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="darkGray status-col" id="job_status_{{job.jobId}}">
+                      {{job.jobStatus}}
+                    </span>
+                  </td>
+                  <td style="text-align: center;">
+                  <div class="image-radius name-initial"
+                       ng-if="job.serviceManagerId"
+                       ng-style="{'background-image': 'url({{job.managerProfileImage}})'}"
+                       style="background-size: cover;margin: auto;float: none;pointer-events: none;"
+                       alt="{{job.serviceManagerName}}"
+                       title="{{job.serviceManagerName}}">
+                       <span ng-show="!job.managerProfileImage">
+                         {{job.serviceManagerName | convertToInitial: ''}}
+                       </span>
+                      </div>
+                    <a style="padding-top: 13px; float:left; padding-left: 10px;width: auto;pointer-events: none;" class="technician-name" href="javascript:void(0)"
+                       ng-bind="parseName('{{job.serviceManagerName}}',25)"></a>
+                  <!-- <img alt="{{job.serviceManagerName}}" class="profile-thumb-radius" src="{{job.managerProfileImage ? job.managerProfileImage : 'resources/images/not-available-img.png'}}" style="vertical-align: middle;" title="{{job.serviceManagerName}}"/> --> </td>
+                </tr>
+              </tbody>
+              <tbody ng-if="dataList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">no route stops / jobs to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+
+
+            <table  ng-if="gridType=='feedback'" class="row-border hover no-footer dataTable" width="100%">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th></th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('createTime')"
+                         ng-class="{'sorting_asc': column == 'createTime' && dir == 'asc', 'sorting_desc': column == 'createTime' && dir == 'desc', }">DATE</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('customerName')"
+                         ng-class="{'sorting_asc': column == 'customerName' && dir == 'asc', 'sorting_desc': column == 'customerName' && dir == 'desc', }">CUSTOMER</div>
+                  </th>
+                  <th>
+                      <div class="sorting"
+                           ng-click="orderByJobList('managerName')"
+                           ng-class="{'sorting_asc': column == 'managerName' && dir == 'asc', 'sorting_desc': column == 'managerName' && dir == 'desc', }">MANAGER</div>
+                    </th>
+                  <th><div>FEEDBACK</div></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="review-tbody" dt-rows ng-repeat="reviewObj in dataList">
+                <tr>
+                  <td colspan="6" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr>
+                  <td class="left-td" rowspan="2"></td>
+                  <td>
+                      <div class="darkGray"><span class="thums-up-down"><img ng-if="reviewObj.thumbs=='UP'" src="resources/images/thums-up24.png"><img ng-if="reviewObj.thumbs=='DOWN'" src="resources/images/thums-down24.png"></span>
+                      {{getReviewDate(reviewObj.reviewDate) | date:"MM/dd/yy"}}</div>
+                  </td>
+                  <td><a class="underline-none" ng-href="app/customerdetail/{{reviewObj.customerAddress}}" >{{reviewObj.customerName}}</a></td>
+                  <td>{{!reviewObj.customerName ? reviewObj.managerName : ''}}</td>
+                  <td class="feedback-readmore">
+                    {{reviewObj.review.substring(0, reviewLengthOnGrid)}}{{reviewObj.review.length > reviewLengthOnGrid ? '...' : ''}}
+                    <a ng-if="reviewObj.review.length > reviewLengthOnGrid" href="javascript:void(0)" ng-click="openCloseReadMore(reviewObj)">Read More</a>
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && reviewObj.isOneOfJob"  ng-href="app/one-time-job/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a> 
+                    
+
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && !reviewObj.isOneOfJob"  ng-href="app/customerjobdetail/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a>                 
+                  </td>
+                  <td class="right-td" rowspan="2"></td>
+                </tr>
+
+                <div ng-if="remoreReview" id="remoreReviewModal" class="inline-popup">
+                   <div class="inline-popup-header" >
+                      <a ng-if="linkAddressId && linkJobId && isOneOfJob" class="m-r20" ng-href="app/one-time-job/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                      <a ng-if="linkAddressId && linkJobId && !isOneOfJob" class="m-r20" ng-href="app/customerjobdetail/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                     <div class="h-1-5x b m-b10 fl">{{titleName}}</div>
+                     <div class="inline-popup-close" ng-click="openCloseReadMore(false)" >
+                       <i class="fa fa-times-circle" aria-hidden="true" ></i>
+                     </div>
+                   </div>
+                   <div class="row" style="text-align: left">
+                     <div class="col-md-12">
+                       <div class="scrollable-box" id="scrollarea" >
+                         <p>{{remoreReview}}</p>
+                       </div>
+                     </div>
+                   </div>
+                  </div>
+
+
+              </tbody>
+              <tbody ng-if="dataList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">no feedback to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+
+
+          </div>
+          <div aria-live="polite" class="dataTables_info p-l20 p-b20" id="dashTable_info" role="status"> Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div>
+          <div class="pagination p-r20">
+            <paging page="page" page-size="limit" paging-action="goToTechnicianJobListPage(page)" show-first-last="true" show-prev-next="true" text-first="First" text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="quote-listing-tech-page" ng-show="gridType==='quotes'">
+  <div ng-controller="customerQuotesListController" ng-include="'/templates/component/customer-quotes-list.html?ver='+PB_WEB_VERSION"></div>
+</div>
+
+</div>
+</div>
+ <script type="text/ng-template" id="chemicalCost.html" >
+<div class="dataTables_wrapper modal-box chemical-cost-popup">
+  <div class="spinner" ng-if="isChemicalGraphProcessing" style="z-index: 9999;">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="grid text-left">
+    <div class="col-md-6 p-0 chemical-title">
+      <div class="title">
+        <div class="select custom-select custom-select-chemical-dd cgd">
+          <span>
+             <span ng-if="reportMode=='spent'">CHEMICAL COST</span>
+             <span ng-if="reportMode=='charged'">CHEMICAL PRICE</span>
+             <i class="chem-dd-icon"></i>
+          </span>
+          <select ng-model="reportModeDDValue" ng-click="reportModeChange($event)">
+             <option value="spent">CHEMICAL COST</option>
+             <option value="charged">CHEMICAL PRICE</option>
+          </select>
+       </div> :
+        <span>
+          <a href="javascript:void(0)" ng-click="closeThisDialog()" class="h-2x b underline-none p-l20">${{totalJobsCost | number}}
+            <img border="0" src="resources/images/zoom-out-icon.png" class="zoom-icon p-r5" style="vertical-align: middle" />
+          </a>
+          <a href="javascript:void(0)" class="costchart selectchart {{!showPie ? 'pie' : ''}}" id="href-CHEMICALCOST" ng-click="showPie=!showPie"></a>
+          <a href="javascript:void(0)" ng-click="downloadChemicalReport()" class="zoomed-chem-report-graph"><span class="excel-download-btn excel-download-btn-zoom-report"></span></a>
+        </span>
+      </div>
+
+    </div>
+    <div class="col-md-6 p-0">
+      
+        <div class="datePicker input-daterange" style="margin-top:-4px" ng-show="filterModel.filterMonth == 'custom'">
+          <div class="col-6-12 p-r10 fl">
+            <div class="smallview" date-format="MM/dd/yyyy">
+              <input class="angular-datepicker-input" ng-change="filterByDate('fromDate','chemical')" ng-click="clickDate($event)" ng-model="dateRangeModel.chemicalFromDate" placeholder="From Date" type="text" id="fromTPChemDatePopUp" />
+            </div>
+          </div>
+          <div class="col-6-12 m-l10 text-right fr">
+            <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+              <input class="angular-datepicker-input" ng-change="filterByDate('toDate','chemical')" ng-click="clickDate($event)" ng-model="dateRangeModel.chemicalToDate" placeholder="To Date" type="text" id="toTPChemDatePopUp" />
+            </div>
+          </div>
+        </div>
+        <div class="select custom-select custom-select-noimage fr">
+          <select ng-model="filterModel.filterMonth" ng-options="x for x in filterGraphData" ng-change="filterGraph('chemical')"></select>
+        </div>
+         
+    </div>
+  </div>
+
+  <div class="CHEMICALCOST" id="CHEMICALCOST-div">
+    <div ng-if="jobCostData.length > 0" ng-init="getGraph('CHEMICALCOST2', 'CHEMICAL COST')" id="CHEMICALCOST2" class="graphDiv" ng-show="!showPie"></div>
+    <div ng-if="pieChemicalCostData.length > 0" ng-init="getGraph('PIECHEMICALCOST', 'CHEMICAL COST')" id="PIECHEMICALCOST" class="graphDiv" ng-show="showPie" style="margin: 0 auto;  max-width: 600px;"></div>
+
+  </div>
+  <div  class="visit-count">VISITS: {{totalJobs}}</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="alertTrend.html" >
+  <div class="dataTables_wrapper modal-box chemical-cost-popup">
+    <div class="spinner" ng-if="isProcessing" style="z-index: 9999;">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="grid text-left">
+      <div class="col-md-6 p-0 chemical-title">
+        <div class="title">Alert Trend
+          <span>
+            <a href="javascript:void(0)" ng-click="closeThisDialog()" class="h-2x b underline-none p-l20">
+              <img border="0" src="resources/images/zoom-out-icon.png" class="zoom-icon p-r5" style="vertical-align: middle" />
+            </a>
+            <a href="javascript:void(0)" class="costchart selectchart {{!showAlertPie ? 'pie' : ''}}" id="href-CHEMICALCOST" ng-click="showAlertPie=!showAlertPie"></a>
+          </span>
+        </div>
+      </div>
+      <div class="col-md-6 p-0" >
+          <div class="datePicker input-daterange" style="margin-top:-4px" ng-show="filterModel.filterMonthAlert == 'custom'">
+            <div class="col-6-12 p-r10 fl">
+              <div class="smallview" date-format="MM/dd/yyyy">
+                <input class="angular-datepicker-input" ng-change="filterByDate('fromDate','alert')" ng-click="clickDate($event)" ng-model="dateRangeModel.alertFromDate" placeholder="From Date" type="text"/>
+              </div>
+            </div>
+            <div class="col-6-12 m-l10 text-right fr">
+              <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                <input class="angular-datepicker-input" ng-change="filterByDate('toDate','alert')" ng-click="clickDate($event)" ng-model="dateRangeModel.alertToDate" placeholder="To Date" type="text"/>
+              </div>
+            </div>
+          </div>
+          <div class="select custom-select custom-select-noimage fr">
+            <select ng-model="filterModel.filterMonthAlert" ng-change="filterGraph('alert')" ng-options="x for x in filterGraphData"></select>
+          </div>
+              
+      </div>
+    </div>
+    <div class="ALERTTRENDMODEL" id="ALERTTRENDMODEL-div" >
+      <div ng-if="alertCountData.length > 0" ng-init="getGraph('ALERTTRENDMODEL', 'ALERT TREND')" id="ALERTTRENDMODEL" class="graphDiv"  ng-show="!showAlertPie"></div>
+      <div ng-if="pieAlertTrendData.length > 0" ng-init="getGraph('PIEALERTTRENDMODEL', 'ALERT TREND')" id="PIEALERTTRENDMODEL" class="graphDiv" ng-show="showAlertPie" style="margin: 0 auto;  max-width: 600px;"></div>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="sentReportEmailPopupFeedback.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+    <div class="popup-header">
+       <span class="heading">Create Report</span>
+       <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>  
+    <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+       <div class="detail-box">         
+       <div class="grid text-left box" >         
+          <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+          <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+          <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+          <div class="col-12 sent-email-report-message">
+           Where should we send the report when it's ready? <br> (large reports can take a while)
+          </div>
+          <div class="col-12-12">                 
+             <div class="formGroup">
+                   <label>Email Address</label>
+                   <input 
+                      type="email" 
+                      autocomplete="off" 
+                      class="form-control" 
+                      ng-model="reportPageSentReportEmailModel.email" 
+                      placeholder="Email Address" 
+                      name="emailId" 
+                      ng-maxlength="100" 
+                      ng-minlength="6" 
+                      ng-disabled="reportPageIsReportSending"
+                      ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                      ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                      required                         
+                   />
+             </div>     
+          </div>
+       </div>      
+       <div class="text-center p-t20">
+          <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+          <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+       </div>        
+       </div>
+    </form>
+   </div>
+ </script>

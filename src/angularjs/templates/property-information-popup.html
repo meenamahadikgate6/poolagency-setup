@@ -1,0 +1,73 @@
+<div>  
+    <div class="grid" style="overflow: inherit;">
+      <ul class="pi-icon-warpper">
+        <li ng-repeat="propertyItem in propertyItems track by $index">
+       
+          <a href="javascript:void(0)" ng-click="showPropertyItemDetail(propertyItem.slug)" class="pi-icon pi-{{propertyItem.slug}} pi-status{{propertyItem.status}}">
+            <div class="pi-tooltip">
+              <strong ng-class="propertyItem.status == 'YES' ? 'light-blue' : 'light-grey'">{{(propertyItem.status == 'YES' && propertyItem.slug == 'hasDogs' ? 'Has' :'')}} {{propertyItem.label}}</strong> 
+              <div style="width: 136px; word-wrap: break-word;">
+                {{(propertyItem.value == 'true' ? '' : propertyItem.value)}}           
+              </div>               
+            </div>
+          </a>
+        </li>  
+      </ul>
+    </div>
+  <script type="text/ng-template" id="propertyItemDetails.html">
+    <div class="dataTables_wrapper modal-box common-popup propertyItem-detail-popup">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="propertyItemForm" ng-submit="propertyItemForm.$valid  ? savePropertyItemDetail(model) : focusOnInvalidInput(propertyItemForm.$valid)" novalidate>
+        <div class="popup-header">
+          <span class="heading">{{selectedPropertyItem[0].label}}</span>
+          <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+        </div>
+        <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+          <success ng-if="successMsg && !crossClicked" message="{{successMsg}}"></success>
+          <error ng-if="error" message="{{error}}"></error>
+        </div>
+        <div class="detail-box">
+          <div class="grid text-left">
+            <div class="col-12-12 p-0">
+              <!-- <a href="javascript:void(0)" ng-if="selectedPropertyItem[0].value" ng-click="eraseData()" class="delete-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17">
+                  <path fill="#34495E" fill-rule="evenodd" d="M11.816 15.622l.665-11.747H2.356l.67 11.706 8.79.041zM7.418 2.04c-.441 0-.848.18-1.155.475h2.309a1.672 1.672 0 0 0-1.154-.475zm6.766.475c.36 0 .652.304.652.68 0 .375-.291.68-.652.68h-.398v.001l-.675 11.787c-.045.741-.614 1.319-1.295 1.319H3.022c-.685 0-1.255-.58-1.298-1.32L1.05 3.877l.001-.001H.652A.666.666 0 0 1 0 3.195c0-.376.292-.68.652-.68h4.032C5.169 1.423 6.225.68 7.419.68c1.192 0 2.248.743 2.733 1.835h4.033zm-9.24 11.97a.664.664 0 0 1-.651-.641L3.86 5.74a.67.67 0 0 1 .614-.716c.357-.026.667.266.687.64l.435 8.104c.02.375-.255.696-.615.717h-.037zm4.91 0a.67.67 0 0 1-.615-.717l.435-8.103c.02-.375.335-.669.686-.642a.67.67 0 0 1 .615.718l-.434 8.103a.664.664 0 0 1-.65.641h-.037zm-2.437 0a.666.666 0 0 1-.652-.68V5.703c0-.375.292-.68.652-.68.361 0 .653.305.653.68v8.104c0 .375-.292.68-.653.68z"></path>
+                </svg>
+              </a>     -->
+              <div class="checkbox-default" ng-if="selectedPropertyItem[0].slug == 'hasDogs'" >
+                <label for="isDog" >
+                  Customer Has Dogs
+                  <input type="checkbox" name="isDog" id="isDog" ng-model="model.isDog"  ng-click="onChangeRadio();" ng-checked="selectedPropertyItem[0].value"/>
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="formGroup" ng-if="selectedPropertyItem[0].slug == 'gateCode' || showDogNameField">
+                <label ng-if="showDogNameField">Names / Notes</label>
+                <label ng-if="selectedPropertyItem[0].slug == 'gateCode'">Code</label>
+                <input class="form-control" ng-model="model.value" ng-blur="saveData(selectedPropertyItem[0].slug)" value="{{model.value}}" maxLength="{{selectedPropertyItem[0].slug == 'hasDogs' ? '100' : '10'}}"  />
+              </div> 
+            <div class="formGroup" ng-if="selectedPropertyItem[0].slug == 'accessNotes'">
+                <label>Notes</label>
+              <textarea class="form-control" style="height: 140px!important;" row='1' ng-model="model.value" ng-blur="saveData(model)" maxLength="300" >{{model.value}}</textarea>
+              <span class="c-limit">Characters limit: 300</span>
+            </div>           
+            </div>
+          </div>
+        </div>
+      </form>
+     
+      <div class="navigation-arrow">
+        <div class="left-empty-arrow"></div>
+        <a href="javascript:void(0)" ng-click="showPropertyItemDetail(propertyItemPrev)" class="left arrow icon-arrow"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+        <a href="javascript:void(0)" ng-click="showPropertyItemDetail(propertyItemNext)" class="right arrow icon-arrow"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        <div class="right-empty-arrow"></div>
+      </div>
+    </div>
+  </script>
+</div>

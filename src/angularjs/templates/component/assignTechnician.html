@@ -1,0 +1,44 @@
+<div class="dataTables_wrapper modal-box common-popup technician-list-popup" style="width:400px; ">
+	<div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+	<div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+		<div class="spinner-item">
+			<div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+		</div>
+	</div>
+	<div class="popup-header">
+		<span class="heading">Assign Technician</span>
+		<div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i>
+		</div>
+	</div>
+	<div class="popup-body">
+		<div class="row-container">
+			<div class="formGroup text-center">
+				<img src="resources/images/magnifiy.png">
+				<input type="text" ng-model="techSearchBox.techSearchText" placeholder="Search" class="form-control" ng-keyup="searchTech(techSearchBox.techSearchText)" />
+			</div>
+			<ul>
+				<li ng-click="technician.id != techId && assignTechnician(0)" ng-class="{'selected':technician.id == techId}">
+					<i class="fa fa-check-circle"></i>
+					<div class="image-radius name-initial">
+						<i class="fa fa-user-circle assign-tech"></i>
+					</div>
+					<span class="name" style="color:#000">Remove Technician</span>
+				</li>
+				<hr style="border-color: #ccc;" class="m-tb10" />
+
+			</ul>
+			<ul id="scrollarea" style="overflow: auto; height: 283px;">
+				<li ng-repeat="tech in technicianList" ng-click="tech.id != techId && assignTechnician(tech.id, $index)"
+					ng-class="{'selected':tech.id == techId}">
+					<i class="fa fa-check-circle"></i>
+					<div class="image-radius name-initial" style="background-image:url('{{tech.userImage}}');background-size: cover;">
+						<span ng-show="!tech.userImage">
+							{{tech.firstName | convertToInitial: tech.lastName}}
+						</span>
+					</div>
+					<span class="name"> {{tech.firstName}} {{tech.lastName}}</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>

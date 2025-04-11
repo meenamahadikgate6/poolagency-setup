@@ -1,0 +1,600 @@
+<div class="quote-setting-wrapper m-t20" ng-init="getQuoteSettings()"> 
+  <div class="row">
+      <div class="col-lg-12">
+          <div class="set-chem-price setting-sm-card-loader-parent" style="width: 100%;" ng-class="{ 'quoteSettingAreaDisabled' : quoteSettingAreaDisabled }">
+            <div class="setting-sm-card-loader" ng-if="settingPageLoaders.QuoteSettingSection || isQuoteTemplatesProcessing || quoteCloseAfterDaysUpdating || quoteAutoCloseToggleStatusUpdating">
+              <div class="spinner">
+                 <div class="spinner-item">
+                    <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                 </div>
+              </div>
+           </div>
+              <div class="set-chem-title">Quotes</div>
+              <div class="set-chem-details" ng-class="{ 'hide-quote-settings-data' : settingPageLoaders.QuoteSettingSection || settingPageLoaders.QuoteSettingSection }">                    
+                <div class="row">
+                  <div class="col-xs-12">
+                    <success ng-if="quoteSettingSuccess" message="{{quoteSettingSuccess}}"></success>
+                    <success ng-if="templateSuccessMsg" message="{{templateSuccessMsg}}"></success>
+                    <error ng-if="quoteSettingError" message="{{quoteSettingError}}"></error>
+                  </div>
+                </div>                         
+                <div class="row quote-setting-toggle-line-single-line">
+                  <div class="col-lg-12 quote-setting-toggle-line-single-col">
+                    <div class="m-tb15 quote-setting-toggle-line">
+                      <span class="h-2x v-align-top p-r10 nowrap">
+                        <b>Require users to enter notes when changing status</b>
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span class="skip-nowrap">When office staff changes the status of a quote to any other status (Approved, Denied, Open, Closed), this will require them to enter notes explaining why the status was changed, etc</span>
+                        </a>
+                      </span>
+                      <label class="switch switch-quote-settings" ng-click="changeIsNotesRequired()">
+                        <span ng-class="{'active' : quoteSettingsData.isNotesRequired}" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-lg-12 quote-setting-toggle-line-single-col">
+                    <div class="m-tb15 quote-setting-toggle-line">
+                      <span class="h-2x v-align-top p-r10 nowrap">
+                        <b class="auto-close-label">
+                          <span>Quotes not approved after</span>
+                          <input type="text" class="form-control autoclose-input"
+                            ng-model="quoteSettingsData.quoteAutoCloseAfter"
+                            ng-disabled="!quoteSettingsData.quoteAutoClose || quoteCloseAfterDaysUpdating"
+                            ng-blur="updateQuoteCloseAfter()"
+                            allow-typing="^[0-9]+$"
+                            maxlength="3"
+                          >
+                          <span>days will be automatically closed</span>
+                        </b>                        
+                      </span>
+                      <label class="switch switch-quote-settings" ng-click="!quoteAutoCloseToggleStatusUpdating ? toggleQuoteAutoClose() : null">
+                        <span ng-class="{ 'active' : quoteSettingsData.quoteAutoClose }" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div> 
+                </div>
+                <div class="row">
+                  <div class="col-lg-6 col-sm-12">
+                    <div class="m-tb15 quote-setting-toggle-line">
+                      <span class="h-2x v-align-top p-r10">
+                        <b>Notify office when customer <span class="quote-setting-label-success">approves</span> quote</b>
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span>When quotes are emailed to customers, they can approve or deny them by clicking a button on the quote. You can choose which email address(es) you want notifications sent to when this happens. You will not receive email notifications when office staff approve or deny quotes.</span>
+                        </a>
+                      </span>
+                      <label class="switch switch-quote-settings" ng-click="changeIsNotifyApprovesQuote()">
+                        <span ng-class="{'active' : quoteSettingsData.isNotifyApprovesQuote}" class="slider round"></span>
+                      </label>
+                    </div>
+                    <!-- ng-class="{ 'disable-email-area' : !quoteSettingsData.isNotifyApprovesQuote }" -->
+                    <div class="mb-15" ng-show="quoteSettingsData.isNotifyApprovesQuote">
+                      <div class="email-list-wrapper">
+                        <div class="email-list-box" ng-repeat="emailData in quoteSettingsData.approveEmailsData">
+                          <input 
+                              type="text"                               
+                              class="form-control" 
+                              ng-model="emailData.email"
+                              id="qseaInp_{{emailData.id}}"                              
+                              ng-blur="!isCreateJobPopupIsOpen && !isCreateInvoicePopupIsOpen && !isCreateQuotePopupIsOpen && updateEmail(emailData, 'Approved')"
+                              ng-focus="focusOnEmailInp()"
+                              autocomplete="off"
+                          />   
+                          <a href="javascript:void(0)" class="btn-qs-remove-email" id="remove_Approved_email_btn_{{emailData.id}}" ng-click="confirmDeleteEmail(emailData, 'Approved')"><i class="fa fa-times"></i> <span class="qs-email-removing"></span></a>                     
+                        </div>
+                        <div class="email-list-add-link" ng-if="!showingNewEmailInputApproved">
+                          <a href="javascript:void(0)" ng-click="toggleNewEmailInputDenied('Approved', true)">add another email address</a>
+                        </div>
+                        <div class="email-list-box" ng-if="showingNewEmailInputApproved">
+                          <input 
+                              type="text"                               
+                              class="form-control addEmailInput" 
+                              id="addApprovedEmailInput"   
+                              ng-blur="!isCreateJobPopupIsOpen && !isCreateInvoicePopupIsOpen && !isCreateQuotePopupIsOpen && addEmailAddress('Approved')"
+                              ng-focus="focusOnEmailInp()"    
+                              autocomplete="off"                       
+                          />   
+                          <!-- <a href="javascript:void(0)" class="btn btn-primary qs-btn-loading" id="add_Approved_email_btn" ng-if="$scope.quoteSettingsData.id != 0" ng-click="addEmailAddress('Approved')"><i class="fa fa-plus"></i> <span class="txt">Add</span> <span class="qs-btn-loader"></span></a>                        -->
+                          <a href="javascript:void(0)" class="btn-qs-remove-email" id="cancel_Approved_email_btn" ng-click="toggleNewEmailInputDenied('Approved', false)"><i class="fa fa-close"></i>  <span class="qs-btn-loader"></span></a>                       
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-sm-12">
+                    <div class="m-tb15 quote-setting-toggle-line">
+                      <span class="h-2x v-align-top p-r10">
+                        <b>Notify office when customer <span class="quote-setting-label-error">denies</span> quote</b>
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span>When quotes are emailed to customers, they can approve or deny them by clicking a button on the quote. You can choose which email address(es) you want notifications sent to when this happens. You will not receive email notifications when office staff approve or deny quotes.</span>
+                        </a>
+                      </span>
+                      <label class="switch switch-quote-settings" ng-click="changeIsNotifyDeniesQuote()">
+                        <span ng-class="{'active' : quoteSettingsData.isNotifyDeniesQuote}" class="slider round"></span>
+                      </label>
+                    </div>
+                    <!-- ng-class="{ 'disable-email-area' : !quoteSettingsData.isNotifyDeniesQuote }" -->
+                    <div class="mb-15" ng-show="quoteSettingsData.isNotifyDeniesQuote">
+                      <div class="email-list-wrapper">
+                        <div class="email-list-box" ng-repeat="emailData in quoteSettingsData.denyEmailsData">
+                          <input 
+                              type="text"                               
+                              class="form-control" 
+                              ng-model="emailData.email"
+                              id="qseaInp_{{emailData.id}}"
+                              ng-blur="!isCreateJobPopupIsOpen && !isCreateInvoicePopupIsOpen && !isCreateQuotePopupIsOpen && updateEmail(emailData, 'Denied')"
+                              ng-focus="focusOnEmailInp()"
+                              autocomplete="off"
+                          />   
+                          <a href="javascript:void(0)" class="btn-qs-remove-email" id="remove_Denied_email_btn_{{emailData.id}}" ng-click="confirmDeleteEmail(emailData, 'Denied')"><i class="fa fa-times"></i> <span class="qs-email-removing"></span></a>                       
+                        </div>
+                        <div class="email-list-add-link" ng-if="!showingNewEmailInputDenied">
+                          <a href="javascript:void(0)" ng-click="toggleNewEmailInputDenied('Denied', true)">add another email address</a>
+                        </div>
+                        <div class="email-list-box" ng-if="showingNewEmailInputDenied">
+                          <input 
+                              type="text"                               
+                              class="form-control addEmailInput" 
+                              id="addDeniedEmailInput"       
+                              ng-blur="!isCreateJobPopupIsOpen && !isCreateInvoicePopupIsOpen && !isCreateQuotePopupIsOpen && addEmailAddress('Denied')"  
+                              ng-focus="focusOnEmailInp()"   
+                              autocomplete="off"                  
+                          />   
+                          <!-- <a href="javascript:void(0)" class="btn btn-primary qs-btn-loading" id="add_Denied_email_btn" ng-if="$scope.quoteSettingsData.id != 0" ng-click="addEmailAddress('Denied')"><i class="fa fa-plus"></i> <span class="txt">Add</span> <span class="qs-btn-loader"></span></a>  -->
+                          <a href="javascript:void(0)" class="btn-qs-remove-email" id="cancel_Denied_email_btn" ng-click="toggleNewEmailInputDenied('Denied', false)"><i class="fa fa-close"></i>  <span class="qs-btn-loader"></span></a>                        
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="m-tb15">
+                      <span class="h-2x v-align-top p-r10">
+                        <b>Default Notes </b>
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>Notes entered here will be added by default to the bottom of every quote created. Notes can be manually added or changed on each quote at any time.</span>
+                        </a>
+                      </span>                        
+                    </div>
+                    <textarea class="form-control minH-50" maxlength="10000" ng-model="quoteSettingsData.defaultNotes" name="defaultNotes" ng-blur="changeQuoteDefaultNotes()"></textarea>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">                    
+                    <div class="quote-template-wrapper">
+                      <div class="quote-template-wrapper-header">
+                        <span class="h-2x v-align-top p-r10">
+                          <b>Quote Templates </b>
+                          <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                            <span>This is template section</span>
+                          </a>
+                        </span>                        
+                        <a href="javascript:void(0)" ng-click="openTemplate(getBlankQuoteTemplate(), 'add')" class="add-icon-circle modal-opener-link">Add <i class="fa fa-plus" aria-hidden="true"></i></a>                       
+                      </div>
+                      <div class="quote-template-area-body">                        
+                        <div class="row">
+                          <div class="col-md-12 col-lg-5">
+                            <table class="table quote-template-area-table">                           
+                              <tbody>
+                                  <tr ng-repeat="template in quoteTemplates">
+                                      <td class="quote-template-column-name"><span>{{template.templateName}}</span></td>
+                                      <td class="quote-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="openTemplate(template, 'edit')">edit</a></td>
+                                      <td class="quote-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="openTemplate(template, 'delete')">delete</a></td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                          </div>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      </div>
+  </div>
+</div>
+<script type="text/ng-template" id="deletEmailFromQuoteSettingsConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete this Email?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeDeleteEmailModal()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red" type="submit" ng-click="confirmedEmailFromQuoteSettingsAction()">DELETE</button>
+         </div>
+       </div>
+     </div>
+   </div>
+</script>
+<script type="text/ng-template" id="quoteTemplateModal.html" >
+  <div class="dataTables_wrapper modal-box quote-setting-wrapper-modal quote-setting-wrapper-modal-{{selectedTemplateForModificationMode}}">
+    <form name="quoteTemplateForm" autocomplete="off" novalidate> 
+      <div class="popup-header quote-template-header">
+          <div class="h-1-5x b white text-center">              
+              <span ng-if="selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit'">
+                <div ng-if="!templateNameEditing" class="quote-template-header-name">
+                  <span>{{selectedTemplateForModification.templateName}}</span>
+                  <i class="fa fa-pencil" ng-click="!isQuoteTemplatesProcessing && turnOnTemplateNameEditing()"></i>
+                </div>
+                <div ng-if="templateNameEditing" class="quote-template-header-form-group">                      
+                  <input type="text" class="form-control" ng-model="selectedTemplateForModification.templateName" id="templateName" name="templateName" required
+                  name="templateName"
+                  ng-blur="turnOffTemplateNameEditing()"
+                  ng-class="{'has-error': quoteTemplateForm.$submitted && quoteTemplateForm.templateName.$invalid || quoteTemplateForm.templateName.$touched && quoteTemplateForm.templateName.$invalid}">
+                  <i class="fa fa-pencil" ng-click="!isQuoteTemplatesProcessing && turnOffTemplateNameEditing()"></i>
+                </div>
+              </span>
+              <span ng-if="selectedTemplateForModificationMode=='delete'">Confirm</span>                
+          </div> 
+      </div>
+      <div class="popup-body text-center setting-sm-card-loader-parent">       
+          <error ng-if="templateErrorMsg" message="{{templateErrorMsg}}"></error>       
+          <div class="setting-sm-card-loader" ng-if="isQuoteTemplatesProcessing">
+              <div class="spinner">
+                 <div class="spinner-item">
+                    <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                 </div>
+              </div>
+           </div>
+          <!-- add edit template -->          
+              <ng-container ng-if="selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit'">                  
+                <div class="quote-template-action-area scrollareaCls">           
+                  <div class="form-group">
+                      <label class="form-label">Quote Title</label>
+                      <input type="text" class="form-control" ng-model="selectedTemplateForModification.quotesTitle" id="quotesTitle" name="quotesTitle" 
+                      name="quotesTitle"
+                      placeholder="Brief Description"
+                      ng-class="{'has-error': quoteTemplateForm.$submitted && quoteTemplateForm.quotesTitle.$invalid || quoteTemplateForm.quotesTitle.$touched && quoteTemplateForm.quotesTitle.$invalid}">
+                      <span class="required-template-input">Subject is required</span>
+                  </div> 
+                  <div class="form-group">
+                    <div class="line-items-area-headings">
+                      <table class="quote-template-lineitem-table">
+                        <thead>
+                          <tr>
+                            <th class="qtlt-label">&nbsp;</th>
+                            <th class="qtlt-name"><a href="javascript:void(0)" class="add-line-item-btn" ng-click="openSearchProduct()">Add New<i class="fa fa-plus"></i></a></th>
+                            <th class="qtlt-qty">QTY</th>
+                            <th class="qtlt-price">PRICE</th>
+                            <th class="qtlt-amount">AMOUNT</th>
+                            <th class="qtlt-tax">TAX</th>
+                          </tr>
+                        </thead>
+                        <tbody ng-if="isProductSearchOn">
+                          <tr>
+                            <td></td>
+                            <td colspan="2">
+                              <div class="quote-template-product-search-area">
+                                <div class="product-search-widget-holder --small --fixed --scrollable">
+                                  <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('quoteTemplate',lineitemData)"></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="line-items-area scrollareaCls">
+                      <table class="quote-template-lineitem-table">                                                
+                        <tbody ng-repeat="lineitem in lineitemData">
+                          <tr>
+                            <td class="qtlt-label">
+                              <div class="label-dd-template-menu-holder" ng-if="lineitem.islabels=='N'">
+                                <div class="dropdown">
+                                  <button class="dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                      add label
+                                  </button>
+                                  <ul class="dropdown-menu ">                         
+                                    <li ng-repeat="label in labelsMaster" ng-click="lineitem.islabels='Y'; lineitem.islabelsText=label">{{label}}</li>                              
+                                  </ul>
+                                </div>                                
+                              </div>                                                    
+                              <span class="quote-template-label" ng-if="lineitem.islabels=='Y'">{{lineitem.islabelsText}} <span class="quote-template-label-remover" ng-click="lineitem.islabels='N'; lineitem.islabelsText=''">&times;</span></span>
+                            </td>
+                            <td class="qtlt-name">
+                              <div class="line-item-label">
+                                <span class="line-item-edit-link" ng-click="turnOnLineItemEditing(lineitem); cacheValue(lineitem)">edit</span>
+                                <b>{{lineitem.title}}</b>
+                              </div>
+                              <div class="line-item-desc">
+                                <p ng-if="!lineitem.editMode">{{lineitem.description}}</p>
+                                <textarea auto-height ng-if="lineitem.editMode" ng-model="lineitem.description" type="text" class="form-control quote-template-input"></textarea>                         
+                              </div>
+                            </td>
+                            <td class="qtlt-qty">
+                              <span ng-hide="lineitem.category != 'Bundle' && lineitem.editMode">{{lineitem.qty | number}}</span>                              
+                              <input ng-if="lineitem.category != 'Bundle' && lineitem.editMode" ng-model="lineitem.qty" 
+                              allowinputonlytwodecimal                                
+                              allow-typing="^[0-9.-]+$" 
+                              type="number"
+                              class="input-number form-control quote-template-input"
+                              ng-blur="lineitem.qty == null || lineitem.qty == undefined ? lineitem.qty = 1 : null"
+                              >                              
+                            </td>
+                            <td class="qtlt-price">
+                              <ng-container ng-if="lineitem.category != 'Bundle'">
+                                <span ng-if="!lineitem.editMode">{{ currencyTrimmer(lineitem.unitPrice) | currency}}</span>
+                                <input ng-if="lineitem.editMode" ng-model="lineitem.unitPrice" 
+                                allowinputonlytwodecimal                                
+                                allow-typing="^[0-9.-]+$" 
+                                type="number"
+                                class="input-number form-control quote-template-input"
+                                ng-blur="lineitem.unitPrice == null || lineitem.unitPrice == undefined ? lineitem.unitPrice = 0 : null"
+                              >
+                              </ng-container>
+                              <ng-container ng-if="lineitem.category == 'Bundle'">
+                                {{ currencyTrimmer(totalOfBundleAmount(lineitem.bundleItemReference)) | currency}}
+                              </ng-container>
+                            </td>
+                            <td class="qtlt-amount">
+                              <ng-container ng-if="lineitem.category != 'Bundle'">
+                                {{ currencyTrimmer(lineitem.unitPrice*(lineitem.qty)) | currency}}
+                              </ng-container>
+                              <ng-container ng-if="lineitem.category == 'Bundle'">
+                                {{ currencyTrimmer(totalOfBundleAmount(lineitem.bundleItemReference)) | currency}}
+                              </ng-container>
+                            </td>
+                            <td class="qtlt-tax"><input ng-if="lineitem.category!='Bundle'" type="checkbox" style="opacity: 1;width: auto;" ng-model="lineitem.isChargeTax" ng-true-value="1" ng-false-value="0"></td>                            
+                          </tr>    
+                          <tr ng-if="lineitem.editMode">
+                            <td></td>                            
+                            <td colspan="100%">
+                              <div class="line-item-actions">
+                                <div class="line-item-action-left">
+                                  <button type="button" ng-click="turnOffLineItemEditing(lineitem)" class="line-item-action-btn">SAVE</button>
+                                  <button type="button" ng-click="resetValue(lineitem)" class="line-item-action-btn line-item-action-btn-outline">CANCEL</button>
+                                </div>
+                                <div class="line-item-action-right">
+                                  <button type="button" class="line-item-action-btn line-item-action-btn-danger" ng-click="removeProductFromLineItems(lineitem)">Delete</button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>                    
+                          <tr ng-if="lineitem.category == 'Bundle' && lineitem.bundleItemReference" ng-repeat="bundleItem in lineitem.bundleItemReference">
+                            <td>&nbsp;</td>
+                            <td style="padding-left:30px">
+                              <div class="line-item-label">                                
+                                <b>{{bundleItem.title}}</b>
+                              </div>
+                              <div class="line-item-desc">                                                                
+                                <p>{{bundleItem.description}}</p>                                
+                              </div>                            
+                            </td>
+                            <td class="qtlt-qty">
+                              <span ng-if="!lineitem.editMode">{{bundleItem.qty | number}}</span>
+                              <input ng-if="lineitem.editMode" ng-model="bundleItem.qty" 
+                              allowinputonlytwodecimal                                
+                              allow-typing="^[0-9.-]+$" 
+                              type="number"
+                              class="input-number form-control quote-template-input"
+                              ng-blur="bundleItem.qty == null || bundleItem.qty == undefined ? bundleItem.qty = 1 : null"
+                              >
+                            </td>
+                            <td class="qtlt-price">
+                              <span ng-if="!lineitem.editMode">{{ currencyTrimmer(bundleItem.unitPrice) | currency}}</span>
+                              <input ng-if="lineitem.editMode" ng-model="bundleItem.unitPrice"
+                              allowinputonlytwodecimal                                
+                              allow-typing="^[0-9.-]+$" 
+                              type="number"
+                              class="input-number form-control quote-template-input"
+                              ng-blur="bundleItem.unitPrice == null || bundleItem.unitPrice == undefined ? bundleItem.unitPrice = 0 : null"
+                              >
+                            </td>
+                            <td class="qtlt-amount">{{currencyTrimmer(bundleItem.unitPrice*(bundleItem.qty)) | currency}}</td>
+                            <td class="qtlt-tax"><input type="checkbox" style="opacity: 1;width: auto;" ng-model="bundleItem.isChargeTax" ng-true-value="1" ng-false-value="0"></td> 
+                          </tr>   
+                          <tr>
+                            <td></td>
+                            <td colspan="100">
+                              <div class="quote-li-img-container quote-li-img-container-template">
+                                <div class="quote-li-image-div" ng-if="lineitem.photos && lineitem.photos.length > 0"  ng-repeat="photo in lineitem.photos">
+                                    <div ng-if="!photo.fileName.endsWith('.pdf')" class="quote-li-img-holder" ng-click="showFullScreenImages($index, getPhotosArr(lineitem.photos), awsCDNpath, photo.fileName.endsWith('.pdf') ? 'pdf' : 'photo')">
+                                        <img src="{{awsCDNpath}}{{photo.fileName}}" alt=""> 
+                                    </div>
+                                    <div ng-if="photo.fileName.endsWith('.pdf')" class="quote-li-img-holder">
+                                      <a href="javascript:void(0)" ng-click="downloadPDFfromLineItem(awsCDNpath + photo.fileName)" >
+                                        <i class="fa fa fa-file-pdf-o" style="font-size:34px"></i>
+                                      </a>
+                                  </div>
+                                    <span class="quote-li-img-delete-btn" ng-click="deleteFromImagePopup(lineitem, photo)"><i class="fa fa-times"></i></span>
+                                    <div class="quote-li-caption-area">
+                                        <span class="quote-li-img-caption quote-li-img-caption-text" ng-if="photo.caption && photo.caption !== ''" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_text">{{photo.caption}}</span> 
+                                        <span ng-if="photo.caption" class="quote-li-img-caption-edit" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_edit"><a href="javascript:void(0)" ng-click="showCaptionInput(getSanitizedId(photo.fileName))"><i class="fa fa-pencil"></i></a></span>                                         
+                                        <span ng-if="!photo.caption || photo.caption == ''" class="quote-li-img-caption quote-li-img-caption-link" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_link"><a href="javascript:void(0)" class="add-link" ng-click="showCaptionInput(getSanitizedId(photo.fileName))">add caption</a></span>
+                                        <span class="quote-li-img-caption-input" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_input"><textarea auto-height data-index="{{$parent.$index}}" ng-blur="saveCaption($event, photo, lineitem, getSanitizedId(photo.fileName))">{{photo.caption}}</textarea></span>
+                                    </div>                                          
+                                </div>
+                                <label class="quote-li-img-uploader-btn" ng-if="!lineitem.photos || lineitem.photos.length < 10" ng-class="{ 'uploading' : quoteImageProcessing[$index] }"  title="Attach Photo or PDF">
+                                    <input type="file" accept="image/png, image/gif, image/jpeg, image/jpg, application/pdf" data-index="{{$index}}" id="qouteImgInput_{{$index}}" onchange="angular.element(this).scope().quoteTemplateLiImageInputChange(event)"/>
+                                    <span class="quote-li-img-icon"></span>
+                                    <span class="quote-li-img-uploading"></span>
+                                </label>
+                            </td>
+                          </tr>                     
+                        </tbody>
+                      </table>
+                    </div>
+                    <table class="quote-template-lineitem-total-table">
+                      <tr>
+                        <td>Subtotal</td>                        
+                        <td>{{currencyTrimmer(getTotal().subTotalAmount) | currency}}</td>
+                      </tr>
+                      <tr>
+                        <td>Taxable Subtotal</td>                        
+                        <td>{{currencyTrimmer(getTotal().taxableSubTotal) | currency}}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="discount-label-holder">
+                            <span class="discount-label-text">Discount</span>
+                            <span ng-if="discountValue && discountValueType=='$'">(${{discountValue | number:2}})</span>
+                            <span ng-if="discountValue && discountValueType=='%'">({{discountValue | number:2}}%)</span>
+                            <span ng-if="discountValue" class="remove-discount-btn" ng-click="removeDiscount()">remove</span>
+                            <div ng-if="showDiscountInputBox" class="discount-label">
+                              <div class="quote-template-discount-group">
+                                <input                                                            
+                                ng-model="discountValue"
+                                allowinputonlytwodecimal
+                                allow-typing="^[0-9.]+$" 
+                                type="number"
+                                class="input-number form-control quote-template-input"
+                                id="discountValue"
+                                >
+                                <select class="form-control quote-template-input" id="discountValueType">
+                                  <option value="$">$</option>
+                                  <option value="%">%</option>
+                                </select>
+                              </div>
+                              <button type="button" class="line-item-action-btn line-item-action-btn-success" ng-click="setDiscountValue()">Save</button>
+                            </div>
+                          </div>
+                        </td>                        
+                        <td>
+                          <ng-container ng-if="discountValue==0">
+                            <button ng-if="!showDiscountInputBox" ng-disabled="getTotal().subTotalAmount == 0" type="button" class="line-item-action-btn line-item-action-btn-outline" ng-click="toggleDiscountInput()">Add</button>                            
+                            <button ng-if="showDiscountInputBox" type="button" class="line-item-action-btn line-item-action-btn-outline" ng-click="toggleDiscountInput()">Cancel</button>
+                          </ng-container>
+                          <ng-container ng-if="discountValue!=0">
+                            <span class="discount-value">
+                              <span ng-if="quoteTemplateDiscountValue >= 0">-</span> {{currencyTrimmer(quoteTemplateDiscountValue) | currency}}
+                            </span>
+                          </ng-container>
+                      </td>
+                      </tr>
+                      <tr>
+                        <td><b>Total</b></td>                        
+                        <td><b>{{currencyTrimmer(getTotal().totalAmount) | currency}}</b></td>
+                      </tr>
+                    </table>
+                    <!-- Notes Tab Starts -->
+                    <div class="quotes-notes-area remove-for-print">
+                      <success ng-if="notesSuccessMsg" message="{{notesSuccessMsg}}"></success>
+                      <error ng-if="notesErrorMsg" message="{{notesErrorMsg}}"></error>
+                      <ul class="quotes-notes-tabs">
+                        <li ng-click="quoteNotesTab != 'quotes' && openQuoteNoteTab('quotes')" ng-class="{ 'active' : quoteNotesTab == 'quotes' }"><span>quote notes</span></li>
+                        <li ng-click="quoteNotesTab != 'office' && openQuoteNoteTab('office')" ng-class="{ 'active' : quoteNotesTab == 'office' }"><span>office notes</span></li>
+                        <li ng-click="quoteNotesTab != 'tech' && openQuoteNoteTab('tech')" ng-class="{ 'active' : quoteNotesTab == 'tech' }"><span>tech notes</span></li>
+                      </ul>
+                      <div class="quotes-notes-tab-content">
+                        <ng-container ng-if="quoteNotesTab == 'quotes'">
+                          <div class="spinner" ng-if="isNotesUpdating.quotesNotes" style="border:none">
+                            <div class="spinner-item">
+                              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                            </div>
+                          </div>
+                          <textarea placeholder="(customer viewable)" class="form-control form-control-quotes-notes-textarea" name="quotesNotes" row='1' ng-model="quotesNotesModel.quotesNotes" maxLength="10000">
+                            {{quotesNotesModel.quotesNotes}}
+                          </textarea>
+                        </ng-container>
+                        <ng-container ng-if="quoteNotesTab == 'office'">
+                          <div class="spinner" ng-if="isNotesUpdating.officeNotes" style="border:none">
+                            <div class="spinner-item">
+                              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                            </div>
+                          </div>
+                          <textarea placeholder="Office notes entered here will transfer to the auto-created job after quote is approved. Technician can't see these notes in app." class="form-control form-control-quotes-notes-textarea" name="officeNotes" row='1' ng-model="quotesNotesModel.officeNotes" maxLength="10000">
+                            {{quotesNotesModel.officeNotes}}
+                          </textarea>
+                        </ng-container>
+                        <ng-container ng-if="quoteNotesTab == 'tech'">
+                          <div class="spinner" ng-if="isNotesUpdating.techNotes" style="border:none">
+                            <div class="spinner-item">
+                              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                            </div>
+                          </div>
+                          <textarea placeholder="Tech notes entered here will transfer to the Instructions field on the auto-created job after quote is approved. Technician will see these notes in app for that job." class="form-control form-control-quotes-notes-textarea" name="techNotes" row='1' ng-model="quotesNotesModel.techNotes" maxLength="10000">
+                            {{quotesNotesModel.techNotes}}
+                          </textarea> 
+                        </ng-container>                                                                                 
+                      </div>
+                    </div>
+                    <!-- Notes Tab Ends -->
+                  </div>
+                </div>
+                <div class="quote-template-action-area-footer">
+                  <div class="form-group m-b0">
+                    <div class="set-chem-button" style="text-align: center;">
+                        <button ng-disabled="isQuoteTemplatesProcessing" class="add-button" type="button" ng-click="saveTemplate()">
+                            <span ng-if="selectedTemplateForModificationMode=='add'">SAVE</span>
+                            <span ng-if="selectedTemplateForModificationMode=='edit'">SAVE CHANGES</span>
+                        </button>
+                        <button ng-disabled="isQuoteTemplatesProcessing" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                    </div>
+                </div>
+              </div>
+              </ng-container>
+              <!-- add edit template -->
+              <!-- delete template -->
+              <ng-container ng-if="selectedTemplateForModificationMode=='delete'">
+                  <div class="quote-template-action-area-delete">                 
+                    <div class="row m-b10">
+                        <div class="col-xs-12">
+                            <label>Are you sure you want to delete quote template?</label>                                                                     
+                        </div>
+                    </div>                 
+                    <div class="m-b0">
+                        <div class="set-chem-button" style="text-align: center;">
+                            <button ng-disabled="isQuoteTemplatesProcessing" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                            <button ng-disabled="isQuoteTemplatesProcessing" class="add-button btn-red" type="button" ng-click="saveTemplate()">DELETE</button>
+                        </div>
+                    </div>
+                  </div>
+              </ng-container>
+              <!-- delete template -->          
+        </div>
+    </form>
+  </div>
+</script>
+<script type="text/ng-template" id="picturesGallery.html">
+  <div class="modal-box modal-gallery full-screen-gallery equipment-gallery full-screen-gallery-quotes">
+    <div class="full-screen-inner">
+      <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+        <i class="fa fa-close" aria-hidden="true"></i>
+      </div>
+      <div ng-if="galleryPhotos.length > 0">
+        <ui-carousel slides="galleryPhotos" slides-to-show="1" slides-to-scroll="1" initial-slide="imageInitialIndex" autoplay="false" autoplay-speed="3000" dots="false">
+          <carousel-item>
+            <div class="image popup">
+              <div class="slide-image {{item.fullPath}}">
+                <img src="{{item.fullPath}}">
+                  <div class="modal-gallery-btm" ng-show="item.caption" >                  
+                    <span>{{item.caption}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </carousel-item>
+        </ui-carousel>
+      </div>
+    </div>
+  </div>
+  </script> 
+  <script type="text/ng-template" id="deleteQuotetemplateImageConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to delete this?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="deleteLineItemImageConfirmed()">confirm</button>
+           </div>
+         </div>
+       </div>  
+    </div>
+   </script>

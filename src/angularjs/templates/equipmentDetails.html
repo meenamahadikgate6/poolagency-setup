@@ -1,0 +1,601 @@
+<div>
+    <div class="white-bg p-tb20 p-lr20 m-t20" style="{{selectedWaterBody && selectedWaterBody.color ? 'border:3px solid '+selectedWaterBody.color : ''}}">
+      <div class="grid" style="overflow: inherit;">
+        <ul class="e-icon-warpper">
+          <li ng-repeat="equipment in equipments track by $index">
+         
+            <a href="javascript:void(0)" ng-click="showEquipmentDetail(equipment.eqId, !checkListOneOfJob)" class="e-icon e-{{equipment.icon}} status{{equipment.detail.isPresent}} type{{equipment.selectedType.typeId}}">
+              <div class="e-tooltip">
+                <strong>{{equipment.label}}</strong> 
+                <div>
+                  {{(equipment.selectedType.eqType != 'None' ? equipment.selectedType.eqType : '' )}} 
+                  {{(equipment.detail.isPresent == 0 ? 'No '+equipment.label : '')}} 
+                  {{(equipment.detail.isPresent == undefined || !equipment.selectedType.typeId) ? 'Unknown' : ''}}</div>              
+                <div ng-if="equipment.detail.timerValue && equipment.detail.typeId != 19">Total run time {{equipment.detail.timerValue}} hour{{equipment.detail.timerValue == 1 ? '' : 's' }}</div>
+                <div ng-if="lastBackWashedDate.length > 0 && equipment.eqId == 1">Last Backwashed {{lastBackWashedDate[0].createTime | date: 'MM/dd/yyyy'}}</div>
+                <div ng-if="lastFilterCleanedDate.length > 0 && equipment.eqId == 1">Last Cleaned {{lastFilterCleanedDate[0].createTime | date: 'MM/dd/yyyy'}}</div>    
+                <div ng-if="saltCleanedHistoryDate.length > 0 && equipment.eqId == 6">Last Cleaned {{saltCleanedHistoryDate[0].createTime | date: 'MM/dd/yyyy'}}</div>            
+                <div ng-if="waterLevelLowHistoryDate.length > 0 && equipment.eqId == 5">Last Low {{waterLevelLowHistoryDate[0].createTime | date: 'MM/dd/yyyy'}}</div>      
+              </div>
+              <span class="item-label">{{(equipment.selectedType.eqType != 'None' ? (equipment.selectedType.eqType == 'Commercial pool running 24/7' ? 'Running 24/7' :  equipment.selectedType.eqType ) : '' )}}</span>
+              <span class="schedule-switch">Schedule <label class="switch small" ng-click=""><span ng-class="" class="slider round active"></span></label></span>
+            </a>
+          </li>  
+        </ul>
+      </div>
+    </div> 
+    <script type="text/ng-template" id="equipmentDetails.html">
+      <div class="dataTables_wrapper modal-box equipment-detail-popup">  
+        <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+        <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+          <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+          </div>
+        </div>
+          <form class="set-chem-form" name="equipmentForm" ng-submit="equipmentForm.$valid  ? confirmBeforeSave(selectedEquipment[0].eqId) : focusOnInvalidInput(equipmentForm.$valid)" novalidate>
+
+            <div class="popup-header"><span class="heading">{{selectedEquipment[0].label}}</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">
+       
+      <success ng-if="successMsg && !crossClicked" message="{{successMsg}}"></success>
+      <error ng-if="error" message="{{error}}"></error>
+      </div>
+        <div class="detail-box" id="scrollarea">
+
+          <div class="grid text-left">
+            <div class="col-12-12 p-0">
+                <a href="javascript:void(0)" ng-if="model.typeId || model.notes || photos.length > 0" ng-click="eraseDataConfirm()" class="delete-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17">
+                      <path fill="#34495E" fill-rule="evenodd" d="M11.816 15.622l.665-11.747H2.356l.67 11.706 8.79.041zM7.418 2.04c-.441 0-.848.18-1.155.475h2.309a1.672 1.672 0 0 0-1.154-.475zm6.766.475c.36 0 .652.304.652.68 0 .375-.291.68-.652.68h-.398v.001l-.675 11.787c-.045.741-.614 1.319-1.295 1.319H3.022c-.685 0-1.255-.58-1.298-1.32L1.05 3.877l.001-.001H.652A.666.666 0 0 1 0 3.195c0-.376.292-.68.652-.68h4.032C5.169 1.423 6.225.68 7.419.68c1.192 0 2.248.743 2.733 1.835h4.033zm-9.24 11.97a.664.664 0 0 1-.651-.641L3.86 5.74a.67.67 0 0 1 .614-.716c.357-.026.667.266.687.64l.435 8.104c.02.375-.255.696-.615.717h-.037zm4.91 0a.67.67 0 0 1-.615-.717l.435-8.103c.02-.375.335-.669.686-.642a.67.67 0 0 1 .615.718l-.434 8.103a.664.664 0 0 1-.65.641h-.037zm-2.437 0a.666.666 0 0 1-.652-.68V5.703c0-.375.292-.68.652-.68.361 0 .653.305.653.68v8.104c0 .375-.292.68-.653.68z"></path>
+                    </svg>
+                  </a>
+                  <div class="row">
+                    <div class="col-md-5">
+                      <div class="formGroup">
+                        <div class="main-title">{{(selectedEquipment[0].eqId == 3 ? 'Timer ' : '')}}Type</div>
+                        <div ng-repeat="etype in selectedEquipment[0].eqType track by $index" class="radio-default2">
+                          <ng-container ng-if="etype.eqType == 'None'">
+                              <label for="type{{etype.typeId}}" >
+                                  {{etype.eqType}}
+                                <input type="radio" name="etype" id="type{{etype.typeId}}" value="{{etype.typeId}}" ng-model="model.typeId" ng-click="onChangeRadio($event, selectedEquipment[0].eqId);" ng-checked="selectedEquipment[0].selectedType.typeId == etype.typeId"/>
+                                <span></span>
+                              </label>
+      
+                          </ng-container>                     
+                        </div>
+                        <div ng-repeat="etype in selectedEquipment[0].eqType track by $index" class="radio-default2">
+                          <ng-container ng-if="etype.eqType != 'None'">
+                            <label for="type{{etype.typeId}}" >
+                                {{etype.eqType}} 
+                              <input type="radio" name="etype" id="type{{etype.typeId}}" value="{{etype.typeId}}" ng-model="model.typeId" ng-click="onChangeRadio($event, selectedEquipment[0].eqId);" ng-checked="selectedEquipment[0].selectedType.typeId == etype.typeId"/>
+                              <span></span>
+                            </label>        
+                          </ng-container>
+                        </div>                        
+                      </div>  
+                    </div>
+                    <div class="col-md-7">
+                        <div class="formGroup">
+                            <div class="main-title">Notes </div>
+                            <textarea class="form-control minH-100" ng-model="model.notes" ng-blur="saveNotes(selectedEquipment[0].eqId)" >{{selectedEquipment[0].detail.notes}}</textarea>
+                          </div>  
+
+                    </div>
+                  </div>
+                  <!--Common log date popup Start-->
+                  <div ng-show="logBox.status" class="quick-popup last-dates-popup log-popup">  
+                    <div class="popup-header">
+                      <span class="heading">Log {{logBox.type == 'Backwashed' ? 'Backwash' : ''}} {{logBox.type == 'Cleaned Filter' ? 'Filter Clean' : ''}} {{logBox.type == 'Cleaned Salt Cell' ? 'Salt Cell Cleaning' : ''}} </span> 
+                      <div class="popup-close" ng-click="logBox.status=!logBox.status"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="p-tb10 p-lr10"> 
+                      <div class="text-center p-14x">
+                      Select date {{logBox.type == 'Backwashed' ? 'filter was backwashed' : ''}} {{logBox.type == 'Cleaned Filter' ? 'filter was cleaned' : ''}} {{logBox.type == 'Cleaned Salt Cell' ? 'cell was cleaned' : ''}} <br>
+                      (if it wasn't done in app)
+                      </div>
+                      <div>
+                        <!--input ng-model="model.endDate"  class="datepicker-custom-input" ng-change="chooseDate(model.endDate); saveCheckListTrigger()" readonly/--> 
+                        <div class="datepicker-custom-inline log-date"></div>                                 
+                        <div class="text-center"><button type="button" ng-disabled="!logBox.model" class="add-button button blue-bg sm-btn m-t10" ng-click="saveLog(logBox.type)">Save</button></div>
+                      </div>                                        
+                    </div>                             
+                  </div> 
+                  <!--Common log date popup End-->
+                  <!--Backwashed Start-->
+                  <div class="formGroup process-wrapper" ng-if="selectedEquipment[0].eqId == 1 && showBackwash && model.backwashOn">                     
+                    <div class="main-title">Backwash Process Shown in Technician App</div>
+                    <div class="grey-box" style="{{['1','3'].indexOf(model.typeId.toString()) == -1 ? 'position:relative':''}}">
+                      <!--div class="validation-overlay" ng-hide="['1','3'].indexOf(model.typeId.toString()) > -1" ng-click="openTypeValidation()"></div-->
+                      <!--toggleIcons Start--> 
+                      <ul >
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'instructionsBefore')" ng-class="{'active':backwashData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'Backwash')" ng-class="{'active':Backwash}"><i class="fa fa-camera" aria-hidden="true"></i><div>Backwash Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'closeBackwashValve')" ng-class="{'active':closeBackwashValve}"><i class="fa fa-camera" aria-hidden="true"></i><div>Valve Closed Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('backwashData', 'instructionsAfter')" ng-class="{'active':backwashData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+                      </ul> 
+                      <hr  ng-if="model.backwashData.instStartData || model.backwashData.instEndData" class="m-b0 m-t0" />
+                      <div class="p-10 h-0-5x">
+                        <div ng-if="model.backwashData.instStartData">
+                          <strong>Instructions Before:</strong> 
+                          <span ng-if="!showAllInstStartData"> {{ model.backwashData.instStartData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstStartData"> {{model.backwashData.instStartData}}</span>
+                          <span ng-show="model.backwashData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+                          <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+                        </div>
+                        <div ng-if="model.backwashData.instEndData">                     
+                          <strong>Instructions After:</strong> 
+                          <span ng-if="!showAllInstEndData"> {{ model.backwashData.instEndData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstEndData"> {{model.backwashData.instEndData}}</span>
+                          <span ng-show="model.backwashData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+                          <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+                        </div>                      
+                      </div>
+                      <!--toggleIcons End--> 
+                      <!--inline-radio-button Start-->                  
+                      <div class="formGroup inline-radio-button">                       
+                        <div class="radio-default2">                           
+                          <label for="backwashRequired1" >
+                            Never required
+                            <input type="radio" name="backwashRequired" id="backwashRequired1" value="1" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '1'"  ng-change="setRequired('backwashData')"/>
+                            <span></span>
+                          </label>
+                        </div>   
+                        <div class="radio-default2">                           
+                          <label for="backwashRequired2" >
+                            Always required
+                            <input type="radio" name="backwashRequired" id="backwashRequired2" value="2" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '2'" ng-change="setRequired('backwashData')" />
+                            <span></span>
+                          </label>
+                        </div>                 
+                        <div class="radio-default2">                           
+                          <label for="backwashRequired3" >
+                            Require every <input type="number" class="input-under-radio" name="backwashDataWeeks" id="backwashDataWeeks" ng-model="model.backwashData.visits" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('backwashData')"   /> visit(s)
+                            <input type="radio" name="backwashRequired" id="backwashRequired3" value="3" ng-model="model.backwashData.required"  ng-checked="model.backwashData.required == '3'" ng-change="setRequired('backwashData')" />
+                            <span></span>
+                          </label>
+                        </div>                                                             
+                      </div>  
+                      <!--inline-radio-button End-->
+                      <!--history-box Start-->
+                      <div class="history-box">
+                        <div class="m-b10 p-relative">                      
+                          <div class="pointer" ng-click="openLogDatePopup('Backwashed')">Log Backwash <i class="fa fa-calendar-plus-o light-blue"></i></div>
+                        </div>                          
+                        <div ng-show="lastBackWashedDate.length > 0">Last Backwash {{lastBackWashedDate[0].createTime | date: 'MM/dd/yyyy'}}</div>
+                        <div class="m-b10 p-relative" ng-show="lastBackWashedDate.length > 0">                         
+                          <div class="pointer" ng-click="openLastDatePopup('lastBackWashedDatesPopup');">History <i class="fa fa-history light-blue"   ></i></div>
+                          <div ng-if="lastBackWashedDatesPopup" class="quick-popup last-dates-popup">  
+                            <div class="popup-header">
+                              <span class="heading">Last Backwash</span>                      
+                              <div class="popup-close" ng-click="closeLastDatePopup('lastBackWashedDatesPopup')">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                              </div>
+                            </div>
+                            <div class="p-tb10 p-lr10 scrollable-box"> 
+                              <div class="row">
+                                <div class="col-sm-6" ng-repeat="date in lastBackWashedDateTen track by $index">
+                                  <i class="fa fa-clock-o light-blue" aria-hidden="true"></i> {{date.createTime | date: 'MM/dd/yyyy'}}
+                                </div>
+                              </div>                                        
+                            </div>
+                            <div class="text-center see-more-date">
+                              <span ng-if="lastBackWashedDateTenSeeMore" ng-click="seeMoreDates('lastBackWashedDateTen')">See More</span>
+                            </div>
+                          </div> 
+                        </div>                         
+                      </div>                                        
+                      <!--history-box End--> 
+                      <!--quick-popup before After Start-->
+                      <div ng-if="backwashData.instructionsBeforePopup" class="quick-popup before">  
+                        <div class="popup-header"><span class="heading">Instructions Before</span>                        
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.backwashData.instStartData" name="instStartData">{{model.backwashData.instStartData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('backwashData', 'instructionsBefore')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <div ng-if="backwashData.instructionsAfterPopup" class="quick-popup after">  
+                        <div class="popup-header"><span class="heading">Instructions After</span>                          
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.backwashData.instEndData" name="instEndData">{{model.backwashData.instEndData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('backwashData', 'instructionsAfter')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <!--quick-popup before After End-->
+                    </div>
+                  </div>
+                  <!--Backwashed End-->
+
+                  <!--Filtered Cleaned Start-->
+                  <div class="formGroup process-wrapper" ng-if="selectedEquipment[0].eqId == 1 && showCleanedFilter">                     
+                    <div class="main-title">Filter Clean Process Shown in Technician App</div>
+                    <div class="grey-box" style="{{['2','3'].indexOf(model.typeId.toString()) == -1 ? 'position:relative':''}}">
+                      <!--div class="validation-overlay" ng-hide="['2','3'].indexOf(model.typeId.toString()) > -1" ng-click="openTypeValidation()"></div-->
+                      <!--toggleIcons Start--> 
+                      <ul >
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'instructionsBefore')" ng-class="{'active':cleanFilteredData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'beforePicture')" ng-class="{'active':cleanFilteredData.beforePicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>Before<br>Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'afterPicture')" ng-class="{'active':cleanFilteredData.afterPicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>After<br>Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanFilteredData', 'instructionsAfter')" ng-class="{'active':cleanFilteredData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+                      </ul> 
+                      <hr  ng-if="model.cleanFilteredData.instStartData || model.cleanFilteredData.instEndData" class="m-b0 m-t0" />
+                      <div class="p-10 h-0-5x">
+                        <div ng-if="model.cleanFilteredData.instStartData">
+                          <strong>Instructions Before:</strong> 
+                          <span ng-if="!showAllInstStartData"> {{ model.cleanFilteredData.instStartData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstStartData"> {{model.cleanFilteredData.instStartData}}</span>
+                          <span ng-show="model.cleanFilteredData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+                          <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+                        </div>
+                        <div ng-if="model.cleanFilteredData.instEndData">                     
+                          <strong>Instructions After:</strong> 
+                          <span ng-if="!showAllInstEndData"> {{ model.cleanFilteredData.instEndData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstEndData"> {{model.cleanFilteredData.instEndData}}</span>
+                          <span ng-show="model.cleanFilteredData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+                          <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+                        </div>                      
+                      </div>
+                      <!--toggleIcons End--> 
+                      <!--inline-radio-button Start-->                  
+                      <div class="formGroup inline-radio-button">                       
+                        <div class="radio-default2">                           
+                          <label for="cleanFilteredDataRequired1" >
+                            Never required
+                            <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired1" value="1" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '1'" ng-change="setRequired('cleanFilteredData')" />
+                            <span></span>
+                          </label>
+                        </div>   
+                        <div class="radio-default2">                           
+                          <label for="cleanFilteredDataRequired2" >
+                            Always required
+                            <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired2" value="2" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '2'" ng-change="setRequired('cleanFilteredData')" />
+                            <span></span>
+                          </label>
+                        </div>                 
+                        <div class="radio-default2">                           
+                          <label for="cleanFilteredDataRequired3" >
+                            Require every <input type="number" class="input-under-radio" name="cleanFilteredDataWeeks" id="cleanFilteredDataWeeks" ng-model="model.cleanFilteredData.weeks" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('cleanFilteredData')" /> week(s)
+                            <input type="radio" name="cleanFilteredDataRequired" id="cleanFilteredDataRequired3" value="3" ng-model="model.cleanFilteredData.required"  ng-checked="model.cleanFilteredData.required == '3'" ng-change="setRequired('cleanFilteredData')" />
+                            <span></span>
+                          </label>
+                        </div>                                                             
+                      </div>  
+                      <!--inline-radio-button End-->
+                      <!--history-box Start-->
+                      <div class="history-box">
+                        <div class="m-b10 p-relative">                      
+                          <div class="pointer" ng-click="openLogDatePopup('Cleaned Filter')">Log Cleaning <i class="fa fa-calendar-plus-o light-blue"></i></div>
+                        </div>                          
+                        <div ng-show="lastFilterCleanedDate.length > 0">Last Cleaned {{lastFilterCleanedDate[0].createTime | date: 'MM/dd/yyyy'}}</div>
+                        <div class="m-b10 p-relative" ng-show="lastFilterCleanedDate.length > 0">                         
+                          <div class="pointer" ng-click="openLastDatePopup('lastFilterCleanedDatesPopup');">History <i class="fa fa-history light-blue"   ></i></div>
+                          <div ng-if="lastFilterCleanedDatesPopup" class="quick-popup last-dates-popup">  
+                            <div class="popup-header">
+                              <span class="heading">Last Cleaned</span>                      
+                              <div class="popup-close" ng-click="closeLastDatePopup('lastFilterCleanedDatesPopup')">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                              </div>
+                            </div>
+                            <div class="p-tb10 p-lr10 scrollable-box"> 
+                              <div class="row">
+                                <div class="col-sm-6" ng-repeat="date in lastFilterCleanedDateTen track by $index"><i class="fa fa-clock-o light-blue" aria-hidden="true"></i> {{date.createTime | date: 'MM/dd/yyyy'}}</div>
+                              </div>                                        
+                            </div>
+                            <div class="text-center see-more-date">
+                              <span ng-if="lastFilterCleanedDateTenSeeMore" ng-click="seeMoreDates('lastFilterCleanedDateTen')">See More</span>
+                            </div>
+                          </div> 
+                        </div>                        
+                      </div>                   
+                      <!--history-box End-->    
+                      <!--quick-popup before After Start-->
+                      <div ng-if="cleanFilteredData.instructionsBeforePopup" class="quick-popup before">  
+                        <div class="popup-header"><span class="heading">Instructions Before</span>                        
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.cleanFilteredData.instStartData" name="instStartData">{{model.cleanFilteredData.instStartData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('cleanFilteredData', 'instructionsBefore')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <div ng-if="cleanFilteredData.instructionsAfterPopup" class="quick-popup after">  
+                        <div class="popup-header"><span class="heading">Instructions After</span>                          
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.cleanFilteredData.instEndData" name="instEndData">{{model.cleanFilteredData.instEndData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('cleanFilteredData', 'instructionsAfter')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <!--quick-popup before After End-->
+                    </div>
+                  </div>
+                  <!--Filtered Cleaned End-->
+
+                  <!--Salt Cell cleaned Start-->
+                  <div class="formGroup process-wrapper" ng-if="selectedEquipment[0].eqId == 6 && showCleanedSaltCell">                     
+                    <div class="main-title">Salt Cell Cleaning Process Shown in Technician App</div>
+                    <div class="grey-box" style="{{['18'].indexOf(model.typeId.toString()) == -1 ? 'position:relative':''}}">
+                      <!--div class="validation-overlay" ng-hide="['18'].indexOf(model.typeId.toString()) > -1" ng-click="openTypeValidation()"></div-->
+                      <!--toggleIcons Start--> 
+                      <ul>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'instructionsBefore')" ng-class="{'active':cleanSaltCellData.instructionsBefore}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (start)</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'beforePicture')" ng-class="{'active':cleanSaltCellData.beforePicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>Before<br>Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'afterPicture')" ng-class="{'active':cleanSaltCellData.afterPicture}"><i class="fa fa-camera" aria-hidden="true"></i><div>After<br>Pictures</div></a></li>
+                        <li><a href="javascript:void(0)" ng-click="toggleIcons('cleanSaltCellData', 'instructionsAfter')" ng-class="{'active':cleanSaltCellData.instructionsAfter}"><i class="fa fa-list-alt" aria-hidden="true"></i><div>Instructions (end)</div></a></li>
+                      </ul> 
+                      <hr  ng-if="model.cleanSaltCellData.instStartData || model.cleanSaltCellData.instEndData" class="m-b0 m-t0" />
+                      <div class="p-10 h-0-5x">
+                        <div ng-if="model.cleanSaltCellData.instStartData">
+                          <strong>Instructions Before:</strong> 
+                          <span ng-if="!showAllInstStartData"> {{ model.cleanSaltCellData.instStartData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstStartData"> {{model.cleanSaltCellData.instStartData}}</span>
+                          <span ng-show="model.cleanSaltCellData.instStartData.length > 70 && !showAllInstStartData">... <a href="javascript:void(0)" ng-click="showAllInstStartData = true">more</a></span>
+                          <span ng-show="showAllInstStartData"> <a href="javascript:void(0)" ng-click="showAllInstStartData = false">less</a></span>                  
+                        </div>
+                        <div ng-if="model.cleanSaltCellData.instEndData">                     
+                          <strong>Instructions After:</strong> 
+                          <span ng-if="!showAllInstEndData"> {{ model.cleanSaltCellData.instEndData | limitTo: 70 }}</span>                      
+                          <span ng-if="showAllInstEndData"> {{model.cleanSaltCellData.instEndData}}</span>
+                          <span ng-show="model.cleanSaltCellData.instEndData.length > 70 && !showAllInstEndData">... <a href="javascript:void(0)" ng-click="showAllInstEndData = true">more</a></span>
+                          <span ng-show="showAllInstEndData"> <a href="javascript:void(0)" ng-click="showAllInstEndData = false">less</a></span>                        
+                        </div>                      
+                      </div>
+                      <!--toggleIcons End--> 
+                      <!--inline-radio-button Start-->                  
+                      <div class="formGroup inline-radio-button">                       
+                        <div class="radio-default2">                           
+                          <label for="cleanSaltCellDataRequired1" >
+                            Never required
+                            <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired1" value="1" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '1'" ng-change="setRequired('cleanSaltCellData')"/>
+                            <span></span>
+                          </label>
+                        </div>   
+                        <div class="radio-default2">                           
+                          <label for="cleanSaltCellDataRequired2" >
+                            Always required
+                            <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired2" value="2" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '2'" ng-change="setRequired('cleanSaltCellData')"/>
+                            <span></span>
+                          </label>
+                        </div>                 
+                        <div class="radio-default2">                           
+                          <label for="cleanSaltCellDataRequired3" >
+                            Require every <input type="number" class="input-under-radio" name="cleanSaltCellDataWeeks" id="cleanSaltCellDataWeeks" ng-model="model.cleanSaltCellData.weeks" maxlength="2" ng-min="1" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="saveDetails('cleanSaltCellData')" /> week(s)
+                            <input type="radio" name="cleanSaltCellDataRequired" id="cleanSaltCellDataRequired3" value="3" ng-model="model.cleanSaltCellData.required"  ng-checked="model.cleanSaltCellData.required == '3'" ng-change="setRequired('cleanSaltCellData')" />
+                            <span></span>
+                          </label>
+                        </div>                                                             
+                      </div>  
+                      <!--inline-radio-button End-->
+                      <!--history-box Start-->
+                      <div class="history-box">
+                        <div class="m-b10 p-relative">                      
+                          <div class="pointer" ng-click="openLogDatePopup('Cleaned Salt Cell')">Log Cleaning <i class="fa fa-calendar-plus-o light-blue"></i></div>
+                        </div>                          
+                        <div ng-show="saltCleanedHistoryDate.length > 0">Last Cleaned {{saltCleanedHistoryDate[0].createTime | date: 'MM/dd/yyyy'}}</div>
+                        <div class="m-b10 p-relative" ng-show="saltCleanedHistoryDate.length > 0">                         
+                          <div class="pointer" ng-click="openLastDatePopup('saltCleanedHistoryDatesPopup');">History <i class="fa fa-history light-blue"   ></i></div>
+                          <div ng-if="saltCleanedHistoryDatesPopup" class="quick-popup last-dates-popup">  
+                            <div class="popup-header">
+                              <span class="heading">Last Cleaned</span>                      
+                              <div class="popup-close" ng-click="closeLastDatePopup('saltCleanedHistoryDatesPopup')">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                              </div>
+                            </div>
+                            <div class="p-tb10 p-lr10 scrollable-box"> 
+                              <div class="row">
+                                <div class="col-sm-6" ng-repeat="date in saltCleanedHistoryDateTen track by $index"><i class="fa fa-clock-o light-blue" aria-hidden="true"></i> {{date.createTime | date: 'MM/dd/yyyy'}}</div>
+                              </div>                                        
+                            </div>
+                            <div class="text-center see-more-date">
+                              <span ng-if="saltCleanedHistoryDateTenSeeMore" ng-click="seeMoreDates('saltCleanedHistoryDateTen')">See More</span>
+                            </div>
+                          </div> 
+                        </div> 
+                      </div> 
+                      <!--history-box End-->  
+                      <!--quick-popup before After Start-->
+                      <div ng-if="cleanSaltCellData.instructionsBeforePopup" class="quick-popup before">  
+                        <div class="popup-header"><span class="heading">Instructions Before</span>                        
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.cleanSaltCellData.instStartData" name="instStartData">{{model.cleanSaltCellData.instStartData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn" type="button" ng-click="saveDetails('cleanSaltCellData', 'instructionsBefore')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <div ng-if="cleanSaltCellData.instructionsAfterPopup" class="quick-popup after">  
+                        <div class="popup-header"><span class="heading">Instructions After</span>                          
+                        </div>
+                        <div class="p-tb10 p-lr10">
+                          <textarea  class="form-control minH-100" ng-model="model.cleanSaltCellData.instEndData" name="instEndData">{{model.cleanSaltCellData.instEndData}}</textarea>
+                          <div class="m-t10 text-center"><button class="add-button button blue-bg sm-btn"  type="button" ng-click="saveDetails('cleanSaltCellData', 'instructionsAfter')" >Save</button></div>
+                        </div>
+                      </div>   
+                      <!--quick-popup before After End-->
+                    </div>
+                  </div>
+                  <!--Salt Cell cleaned End-->
+                  
+
+                  
+
+
+                  
+
+
+                  <div ng-if="waterLevelLowHistoryDate.length > 0 && selectedEquipment[0].eqId == 5"  class="m-b10 p-relative">
+                    Last Low {{waterLevelLowHistoryDate[0].createTime | date: 'MM/dd/yyyy'}} <i class="fa fa-calendar-o light-blue pointer" ng-click="openLastDatePopup('waterLevelLowHistoryDatesPopup');"  ></i>
+                    <div ng-if="waterLevelLowHistoryDatesPopup" class="quick-popup last-dates-popup">  
+                        <div class="popup-header"><span class="heading">Last Low</span>                      
+                          <div class="popup-close" ng-click="closeLastDatePopup('waterLevelLowHistoryDatesPopup')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+                        </div>
+                        <div class="p-tb10 p-lr10 scrollable-box"> 
+                            <div class="row">
+                              <div class="col-sm-6" ng-repeat="date in waterLevelLowHistoryDateTen track by $index"><i class="fa fa-clock-o light-blue" aria-hidden="true"></i> {{date.createTime | date: 'MM/dd/yyyy'}}</div>
+                            </div>                                        
+                          </div>
+                          <div class="text-center see-more-date"><span ng-if="waterLevelLowHistoryDateTenSeeMore" ng-click="seeMoreDates('waterLevelLowHistoryDateTen')">See More</span></div>
+                      </div> 
+                  </div>
+
+                 
+
+
+
+                  <div ng-if="selectedEquipment[0].hasPump" class="formGroup">                
+                      <div class="main-title" ng-class="{'disabled': model.typeId == '7' || model.typeId == '19'}">Pump runs for <input type="text" name="timerValue" class="form-control inline" 
+                        ng-model="model.timerValue"  
+                        ng-pattern="/^((0?[0-9]|[0-9]|2[0-3]|1[0-9])(\.\d{1,2})?|(2[4])?)$/"
+                        ng-disabled="model.typeId == '7' || model.typeId == '19'" ng-blur="saveTimer(selectedEquipment[0].eqId)"/> hour{{model.timerValue == 1 ? '' : 's' }} per day</div>             <span class="has-required" ng-if="equipmentForm.$submitted && equipmentForm.timerValue.$invalid || equipmentForm.timerValue.$touched && equipmentForm.timerValue.$invalid">Please enter hours between 0-24.</span>
+                  </div> 
+  
+             
+                  <div class="main-title" style="margin-bottom:15px;">Photos &nbsp;&nbsp;<button  class="add-button button blue-bg sm-btn m-t10" type="button" ng-click="browseImage()">Add </button></div>                           
+                  <div ng-if="photos.length > 0">
+                      <ul class="medium-block-grid-3 backwash-photo-list" style="margin: 0 -15px;">
+                        <li ng-repeat="photo in photos track by $index" id="eq-img-{{photo.id}}">
+                          <i ng-if="canEditReadings==1" class="fa fa-times eqp-photo-close" aria-hidden="true" ng-click="deleteImageConfirm(photo.id,$index)"></i>
+                          <img ng-src="{{photo.filePath}}" src="resources/images/placeholderphoto.gif" ng-click="showFullScreenImages($index)" class="cursor-pointer" />
+                          <div class="text-center photo-caption" ng-if="photo.createdOn || photo.caption"  >
+                              <span ng-if="photo.createdOn" class="photo-date">{{photo.createdOn | date: 'MM/dd/yyyy'}}</span>
+                            <div ng-if="photo.caption"><hr style="margin:4px 0" />{{photo.caption ? photo.caption : ''}}</div>
+                          </div>
+                        </li>
+                      </ul>
+                    
+                  </div>                
+                 <input base-sixty-four-input="" id="equipmentPhoto" name="equipmentPhoto" ng-change="uploadFile($event, selectedEquipment[0].eqId)" ng-model="model.equipmentPhoto" style="display: none" type="file"/>
+                 <span class="has-required"  ng-if="errorImage">{{errorImage}}</span>
+                       <div id="imageError"></div>
+                </div>
+          </div>
+        </div>
+      </form>
+        <div class="navigation-arrow">
+          <a href="javascript:void(0)" ng-click="showEquipmentDetail(equipmentPrev)" class="left arrow" ng-class="{'opacity01':imageInitialIndex != 999}" ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+          <a href="javascript:void(0)" ng-click="showEquipmentDetail(equipmentNext)" class="right arrow" ng-class="{'opacity01':imageInitialIndex != 999}"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </div>
+  
+      </div>
+    </script>
+  </div>
+
+    
+  <script type="text/ng-template" id="eraseDataConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to erase all data for {{selectedEquipment[0].label}}?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="eraseData()">confirm</button>
+           </div>
+         </div>
+       </div>
+   
+    </div>
+   </script>
+
+   <script type="text/ng-template" id="saveDataConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>        
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to continue saving the Equipment Card details without equipment type? This will reset the other details for this Equipment card.</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="saveEquipmentDetail(selectedEquipment[0].eqId, model)">confirm</button>
+            
+           </div>
+         </div>
+       </div>
+   
+    </div>
+   </script>
+
+   <script type="text/ng-template" id="saveDataForUnknownAlert.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Please select type to save the Equipment card details because this Equipment is already in Unknown status.</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">OK</button>
+           </div>
+         </div>
+       </div>
+   
+    </div>
+   </script>
+
+   <script type="text/ng-template" id="picturesGallery.html">
+
+    <div class="modal-box modal-gallery full-screen-gallery equipment-gallery">
+      <div class="full-screen-inner">
+        <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+          <i class="fa fa-close" aria-hidden="true"></i>
+        </div>
+        <div ng-if="photos.length > 0">
+          <ui-carousel slides="photos" slides-to-show="1" slides-to-scroll="1" initial-slide="imageInitialIndex" autoplay="false" autoplay-speed="3000" dots="false">
+            <carousel-item>
+              <div class="image popup">
+                <div class="slide-image">
+                  <img src="{{ item.filePath }}">
+                  <div class="modal-gallery-btm" ng-show="item.caption || item.createdOn" >                  
+                      <span>{{item.createdOn ? item.createdOn : '' | date: 'MM/dd/yyyy'}}</span>
+                      <span>{{item.caption ? ' - '+item.caption : ''}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </carousel-item>
+          </ui-carousel>
+        </div>
+      </div>
+    </div>
+    </script> 
+
+    <script type="text/ng-template" id="typeValidation.html" >
+      <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+        
+         <div class="popup-body text-center">
+           <div class="row-container">
+             <div class="h-2x"><label>Please select Type</label></div>
+             <br />
+             <div class="set-chem-button m-b20" style="text-align: center;">
+               <button class="add-button" ng-click="closeThisDialog('Some value')" type="button">OK</button>
+             </div>
+           </div>
+         </div>   
+      </div>
+     </script>
+
+     <script type="text/ng-template" id="deleteImageConfirm.html">
+      <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+        <div class="popup-header text-center">
+          <span class="heading">Confirm</span>          
+        </div>
+         <div class="popup-body text-center">
+           <div class="row-container">
+             <div><label>Are you sure you want to delete this picture?</label></div>
+             <br />
+             <div class="set-chem-button m-b20" style="text-align: center;">
+              <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+              <button class="add-button btn-red" type="submit" ng-click="deleteEqImage()">CONFIRM</button>
+            </div>
+           </div>
+         </div>
+     
+      </div>
+     </script>

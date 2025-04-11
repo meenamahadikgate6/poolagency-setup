@@ -1,0 +1,541 @@
+<div class="multi-invoice-print-hiddenarea">
+  <div class="remove-for-print">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <error ng-if="bulkActionError" message="{{bulkActionError}}"></error>
+    <success ng-if="bulkActionSuccess && bulkActionSuccessType == 'string'" message="{{bulkActionSuccess}}"></success>
+    <div ng-if="bulkActionSuccess && bulkActionSuccessType != 'string'" class="bulkActionSuccessMsg">
+        <span ng-repeat="(mainKey, mainValue) in bulkActionSuccess">
+            <strong>{{ mainKey }}:</strong>
+            <ul>
+                <li ng-repeat="subItem in mainValue">
+                    <span>
+                        <span ng-repeat="(subKey, subValue) in subItem">
+                            <strong>{{ subKey }}:</strong>
+                            <span ng-repeat="nestedValue in subValue">#{{ nestedValue }}<span ng-if="!$last">, </span></span>
+                          </span>
+                      </span>
+                </li>
+            </ul>
+          </span>
+    </div>
+  <div class="contianer-fluid invoice-job-listing-title">
+      <div class="row" ng-if="!isReportListingPage">
+      <div class="col-md-6 listing-tab-headings">
+          <div class="title" ng-click="showListingTab('jobHistory')" ng-class="{'disabled':!listingTab['jobHistory']}">JOBS</div>
+          <div class="title" ng-click="showListingTab('quotes')" ng-class="{'disabled':!listingTab['quotes']}">QUOTES</div>
+          <div class="title"  ng-click="showListingTab('invoice')" ng-class="{'disabled':!listingTab['invoice']}">INVOICES</div>
+          <div class="title"  ng-click="showListingTab('payment')" ng-class="{'disabled':!listingTab['payment']}">PAYMENTS</div>
+          <div class="title"  ng-click="showListingTab('feedback')" ng-class="{'disabled':!listingTab['feedback']}">FEEDBACK</div>
+        </div>
+        <div class="col-md-4"></div>
+      </div>
+      <div class="row" ng-class="{ 'inv-dp-row': isReportListingPage}">
+        <div class="col-md-8 csq-dropdown-holder-invoice" ng-class="{ 'inv-dp-col-left': isReportListingPage}">
+          <!--  -->
+          <div ng-if="isReportListingPage" class="dropdown csq-dropdown csq-dropdown-status csq-dropdown-status-inv-{{report_invoiceStatus.toLowerCase().split(' ').join('-')}}">
+            <button class="csq-selected-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+              <span ng-if="report_invoiceStatus!='Awaiting Payment'">{{report_invoiceStatus}}</span>
+              <span ng-if="report_invoiceStatus=='Awaiting Payment'">Not Paid</span>
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu csq-dropdown-menu scrollable-menu">   
+              <li ng-repeat="x in report_invoiceStatusArr" ng-hide="x === report_invoiceStatus" class="csq-item-contiainer">
+                <a class="csq-item csq-item-for-inv-{{ x.toLowerCase().split(' ').join('-') }}" href="javascript:void(0)" ng-click="filterByInvReportStatus(x)">
+                  <span ng-if="x!='Awaiting Payment'">{{x}}</span>
+                  <span ng-if="x=='Awaiting Payment'">Not Paid</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!--  -->  
+        </div>     
+        <div class="col-md-4" ng-class="{ 'inv-dp-col-right': isReportListingPage}">
+          <!--  -->
+          <div ng-if="isReportListingPage" class="report-listing-page-report-export excel-download-btn-holder">
+            <span class="excel-download-btn" ng-class="{ 'is-report-export-disabled' : isReportExportDisabled('canExportInvoiceReports') }" ng-click="!isReportExportDisabled('canExportInvoiceReports') ? downloadInvoiceReport() : null"></span>
+            <span class="excel-download-btn-tooltip">You do not have permission to export this report</span>
+          </div>
+          <div ng-if="isReportListingPage" class="report-listing-page-search-box-holder">
+            <i class="fa fa-search searchbtn" ng-click="doSearchInvoiceList($event,searchInvoiceTextKey)" aria-hidden="true"></i>
+                <input type="search" ng-blur="doSearchInvoiceList($event,searchInvoiceTextKey)" ng-model="searchInvoiceTextKey" placeholder="Invoice #, name, amount or address" class="report-listing-page-search-box" ng-keyup="$event.keyCode == 13 ? doSearchInvoiceList($event,searchInvoiceTextKey) : null">
+          </div>
+          <!--  -->
+          <!--  -->
+          <div ng-if="isReportListingPage && report_invoiceStatus != 'Upcoming'" class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{selectedFilterRangeTitle}}</button>
+            <ul class="dropdown-menu scrollable-menu">   
+              <li ng-repeat="x in rangeFilterData">
+                <a href="javascript:void(0)" ng-click="filterRange(x)">{{x.title}}</a>
+              </li>
+            </ul>
+          </div>
+          <!--  -->  
+        <div class="datePicker datePicker-rangepicker-static input-daterange invoice-list-datePicker" ng-class="{ 'custom-date-selected': selectedFilterRange === 'custom' }">
+            <div class="date-rangepicker-static-row">
+              <div class="date-rangepicker-static-col left">
+                <div class="smallview" date-format="MM/dd/yyyy">
+                  <input ng-model="invDate.fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+                </div>
+              </div>
+              <div class="date-rangepicker-static-col right">
+                <div class="" date-format="MM/dd/yyyy" min-date="invDate.fromDate">
+                  <input ng-model="invDate.toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contianer-fluid" ng-show="isReportListingPage && report_invoiceStatus == 'All'">
+        <div class="row">
+          <div class="col-md-12 showallproperties p-t20" style="display: flex"> <input type="checkbox" id="myCheckbox" ng-model="report_invoiceStatusUpcoming" ng-click="filterByInvReportStatus('All', report_invoiceStatusUpcoming)" ng-true-value="1" ng-false-value="0" name="myCheckbox">
+            <label for="myCheckbox"> show upcoming invoices</label>
+          </div> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="contianer-fluid upcomming-invoice-container" ng-if="incomingInvoiceDetails.invoiceId">
+      <div class="row sub-container">
+        <div class="col-md-4 text-right invoice-header-text" style="bottom: 8px;">
+          <label class="heading text-right">Upcoming monthly invoice</label>
+          <a href="javascript:void(0)" class="icon-required" style="font-size: larger;margin-left: 5px;top: 1px;">
+            <i class="fa fa-question-circle" aria-hidden="true">
+              <span class="sch-help" style="width: 250px !important;margin-right: -56px;bottom:30px">
+                This is the Upcoming invoice that currently exists for this property. On the day you've selected in the route schedule, this invoice will be processed. The invoice status will be switched to "Awaiting Payment", payment will be auto-charged & auto-applied (if auto charge is on in route schedule), paid invoice will be emailed to customer (if auto email is on in route schedule) and a new upcoming invoice will be created based on the settings in the route schedule at that time.</span>
+            </i>
+          </a>
+        </div>
+        <div class="inv-name-container">
+          <div class="col-md-8 uc-invoice-detail" ng-click="goToInvoiceDetail(incomingInvoiceDetails)">
+              <div class="col-sm-3">
+                <div style="font-size: 11px;">will be created: <b>{{incomingInvoiceDetails.invoiceDate}}</b> </div> 
+              </div>
+              <div class="col-sm-4">
+                <div style="font-size: 11px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">service address: <b>{{incomingInvoiceDetails.address}}</b></div> 
+              </div>
+              <div class="col-sm-3">
+                <div style="font-size: 11px;">current amount: <b>{{incomingInvoiceDetails.totalAmount | currency}}</b></div> 
+              </div>
+              <div class="col-sm-2" class="inv-name-container">
+                <span style="font-size: 13px;position: absolute;bottom: -17px;"><b style="color: #285FC6;">view</b> <img src="/resources/images/blue-right-arrow.png" alt="" style="width: 20px;"></span> 
+              </div>
+          </div>       
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cust-job-history invoive-list data-table-grid">
+      <div class="col-1-1">
+      <div class="white-bg">
+          <div class="row" ng-if="!isReportListingPage">
+            <div class="col-md-7">
+            <div class="flex invoice-filter">
+                <div 
+                ng-repeat="data in invoiceStatusData" 
+                class="flex" 
+                ng-click="filterByStatus(data.invoiceStatus)" 
+                ng-class="{'disabled': !invoiceStatus[(data.invoiceStatus.toLowerCase())] }">
+                  <div class="tag" ng-class="{'awaiting' : data.invoiceStatus == 'Awaiting Payment', 'paid' : data.invoiceStatus == 'Paid', 'past' : data.invoiceStatus == 'Past Due' }">
+                      {{data.invoiceStatusCount}}
+                  </div>
+                  <div>
+                    <div><strong>{{data.invoiceStatus == 'Awaiting Payment' ? 'Not Paid' : data.invoiceStatus}}</strong></div>
+                    <div class="amount">{{data.invoiceStatus == 'Paid' ? data.invoiceStatusAmount : data.invoiceStatusDueAmount | currency}}</div>
+                  </div>
+                </div>        
+              </div>
+            </div>
+            <div class="col-md-2 showallproperties invoice-showallproperty nowrap" style="margin-top: 16px;"> <input id="show_all_properties_invoice" type="checkbox" ng-model="showAllPropertiesInvoice.value"   ng-change="getCustomerInvoiceList()" ng-true-value="1" ng-false-value="0" name="show_all_properties_invoice">
+              <label for="show_all_properties_invoice"> Show all properties</label>
+            </div>
+            <div class="col-md-3">
+              <div class="search-box">
+                <i class="fa fa-search searchbtn" ng-click="doSearchInvoiceList($event,searchInvoiceTextKey)" aria-hidden="true"></i>
+                <input type="search" ng-blur="doSearchInvoiceList($event,searchInvoiceTextKey)" ng-model="searchInvoiceTextKey" placeholder="Invoice # or amount" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchInvoiceList($event,searchInvoiceTextKey) : null">
+              </div>
+            </div>
+          </div>
+          
+        <div class="dataTables_wrapper" ng-init="!isReportListingPage ? getCustomerInvoiceList() : null">
+            <div class="list-box" id="scrollarea" ng-class="{ 'single-listing-page' : isReportListingPage }">
+              <table class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+              <thead class="dark-gray-bg">
+                  <tr >
+                    <th style="text-align: left!important;">
+                      <div class="sorting nowrap" ng-click="orderByJobList(report_invoiceStatus == 'Upcoming' ? 'createdOn': 'qboTxnDate')"
+                          ng-class="{'sorting_asc': columnInv == (report_invoiceStatus == 'Upcoming' ? 'createdOn': 'qboTxnDate') && dirInv == 'asc', 'sorting_desc': columnInv == (report_invoiceStatus == 'Upcoming' ? 'createdOn': 'qboTxnDate') && dirInv == 'desc', }" >
+                        {{report_invoiceStatus == 'Upcoming' ? 'WILL BE CREATED' : 'DATE'}}
+                      </div>
+                    </th>
+                    <th style="text-align: left!important;" ng-hide="report_invoiceStatus == 'Upcoming'">
+                      <div class="sorting"
+                          ng-click="orderByJobList('invoiceNumber')"
+                          ng-class="{'sorting_asc': columnInv == 'invoiceNumber' && dirInv == 'asc', 'sorting_desc': columnInv == 'invoiceNumber' && dirInv == 'desc', }">
+                        NUMBER
+                      </div>
+                    </th>
+                    <th style="text-align: left!important;padding-left: 8px !important;" ng-if="isReportListingPage">
+                      <div
+                        class="sorting"
+                          ng-click="orderByJobList('displayName')"
+                          ng-class="{'sorting_asc': columnInv == 'displayName' && dirInv == 'asc', 'sorting_desc': columnInv == 'displayName' && dirInv == 'desc', }">
+                          NAME
+                      </div>
+                    </th>
+                    <th style="text-align: left!important;padding-left: 8px !important;">
+                      <div>
+                        <!-- class="sorting"
+                          ng-click="orderByJobList('address')"
+                          ng-class="{'sorting_asc': columnInv == 'address' && dirInv == 'asc', 'sorting_desc': columnInv == 'address' && dirInv == 'desc', }" -->
+                        ADDRESS
+                      </div>
+                    </th>
+                    <th  class="text-center" ng-hide="report_invoiceStatus == 'Upcoming'">
+                      <div class="sorting"
+                          ng-click="orderByJobList('dueDate')"
+                          ng-class="{'sorting_asc': columnInv == 'dueDate' && dirInv == 'asc', 'sorting_desc': columnInv == 'dueDate' && dirInv == 'desc', }">
+                        DUE
+                      </div>
+                    </th>
+                    <th  class="text-center" style="width: 18%!important;">
+                      <div class="sorting"
+                          ng-click="orderByJobList('invoiceStatus')"
+                          ng-class="{'sorting_asc': columnInv == 'invoiceStatus' && dirInv == 'asc', 'sorting_desc': columnInv == 'invoiceStatus' && dirInv == 'desc', }">
+                        STATUS
+                      </div>
+                    </th>
+                    <th  class="text-center">
+                      <div class="sorting"
+                          ng-click="orderByJobList('totalAmount')"
+                          ng-class="{'sorting_asc': columnInv == 'totalAmount' && dirInv == 'asc', 'sorting_desc': columnInv == 'totalAmount' && dirInv == 'desc', }">
+                        AMOUNT
+                      </div>
+                    </th>
+                    <th class="text-center" ng-if="!isReportListingPage">
+                      <div class="sorting"
+                          ng-click="orderByJobList('balance')"
+                          ng-class="{'sorting_asc': columnInv == 'balance' && dirInv == 'asc', 'sorting_desc': columnInv == 'balance' && dirInv == 'desc', }">
+                        BALANCE
+                      </div>
+                    </th>
+                    <th class="text-center" ng-if="isReportListingPage">
+                      <div class="sorting" ng-hide="report_invoiceStatus == 'Upcoming'"
+                          ng-click="orderByJobList('balanceDue')"
+                          ng-class="{'sorting_asc': columnInv == 'balanceDue' && dirInv == 'asc', 'sorting_desc': columnInv == 'balanceDue' && dirInv == 'desc', }">
+                        BALANCE
+                      </div>
+                    </th>
+                    <th></th>
+                    <th ng-if="isReportListingPage && invoiceList.length != 0">
+                      <input type="checkbox" id="selectAllCheckbox" ng-model="selectAll" ng-click="toggleSelectAll()" ng-true-value="true" ng-false-value="false">
+                    </th>
+                  </tr>
+                </thead>
+                <tbody ng-if="arrayOfIds.length > 0 && isReportListingPage">
+                  <tr>
+                    <td colspan="100%" style="background-color: #ffff;border: unset">
+                        <div class="row">
+                          <div class="col-md-6">                 
+                          </div>
+                          <div  class="col-md-6">
+                            <div class="row">
+                              <div class="col-md-8 m-t5 text-right">{{skippedIds.length == 0 ? pageObj.totalRecordInv : (skippedIds.length > 0 ?
+                                pageObj.totalRecordInv - skippedIds.length : arrayOfIds.length)}} invoices selected</div>
+                              <div class="col-md-4 dropdown select-wrap filterRange-dropdown">
+                                <button class="btn btn-primary dropdown-toggle action-btn-element" type="button" data-toggle="dropdown"
+                                  aria-expanded="true" style="font-size: 11px;width: 143px;height: 30px;" ng-disabled="bulkActionProcessing">
+                                  <span ng-if="!bulkActionProcessing">ACTIONS</span>
+                                  <span ng-if="bulkActionProcessing">{{progressPercent}}% Processing...</span>
+                                  <b class="action-progress-bar" ng-if="bulkActionProcessing" ng-style="{ width: progressPercent + '%' }"></b>
+                                </button>
+                                <ul class="dropdown-menu scrollable-menu action-dropdown" style="right: 15px">
+                                  <li ng-repeat="x in bulkActionsData">
+                                    <a href="javascript:void(0)" ng-click="bulkAction(x)">{{x.title}}</a>
+                                  </li>
+                                </ul>
+                              </div>
+                            
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody dt-rows ng-repeat="invoice in invoiceList" ng-class="{ 'quote-list-resp-deleted' : invoice.status == 0 }">
+                  <tr>
+                    <td colspan="7" class="border-td" style="background: #fff;"></td>
+                  </tr>
+                  <tr class="data-tr-pointer cursor-pointer" ng-class="{ 'data-tr-pointer-deleted' : invoice.status == 0 }">
+                    <td ng-click="goToInvoiceDetail(invoice)"><div class="darkGray">{{ report_invoiceStatus == 'Upcoming' || invoice.invoiceStatus == 'Upcoming' ? (invoice.upcomingInvoiceDate ? invoice.upcomingInvoiceDate : invoice.qboTxnDate ? invoice.qboTxnDate : invoice.createdOn | date:"MM/dd/yy") : invoice.qboTxnDate ? invoice.qboTxnDate : invoice.createdOn | date:"MM/dd/yy"}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" class="inv-number" ng-hide="report_invoiceStatus == 'Upcoming'"><div class="darkGray" ng-hide="invoice.invoiceStatus == 'Upcoming'">{{invoice.invoiceNumber}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" ng-if="isReportListingPage" class="inv-address"><div class="darkGray">{{invoice.displayName}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" class="inv-address"><div class="darkGray">{{invoice.address}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" class="text-center" ng-hide="report_invoiceStatus == 'Upcoming'"><div class="darkGray" ng-hide="invoice.invoiceStatus == 'Upcoming'">{{(invoice.dueDate | convertDateOffset: companyTimeZone:"MM/dd/yy")}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" class="text-center"><div class="{{invoice.invoiceStatus}} badge text-center">{{ invoice.invoiceStatus =='Awaiting Payment'? 'NOT PAID': (invoice.invoiceStatus.toUpperCase())}}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)"><div class="darkGray text-center">{{invoice.totalAmount | currency }}</div></td>   
+                    <td ng-click="goToInvoiceDetail(invoice)" ng-if="!isReportListingPage"><div class="darkGray text-center">{{invoice.balance | currency }}</div></td>
+                    <td ng-click="goToInvoiceDetail(invoice)" ng-if="isReportListingPage"><div class="darkGray text-center" ng-hide="invoice.invoiceStatus == 'Upcoming'">{{invoice.balanceDue | currency }}</div></td>
+                    <td class="has-sync-error-td">
+                        <ng-container ng-if="invoice.isQBSync">                    
+                      <span ng-hide="invoice.invoiceStatus == 'Upcoming'" class="has-sync-error">
+                        <i ng-click="isSyncErrorLogProcessing ? '' : openSyncErrorPopup(invoice, 'invoice')" class="has-sync-error__icon fa fa-info-circle"></i>
+                            <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                          </span>
+                      </span>
+                      </ng-container>                    
+                    </td>
+                    <td ng-if="isReportListingPage"><span><input type="checkbox" name="" id="" ng-model="invoice.selected" ng-click="toggleSelectOne()"></span></td>
+                  </tr>
+                </tbody>
+                <tbody ng-if="invoiceList.length == 0" class="no-record-found-frame-tbody">
+                  <tr>
+                    <td colspan="100%" class="no-record-found-frame-td">No invoice found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+
+          <div class="paging-warp container-fluid" ng-show="invoiceList.length != 0">
+              <div class="row p-t10" ng-class="{ 'align-footer-table' : isReportListingPage}">
+                <div class="text-left p-l20 p-b10 record-text-inv" ng-class="{ 'col-md-4' : !isReportListingPage, 'col-md-6' : isReportListingPage}">
+                    Showing 
+                    {{invoiceList.length ? (pageObj.totalPageInv == pageObj.pageInv ? (pageObj.totalRecordInv-invoiceList.length)+1 : (pageObj.pageInv > 1 ? ((pageObj.pageInv-1)*invoiceList.length)+1 : 1)) : 0 }} 
+                    to 
+                    {{ invoiceList.length ? (pageObj.totalPageInv == pageObj.pageInv ? pageObj.totalRecordInv : pageObj.pageInv*invoiceList.length) : 0 }}  
+                    of 
+                    {{pageObj.totalRecordInv}}                
+                  
+                  
+                </div>
+              <div class="col-md-8 text-right p-r20 p-b10" ng-if="!isReportListingPage" ng-class="{ 'col-md-8' : !isReportListingPage, 'col-md-6' : isReportListingPage}">                
+                  <span ng-if="totalPageAmount" class="p-l20">{{totalPageAmount | currency}} page total</span>
+                  <span ng-if="totalAmount" class="p-l20">{{totalAmount | currency}} grand total</span>    
+                </div>
+              
+              <div class="col-md-12">
+                  <div class="col-md-12 text-right" ng-if="isReportListingPage" style="padding-right: 8px;padding-bottom: 4px;">                
+                    <span ng-if="totalPageAmount" class="p-l20">{{totalPageAmount | currency}} page total</span>
+                      <span class="p-l20">{{totalAmount | currency}} grand total</span>    
+                  </div>
+                  <div class="pagination m-t0">                  
+                      <paging
+                      page="pageObj.pageInv" page-size="pageObj.limitInv" total="pageObj.totalRecordInv" text-first="First"
+                      text-last="Last" text-next="Next" text-prev="Prev"
+                      paging-action="goToCustomerInvoiceListPage(page)"
+                      show-prev-next="true" show-first-last="true"> </paging>
+                      
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/ng-template" id="exportInvoiceReportStyle.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup report-style-select-box" style="width:700px"> 
+      <div class="popup-header">
+        <span class="heading">Choose which style of report to generate</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+        <div class="detail-box">         
+        <div class="grid text-left box" >         
+            <div class="col-12 sent-email-report-message">
+              Choose which report to export
+            </div>
+            <div class="col-12-12">                 
+              <div class="row">
+                  <div class="col-sm-6">
+                    <a href="javascript:void(0);" ng-click="selectInvoiceReportStyleType('InvoiceReport')" class="report-style-large-btn">
+                        <h6>Invoices</h6>
+                        <div class="report-style-icon report-style-icon-2">
+                          <div class="rsi-item">
+                            <div class="rsi-header">
+                                <div class="rsi-heading"></div>
+                                <div class="rsi-sub-heading"></div>
+                            </div>
+                            <div class="rsi-body">
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                            </div>
+                          </div>
+                          <div class="rsi-item">
+                            <div class="rsi-header">
+                              <div class="rsi-heading"></div>
+                              <div class="rsi-sub-heading"></div>
+                            </div>
+                            <div class="rsi-body">
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                            </div>
+                        </div>
+                      </div>
+                    </a>
+                    <p class="report-style-large-btn-desc">High level invoice details and totals, One invoice per row</p>
+                  </div>
+                  <div class="col-sm-6">
+                    <a href="javascript:void(0);" ng-click="selectInvoiceReportStyleType('InvoiceLineItemReport')" class="report-style-large-btn">
+                        <h6>Line Items</h6>
+                        <div class="report-style-icon report-style-icon-2">
+                          <div class="rsi-item">
+                            <div class="rsi-header">
+                                <div class="rsi-heading"></div>
+                                <div class="rsi-sub-heading"></div>
+                            </div>
+                            <div class="rsi-body">
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                            </div>
+                          </div>
+                          <div class="rsi-item">
+                            <div class="rsi-header">
+                              <div class="rsi-heading"></div>
+                              <div class="rsi-sub-heading"></div>
+                            </div>
+                            <div class="rsi-body">
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                              <div class="rsi-para"></div>
+                            </div>
+                        </div>
+                      </div>
+                    </a>
+                    <p class="report-style-large-btn-desc">Line items from invoices displayed in single rows</p>
+                  </div>
+              </div>
+            </div>
+        </div>      
+        <div class="text-center p-t20">
+            <button class="add-button add-button-report-send" ng-click="closeThisDialog()" type="button">CANCEL</button>
+        </div>        
+        </div>
+  </div>
+  </script>
+  <script type="text/ng-template" id="sentReportEmailPopupReportPage.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+        <div class="popup-header">
+          <span class="heading">Create Report</span>
+          <div class="popup-close" ng-click="closeThisDialog(''); viewInvoiceReportStyle();"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+        </div>  
+        <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendInvoiceReport()" novalidate>      
+          <div class="detail-box">         
+          <div class="grid text-left box" >         
+              <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+              <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+              <success ng-if="exportInvoiceReportGenerateProcessStart" message="Report will be sent to provided email address."></success>
+              <div class="col-12 sent-email-report-message">
+                Where should we send the report when it's ready? <br> (large reports can take a while)
+              </div>
+              <div class="col-12-12">                 
+                <div class="formGroup">
+                      <label>Email Address</label>
+                      <input 
+                          type="email" 
+                          autocomplete="off" 
+                          class="form-control" 
+                          ng-model="exportInvoiceReportEmailModel.email" 
+                          placeholder="Email Address" 
+                          name="emailId" 
+                          ng-maxlength="100" 
+                          ng-minlength="6" 
+                          ng-disabled="exportInvoiceReportisSending"
+                          ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                          ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                          required                         
+                      />
+                </div>     
+              </div>
+          </div>      
+          <div class="text-center p-t20">
+              <button class="add-button add-button-report-send" ng-click="closeThisDialog(); viewInvoiceReportStyle()" ng-disabled="exportInvoiceReportisSending" type="button">CANCEL</button>
+              <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="exportInvoiceReportisSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+          </div>        
+          </div>
+        </form> 
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="addLineItemActionsPage.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:900px"> 
+      <div class="popup-header">
+        <span class="heading">Add line item to invoice</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>     
+          <div class="detail-box">         
+          <div class="text-left box" >
+              <div class="col-12-12">
+                <div ng-if="paidSelected"><h5 style="color: red;font-weight: bold;line-height: unset">Line items can't be added to invoices in PAID status. Please deselect any PAID status invoices and try again.</h5></div>
+                <table class="product-services-list invoice-list" style="width:100%">
+                  <tbody>
+                    <tr>
+                      <td colspan="5" class="bundle-search" style="position: relative;">
+                        <div class="product-search-widget-holder --fixed --scrollable">
+                          <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('invoiceList',[])"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>                   
+                </table>
+              </div>
+          </div>     
+          </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="bulkActionsConfirm.html" >
+    <div class="dataTables_wrapper modal-box common-popup" style="width:400px">
+      <div class="popup-header">
+        <span class="heading">Confirm</span>     
+      </div>
+      <div class="popup-body text-center" style="padding: 20px 5px;">
+        <div class="row-container">
+          <div ng-if="upcomingSelected"><h5 style="color: red;font-weight: bold;line-height: unset">Upcoming invoices can't be {{bulkActionConfirmTitle}}. Please deselect any Upcoming invoices and try again.</h5></div>
+          <div ng-hide="upcomingSelected"><label>Are you sure you want to {{bulkActionConfirmTitle}}?</label></div>
+          <br />
+          <div class="m-b5 text-center">
+            <button class="add-button" type="submit" ng-click="closeThisDialog()">{{upcomingSelected ? 'OK' : 'CANCEL'}}</button>&nbsp;
+            <button class="add-button" type="submit" ng-click="closeThisDialog();bulkActionInvoices();" ng-hide="upcomingSelected">CONFIRM</button>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="confirmLineItem.html" >
+    <div class="dataTables_wrapper modal-box common-popup" style="width:400px">
+      <div class="popup-header">
+        <span class="heading">Confirm</span>     
+      </div>
+      <div class="popup-body text-center" style="padding: 20px 5px;">
+        <div class="row-container">
+          <div><label>Are you sure you want to add line item to invoice?</label></div>
+          <br />
+          <div class="set-chem-button m-b20" style="text-align: center;">
+            <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+            <button class="add-button" type="submit" ng-click="closeThisDialog();addLineItemInvoices()">CONFIRM</button>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </script>
+</div>
+
+<div class="print-template-area"> 
+  <div ng-include="'templates/component/invoice-print-content.html?ver='+PB_WEB_VERSION"></div> 
+</div> 

@@ -1,0 +1,29 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:450px">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Add Help Ticket</div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="dataTables_wrapper" ng-init="getMeidList()">
+
+          <div class="meid-form-container">
+            <form class="form-signin" name="profileImageForm" ng-submit="addIssue()" novalidate>
+              <div class="row-container">
+                <div class="row-item">
+                  <input maxlength="250" autofocus class="form-control input-width" name="subject" ng-class="{'has-error': model.$submitted && model.subject.$invalid || model.subject.$touched && model.subject.$invalid}" ng-model="model.subject" placeholder="Subject" required="" type="text"/>
+                  <textarea maxlength="1000" autofocus class="form-control input-width" name="message" ng-class="{'has-error': model.$submitted && model.message.$invalid || model.message.$touched && model.message.$invalid}" ng-model="model.message" placeholder="Message" required="" style="width:100%;"></textarea>
+                </div>
+              </div>
+              <div class="p-t20 technicians-button">
+                <button class="add-button" ng-disabled="model.$invalid" type="submit">ADD</button>
+              </div>
+              <error message="{{error}}" ng-if="error"></error>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>

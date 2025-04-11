@@ -1,0 +1,326 @@
+<div>
+  <div class="spinner" ng-if="isProcessing && !isSingleListingPage">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="contianer-fluid invoice-job-listing-title">
+    <div class="row row-for-quote-listing-single">
+      <div class="col-md-12">
+        <!--  -->
+        <div ng-if="isSingleListingPage" class="dropdown csq-dropdown csq-dropdown-status-{{selectedInvStatus[0].toLowerCase()}}" ng-class="{ 'csq-dropdown-status-all' : isAllQuotesSelected}">
+          <button class="csq-selected-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
+            <ng-container ng-if="!isAllQuotesSelected">{{selectedInvStatus[0].toLowerCase()}}</ng-container>
+            <ng-container ng-if="isAllQuotesSelected">All</ng-container>            
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu csq-dropdown-menu scrollable-menu">   
+            <li ng-hide="isAllQuotesSelected" class="csq-item-contiainer">
+              <a class="csq-item csq-item-all" href="javascript:void(0)" ng-click="allQuotesSelected()">All</a>
+            </li>
+            <li ng-repeat="x in statusCount" ng-hide="!isAllQuotesSelected && (x.status).toLowerCase() === selectedInvStatus[0].toLowerCase()" class="csq-item-contiainer">
+              <a class="csq-item csq-item-{{(x.status).toLowerCase()}}" href="javascript:void(0)" ng-click="filterByStatus(x.status)">{{x.status}}</a>
+            </li>
+          </ul>
+        </div>
+        <!--  -->  
+      </div>
+    </div>
+    <div class="filter-range-row-div">      
+    <div class="row">
+      <div class="col-md-6 ft-btns">
+        <div class="title" ng-click="showListingTab('jobHistory')" ng-class="{'disabled':!listingTab['jobHistory']}">JOBS</div>
+        <div class="title" ng-click="showListingTab('quotes')" ng-class="{'disabled':!listingTab['quotes']}">QUOTES</div>
+        <div class="title"  ng-click="showListingTab('invoice')" ng-class="{'disabled':!listingTab['invoice']}">INVOICES</div>
+        <div class="title"  ng-click="showListingTab('payment')" ng-class="{'disabled':!listingTab['payment']}">PAYMENTS</div>
+        <div class="title"  ng-click="showListingTab('feedback')" ng-class="{'disabled':!listingTab['feedback']}">FEEDBACK</div>
+      </div>
+      <div class="col-md-6 ft-btns-show-on-tech-page">
+        <div class="title" ng-class="{'disabled': gridType !='jobhistory'}"  ng-click="changeGridType('jobhistory')" >JOBS</div>
+        <div class="title" ng-class="{'disabled': gridType !='quotes'}"  ng-click="changeGridType('quotes')" >QUOTES</div>
+        <div class="title" ng-class="{'disabled': gridType !='feedback'}"  ng-click="changeGridType('feedback')" >FEEDBACK</div>
+      </div>
+      <div class="col-md-4" ng-class="{ 'inv-dp-col-right': isSingleListingPage}">
+        <div ng-if="isSingleListingPage" class="report-listing-page-report-export excel-download-btn-holder">
+          <span class="excel-download-btn" ng-class="{ 'is-report-export-disabled' : isReportExportDisabled('canExportQuoteReports') }" ng-click="!isReportExportDisabled('canExportQuoteReports') ? downloadQuotesReport() : null"></span>
+          <span class="excel-download-btn-tooltip">You do not have permission to export this report</span>
+        </div>
+        <div ng-if="isSingleListingPage" class="report-listing-page-search-box-holder">
+          <i class="fa fa-search searchbtn" ng-click="doSearchInvoiceList($event,searchInvoiceTextKey)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchInvoiceList($event,searchInvoiceTextKey)" ng-model="searchInvoiceTextKey" placeholder="Quote #, name, amount or address" class="report-listing-page-search-box" ng-keyup="$event.keyCode == 13 ? doSearchInvoiceList($event,searchInvoiceTextKey) : null">
+        </div>
+        <!--  -->
+        <div ng-if="isSingleListingPage" class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{selectedFilterRangeTitle}}</button>
+          <ul class="dropdown-menu scrollable-menu">   
+            <li ng-repeat="x in rangeFilterData">
+              <a href="javascript:void(0)" ng-click="filterRange(x)">{{x.title}}</a>
+            </li>
+          </ul>
+        </div>
+        <!--  -->        
+      </div>
+    </div>
+    <div class="row" ng-class="{ 'date-picker-row-single-page' : isSingleListingPage, 'status-custom-selected' : selectedFilterRange == 'custom', 'isFrameSection-datepicker' : isFrameSection }">
+        <div class="col-md-6 col-xs-12"></div>
+        <div class="col-md-2 col-xs-12"></div>
+        <div class="col-md-4 col-xs-12">
+          <div class="datePicker datePicker-rangepicker-static input-daterange" ng-show="selectedFilterRange == 'custom' || isFrameSection">
+            <div class="date-rangepicker-static-row">
+              <div class="date-rangepicker-static-col left">
+                <div class="smallview" date-format="MM/dd/yyyy">
+                  <input ng-model="invDate.fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+                </div>
+              </div>
+              <div class="date-rangepicker-static-col right">
+                <div class="" date-format="MM/dd/yyyy" min-date="invDate.fromDate">
+                  <input ng-model="invDate.toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    </div>
+  </div>
+
+
+  <div class="grid cust-job-history invoive-list data-table-grid">
+    <div class="spinner" ng-if="isProcessing && isSingleListingPage">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <div class="col-1-1">
+      <div class="white-bg">
+        <div class="row sub-btns-row">
+          <div class="col-md-8">
+            <div class="flex invoice-filter">
+              <div 
+              ng-repeat="data in statusCount" 
+              class="flex" 
+              ng-click="filterByStatus(data.status)" 
+              ng-class="{'disabled': !invoiceStatus[(data.status.toLowerCase())] }">
+                <div class="tag quote-tag" 
+                ng-class="{'quote-tag-open' : data.status == 'Open', 'quote-tag-approved' : data.status == 'Approved', 'quote-tag-denied' : data.status == 'Denied', 'quote-tag-closed' : data.status == 'Closed' }"
+                >
+                    {{data.count}}
+                </div>
+                <div>
+                  <div><strong>{{data.status}}</strong></div>
+                  <div class="amount">{{data.amount | currency}}</div>
+                </div>
+              </div>        
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="search-box" style="margin-left: 20px;">
+              <i class="fa fa-search searchbtn" ng-click="doSearchInvoiceList($event,searchInvoiceTextKey)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchInvoiceList($event,searchInvoiceTextKey)" ng-model="searchInvoiceTextKey" placeholder="Address or quote title" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchInvoiceList($event,searchInvoiceTextKey) : null">
+            </div>
+            <div class="showallproperties" style="margin-bottom: 5px; position: relative; left: 20%;"> <input id="show_all_properties_invoice" type="checkbox" ng-model="showAllPropertiesInvoice.value"   ng-change="getCustomerInvoiceList()" ng-true-value="1" ng-false-value="0" name="show_all_properties_invoice">
+              <label for="show_all_properties_invoice"> Show all properties</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dataTables_wrapper" ng-init="getQuotesList()">
+          <div class="list-box" id="scrollarea">
+            <table class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+              <thead class="dark-gray-bg">
+                <tr >
+                  <th></th>
+                  <th style="width: 10%!important; text-align: left!important;">
+                    <div class="sorting" ng-click="orderByJobList('createdOn')"
+                        ng-class="{'sorting_asc': columnInv == 'createdOn' && dirInv == 'asc', 'sorting_desc': columnInv == 'createdOn' && dirInv == 'desc', }" >
+                      DATE
+                    </div>
+                  </th>
+                  <th ng-if="isSingleListingPage" style="width: 160px!important; text-align: left!important;">
+                    <div class="sorting" ng-click="orderByJobList('quoteNumber')"
+                        ng-class="{'sorting_asc': columnInv == 'quoteNumber' && dirInv == 'asc', 'sorting_desc': columnInv == 'quoteNumber' && dirInv == 'desc', }" >
+                      QUOTE #
+                    </div>
+                  </th>
+                  <th ng-if="isSingleListingPage" style="width: 219px!important; text-align: left!important;">
+                    <div class="sorting" ng-click="orderByJobList('displayName')"
+                        ng-class="{'sorting_asc': columnInv == 'displayName' && dirInv == 'asc', 'sorting_desc': columnInv == 'displayName' && dirInv == 'desc', }" >
+                      CUSTOMER NAME
+                    </div>
+                  </th>
+                  <th style="width: 300px !important; text-align: left!important;">
+                    <div>
+                      ADDRESS
+                    </div>
+                  </th>
+                  <th style="width: 150px !important; text-align: center!important;;padding-left: 0 !important;">
+                    <div class="sorting"
+                        ng-style="isSingleListingPage && {'text-align':'left'}"
+                        ng-click="orderByJobList('bodyOfWater')"
+                        ng-class="{'sorting_asc': columnInv == 'bodyOfWater' && dirInv == 'asc', 'sorting_desc': columnInv == 'bodyOfWater' && dirInv == 'desc', }">
+                      BODY OF WATER
+                    </div>
+                  </th>
+                  <th ng-class="{'text-center' : !isSingleListingPage, 'text-left-imp' : isSingleListingPage}" style="width: 20%!important;"
+                    ng-style="isSingleListingPage && {'width':'160px', 'text-align':'left'}"
+                    >
+                    <div class="sorting"
+                        ng-click="orderByJobList('title')"
+                        ng-style="isSingleListingPage && {'text-align':'left'}"
+                        ng-class="{'sorting_asc': columnInv == 'title' && dirInv == 'asc', 'sorting_desc': columnInv == 'title' && dirInv == 'desc', }">
+                      TITLE
+                    </div>
+                  </th>
+                  <th ng-if="!isSingleListingPage" class="text-center" style="width: 10%!important;">
+                    <div class="sorting"
+                        ng-click="orderByJobList('createdBy')"
+                        ng-class="{'sorting_asc': columnInv == 'createdBy' && dirInv == 'asc', 'sorting_desc': columnInv == 'createdBy' && dirInv == 'desc', }">
+                      CREATED BY
+                    </div>
+                  </th>
+                  <th  class="text-left" style="width: 10%!important;">
+                    <div class="sorting"
+                        ng-click="orderByJobList('status')"
+                        ng-class="{'sorting_asc': columnInv == 'status' && dirInv == 'asc', 'sorting_desc': columnInv == 'status' && dirInv == 'desc', }">
+                      STATUS
+                    </div>
+                  </th>
+                  <th  class="text-center" style="width: 10%!important;"
+                  ng-style="isSingleListingPage && {'width':'160px'}"
+                  >
+                    <div class="sorting"
+                        ng-click="orderByJobList('totalAmount')"
+                        ng-class="{'sorting_asc': columnInv == 'totalAmount' && dirInv == 'asc', 'sorting_desc': columnInv == 'totalAmount' && dirInv == 'desc', }">
+                      AMOUNT
+                    </div>
+                  </th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody dt-rows ng-repeat="invoice in invoiceList" ng-if="invoiceList.length > 0">
+                <tr>
+                  <td colspan="100%" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr ng-click="goToInvoiceDetail(invoice)" style="cursor: pointer;">
+                  <td class="left-td" rowspan="2"></td>
+                  <td><div class="darkGray">{{invoice.createdOn | date: 'MM/dd/yy'}}</div></td>
+                  <td  ng-if="isSingleListingPage"><div class="darkGray">{{invoice.quoteNumber}}</div></td>
+                  <td ng-if="isSingleListingPage">
+                    <div class="darkGray">{{invoice.displayName}}</div>
+                  </td>
+                  <td class="inv-address">
+                    <div class="darkGray">{{invoice.address}}</div>
+                    <div class="darkGray">{{invoice.city}}, {{invoice.state}} {{invoice.zipcode}}</div>
+                  </td>
+                  <td class="text-center">
+                    <div class="darkGray" ng-style="isSingleListingPage && {'text-align':'left'}">
+                      <div title="{{invoice.waterBodyName}}" ng-if="invoice.waterBodyName!='null'" class="pool-tag over-wb-name" style="background-color: {{invoice.color ? invoice.color : 'inherit'}};">
+                        {{invoice.waterBodyName}}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center" ng-style="isSingleListingPage && {'width':'160px', 'text-align':'left'}">
+                    <div class="darkGray" ng-if="!invoice.title || invoice.title == ''">Untitled quote</div>
+                    <div class="darkGray" ng-if="invoice.title && invoice.title != ''">{{invoice.title}}</div>
+                  </td>
+                  <td ng-if="!isSingleListingPage" class="text-left"><div class="darkGray">{{ spliceName(invoice.createdByName)}}</div></td>
+                  <td class="grid-label-quote-container">
+                    <div class="darkGray" ng-style="isSingleListingPage && {'text-align':'center'}">
+                      <span class="grid-label-quote grid-label-quote-{{(invoice.status).toLowerCase()}}">
+                        {{invoice.status}}
+                      </span>
+                    </div>
+                  </td>   
+                  <td>
+                    <div class="darkGray text-center" ng-style="isSingleListingPage && {'text-align':'left'}">{{invoice.totalAmount | currency }}</div>
+                  </td>
+                  <td class="right-td" rowspan="2"></td>
+                </tr>
+              </tbody>
+              <tbody ng-if="invoiceList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">no quotes to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+          <div class="paging-warp container-fluid" ng-hide="invoiceList.length == 0">
+            <div class="row p-t10">
+              <div class="col-md-4 text-left p-l20 p-b10">
+                  Showing 
+                  {{invoiceList.length ? (pageObj.totalPageInv == pageObj.pageInv ? (pageObj.totalRecordInv-invoiceList.length)+1 : (pageObj.pageInv > 1 ? ((pageObj.pageInv-1)*invoiceList.length)+1 : 1)) : 0 }} 
+                  to 
+                  {{ invoiceList.length ? (pageObj.totalPageInv == pageObj.pageInv ? pageObj.totalRecordInv : pageObj.pageInv*invoiceList.length) : 0 }}  
+                  of 
+                  {{pageObj.totalRecordInv}}                
+                
+                
+              </div>
+              <div class="col-md-8 text-right p-r20 p-b10 page-total-string">                
+                  <span ng-if="totalPageAmount" class="p-l20">{{totalPageAmount | currency}} page total</span>
+                  <span  ng-if="totalAmount" class="p-l20">{{totalAmount | currency}} grand total</span>    
+              </div>
+            
+              <div class="col-md-12">
+                <div class="pagination m-t0">
+                  
+                    <paging
+                    page="pageObj.pageInv" page-size="pageObj.limitInv" total="pageObj.totalRecordInv" text-first="First"
+                    text-last="Last" text-next="Next" text-prev="Prev"
+                    paging-action="goToCustomerInvoiceListPage(page)"
+                    show-prev-next="true" show-first-last="true"> </paging>
+                    
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/ng-template" id="sentReportEmailPopupReportPage.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+      <div class="popup-header">
+        <span class="heading">Create Report</span>
+        <div class="popup-close" ng-click="closeThisDialog('');"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendQuotesReport()" novalidate>      
+        <div class="detail-box">         
+        <div class="grid text-left box" >         
+            <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+            <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+            <success ng-if="exportQuotesReportGenerateProcessStart" message="Report will be sent to provided email address."></success>
+            <div class="col-12 sent-email-report-message">
+              Where should we send the report when it's ready? <br> (large reports can take a while)
+            </div>
+            <div class="col-12-12">                 
+              <div class="formGroup">
+                    <label>Email Address</label>
+                    <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="exportQuotesReportEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-disabled="exportQuotesReportisSending"
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                        required                         
+                    />
+              </div>     
+            </div>
+        </div>      
+        <div class="text-center p-t20">
+            <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="exportQuotesReportisSending" type="button">CANCEL</button>
+            <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="exportQuotesReportisSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+        </div>        
+        </div>
+      </form> 
+  </div>
+</script>

@@ -1,0 +1,91 @@
+<div class="pbx-popup">
+    <div class="inventory-loader" ng-if="isProcessing">
+        <div class="spinner">
+            <div class="spinner-item">
+                <div class="spinner-animation">
+                    <img src="/resources/images/spinner.gif">
+                </div>
+            </div>
+        </div>
+    </div>
+    <form name="addUpdateLocationForm" id="addUpdateLocationForm" ng-submit="locationFormSubmitted = true; addUpdateLocationForm.$valid && saveLocation()" novalidate>  
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            Add {{ isSublocationType ? 'Sub Location' : 'Location' }}
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <div class="pbx-popup-body text-left">              
+        <div class="row">
+            <div class="col-xs-12 col-lg-6">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group inventory-product-search-widget-holder">
+                            <label class="form-label">Location Name</label>
+                            <input class="pbx-form-control" type="text" name="name" id="name" ng-model="model.name" maxlength="50" required="" ng-class="{ 'has-error' : locationFormSubmitted && addUpdateLocationForm.name.$invalid }">
+                            <span class="has-required p-b10" ng-if="locationFormSubmitted && addUpdateLocationForm.name.$invalid">
+                                <span class="inventory-product-search-widget-error" ng-if="addUpdateLocationForm.name.$error.required">Location Name is required</span>
+                            </span>
+                            <span class="inventory-make-this-sublocation" ng-click="toggleLocationType()">
+                                {{ isSublocationType ? 'Make this parent location' : 'Make this sub location' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-if="isSublocationType">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Parent Location</label>                        
+                            <tree-dropdown data-sid="{{parentLocationSelect(selected)}}" class="tree-dropdown" data="transformedLocation" id="paredLocationId" name="paredLocationId" selected="selected"></tree-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 error_display">
+                        <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                        <success message="{{successMessage}}" ng-if="successMessage"></success>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-lg-6">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Photos</label>
+                            <div class="truck-photo-area">
+                                <div class="tuck-cover-photo">
+                                    <img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto==1" ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)" />
+                                </div>
+                                <div class="tuck-photo-list">
+                                    <div class="truck-photo-list-item" ng-repeat="img in model.images track by $index" ng-if="img.status == 1">
+                                        <span class="delete-truck-photo-icon" ng-click="deleteInventoryModelImage(img)">
+                                            <i class="fa fa-trash"></i>
+                                        </span>
+                                        <span class="set-as-link" ng-if="img.isCoverPhoto==0" ng-click="setInventoryCover(model.images, img)">Set as cover</span>
+                                        <img ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)">
+                                    </div>                                            
+                                    <div class="truck-photo-list-item" ng-if="!model.images || model.images.length < 8">
+                                        <div class="truck-photo-list-add">
+                                            <label class="uploader-ui" ng-class="{ 'uploading' : inventoryImageProcessing[imageIndex] }" title="Attach Image">
+												<input type="file" id="file" name="file" ng-disabled="locationDetailFetching" accept="image/png, image/jpeg, image/jpg" onchange="angular.element(this).scope().inventoryImageUpload(event)" />
+												<span class="image-add-icon"></span>
+												<span class="upload-processing"></span>
+											</label>    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="pbx-popup-footer">           
+        <button tabindex="-1" class="pbx-btn" ng-disabled="isProcessing" type="submit">Save</button>
+        <button tabindex="-1" class="pbx-btn" type="button" ng-click="closeThisDialog()">Cancel</button>
+    </div>
+  </form>
+</div>

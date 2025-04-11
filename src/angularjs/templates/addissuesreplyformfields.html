@@ -1,0 +1,28 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <div class="fl h-1-5x b white" style="word-break: break-word">{{companyMessageData.subject}}</div>
+      <div class="popup-close" style="word-break: break-word" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="dataTables_wrapper">
+          <p>{{companyMessageData.message}}</p>
+          <div class="meid-form-container">
+            <form class="form-signin" name="profileImageForm" ng-submit="addIssue(companyMessageData.id)" novalidate>
+              <div class="row-container">
+                <div class="row-item">
+                  <textarea maxlength="1000" autofocus class="form-control input-width" name="reply" ng-class="{'has-error': model.$submitted && model.reply.$invalid || model.reply.$touched && model.reply.$invalid}" ng-model="model.reply" placeholder="type your reply here..." required="" style="width:100%;"></textarea>
+                </div>
+              </div>
+              <div class="technicians-button">
+                <button class="add-button" ng-disabled="model.$invalid" type="submit">Reply</button>
+              </div>
+              <error message="{{error}}" ng-if="error"></error>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>

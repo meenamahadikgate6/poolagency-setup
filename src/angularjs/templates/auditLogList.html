@@ -1,0 +1,64 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="dataTables_wrapper customer" style="padding:5px" >
+      <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+      <error message="{{error3}}" ng-if="error3"></error>
+
+      <div class="popup-header">
+          <div class="fl h-1-5x b white">Audit Log List</div>
+          <div class="popup-close" ng-click="closeThisDialog()">
+              <i class="fa fa-times-circle" aria-hidden="true"></i>
+          </div>
+      </div>
+        <table class="row-border hover no-footer dataTable" width="100%">
+            <thead>
+                <tr>
+                    <th> Action Taken </th>
+
+                    <th> By </th>
+                    <th> Action Date Time </th>
+                </tr>
+            </thead>
+            <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="auditLog in auditLogList track by $index">
+                <tr>
+                    <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                </tr>
+                <tr class="even">
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add" id="pool_location_{{auditLog.id}}" ><pre>{{auditLog.actionName}}</pre> </div>
+                    </td>
+                    <td class="auditLog-name border-top2 border-left2 border-bottom2">
+                        <a class="" id="{{auditLog.id}}" title="{{auditLog.firstName+' '+auditLog.lastName}}"
+                            ng-bind="parseName(auditLog.firstName+' '+auditLog.lastName,11)"> </a>
+                    </td>
+
+                    <td class="border-top2 border-bottom2">
+                        <div class="customer-add">
+                         {{auditLog.onDate | date:"MM/dd/yyyy hh:mm:ss a"}}
+                        </div>
+                    </td>
+                    <!-- <td class="border-top2 border-right2 border-bottom2">
+                        <div class="customer-add">
+                            <a title="{{auditLog.email}}" class="underline-none darkGray" href="mailto:{{auditLog.email}}"> {{auditLog.email}} </a>
+                        </div>
+                    </td> -->
+
+                </tr>
+
+            </tbody>
+            <tbody ng-if="auditLogList.length < 1">
+                <tr class="even">
+                    <td colspan="5" style="text-align: center;"> Sorry, no results found! </td>
+                </tr>
+            </tbody>
+        </table>
+    <div aria-live="polite" class="dataTables_info" id="dashTable_info" role="status">
+      Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries
+    </div>
+    <div class="pagination">
+        <paging page="page" page-size="limit" paging-action="goToPage(page)" show-first-last="true" show-prev-next="true"
+            text-first="First" text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+    </div>
+
+  </div>
+
+</div>

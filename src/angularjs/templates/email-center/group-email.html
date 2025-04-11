@@ -1,0 +1,585 @@
+<div ng-controller="groupEmailController" ng-init="initPayloadForGroupEmails()">
+    <div class="row">
+        <div class="col-xs-12 email-center-top-messages">
+            <success ng-if="sendEmailSuccess" message="{{sendEmailSuccess}}"></success>
+            <error ng-if="sendEmailError" message="{{sendEmailError}}"></error>            
+        </div>
+    </div>
+    <div class="ecp-section" ng-if="!isComposeMailWindow">
+        <div class="ecp-section-header">
+            <div class="ecp-section-title">
+                <span>CHOOSE OPTIONS</span>
+                <a href="javascript:void(0)" class="icon-required">
+                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span>Choose any combination of options to create an email audience list below based on your selections.</span>
+                  </a>
+            </div>
+        </div>
+        <div class="ecp-section-body">
+            <div class="spinner" ng-if="isFilterMasterLoading['all']">
+                <div class="spinner-item">
+                  <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                </div>
+            </div>
+            <div class="ecp-section-card">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="ecp-section-equipment-area">
+                            <ul class="ecp-section-equipment-list">
+                                <li ng-repeat="equipment in equipments" ng-if="!['waterguru'].includes(equipment.icon)">
+                                    <div class="ecp-equipment-card" ng-click="toggleEquipmentDropdown(equipment.eqId)">
+                                        <div class="ecp-equipment-card-icon ecp-equipment-card-icon-{{equipment.icon}}"></div>
+                                        <div class="ecp-equipment-card-title">{{equipment.label}}</div>  
+                                         <!--  -->
+                                        <div class="ecp-equipment-card-dropdown" ng-if="equipmentDropdownStatus[equipment.eqId]" click-outside="closeEquipmentDropdown()">
+                                            <ul class="ecp-equipment-card-dropdown-list">
+                                                <li class="ecp-equipment-card-dropdown-list-item " ng-repeat="equipmentType in equipment.eqType" ng-click="$event.stopPropagation();addToSelections({labelSuffix: equipment.label, label: equipmentType.eqType, id: equipmentType.typeId }, 'equipment')">
+                                                    {{equipmentType.eqType}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div> 
+                    </div>
+                </div>       
+                <div class="row">
+                    <div class="col-xs-12">                                        
+                        <div class="ecp-section-dropdown-area">
+                            <div class="ecp-section-dropdown">
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('customerStatus')">
+                                    <span>CUSTOMER STATUS</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content ecp-section-dropdown-content-fullwidth-options" ng-if="ecpDropwDownOpen['customerStatus']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">                                                        
+                                        <div class="ecp-section-dropdown-content-list-area">
+                                            <ul class="ecp-section-dropdown-content-list" ng-show="customerStatuses.length > 0">
+                                                <li class="ecp-section-dropdown-content-list-item" ng-repeat="status in customerStatuses" ng-click="addToSelections(status, 'status')">{{status.label}}</li>
+                                            </ul>                                                            
+                                            <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="customerStatuses.length > 0">
+                                                No status found
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ecp-section-dropdown">
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('city')">
+                                    <span>CITY</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['city']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">
+                                        <div class="ecp-section-dropdown-content-search"  ng-show="citiesMaster.length > 0">
+                                            <i class="fa fa-search"></i>
+                                            <input type="text" placeholder="Search" id="searchCity" ng-keyup="filterList('searchCity','cityList')" >
+                                        </div>
+                                        <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                            <ul class="ecp-section-dropdown-content-list" id="cityList" ng-show="citiesMaster.length > 0">
+                                                <li class="ecp-section-dropdown-content-list-item" ng-repeat="city in citiesMaster" ng-click="addToSelections(city, 'city')">
+                                                    {{city.label}}
+                                                </li>
+                                            </ul>
+                                            <div class="ecp-section-dropdown-content-list-no-result" ng-hide="citiesMaster.length > 0 || isFilterMasterLoading['city']">
+                                                No city found
+                                            </div>
+                                            <div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+                                                <i></i>
+                                                <span>Loading cities</span>
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ecp-section-dropdown">
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('zipCode')">
+                                    <span>ZIP CODE</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['zipCode']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">
+                                        <div class="ecp-section-dropdown-content-search" ng-show="zipCodesMaster.length > 0">
+                                            <i class="fa fa-search"></i>
+                                            <input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','zipCodeList')" >
+                                        </div>
+                                        <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                            <ul class="ecp-section-dropdown-content-list" id="zipCodeList" ng-show="zipCodesMaster.length > 0">
+                                                <li class="ecp-section-dropdown-content-list-item" ng-repeat="zip in zipCodesMaster" ng-click="addToSelections(zip, 'zip')">
+                                                    {{zip.label}}
+                                                </li>
+                                            </ul>
+                                            <div class="ecp-section-dropdown-content-list-no-result" ng-hide="zipCodesMaster.length > 0 || isFilterMasterLoading['city']">
+                                                No zipcode found
+                                            </div>
+                                            <div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+                                                <i></i>
+                                                <span>Loading zipcodes</span>
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ecp-section-dropdown" >
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('tags')">
+                                    <span>TAGS</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['tags']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">
+                                        <div class="ecp-section-dropdown-content-search" ng-show="tagsMaster.length > 0">
+                                            <i class="fa fa-search"></i>
+                                            <input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','tagList')" >
+                                        </div>
+                                        <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                            <ul class="ecp-section-dropdown-content-list" id="tagList" ng-show="tagsMaster.length > 0" >
+                                                <li class="ecp-section-dropdown-content-list-item" ng-repeat="tag in tagsMaster" ng-click="addToSelections(tag, 'tag')">
+                                                    {{tag.label}}
+                                                </li>
+                                            </ul>
+                                            <div class="ecp-section-dropdown-content-list-no-result" ng-hide="tagsMaster.length > 0">
+                                                No tags were found. You can create and add tags on any customer page.
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ecp-section-dropdown">
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('invoiceStatus')">
+                                    <span>INVOICE STATUS</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content ecp-section-dropdown-content-fullwidth-options" ng-if="ecpDropwDownOpen['invoiceStatus']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">                                                        
+                                        <div class="ecp-section-dropdown-content-list-area">
+                                            <ul class="ecp-section-dropdown-content-list" ng-show="invoiceStatuses.length > 0">
+                                                <li class="ecp-section-dropdown-content-list-item" ng-repeat="status in invoiceStatuses" ng-click="addToSelections(status, 'invoiceStatus')">{{status.label}}</li>
+                                            </ul>                                                            
+                                            <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="invoiceStatuses.length > 0">
+                                                No status found
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>                                            
+                            <div class="ecp-section-dropdown">
+                                <a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('route')">
+                                    <span>ROUTE</span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </a>
+                                <div class="ecp-section-dropdown-content ecp-section-dropdown-content-route-list" ng-if="ecpDropwDownOpen['route']" click-outside="closeEcpDropDown()">
+                                    <div class="ecp-section-dropdown-content-inner">
+                                        <div class="ecp-section-dropdown-content-slider">
+                                            <div class="ecp-section-dropdown-content-slider-left">
+                                                <a href="javascript:void(0)"  ng-click="modifyRouteListDate('left')"><i class="fa fa-caret-left"></i></a>
+                                            </div>
+                                            <div class="ecp-section-dropdown-content-slider-center">
+                                                {{routeListDate.format('dddd, MMMM D, YYYY')}}
+                                            </div>
+                                            <div class="ecp-section-dropdown-content-slider-right">
+                                                <a href="javascript:void(0)" ng-click="modifyRouteListDate('right')"><i class="fa fa-caret-right"></i></a>
+                                            </div>
+                                        </div> 
+                                        <div class="ecp-section-dropdown-content-search">
+                                            <i class="fa fa-search"></i>
+                                            <input type="text" placeholder="Route or technician name" id="searchRoute" ng-keyup="filterList('searchRoute','routeList')" >
+                                        </div>                                                       
+                                        <div class="ecp-section-dropdown-content-list-area scrollareaCls">
+                                            <ul class="ecp-section-dropdown-content-list" id="routeList" ng-show="routes.length > 0 && !isRoutesLoading">
+                                                <li class="ecp-section-dropdown-content-list-item ecp-section-dropdown-content-list-item-route" ng-repeat="route in routes" ng-click="addToSelections(route, 'routes')">
+                                                    <div class="route-item">
+                                                        <div class="route-item-left">
+                                                            <div class="route-item-image" ng-style="{'color': route.color }">
+                                                                <img ng-if="route.userImage" src="{{route.userImage}}" alt="">
+                                                                <span ng-if="!route.userImage">{{route.techFirstname ? (route.techFirstname | convertToInitial: route.techLastname) : '?'}}     </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="route-item-right">
+                                                            <div class="route-item-title" ng-style="{'color': route.color }">{{route.label}}</div>
+                                                            <div class="route-item-tech-name">{{route.techFirstname}} {{route.techLastname}}</div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>                                                            
+                                            <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="routes.length == 0 && !isRoutesLoading">
+                                                No route found
+                                            </div>                                                           
+                                            <div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="isRoutesLoading">
+                                                <i></i>
+                                                <span>Loading routes</span>
+                                            </div>
+                                        </div>                                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+    <div class="ecp-section">
+        <div class="ecp-section-header">
+            <div class="ecp-section-title">
+                <span>SELECTIONS MADE</span>
+                <a href="javascript:void(0)" class="icon-required clear-all-link" ng-click="removeFromSelections('all')" ng-hide="selectionsMade.length == 0 || isComposeMailWindow">
+                    clear all
+                </a>
+                <span class="selection-made-query-type-area" ng-hide="selectionsMade.length == 0 || isComposeMailWindow">
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="closeAllFilterDropdown()">
+                            {{selectedFilterPayloadQueryType.label}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="type in filterPayloadQueryTypes" ng-click="selectedFilterPayloadQueryType.id != type.id && filterPayloadQueryType(type)">
+                                <a href="javascript:void(0)">{{type.label}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                    must match
+                </span>
+                <a href="javascript:void(0)" class="icon-required clear-all-link" ng-click="!isEmailSending && !isPreviewEmailSending && closeComposeMailWindow(templateForm)" ng-hide="!isComposeMailWindow">
+                    Go back
+                </a>
+            </div>
+        </div>
+        <div class="ecp-section-body">                          
+            <div class="ecp-section-card ecp-section-card-selection-made">
+                <div class="selection-made-tag-area" ng-if="selectionsMade.length > 0">   
+                    <span class="selection-made-tag " ng-class="{ 'selection-made-tag-disabled' : isComposeMailWindow, 'selection-made-tag-highlight': selectionTag.alreadyExist }" ng-repeat="selectionTag in selectionsMade">                                        
+                        <ng-container ng-bind-html="selectionTag.selectionLabel"></ng-container>                                                                                
+                        <i class="selection-made-tag-delete" ng-click="removeFromSelections(selectionTag.uid)">&times;</i>
+                    </span>
+                </div>
+                <div class="selection-made-tag-area selection-made-tag-area-blank" ng-if="selectionsMade.length == 0">   
+                    <p>choose options above to create a custom group of emails based on your selections</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mobile Sorting Start -->
+    <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown dropdown-mobile-sorting flt-rng-drp email-center-sortingResp" ng-if="!isComposeMailWindow && emailListData.length > 0">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true" >{{selectedEmailFilterSortingTitle}}</button>
+        <ul class="dropdown-menu scrollable-menu">   
+            <li ng-repeat="x in emailFilterSortingData">
+                <a href="javascript:void(0)" class="sorting-mob" ng-click="orderEmailListBy(x.id,x)" ng-class="{'sorting_mob_asc': emailListColumnName == x.id && emailListDir == 'asc', 'sorting_mob_desc': emailListColumnName == x.id && emailListDir == 'desc', }">{{x.value}}</a>
+            </li>
+        </ul>
+    </div>
+    <!-- Mobile Sorting End -->
+    <div class="ecp-section" ng-if="!isComposeMailWindow">
+        <div class="ecp-section-header">
+            <div class="ecp-section-title">
+                <span>EMAIL GROUP</span>
+                <a href="javascript:void(0)" class="icon-required">
+                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span>A group of customer contact emails will be displayed here based on the selections chosen above. You can further choose whether you want to send the email to billing contacts, primary contacts, or both.</span>
+                </a>
+            </div>
+        </div>
+        <div class="ecp-section-body">
+            <div class="email-group-table-area">
+                <div class="spinner" ng-if="isEmailListLoading">
+                    <div class="spinner-item">
+                      <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+                <table class="dataTable email-group-table email-group-table-mob-resp">
+                    <thead class="dark-gray-bg">
+                      <tr>
+                        <th>
+                          <div class="sorting"
+                            ng-class="{'sorting_asc': emailListColumnName == 'displayName' && emailListDir == 'asc', 'sorting_desc': emailListColumnName == 'displayName' && emailListDir == 'desc', }"                                            
+                            ng-click="orderEmailListBy('displayName')">
+                            CUSTOMER NAME
+                        </div>
+                        </th>                    
+                        <th>
+                          <div class="sorting"
+                            ng-class="{'sorting_asc': emailListColumnName == 'contactName' && emailListDir == 'asc', 'sorting_desc': emailListColumnName == 'contactName' && emailListDir == 'desc', }"
+                            ng-click="orderEmailListBy('contactName')">
+                            CONTACT NAME
+                          </div>
+                        </th>
+                        <th>
+                          <div class="sorting"
+                            ng-click="orderEmailListBy('isPrimary')"
+                            ng-class="{'sorting_asc': emailListColumnName == 'isPrimary' && emailListDir == 'asc', 'sorting_desc': emailListColumnName == 'isPrimary' && emailListDir == 'desc', }">
+                            CONTACT TYPE
+                          </div>
+                        </th>
+                        <th>
+                          <div class="sorting"
+                            ng-click="orderEmailListBy('email')"
+                            ng-class="{'sorting_asc': emailListColumnName == 'email' && emailListDir == 'asc', 'sorting_desc': emailListColumnName == 'email' && emailListDir == 'desc', }">
+                            EMAIL
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody ng-repeat="emailRow in emailListData">                                      
+                        <tr class="blank-tr">
+                            <td colspan="100%" class="blank-td"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <span class="email-center-col-mobResp">Customer Name: </span>
+                                    {{emailRow.displayName}}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="email-center-col-mobResp">Contact Name: </span>
+                                    {{emailRow.contactName}}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="email-center-col-mobResp">Contact Type: </span>
+                                    {{emailRow.type}}
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="email-center-col-mobResp">Email: </span>
+                                    {{emailRow.email}}     
+                                </div>                                       
+                            </td>                                      
+                        </tr>
+                    </tbody>                                    
+                </table>
+                <div class="email-group-table-tools">
+                    <div class="email-group-table-tools-left">
+                        <div class="email-group-table-tool-counting">
+                            <span>{{emailListTotalEmail | number}}</span> contacts to be emailed
+                        </div>
+                    </div>
+                    <div class="email-group-table-tools-right">
+                        <div class="email-group-table-tool-contact-type-checkbox">
+                            <strong>Contact Type</strong>                                            
+                            <div class="egt-radiobox">
+                                <label><input type="radio" name="contactType" ng-model="contactType" ng-change="updateContactType('both')" value="both" ><span>Both</span></label>
+                                <label><input type="radio" name="contactType" ng-model="contactType" ng-change="updateContactType('primary')" value="primary"><span>Primary</span></label>
+                                <label><input type="radio" name="contactType" ng-model="contactType" ng-change="updateContactType('billing')" value="billing"><span>Billing</span></label>
+                            </div>
+                        </div>
+                        <div class="email-group-table-tool-compose-btn">
+                            <button ng-disabled="emailListTotalEmail==0" ng-click="openComposeMailWindow()" class="btn btn-primary button blue-bg group-email-compose-btn">COMPOSE EMAIL</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pagination-area--parent">
+                    <div class="pagination-area" ng-if="emailListTotalEmail > 0">
+                      <div class="pagination-area-left" ng-class="{ 'hide-by-opacity' : isEmailListLoading }">
+                        Showing
+                          {{emailListData.length ? (emailListTotalPage == emailListPage-1 ? (emailListTotalEmail-emailListData.length)+1 : (emailListPage > 0 ? ((emailListPage-1)*emailListData.length)+1 : 1)) : 0 }} 
+                          to 
+                          {{ emailListData.length ? (emailListTotalPage == emailListPage-1 ? emailListTotalEmail : emailListPage*emailListData.length) : 0 }}  
+                          of 
+                          {{emailListTotalEmail}} 
+                      </div>
+                      <div class="pagination pagination-area-right" ng-class="{ 'lessRecords' : ((emailListTotalEmail / emailListLength) < 6 ) }">
+                        <paging page="emailListPage" page-size="emailListLength" total="emailListTotalEmail" text-first="First" text-last="Last" text-next="Next" text-prev="Prev"
+                              paging-action="goToPage(page)" show-prev-next="true" show-first-last="true"> </paging>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+    <div class="ecp-section" ng-if="isComposeMailWindow">                        
+        <div class="ecp-section-body">
+            <div class="spinner" ng-if="isEmailSending">
+                <div class="spinner-item">
+                  <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                </div>
+            </div>
+            <div class="ecp-section-card">
+                <form name="templateForm" novalidate>                                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="email-compose-mail-form-group">
+                                <div class="email-compose-mail-form-group-label">                                                
+                                    <span>Template</span>
+                                    <a href="javascript:void(0)" class="icon-required">
+                                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        <span>Choose an email template that has already been created to easily send the same email again or use it as a starting point to draft a new email.</span>
+                                    </a>
+                                </div>
+                                <div class="email-compose-mail-form-group-input" >                                                
+                                    <div class="dropdown select-wrap email-compose-mail-form-group-dropdown">
+                                        <button ng-disabled="isEmailTemplatesLoading" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()" aria-expanded="false">
+                                        <span>{{selectedEmailTemplate.templateName}}</span>
+                                        <span ng-if="!isEmailTemplatesLoading" class="caret"></span></button>
+                                        <ul class="dropdown-menu scrollable-menu">      
+                                            <li>
+                                                <a href="javascript:void(0)" ng-click="setSelectedTemplate(null);closeEmailTemplateCrudDropDown()">None</a>
+                                            </li>                                                  
+                                            <li ng-repeat="template in templateContentData" >
+                                                <a href="javascript:void(0)" ng-click="setSelectedTemplate(template);closeEmailTemplateCrudDropDown()">{{template.templateName}}</a>
+                                            </li>
+                                        </ul>
+                                        <span class="email-templates-loader" ng-if="isEmailTemplatesLoading"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="email-compose-mail-form-group email-center-dynamic-content-dd">
+                                <div class="email-compose-mail-form-group-label">
+                                    Subject
+                                </div>
+                                <div class="email-compose-mail-form-group-input full-width">
+                                    <input type="text" class="form-control" placeholder="Subject" id="templateSubject" 
+                                    ng-model="selectedEmailTemplate.subject"
+                                    name="templateSubject"
+                                    ng-class="{'has-error': templateForm.$submitted && templateForm.templateSubject.$invalid || templateForm.templateSubject.$touched && templateForm.templateSubject.$invalid}" 
+                                    ng-change="removeErrorClass('templateSubject')"                                                                                                       
+                                    >
+                                    <span class="required-template-input">Subject is required</span>
+                                    <div class="dropdown select-wrap">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" title="Dynamic Content">
+                                          Dynamic Content                             
+                                          <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li ng-repeat="emailVar in emailVariables" ng-click="replaceText(emailVar)" ng-if="emailVar.isSubject == 'true'">
+                                            <a href="#">{{emailVar.title}}</a>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                                   
+                    <div class="row" ng-if="froalaOptionsEmailCenter" id="emailCenterFroala">
+                        <div class="col-xs-12 insert_email_variables" ng-class="{'has-froala-error': templateForm.$submitted && templateForm.body.$invalid || templateForm.body.$touched && templateForm.body.$invalid}">                                        
+                            <textarea class="form-control" ng-model="selectedEmailTemplate.body"
+                             froala="froalaOptionsEmailCenter"                                              
+                             name="body"
+                             ng-class="{'has-error': templateForm.$submitted && templateForm.body.$invalid || templateForm.body.$touched && templateForm.body.$invalid}"                                                    
+                             required
+                             ></textarea>
+                            <span class="required-template-input">Body is required</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="email-group-table-tools top-aligned">
+                                <div class="email-group-table-tools-left">
+                                    <div class="email-group-table-tool-crud">
+                                        <div class="email-group-table-tool-crud-btn">
+                                            <span class="email-group-table-tool-crud-btn-text" ng-click="openModifyEmailTemplate(templateForm)">SAVE AS NEW TEMPLATE</span>                                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="email-group-table-tools-right">                                                
+                                    <div class="email-group-table-tool-compose-btn email-group-table-tool-send-btn">
+                                        <button type="button" ng-disabled="emailListTotalEmail==0 || isPreviewEmailSending" ng-click="sendPreview(templateForm)" class="btn btn-primary button blue-bg group-email-compose-btn send-preview">
+                                            SEND PREVIEW
+                                        </button>                                                        
+                                    </div>                                               
+                                    <div class="email-group-table-tool-compose-btn email-group-table-tool-send-btn">                                                        
+                                        <button type="button" ng-disabled="emailListTotalEmail==0 || isEmailSending || isPreviewEmailSending" ng-click="sendMail(templateForm)" class="btn btn-primary button blue-bg group-email-compose-btn">SEND EMAIL</button>
+                                        <span class="contacts-count">{{emailListTotalEmail | number}} contacts</span> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Email Template Popups -->
+    <script type="text/ng-template" id="modifyEmailTemplate.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:450px; ">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Save New Template</span>
+                </span>      
+            </div>
+        <div class="popup-body text-center" style="position: relative">
+            <form name="templateNameForm" novalidate>
+                <div class="spinner" ng-if="isEmailTemplatesUpdating">
+                    <div class="spinner-item">
+                    <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <error ng-if="templateExistErrorMsg" message="{{templateExistErrorMsg}}"></error>
+                        <input id="templateName" type="text" class="form-control" placeholder="Enter Template Name" 
+                        ng-model="selectedEmailTemplateForModify.templateName" name="templateName"
+                        ng-class="{'has-error': templateNameForm.$submitted && templateNameForm.templateName.$invalid || templateNameForm.templateName.$touched && templateNameForm.templateName.$invalid}"
+                        maxlength="50"
+                        required
+                        >
+                        <span class="required-template-input" ng-show="templateNameForm.templateName.$error.required && templateNameForm.templateName.$dirty">Template name is required.</span>                 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="set-chem-button m-t20 modify-email-template-btns">
+                            <button ng-disabled="isEmailTemplatesUpdating" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                            <button ng-disabled="isEmailTemplatesUpdating" class="add-button" type="button" ng-click="saveEmailTemplate(selectedEmailTemplateForModify)">
+                                SAVE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div> 
+        </div>
+    </script>    
+    <script type="text/ng-template" id="sentEmailPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup send-preview-popup" style="width:370px">             
+      <div class="popup-header">
+        <span class="heading">Send Preview</span>
+        <div class="popup-close" ng-click="!isPreviewEmailSending && closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>         
+      <form class="set-chem-form" name="sentEmailForm" autocomplete="off" novalidate>                
+        <div class="detail-box">     
+            <div class="setting-sm-card-loader" ng-if="isPreviewEmailSending">
+                <div class="spinner">
+                    <div class="spinner-item">
+                        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+            </div>      
+          <div class="grid text-left box" >
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label>Send preview email to:</label>
+                    <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="sentPreviewEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentEmailForm.$submitted && sentEmailForm.emailId.$invalid || sentEmailForm.emailId.$touched && sentEmailForm.emailId.$invalid}"
+                        required                         
+                    />
+                    <span class="required-template-input" ng-show="sentEmailForm.emailId.$error.required && sentEmailForm.emailId.$dirty">Please enter a valid email</span>
+                </div>     
+            </div>
+          </div>      
+          <div class="text-center p-t20">
+            <button ng-disabled="isPreviewEmailSending" class="add-button add-button-send-preview-email" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <span class="p-l10"><button ng-disabled="isPreviewEmailSending" class="add-button add-button-send-preview-email" type="submit" ng-click="sentEmailForm.submitAttempt=true; sendPreviewMail(sentPreviewEmailModel)" >SEND PREVIEW EMAIL</button></span>            
+          </div>        
+        </div>
+      </form>     
+    </div>
+    </script>
+    <!-- Email Template Popups -->  
+</div>

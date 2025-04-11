@@ -1,0 +1,242 @@
+<div class="chemical-cost-area m-t20">
+   <div class="grid chemical-cost">   
+      <div class="spinner" ng-if="!isProcessing && (isGraphProcessing || isGraphCostProcessing)">
+         <div class="spinner-item">
+            <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+         </div>
+      </div>
+      <div class="col-1-1" style="{{waterBodyObj && waterBodyObj.color ? 'border:3px solid '+waterBodyObj.color : ''}}">
+         <div class="flex-container cleaning-header">
+            <div class="cleaning-data">Data Trends</div>
+         </div>
+         <div class="white-bg p-tb20 p-lr20" style="padding-left: 15px!important;padding-right: 15px!important;">
+            <div class="grid text-left p-tb10">
+               <div class="col-md-6 p-0 chemical-title fl toggle-remote-data-link-wrapper" ng-init='getChemicalCost()'>
+                  <div class="title">CHEMICAL COST: <span><a href="javascript:void(0)" ng-click="showChemicalCost()" class="h-2x b underline-none p-l20">${{totalJobsCost | number}} <img border="0" src="resources/images/zoom-in-icon.png" class="zoom-icon p-r5" style="vertical-align: middle" /></a></span>
+                  </div>
+                  <span ng-click="toggleRemoteData()" class="toggle-remote-data-link">{{toggleRemoteDataStatus == 'show' ? 'hide remote data' : 'show remote data'}}</span>
+               </div>
+               <div class="col-md-4">
+                  <div class="grid" ng-show="filterModel.filterMonth == 'custom'">
+                     <div class="datePicker input-daterange" style="margin-top:-6px!important">
+                        <div class="col-6-12 p-lr10 fl">
+                           <div class="smallview" date-format="MM/dd/yyyy">
+                              <input ng-model="dateRangeModel.graphFromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input " placeholder="From Date" ng-change="graphFilterByDate('graphFromDate')" id="fromDateInput"/>
+                           </div>
+                        </div>
+                        <div class="col-6-12 m-l10 text-right fr">
+                           <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                              <input ng-model="dateRangeModel.graphToDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="graphFilterByDate('graphToDate')" />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-md-2 p-0">
+                  <div class="chemical-cost-select">
+                     <div class="select custom-select custom-select-noimage">
+                        <select ng-model="filterModel.filterMonth" ng-change="filterGraph()" ng-options="x for x in filterGraphData"></select>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="grid text-left">
+               <div class="col-12-12 " id="mainChemical">
+                  <div class="CHEMICAL chemical-cost-graph-fl" id="CHEMICALTREND-div">
+                     <div class="grid" >
+                        <div class="fl b h-0-5x darkGray collapseClass"><a href="javascript:void(0)" class="chemicaltrend" id="href-CHEMICALTREND" ng-click="expandCollapse($event,'CHEMICALTREND')"></a></div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="CHEMICALTREND" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0" ></div>
+                        </div>
+                     </div>
+                  </div>
+                  <div ng-show="alertTrendGrpaphType == 'area'" class="ALERT  chemical-cost-graph-fl" id="ALERTTREND-div">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="alerttrend" id="href-ALERTTREND" ng-click="expandCollapse($event,'ALERTTREND')"></a>
+                        </div>
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="alerttrend selectchart pie" id="href-ALERTTREND" ng-click="showPieGraph($event,'pie')"></a>
+                        </div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="ALERTTREND" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>
+                  <div ng-show="alertTrendGrpaphType == 'pie'" class="ALERT  chemical-cost-graph-fl" id="PIEALERTTREND-div">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="alerttrend" id="href-PIEALERTTREND" ng-click="expandCollapse($event, 'PIEALERTTREND')"></a>
+                        </div>
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="alerttrend selectchart" id="href-PIEALERTTREND" ng-click="showPieGraph($event,'area')"></a>
+                        </div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="PIEALERTTREND" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="PSI chemical-cost-graph-fl" id="PSI-div">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass"><a href="javascript:void(0)" class="psi" id="href-PSI" ng-click="expandCollapse($event,'PSI')"></a></div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="PSI" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="ALKALINITY chemical-cost-graph-fl" id="ALKALINITY-div">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="alkalinity" id="href-ALKALINITY" ng-click="expandCollapse($event,'ALKALINITY')"></a>
+                        </div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="ALKALINITY" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="SALT chemical-cost-graph-fl" id="SALT-div">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="salt" id="href-SALT" ng-click="expandCollapse($event,'SALT')"></a>
+                        </div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="SALT" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>                  
+                  <div class="CALCIUMHARDNESS chemical-cost-graph-fl" id="CALCIUMHARDNESS-div" style="flex: 1;">
+                     <div class="grid">
+                       <div class="fl b h-0-5x darkGray collapseClass">
+                         <a href="javascript:void(0)" class="calcium" id="href-CALCIUMHARDNESS" ng-click="expandCollapse($event,'CALCIUMHARDNESS')"></a>
+                       </div>
+                     </div>
+                     <div class="">
+                       <div class="fl">
+                         <div id="CALCIUMHARDNESS" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="TDS chemical-cost-graph-fl" id="TDS-div" style="flex: 1;">
+                     <div class="grid">
+                       <div class="fl b h-0-5x darkGray collapseClass">
+                         <a href="javascript:void(0)" class="salt" id="href-TDS" ng-click="expandCollapse($event,'TDS')"></a>
+                       </div>
+                     </div>
+                     <div class="">
+                       <div class="fl">
+                         <div id="TDS" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="WATERTEMP chemical-cost-graph-fl" id="WATERTEMP-div" style="flex: 1;">
+                     <div class="grid">
+                       <div class="fl b h-0-5x darkGray collapseClass">
+                         <a href="javascript:void(0)" class="water" id="href-WATERTEMP" ng-click="expandCollapse($event,'WATERTEMP')"></a>
+                       </div>
+                     </div>
+                     <div class="">
+                       <div class="fl">
+                         <div id="WATERTEMP" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                       </div>
+                     </div>
+                   </div>
+                  <div class="TIMEGRAPH chemical-cost-graph-fl" id="SALT-div" style="flex: 1;">
+                     <div class="grid">
+                        <div class="fl b h-0-5x darkGray collapseClass">
+                           <a href="javascript:void(0)" class="timegraph" id="href-SALT" ng-click="expandCollapse($event,'TIMEGRAPH')"></a>
+                        </div>
+                     </div>
+                     <div class="">
+                        <div class="fl">
+                           <div id="TIMEGRAPH" class="graphDiv" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px'}" style="margin: auto 0"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<script type="text/ng-template" id="chemicalCost.html" >
+   <div class="dataTables_wrapper modal-box chemical-cost-popup">
+   	<div class="popup-header">
+   		<div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   	</div>
+   	<div class="grid text-left">
+   		<div class="col-md-6 p-0 chemical-title">
+   			<div class="title">CHEMICAL COST: <span>
+           <a href="javascript:void(0)" ng-click="closeThisDialog()" class="h-2x b underline-none p-l20">${{totalJobsCost | number}} <img border="0" src="resources/images/zoom-out-icon.png" class="zoom-icon p-r5" style="vertical-align: middle" /></a>
+           <a href="javascript:void(0)" class="costchart selectchart {{!showPie ? 'pie' : ''}}" id="href-CHEMICALCOST" ng-click="showPieChemicalCost()"></a>
+         </span>
+   
+         </div>
+       </div>
+       <div class="col-md-6 p-0">
+           <div class="datePicker input-daterange" style="margin-top:-4px">
+             <div class="col-6-12 p-r10 fl">
+               <div class="smallview" date-format="MM/dd/yyyy">
+                 <input ng-model="dateRangeModel.graphFromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input " placeholder="From Date" ng-change="graphFilterByDate('graphFromDate')" id="fromDateInput"/>
+               </div>
+             </div>
+             <div class="col-6-12 m-l10 text-right fr">
+               <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                 <input ng-model="dateRangeModel.graphToDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="graphFilterByDate('graphToDate')" />
+               </div>
+             </div>
+           </div>
+           <div class="select custom-select custom-select-noimage fr">
+   					<select ng-model="filterModel.filterMonth" ng-change="filterGraph()" ng-options="x for x in filterGraphData"></select>
+   				</div>      
+         </div>	
+   	</div>
+   	<div class="CHEMICALCOST" id="CHEMICALCOST-div">
+   		<div class="">
+   			<div class="fl">
+   				<div id="CHEMICALCOST"  ng-hide="showPie" class="graphDiv" style="margin: auto 0"></div>
+           <div id="PIECHEMICALCOST" class="graphDiv" ng-show="showPie" style="margin: 0 0 0 9px "></div>
+   			</div>
+   		</div>
+   
+   	</div>
+   	<div class="visit-count">VISITS: <span class="light-blue">{{totalJobs}}</span></div>
+   </div>
+</script>
+<style>
+   .graph-area-parent {
+      margin-bottom: 20px;
+   }
+   .graph-area-parent.graph-area-parent-customer {
+      
+   }
+   .graph-area-parent.graph-area-parent-location {
+      
+   }
+   .graph-area-parent.graph-area-parent-routestop {
+      
+   }
+   .graph-area-parent.graph-area-parent-onetime {
+      
+   }
+   .graph-area-parent.graph-area-parent-customer .cleaning-header {
+      display: none;
+   }
+   .graph-area-parent.graph-area-parent-location .cleaning-header {
+      display: none;
+   }
+   .chemical-cost-area {
+      position: relative;
+   }
+</style>

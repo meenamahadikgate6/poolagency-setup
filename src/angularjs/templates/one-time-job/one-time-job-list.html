@@ -1,0 +1,235 @@
+<ng-container>
+  <div class="row p-b10 text-left report-filter-box job-listing-page-header-row">
+      <div class="col-md-3 top-index job-listing-page-header-left-col">
+        <label>Job Status</label>
+        <div class="dropdown select-wrap status-dropdown">
+          <button id="statusDropdown" tabindex="1" class="btn btn-primary dropdown-toggle jobStatus{{jobStatus}}" type="button" data-toggle="dropdown">{{jobStatusTitle}} <i class="fa fa-{{jobStatus}}"></i> <span class="caret"></span></button>
+          <ul class="dropdown-menu scrollable-menu">             
+            <li class="jobStatus{{_st.id}}" ng-repeat="_st in jobStatusList"  ng-click="selectJobStatus(_st)"><a href="javascript:void(0)" value="{{_st.id}}">{{_st.statusName}}<i class="fa fa-{{_st.id}}"></i></a></li>          
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-9 one-off-job-reports text-right job-listing-page-header-right-col">
+        <div class="job-listing-page-header-right-col">
+          <div class="job-listing-page-report-export excel-download-btn-holder">
+            <span class="excel-download-btn" ng-class="{ 'is-report-export-disabled' : isReportExportDisabled('canExportJobReports') }" ng-click="!isReportExportDisabled('canExportJobReports') ? showEmailJobReportOpenPopup() : null"></span>
+            <span class="excel-download-btn-tooltip">You do not have permission to export this report</span>
+          </div>
+          <div class="job-listing-page-search-box-holder">
+            <i class="fa fa-search searchbtn" ng-click="doSearchJobList($event,searchJobTextKey)" aria-hidden="true"></i>
+            <input type="search" ng-blur="doSearchJobList($event,searchJobTextKey)" ng-model="searchJobTextKey" placeholder="Job #, title, name, address, amount" class="report-listing-page-search-box" ng-keyup="$event.keyCode == 13 ? doSearchJobList($event,searchJobTextKey) : null">
+          </div>
+          <!--  -->
+          <div class="select custom-select custom-select-noimage">
+            <select ng-model="filterDuration" ng-change="filterByDuration(filterDuration)" ng-options="x for x in filterReportDataJob">
+            </select>
+          </div>
+          <div class="grid date-picker-wrapper" ng-hide="filterDuration !='custom'">
+            <div class="datePicker input-daterange">
+              <div class="smallview fromDateView fromDateView1" date-format="MM/dd/yyyy">
+                <input ng-model="fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" id="fromDateInput"/>
+              </div>
+              <div class="smallview fromDateView fromDateView2" date-format="MM/dd/yyyy" min-date="fromDate">
+                <input ng-model="toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" id="toDateInput"/>
+              </div>
+            </div>
+          </div>
+          <!--  -->
+          <!--  -->
+          <div class="hide-dates-text" ng-if="hideShownDatesText">
+            <span ng-click="hideShowDates()" ng-if="hideShowDatesText == 'Hide future dates'">{{hideShowDatesText}}</span>
+            <span ng-click="hideShowDates()" ng-if="hideShowDatesText == 'Show future dates'">{{hideShowDatesText}}</span>
+          </div>
+          <!--  -->
+        </div>                        
+      </div> 
+  </div>
+    
+    <div class="grid cust-job-history data-table-grid one-job-history">
+      <div class="col-1-1">
+        <div class="white-bg">
+          <div class="dataTables_wrapper" ng-init="getCustomerJobList()">
+            <div class="spinner" ng-if="isProcessing">
+              <div class="spinner-item">
+                <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+              </div>
+            </div>
+            <div>
+              <table class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+                <thead class="dark-gray-bg">
+                  <tr>
+                    <th>
+                      <div class="sorting"
+                        ng-class="{'sorting_asc': column == 'createTime' && dir == 'asc', 'sorting_desc': column == 'createTime' && dir == 'desc', }"
+                        rowspan="1" colspan="1" aria-sort="ascending"
+                        aria-label="DATE: activate to sort column descending"
+                        ng-click="orderByJobList('createTime')">DATE</div>
+                    </th>                    
+                    <th>
+                      <div class="sorting ws-nowrap"
+                            ng-click="orderByJobList('jobId')"
+                            ng-class="{'sorting_asc': column == 'jobId' && dir == 'asc', 'sorting_desc': column == 'jobId' && dir == 'desc', }">
+                        JOB #
+                      </div>
+                    </th>
+                    <th>
+                      <div class="sorting"
+                            ng-click="orderByJobList('displayName')"
+                            ng-class="{'sorting_asc': column == 'displayName' && dir == 'asc', 'sorting_desc': column == 'displayName' && dir == 'desc', }">
+                        CUSTOMER NAME
+                      </div>
+                    </th>
+                    <th style="width: 300px !important;">
+                      <div class="sorting"
+                           ng-click="orderByJobList('address')"
+                           ng-class="{'sorting_asc': column == 'address' && dir == 'asc', 'sorting_desc': column == 'address' && dir == 'desc', }">
+                        ADDRESS
+                      </div>
+                    </th>
+                    <th>
+                      <div>
+                        BODY OF WATER
+                      </div>
+                    </th>
+                    <th style="width: 160px !important;">
+                      <div class="sorting"
+                            ng-click="orderByJobList('jobTitle')"
+                            ng-class="{'sorting_asc': column == 'jobTitle' && dir == 'asc', 'sorting_desc': column == 'jobTitle' && dir == 'desc', }">
+                        TITLE
+                      </div>
+                    </th>
+                    <th style="width: 120px !important;">
+                      <div class="sorting"
+                            ng-click="orderByJobList('jobStatus')"
+                            ng-class="{'sorting_asc': column == 'jobStatus' && dir == 'asc', 'sorting_desc': column == 'jobStatus' && dir == 'desc', }">
+                        STATUS
+                      </div>
+                    </th>
+                    <th style="width: 120px !important;">
+                      <div class="sorting"
+                      ng-class="{'sorting_asc': column == 'technicianName' && dir == 'asc', 'sorting_desc': column == 'technicianName' && dir == 'desc', }"
+                      ng-click="orderByJobList('totalAmount')">PRICE</div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody ng-if="jobList.length > 0" dt-rows ng-repeat="job in jobList" ng-class="{'shown': job.jobId == openedJobId}">
+                  <tr>
+                    <td colspan="6" class="border-td" style="background: #fff;"></td>
+                  </tr>
+                  <tr ng-click="goToDetail(job,job.isOneOfJob)" style="cursor: pointer;" title-class="dark" title-direction="bottom">
+                    <td><div class="darkGray">{{job.dueDate |  date:"MM/dd/yy"}}</div></td>
+                    <td><div class="darkGray">{{job.jobId}}</div></td>
+                    <td>
+                      <span class="darkGray">
+                        {{job.displayName}}
+                      </span>
+                    </td>
+                    <td><span class="darkGray" id="pool_location_{{job.jobId}}"><span>{{job.address}}
+                    <br>{{job.city}}, {{job.state}} {{job.zipcode}}
+                    </span>
+                    </span>
+                    
+                  </td>
+                  <td>
+                    <span title="{{job.waterBodyName}}" class="pool-tag over-wb-name">{{job.waterBodyName}}</span>
+                  </td>
+                  <td>
+                    <span class="darkGray" id="job_title_{{job.jobId}}">
+                      {{job.jobTitle}}
+                    </span>
+                  </td>
+                  
+                  <td>
+                    <span class="darkGray" id="job_title_{{job.jobId}}">
+                      {{ getJobStatusName(job.jobStatus) }}
+                    </span>
+                  </td>
+                    <td>
+                      <span class="darkGray" id="job_totalamount_{{job.jobId}}">
+                        {{job.totalAmount > 0 ? job.totalAmount : '0.00' | currency}}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody ng-if="jobList.length == 0" class="no-record-found-frame-tbody">
+                  <tr>
+                    <td colspan="100%" class="no-record-found-frame-td">No jobs found</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+
+          <div class="paging-warp p-l20" ng-if="totalRecord > 0">
+            <div class="row">
+              <div class="col-md-4 p-t20">
+                <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite"> 
+                  Showing
+                    {{jobList.length ? (totalPage == page-1 ? (totalRecord-jobList.length)+1 : (page > 0 ? ((page-1)*jobList.length)+1 : 1)) : 0 }} 
+                    to 
+                    {{ jobList.length ? (totalPage == page-1 ? totalRecord : page*jobList.length) : 0 }}  
+                    of 
+                    {{totalRecord}}   
+                </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="pagination">
+                      <paging
+                      page="page" page-size="limit" total="totalRecord" text-first="First"
+                      text-last="Last" text-next="Next" text-prev="Prev"
+                      paging-action="goToCustomerJobListPage(page)"
+                      show-prev-next="true" show-first-last="true"> </paging>
+                      </div>
+                  </div>
+                </div>
+  
+              </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <script type="text/ng-template" id="sentJobReportEmailPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+        <div class="popup-header">
+          <span class="heading">Create Report</span>
+          <div class="popup-close" ng-click="closeThisDialog('');"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+        </div>  
+        <form class="set-chem-form" name="sentJobReportEmailForm" autocomplete="off" ng-submit="sentJobReportEmailForm.$valid && sendJobReport()" novalidate>      
+          <div class="detail-box">         
+          <div class="grid text-left box" >         
+              <error ng-if="sentJobReportEmailForm.$submitted && sentJobReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+              <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+              <success ng-if="exportJobReportGenerateProcessStart" message="Report will be sent to provided email address."></success>
+              <div class="col-12 sent-email-report-message">
+                Where should we send the report when it's ready? <br> (large reports can take a while)
+              </div>
+              <div class="col-12-12">                 
+                <div class="formGroup">
+                      <label>Email Address</label>
+                      <input 
+                          type="email" 
+                          autocomplete="off" 
+                          class="form-control" 
+                          ng-model="exportJobReportEmailModel.email" 
+                          placeholder="Email Address" 
+                          name="emailId" 
+                          ng-maxlength="100" 
+                          ng-minlength="6" 
+                          ng-disabled="exportJobReportisSending"
+                          ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                          ng-class="{'has-error': sentJobReportEmailForm.$submitted && sentJobReportEmailForm.emailId.$invalid }"
+                          required                         
+                      />
+                </div>     
+              </div>
+          </div>      
+          <div class="text-center p-t20">
+              <button class="add-button add-button-report-send" ng-click="closeThisDialog(); viewtJobReportStyle()" ng-disabled="exportJobReportisSending" type="button">CANCEL</button>
+              <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="exportJobReportisSending" type="submit" ng-click="sentJobReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+          </div>        
+          </div>
+        </form> 
+    </div>
+  </script>

@@ -1,0 +1,81 @@
+<div class="pbx-popup">
+    <div class="inventory-loader" ng-if="isProcessing">
+        <div class="spinner">
+            <div class="spinner-item">
+                <div class="spinner-animation">
+                    <img src="/resources/images/spinner.gif">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            {{model.name}}
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <div class="pbx-popup-body text-left">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Item Name</label>
+                            <input ng-model="model.name" type="text" class="pbx-form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="form-group inventory-update-qty-input">
+                            <label class="form-label">Quantity</label>
+                            <input ng-model="model.qty" type="text" class="pbx-form-control" disabled>
+                            <span class="update-link" ng-click="openUpdateQtyPopup()">                                        
+                                <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.156 4.444H9.744C9.97103 4.444 10.1888 4.53419 10.3493 4.69472C10.5098 4.85525 10.6 5.07297 10.6 5.3C10.6 5.52703 10.5098 5.74475 10.3493 5.90528C10.1888 6.06581 9.97103 6.156 9.744 6.156H6.156V9.744C6.156 9.97103 6.06581 10.1888 5.90528 10.3493C5.74475 10.5098 5.52703 10.6 5.3 10.6C5.07297 10.6 4.85525 10.5098 4.69472 10.3493C4.53419 10.1888 4.444 9.97103 4.444 9.744V6.156H0.856C0.743588 6.156 0.632278 6.13386 0.528423 6.09084C0.424568 6.04782 0.330204 5.98477 0.250717 5.90528C0.17123 5.8258 0.108177 5.73143 0.0651591 5.62758C0.0221411 5.52372 0 5.41241 0 5.3C0 5.18759 0.0221411 5.07628 0.0651591 4.97242C0.108177 4.86857 0.17123 4.7742 0.250717 4.69472C0.330204 4.61523 0.424568 4.55218 0.528423 4.50916C0.632278 4.46614 0.743588 4.444 0.856 4.444H4.444V0.856C4.444 0.743588 4.46614 0.632278 4.50916 0.528423C4.55218 0.424568 4.61523 0.330204 4.69472 0.250717C4.7742 0.17123 4.86857 0.108177 4.97242 0.0651591C5.07628 0.0221411 5.18759 0 5.3 0C5.41241 0 5.52372 0.0221411 5.62758 0.0651591C5.73143 0.108177 5.8258 0.17123 5.90528 0.250717C5.98477 0.330204 6.04782 0.424568 6.09084 0.528423C6.13386 0.632278 6.156 0.743588 6.156 0.856V4.444ZM19.6 15.856C19.5997 16.0829 19.5094 16.3003 19.3489 16.4606C19.1884 16.621 18.9709 16.711 18.744 16.711H11.856C11.7412 16.7149 11.6268 16.6957 11.5195 16.6545C11.4123 16.6133 11.3145 16.5509 11.2319 16.471C11.1493 16.3912 11.0836 16.2956 11.0387 16.1898C10.9939 16.0841 10.9707 15.9704 10.9707 15.8555C10.9707 15.7406 10.9939 15.6269 11.0387 15.5212C11.0836 15.4154 11.1493 15.3198 11.2319 15.24C11.3145 15.1601 11.4123 15.0977 11.5195 15.0565C11.6268 15.0153 11.7412 14.9961 11.856 15H18.744C19.217 15 19.6 15.383 19.6 15.856ZM18.008 3.44C18.0824 3.5143 18.1414 3.60253 18.1816 3.69965C18.2219 3.79677 18.2426 3.90087 18.2426 4.006C18.2426 4.11113 18.2219 4.21523 18.1816 4.31235C18.1414 4.40947 18.0824 4.4977 18.008 4.572L4.573 18.008C4.42289 18.1581 4.21929 18.2424 4.007 18.2424C3.79471 18.2424 3.59111 18.1581 3.441 18.008C3.29089 17.8579 3.20656 17.6543 3.20656 17.442C3.20656 17.2297 3.29089 17.0261 3.441 16.876L16.876 3.441C16.9503 3.36662 17.0385 3.30761 17.1356 3.26735C17.2328 3.22709 17.3369 3.20637 17.442 3.20637C17.5471 3.20637 17.6512 3.22709 17.7484 3.26735C17.8455 3.30761 17.9337 3.36562 18.008 3.44Z" fill="#285FC6"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label">Cost</label>
+                            <div class="input-with-dollar">
+                                <span class="doller-icon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                                <input ng-model="model.price" type="text" class="pbx-form-control" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 error_display" ng-if="!isChildPopOpen">
+                        <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                        <success message="{{successMessage}}" ng-if="successMessage"></success>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">      
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Photos</label>
+                            <div class="truck-photo-area">
+                                <div class="tuck-cover-photo">
+                                    <img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto" ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)" />
+                                </div>
+                                <div class="tuck-photo-list" ng-if="model.images && model.images.length > 0">
+                                    <div class="truck-photo-list-item" ng-repeat="img in model.images track by $index"><img ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)" ></div>                                        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div> 
+        </div>
+    </div>
+    <div class="pbx-popup-footer">           
+        <button tabindex="-1" class="pbx-btn" ng-disabled="isProcessing" ng-click="openMoveItemPopup()">Move</button>  
+        <button tabindex="-1" class="pbx-btn pbx-btn-danger" ng-disabled="isProcessing" ng-click="openDeleteItemPopup()">Remove</button>                   
+        <button tabindex="-1" class="pbx-btn" ng-click="closeThisDialog()">Cancel</button>
+    </div>    
+</div>

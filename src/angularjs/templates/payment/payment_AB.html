@@ -1,0 +1,51 @@
+<div ng-controller="paymentController_AB" ng-init="initiateAB()">
+    <div class="spinner" ng-if="abGatewayInitiating" style="border: 0; position: fixed;">
+        <div class="spinner-item">
+           <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+    </div>
+    <div ng-if="isAbErrors && isAbErrors.length > 0" class="ab-alert-danger">
+        <label>Errors</label>
+        <p ng-repeat="error in isAbErrors">{{error}}</p>
+    </div>
+    <div ng-if="isAbSuccess && isAbSuccess.length > 0" class="ab-alert-success">                     
+        <p ng-repeat="success in isAbSuccess">{{success}}</p>
+    </div>
+    <div id="abPaymentFormWrapper" style="display: none;">
+        <div class="form-group">
+            <label for="cardholderName">Name</label>
+            <input id="cardholderName" class="form-control" name="cardholderName" placeholder="Name on the card">
+            <label id="cardNumber-label">Card Number</label>
+            <div id="number-container" class="form-control"></div>
+            <label for="securityCode-container">Security Code</label>
+            <div id="securityCode-container" class="form-control"></div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="expMonth">Expiry month</label>
+                <select id="expMonth" class="form-control" ng-model="abFormData.expirationMonth">
+                    <option>01</option>
+                    <option>02</option>
+                    <option>03</option>
+                    <option>04</option>
+                    <option>05</option>
+                    <option>06</option>
+                    <option>07</option>
+                    <option>08</option>
+                    <option>09</option>
+                    <option>10</option>
+                    <option>11</option>
+                    <option>12</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="expYear">Expiry year</label>                           
+                <select type="text" id="expYear" ng-model="abFormData.expirationYear" class="form-control">
+                    <option value="" disabled selected></option>
+                    <option ng-repeat="year in abYears" value="{{year.val}}">{{year.label}}</option>
+                    </select>
+            </div>
+        </div>
+        <button ng-click="createJwToken()" type="button" id="pay-button" class="btn btn-primary">Submit</button>
+    </div>
+</div>

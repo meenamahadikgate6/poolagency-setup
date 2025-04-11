@@ -1,0 +1,92 @@
+<style>
+.data-table-grid table tbody:after{
+  position: inherit !important
+}
+</style>
+<div class="data-table-grid  issues-page">
+    <div class="spinner" ng-if="isProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation">
+          <img border="0" src="resources/images/spinner.gif" /> </div>
+      </div>
+    </div>
+
+    <div class="m-t20" ng-init="getIssueList()">
+      <div ng-if="loggedInRole!='administrator'" class="fr p-t5 p-b10">
+        <div class="grid">
+            <a href="javascript:void(0)" ng-click="addIssuePopup('Add')">Add Help Ticket</a>
+        </div>
+      </div>
+      <div class="dataTables_wrapper contactIssue">
+          <success message="{{success}}" ng-if="success"></success>
+        <div class="search" ng-if="loggedInRole=='administrator'">
+          <span class="search-icon"></span>
+          <input type="search" ng-model="searchKey" placeholder="Search by company name"
+             ng-keyup="$event.keyCode == 13 ? doSearchCompanyList($event) : null">
+        </div>
+        <table class="hover no-footer dataTable" width="100%">
+          <thead class="dark-gray-bg">
+            <tr>
+              <th class="sorting" ng-class="{'sorting_asc': column == 'subject' && dir == 'asc', 'sorting_desc': column == 'subject' && dir == 'desc', }" rowspan="1" colspan="1" aria-sort="ascending"
+              aria-label="POOL TECH: activate to sort column descending"
+              style="width: 267px;" ng-click="orderByCompanyList('subject')"> <div class="sorting">SUBJECT</div>
+              </th>
+              <th class="sorting" ng-class="{'sorting_asc': column == 'message' && dir == 'asc', 'sorting_desc': column == 'message' && dir == 'desc', }" rowspan="1" colspan="1" aria-sort="ascending"
+              aria-label="POOL TECH: activate to sort column descending"
+              style="width: 267px;" ng-click="orderByCompanyList('message')"> <div class="sorting">MESSAGE</div>
+              </th>
+              <th  ng-if="loggedInRole=='administrator'"> Zend Desk Ticket Link</th>
+              <th class="sorting" ng-if="loggedInRole=='administrator'" ng-class="{'sorting_asc': column == 'companyName' && dir == 'asc', 'sorting_desc': column == 'companyName' && dir == 'desc', }" rowspan="1" colspan="1" aria-sort="ascending"
+              aria-label="POOL TECH: activate to sort column descending"
+              style="width: 267px;" ng-click="orderByCompanyList('companyName')"> <div class="sorting">COMPANY</div>
+              </th>
+              <th> DATE</th>
+
+            </tr>
+          </thead>
+          <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="issue in issueList track by $index">
+            <tr>
+              <td colspan="4" class="border-td" style="height: 10px; background: #edf0f5;"></td>
+            </tr>
+            <tr class="even">
+              <td class="technician-name">
+                <a href="javascript:void(0)" id="{{issue.issueId}}" title="{{issue.subject}}" ng-click="showaddmsg(issue)">
+                  {{ issue.subject | limitTo: 85 }}{{issue.subject.length > 85 ? '...' : ''}}
+                </a>
+              </td>
+              <td >
+                {{ issue.message | limitTo: 85 }}{{issue.message.length > 85 ? '...' : ''}}  <a ng-if="issue.message.length > 85" href="javascript:void(0)" ng-click="showaddmsg(issue)">Read More</a>
+              </td>
+              <!--<td  ng-if="loggedInRole=='administrator'">
+                  {{ issue.reply | limitTo: 85 }}{{issue.reply.length > 85 ? '...' : ''}} <a href="javascript:void(0)" ng-if="issue.reply.length == 0" ng-click="addReplyPopup(issue)">Reply</a>
+              </td>-->
+              <td ng-if="loggedInRole=='administrator'">
+                
+                <a href="{{issue.ticketLink}}" target="_blank">TICKET-{{issue.zendDeskId}}</a>
+              </td>
+              <td  ng-if="loggedInRole=='administrator'">
+                  {{issue.companyName}}
+              </td>
+
+              <td >
+                  {{issue.addedOn |  date:"MMMM dd, yyyy - hh:mm a"}}
+              </td>
+            </tr>
+          </tbody>
+          <tbody ng-if="issueList.length < 1">
+            <tr>
+              <td colspan="4" class="border-td" style="height: 10px; background: #edf0f5;"></td>
+            </tr>
+            <tr class="even">
+              <td colspan="4" style="text-align: center;"> Sorry, no results found! </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div aria-live="polite" class="dataTables_info" id="dashTable_info" role="status"> Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div>
+      <div class="pagination">
+        <paging page="page" page-size="limit" paging-action="changePage(page)" show-first-last="true" show-prev-next="true" text-first="First"
+          text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+      </div>
+    </div>
+  </div>

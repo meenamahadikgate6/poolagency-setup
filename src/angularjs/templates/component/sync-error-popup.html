@@ -1,0 +1,72 @@
+<div class="dataTables_wrapper modal-box common-popup add-service-level-popup sync-error-popup" style="width:900px">
+    <div class="popup-header">
+       <span class="heading">Quickbooks Online Sync Issue</span>
+       <div class="popup-close" ng-click="closeThisDialog('');"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="popup-body">
+       <div class="spinner" ng-if="isSyncErrorLogProcessing">
+          <div class="spinner-item">
+             <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+          </div>
+       </div>
+       <div class="row" ng-if="selectedSyncErrorItem.logType == 'invoice' || selectedSyncErrorItem.logType == 'payment'">
+         <div class="col-12">
+            <p class="mb-10 text-center">
+               <button ng-disabled="isReInitSyncProcessing" ng-click="reInitSync()" class="btn btn-primary btn-initiate-sync" ng-class="{ 'loading' : isReInitSyncProcessing }" tabindex="-1">
+                  <span class="btn-text">Retry Sync</span>
+                  <span class="btn-loader"></span>
+               </button>
+            </p>
+         </div>
+       </div>
+       <div class="row">
+         <div class="col-12">
+            <p class="mb-10 text-center"><b>The info below is specific to the QBO sync only and there is no other known error or issue</b></p>
+         </div>
+       </div>
+       <div class="row">         
+          <div class="col-12">
+             <div class="list-box" style="max-height:70vh;" id="scrollarea">
+                <table class="row-border hover no-footer dataTable" width="100%">
+                   <thead>
+                      <tr>
+                         <th style="width:15% !important">Type</th>
+                         <th style="width:15% !important"> Date </th>
+                         <th style="width:25% !important"> Details </th>
+                      </tr>
+                   </thead>
+                   <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="syncErrorLog in syncErrorLogs track by $index">
+                      <tr>
+                         <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                      </tr>
+                      <tr class="even">
+                         
+                         <td class="border-top2 border-bottom2">
+                            <div class="customer-add">{{syncErrorLog.type}} </div>
+                         </td>
+                         <td class="border-top2 border-bottom2">
+                            <div class="customer-add">
+                               {{syncErrorLog.createdOn | date:"MM/dd/yyyy hh:mm:ss a"}}
+                            </div>
+                         </td>
+                         <td class="border-top2 border-bottom2" ng-if="syncErrorLog.status!='1'" style="overflow-wrap: anywhere;">
+                            <div class="customer-add">
+                               {{syncErrorLog.customMsg}}
+                            </div>
+                         </td>
+                      </tr>
+                   </tbody>
+                   <tbody ng-if="syncErrorLogs.length < 1">
+                      <tr class="even">
+                         <td colspan="6" style="text-align: center;">{{syncErrorLogMsg}}</td>
+                      </tr>
+                   </tbody>
+                </table>
+               </div>
+            </div>
+            <div class="text-center audit-link p-tb10">
+              <a target="_blank" href="https://help.poolbrain.com/en/articles/6809260-quickbooks-online-troubleshooting-for-invoices-payments">Troubleshooting Tips</a>
+            </div>
+       </div>
+    </div>
+ </div>

@@ -1,0 +1,73 @@
+<div class="pbx-popup pbx-popup-sm">
+  <form name="moveItemorm" id="moveItemorm" ng-submit="itemFormSubmitted = true; moveItemorm.$valid && moveInventoryItem()" novalidate>
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            Move Item
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <div class="pbx-popup-body text-left">  
+        <div class="row">
+            <div class="col-xs-12 inventory-move-popup-area">
+                <div>
+                    <span ng-repeat="location in selectedPath track by $index">
+                        <span>{{location.name}}</span>
+                        <span ng-hide="($index + 1) == selectedPath.length"> > </span>
+                    </span>
+                </div>
+                <h3>{{childModel.name}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="form-label form-label-move-item-qty">
+                        <span>Move Quantity</span> <a href="javascript:void(0)" ng-click="moveAllQuantity()">Move All({{childModel.quantity}})</a></label>
+                    <input class="pbx-form-control" type="number" name="quantity" min="1" ng-model="childModel.qtytomove" required="" ng-pattern="/^(?!0(\.0+)?$)([0-9]*\.?[0-9]+)$/"
+                        ng-max="childModel.quantity" ng-class="{ 'has-error' : itemFormSubmitted && moveItemorm.quantity.$invalid }" />
+                    <span class="has-required p-b10" ng-if="itemFormSubmitted && moveItemorm.quantity.$invalid">
+                        <span class="inventory-product-search-widget-error" ng-if="moveItemorm.quantity.$error.required">Quantity is required</span>
+                        <span class="inventory-product-search-widget-error" ng-if="moveItemorm.quantity.$error.max">Maximum {{childModel.quantity}} Quantity can be moved</span>
+                        <span class="inventory-product-search-widget-error" ng-if="moveItemorm.quantity.$error.pattern">Invalid Quantity</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group move-type-select">
+                    <label class="form-label form-label-move-item-qty"><span>Move to</span></label>
+                    <div class="inventory-move-to-radio">
+                        <label><input type="radio" name="moveType" ng-model="moveType" ng-change="updateMoveType('location')" value="location" ><span>Location</span></label>
+                        <label><input type="radio" name="moveType" ng-model="moveType" ng-change="updateMoveType('truck')" value="truck"><span>Truck</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>  
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group" ng-if="moveType == 'location'">
+                    <label class="form-label">Destination Location</label>                        
+                    <tree-dropdown data-sid="{{parentLocationSelect(selected, true)}}" class="tree-dropdown" data="transformedLocation" id="location" selected="selected" name="location"></tree-dropdown>
+                </div>
+                <div class="form-group" ng-if="moveType == 'truck'">
+                    <label class="form-label">Destination Truck</label>                        
+                    <tree-dropdown data-sid="{{selectTruckparent(selected)}}" class="tree-dropdown" data="transformedTruck" id="truck" selected="selected" name="truck"></tree-dropdown>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 error_display">
+                <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                <success message="{{successMessage}}" ng-if="successMessage"></success>
+            </div>
+        </div>
+    </div>
+    <div class="pbx-popup-footer">           
+        <button tabindex="-1" class="pbx-btn" ng-disabled="isProcessing" type="submit">Move</button>
+        <button tabindex="-1" class="pbx-btn" ng-click="closeThisDialog()" type="button">Cancel</button>
+    </div>
+  </form>
+</div>

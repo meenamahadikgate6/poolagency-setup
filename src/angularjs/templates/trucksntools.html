@@ -1,0 +1,524 @@
+<div class="trucks-page">
+    <div class="trucks-page-header">
+        <div class="trucks-page-header-col">
+            <ul class="pb-tabs-outlined">
+                <li class="pb-tab-outlined-btn">
+                    <a class="pb-tab-outlined-link" ng-click="setCurrentTab('trucks')" ng-class="{ 'active' : currentTabName == 'trucks' }" href="javascript:void(0)" >Trucks</a>
+                </li>               
+                <li class="pb-tab-outlined-btn">
+                    <a class="pb-tab-outlined-link" ng-click="setCurrentTab('tools')" ng-class="{ 'active' : currentTabName == 'tools' }" href="javascript:void(0)" >Tools</a>
+                </li>                
+            </ul>
+        </div>
+        <div class="trucks-page-header-col">
+            <button class="pbx-btn pbx-btn-transparent" ng-click="setViewType('tile')" ng-class="{'selected-view': viewType == 'tile'}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.856 5.333h2.178a1.64 1.64 0 0 1 1.632 1.647v2.196a1.64 1.64 0 0 1-1.632 1.646h-2.178a1.64 1.64 0 0 1-1.632-1.646V6.98c0-.91.73-1.647 1.632-1.647m-7.89 0h2.177a1.64 1.64 0 0 1 1.632 1.647v2.196c0 .909-.73 1.646-1.632 1.646H6.966a1.64 1.64 0 0 1-1.633-1.646V6.98c0-.91.73-1.647 1.633-1.647m0 7.844h2.177a1.64 1.64 0 0 1 1.632 1.647v2.196c0 .909-.73 1.646-1.632 1.646H6.966a1.64 1.64 0 0 1-1.633-1.646v-2.196c0-.91.73-1.647 1.633-1.647m7.891 0h2.178a1.64 1.64 0 0 1 1.632 1.647v2.196a1.64 1.64 0 0 1-1.632 1.646h-2.178a1.64 1.64 0 0 1-1.632-1.646v-2.196c0-.91.73-1.647 1.632-1.647" clip-rule="evenodd"></path></svg>
+                GRID
+            </button>
+            <button class="pbx-btn pbx-btn-transparent" ng-click="setViewType('grid')" ng-class="{'selected-view': viewType == 'grid'}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><rect width="13.948" height="5.5" x="5.026" y="5.3" stroke="currentColor" stroke-width="1.5" rx="1.25"></rect><rect width="13.948" height="5.5" x="5.026" y="13.2" stroke="currentColor" stroke-width="1.5" rx="1.25"></rect></svg>
+                LIST 
+            </button>
+            <div class="pbx-form-control-search">
+                <img src="resources/images/magnifiy.png">
+                <input type="text" class="pbx-form-control" placeholder="{{ currentTabName == 'trucks' ? 'truck' : 'tool' }} name" ng-model="apiPayload.searchText" ng-keyup="searchTruckAndTools($event)">
+            </div>
+            <button class="pbx-btn pbx-btn-bold-sm" ng-click="openAddEditPopup()">Add {{ currentTabName == 'trucks' ? 'Truck' : 'Tool' }}</button>
+        </div>
+    </div>
+    <div class="trucks-page-grid-area">
+        <div class="inventory-loader" ng-if="fetchingData">
+            <div class="spinner">
+                <div class="spinner-item">
+                    <div class="spinner-animation">
+                        <img src="/resources/images/spinner.gif">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Trucks -->
+        <div class="row" ng-if="currentTabName == 'trucks'">
+            <div class="col-xs-12" ng-if="trucksData.length > 0">
+                <table class="pb-table pb-table-{{viewType}}-view trucks-table" cellspacing="0" cellpadding="0">
+                    <thead class="hide-in-tile-view">
+                        <tr>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'name' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'name' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('name')">Name</div>
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'year' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'year' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('year')">Year</div>
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'make' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'make' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('make')">Make</div>
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'model' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'model' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('model')">Model</div>
+                                
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'licensePlate' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'licensePlate' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('licensePlate')">Plate</div>
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'vin' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'vin' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('vin')">VIN</div>
+                            </th>
+                            <th>Assigned To</th>
+                            <th class="hide-in-grid-view"></th>
+                        </tr>
+                        <tr class="spacer-tr">
+                            <td colspan="100" class="spacer"></td>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="truck in trucksData track by $index">    
+                        <tr ng-click="openAddEditPopup(truck)">                            
+                            <td class="hide-in-tile-view">{{truck.name}}</td>                           
+                            <td class="hide-in-tile-view">{{truck.year}}</td>
+                            <td class="hide-in-tile-view">{{(truck.make) ? truck.make : ''}}</td>
+                            <td class="hide-in-tile-view">{{(truck.model) ? truck.model : ''}}</td>
+                            <td class="hide-in-tile-view">{{(truck.licensePlate) ? truck.licensePlate : ''}}</td> 
+                            <td class="hide-in-tile-view">{{truck.vin}}</td>  
+                            <td class="hide-in-tile-view">
+                                <span class="technician-card">
+                                    <span class="technician-card-photo" ng-if="truck.assignedTechName">
+                                        <div ng-if="!truck.assignedTechImage" class="image-radius name-initial">
+                                            <span>
+                                                {{(truck.assignedTechName) ? (truck.assignedTechName | convertToInitial: truck.assignedTechName.split(' ')[1]) : 'N'}}
+                                            </span>
+                                        </div>
+                                        <div ng-if="truck.assignedTechImage" class="image-radius name-initial" style="background-image: url('{{truck.assignedTechImage}}');">
+                                        </div>
+                                    </span>
+                                    <span class="technician-card-title">
+                                        {{(truck.assignedTechName) ? truck.assignedTechName : ''}}
+                                    </span>
+                                </span>
+                            </td> 
+                            <td class="hide-in-grid-view">
+                                <div class="grid-card">
+                                    <div class="grid-card-cover-photo">
+                                        <span ng-if="truck.year" class="grid-card-cover-photo-badge">{{truck.year}}</span>
+                                        <img ng-if="!truck.coverPhoto" ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                        <img ng-if="truck.coverPhoto" ng-src="{{truck.coverPhoto.mediaPath}}" onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'" alt="" />
+                                    </div>
+                                    <div class="grid-card-content">
+                                        <h3 class="grid-card-title">{{truck.name}}</h3>                                        
+                                        <p class="grid-card-text">
+                                            VIN: {{truck.vin}}
+                                        </p>
+                                        <p class="grid-card-text">
+                                            Plate: {{(truck.licensePlate) ? truck.licensePlate : '-'}}
+                                        </p>
+                                        <p class="grid-card-text">
+                                            Color: {{truck.color}}
+                                        </p>
+                                        <p class="grid-card-text">
+                                            <span class="grid-card-text-normal" ng-class="{'grid-card-text-gray': !truck.make || truck.make == '' }">{{(truck.make) ? truck.make : 'make'}}</span>
+                                            <span>|</span>
+                                            <span class="grid-card-text-normal" ng-class="{'grid-card-text-gray': !truck.model || truck.model == '' }">{{(truck.model) ? truck.model : 'model'}}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>                      
+                        </tr> 
+                        <tr class="spacer-tr" ng-if="trucksData.length > 0">
+                            <td colspan="100" class="spacer"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-12" ng-if="trucksData.length == 0 && !fetchingData">
+                <div class="no-data-found">
+                    <p class="pbx-gray-text">No trucks have been created yet</p>
+                </div>
+            </div>
+        </div>
+        <!-- Tools -->
+        <div class="row" ng-if="currentTabName == 'tools'">
+            <div class="col-xs-12" ng-if="toolsData.length > 0">
+                <table class="pb-table pb-table-{{viewType}}-view  tools-table" cellspacing="0" cellpadding="0">
+                    <thead class="hide-in-tile-view">
+                        <tr>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'name' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'name' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="DATE: activate to sort column descending" ng-click="sortOrderBy('name')">Name</div>
+                            </th>
+                            <th>
+                                <div class="sorting" ng-class="{'sorting_asc': sortColumn == 'cost' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'cost' && sortOrder == 'desc', }"
+                                    aria-sort="ascending" aria-label="COST: activate to sort column descending" ng-click="sortOrderBy('cost')">Cost</div>
+                            </th>
+                            <th>Condition</th>
+                            <th>Notes</th>
+                            <th class="hide-in-grid-view"></th>
+                        </tr>
+                        <tr class="spacer-tr">
+                            <td colspan="100" class="spacer"></td>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="tool in toolsData">                                     
+                        <tr ng-click="openAddEditPopup(tool)">                            
+                            <td class="hide-in-tile-view">{{tool.name}}</td>
+                            <td class="hide-in-tile-view">{{ currencyTrimmer(tool.cost) | currency }}</td>
+                            <td class="hide-in-tile-view">{{tool.condition}}</td>
+                            <td class="hide-in-tile-view">{{tool.notes}}</td>                       
+                            <td class="hide-in-grid-view">
+                                <div class="grid-card">
+                                    <div class="grid-card-cover-photo">
+                                        <span class="grid-card-cover-photo-badge" ng-if="tool.condition">{{tool.condition}}</span>
+                                        <img ng-if="!tool.coverPhoto" ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                        <img ng-if="tool.coverPhoto" ng-src="{{tool.coverPhoto.mediaPath}}" onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'" alt="" />
+                                    </div>
+                                    <div class="grid-card-content">
+                                        <h3 class="grid-card-title">{{tool.name}}</h3>
+                                        <p class="grid-card-text">
+                                            <span class="grid-card-text-bold">{{ currencyTrimmer(tool.cost) | currency }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="spacer-tr" ng-if="toolsData.length > 0">
+                            <td colspan="100" class="spacer"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-12" ng-if="toolsData.length == 0 && !fetchingData">
+                <div class="no-data-found">
+                    <p class="pbx-gray-text">No tools have been created yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- pagination start-->
+    <div class="paging-warp p-l20"  ng-if="currentTabName == 'trucks' && trucksData.length > 0">
+        <div class="row">
+          <div class="col-md-4 p-t20">
+            <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite" ng-if="!fetchingData"> 
+              Showing
+              {{totalItems ? (totalPage == page-1 ? (totalRecord-totalItems) == -1 ? 1 :(totalRecord-totalItems)+1 : (page > 0 ? ((page-1)*totalItems)+1 : 1)) : 1 }}
+              to
+              {{ totalItems ? (totalPage == page-1 ? totalRecord : page*totalItems) : 0 }}
+              of
+              {{totalRecord}}
+            </div>
+            </div>
+            <div class="col-md-8">
+                <div class="pagination">
+                  <paging page="page" page-size="limit" total="totalRecord" text-first="First"
+                  text-last="Last" text-next="Next" text-prev="Prev"
+                  paging-action="handlePaging(page)"
+                  show-prev-next="true" show-first-last="true"> </paging>
+                  </div>
+            </div>
+        </div>
+    </div>
+    <div class="paging-warp p-l20" ng-if="currentTabName == 'tools' && toolsData.length > 0">
+        <div class="row">
+          <div class="col-md-4 p-t20">
+            <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite" ng-if="!fetchingData"> 
+              Showing
+              {{totalItems ? (totalPage == page-1 ? (totalRecord-totalItems) == -1 ? 1 :(totalRecord-totalItems)+1 : (page > 0 ? ((page-1)*totalItems)+1 : 1)) : 1 }}
+              to
+              {{ totalItems ? (totalPage == page-1 ? totalRecord : page*totalItems) : 0 }}
+              of
+              {{totalRecord}}
+            </div>
+            </div>
+            <div class="col-md-8">
+                <div class="pagination">
+                  <paging page="page" page-size="limit" total="totalRecord" text-first="First"
+                  text-last="Last" text-next="Next" text-prev="Prev"
+                  paging-action="handlePaging(page)"
+                  show-prev-next="true" show-first-last="true"> </paging>
+                  </div>
+            </div>
+        </div>
+    </div>
+    <!-- pagination end -->
+</div>
+<!-- Add / Edit Popup -->
+<script type="text/ng-template" id="addEditPopup.html">
+    <div class="pbx-popup">
+        <form name="addEditTruckToolForm" id="addEditTruckToolForm" ng-submit="formSubmitted = true; addEditTruckToolForm.$valid && saveTruckAndTool()" novalidate>
+        <div class="pbx-popup-header">
+            <div class="pbx-popup-header-title">
+                {{ isEditing ? 'Edit' : 'Add New' }} {{ currentTabName == 'trucks' ? 'Truck' : 'Tool' }}
+            </div>
+            <div class="pbx-popup-header-close">
+                <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+            </div>
+        </div>
+        <div class="pbx-popup-body">
+            <ng-container ng-if="currentTabName == 'trucks'">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Truck Name</label>
+                                    <input ng-model="model.name" type="text" class="pbx-form-control" name="name" id="name" required="" maxlength="50" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.name.$invalid }" ng-blur="isEditing ? blurSaveForm('name') : '' " />
+                                    <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.name.$invalid">
+                                        <span ng-show="addEditTruckToolForm.name.$error.required">Truck Name is required</span>
+                                        <!-- <span ng-show="addEditTruckToolForm.name.$error.pattern">Truck name should not contain special characters.</span> -->
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Make</label>
+                                    <input ng-model="model.make" type="text" name="make" id="make" class="pbx-form-control" maxlength="15" ng-blur="isEditing ? blurSaveForm('make') : '' " />
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Model</label>
+                                    <input ng-model="model.model" type="text" name="model" id="model" maxlength="15" class="pbx-form-control" ng-blur="isEditing ? blurSaveForm('model') : '' " />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Year</label>
+                                    <input ng-model="model.year" type="text" name="year" id="year" class="pbx-form-control" maxlength="4" ng-blur="isEditing ? blurSaveForm('year') : '' " />
+                                    <!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.year.$invalid">
+                                         ng-minlength="4" ng-maxlength="4" allow-typing="^[0-9]+$" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.year.$invalid }"
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.year.$error.pattern">Year should be valid.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.year.$error.minlength">Year should be in 4 digits.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.year.$error.maxlength">Year should be in 4 digits.</span>
+                                    </span> -->
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Color</label>
+                                    <input ng-model="model.color" type="text" name="color" id="color" class="pbx-form-control" maxlength="10" ng-blur="isEditing ? blurSaveForm('color') : '' " />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">License Plate</label>
+                                    <input ng-model="model.licensePlate" type="text" name="licensePlate" id="licensePlate" class="pbx-form-control" maxlength="8" ng-blur="isEditing ? blurSaveForm('licensePlate') : '' " />
+                                    <!--  ng-pattern="/^([a-zA-Z0-9_# -]+)$/"  ng-minlength="5" ng-maxlength="10" required="" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.licensePlate.$invalid }" -->
+                                    <!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.licensePlate.$invalid">
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.required">License plate is required.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.pattern">License plate should contain only alphabets and numbers.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.minlength">License plate should be minimum 5 digits.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.licensePlate.$error.maxlength">License plate should be maximum 10 digits.</span>
+                                    </span> -->
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">VIN</label>
+                                    <input ng-model="model.vin" type="text" name="vin" id="vin" class="pbx-form-control" maxlength="17" ng-blur="isEditing ? blurSaveForm('vin') : '' " />
+                                    <!-- <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.vin.$invalid">
+                                         ng-pattern="/^([a-zA-Z0-9_# -]+)$/" ng-minlength="10" ng-maxlength="20" required="" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.vin.$invalid }"
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.required">VIN is required.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.pattern">VIN should contain only alphabets and numbers.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.minlength">VIN should be minimum 10 digits.</span>
+                                        <span ng-show="formSubmitted && addEditTruckToolForm.vin.$error.maxlength">VIN should be maximum 20 digits.</span>
+                                    </span> -->
+                                </div>
+                            </div>
+                        </div>   
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Notes</label>
+                                    <textarea ng-model="model.notes" name="notes" id="nodes" class="pbx-form-control" maxlength="3000" ng-blur="isEditing ? blurSaveForm('notes') : '' "></textarea>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 error_display">
+                                <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                                <success message="{{successMessage}}" ng-if="successMessage"></success>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">      
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Photos</label>
+                                    <div class="truck-photo-area">
+                                        <div class="tuck-cover-photo">
+                                            <img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto==1" ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)" />
+                                        </div>
+                                        <div class="tuck-photo-list">
+                                            <div class="truck-photo-list-item" ng-repeat="img in model.images track by $index" ng-if="img.status == 1">
+                                                <span class="delete-truck-photo-icon" ng-click="deleteModelImage(img)">
+                                                    <i class="fa fa-trash"></i>
+                                                </span>
+                                                <span class="set-as-link" ng-if="img.isCoverPhoto==0" ng-click="setAsCover(model.images, img)">Set as cover</span>
+                                                <img ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)">
+                                            </div>                                            
+                                            <div class="truck-photo-list-item" ng-if="!model.images || model.images.length < 8">
+                                                <div class="truck-photo-list-add">
+                                                    <label class="uploader-ui" ng-class="{ 'uploading' : truckImageProcessing[imageIndex] }"  title="Attach Image">
+                                                        <input type="file" id="file" name="file" ng-disabled="fetchingData" accept="image/png, image/jpeg, image/jpg" onchange="angular.element(this).scope().imageInputChange(event)" />
+                                                        <span class="image-add-icon"></span>
+                                                        <span class="upload-processing"></span>
+                                                    </label>      
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label ng-if="model.assignedTechName" class="form-label">Assigned To:</label>
+                                    <div ng-if="model.assignedTechName">
+                                        <span class="technician-card clickable" ng-click="openAssignTechnicianPopup()">
+                                            <span class="technician-card-photo lg">
+                                                <div ng-if="!model.assignedTechName" class="image-radius name-initial">
+                                                    <i class="fa fa-user-circle assign-tech"></i>
+                                                </div>
+                                                <div ng-if="model.assignedTechName" class="image-radius name-initial" style="background-image:url({{model.assignedTechImage}});">
+                                                    <span ng-show="!model.assignedTechImage">
+                                                        {{(model.assignedTechName) ? (model.assignedTechName | convertToInitial: model.assignedTechName.split(' ')[1]) : 'N'}}
+                                                    </span>
+                                                </div>
+                                            </span>
+                                            <span class="technician-card-title">
+                                                {{(model.assignedTechName) ? model.assignedTechName : 'None'}}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="no-tech-assigned" ng-if="!model.assignedTechName" ng-click="openAssignTechnicianPopup()">Assign technician</div>
+                                </div>
+                            </div>
+                        </div>  
+                    </div> 
+                </div>
+            </ng-container>
+            <ng-container ng-if="currentTabName == 'tools'">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Tool Name</label>
+                                    <input ng-model="model.name" type="text" name="name" id="name" class="pbx-form-control" maxlength="50" required="" ng-class="{ 'has-error' : formSubmitted && addEditTruckToolForm.name.$invalid }" ng-blur="isEditing ? blurSaveForm('name') : '' " />
+                                    <span class="has-required p-b10" ng-if="formSubmitted && addEditTruckToolForm.name.$invalid">
+                                        <span ng-show="addEditTruckToolForm.name.$error.required">Tool Name is required</span>
+                                        <!-- <span ng-show="addEditTruckToolForm.name.$error.pattern">Tool name should not contain special characters</span> -->
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Cost</label>
+                                    <div class="input-with-dollar">
+                                        <span class="doller-icon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                                        <input ng-model="model.cost" type="text" min="0" max="9999999" allow-typing="^[$,0-9.-]+$" format="currency" class="pbx-form-control" ng-blur="isEditing ? blurSaveForm('cost') : '' " />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-6">
+                                <div class="form-group">
+                                    <label class="form-label">Condition</label>
+                                    <div class="dropdown select-wrap service-level-dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="min-height: 34px;">
+                                          <b>{{model.condition ? model.condition : ''}}</b>
+                                          <span class="caret"></span>
+                                       </button>
+                                        <ul class="dropdown-menu scrollable-menu">
+                                          <li ng-repeat="item in toolConditions" ng-hide="model.condition == item" ng-click="assignToolCondition(item)"><a href="javascript:void(0)" draggable="false">{{item}}</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>             
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Notes</label>
+                                    <textarea ng-model="model.notes" class="pbx-form-control" maxlength="3000" ng-blur="isEditing ? blurSaveForm('notes') : '' "></textarea>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 error_display">
+                                <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                                <success message="{{successMessage}}" ng-if="successMessage"></success>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">      
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Photos</label>
+                                    <div class="truck-photo-area">
+                                        <div class="tuck-cover-photo">
+                                            <img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto==1" ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)" />
+                                        </div>
+                                        <div class="tuck-photo-list">
+                                            <div class="truck-photo-list-item" ng-repeat="img in model.images track by $index" ng-if="img.status == 1">
+                                                <span class="delete-truck-photo-icon" ng-click="deleteModelImage(img)">
+                                                    <i class="fa fa-trash"></i>
+                                                </span>
+                                                <span class="set-as-link" ng-if="img.isCoverPhoto==0" ng-click="setAsCover(model.images, img)">Set as cover</span>
+                                                <img ng-src="{{img.mediaPath}}" alt="{{img.mediaType}}" ng-click="showImageSlides($index, model.images)" />
+                                            </div>                                            
+                                            <div class="truck-photo-list-item" ng-if="!model.images || model.images.length < 8">
+                                                <div class="truck-photo-list-add">
+                                                    <label class="uploader-ui ng-class="{ 'uploading' : truckImageProcessing[imageIndex] }"  title="Attach Image">
+                                                        <input type="file" id="file" name="file" ng-disabled="fetchingData" accept="image/png, image/jpeg, image/jpg" onchange="angular.element(this).scope().imageInputChange(event)" />
+                                                        <span class="image-add-icon"></span>
+                                                        <span class="upload-processing"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>  
+                    </div> 
+                </div>
+            </ng-container>
+        </div>
+        <div class="pbx-popup-footer">
+            <ng-container ng-if="!isEditing">  
+                <button class="pbx-btn" type="submit" ng-disabled="isProcessing">SAVE</button>
+                <button class="pbx-btn" type="button" ng-click="closeThisDialog()">CANCEL</button>
+                
+            </ng-container>
+            <ng-container ng-if="isEditing">
+                <button class="pbx-btn pbx-btn-danger" type="button" ng-disabled="isProcessing" ng-click="openDeletePopup()">DELETE</button>
+            </ng-container>
+        </div>
+      </form>
+    </div>
+</script>
+<!-- Delete Popup -->
+<script type="text/ng-template" id="deletePopup.html">
+    <div class="pbx-popup pbx-popup-sm">
+        <div class="pbx-popup-header">
+            <div class="pbx-popup-header-title">
+                Delete {{ currentTabName == 'trucks' ? 'Truck' : 'Tool' }}
+            </div>
+            <div class="pbx-popup-header-close">
+                <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+            </div>
+        </div>
+        <div class="pbx-popup-body text-center">            
+            Are you sure you want to delete this {{ currentTabName == 'trucks' ? 'Truck' : 'Tool' }}?
+        </div>
+        <div class="pbx-popup-footer">           
+            <button class="pbx-btn pbx-btn-danger" ng-click="deleteTruckAndTool()" ng-disabled="isProcessing">DELETE</button>
+            <button class="pbx-btn" ng-click="closeThisDialog()">CANCEL</button>
+        </div>    
+    </div>
+</script>

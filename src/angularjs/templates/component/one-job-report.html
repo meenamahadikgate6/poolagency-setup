@@ -1,0 +1,105 @@
+<div class="spinner" ng-if="isProcessingJobReport">
+  <div class="spinner-item">
+    <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+  </div>
+</div>
+<div class="dataTables_wrapper" ng-init='getOneJobStatus()'>
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+  <div class="row one-job-report" >
+      <div class="col-md-12 col-sm-5 col-xs-12">
+          <div class="white-bg border-box text-left p-tb20 p-lr20 min-h270">
+            <div class="row one-job-header">
+              <div class="col-md-12">
+                <div class="select custom-select custom-select-noimage">
+                  <select ng-model="filterDuration" ng-change="filterByDuration(filterDuration)" ng-options="x for x in filterReportDataJob">
+                  </select>
+              </div> 
+                <h2 class="h-4x m-b20 text-center">Job Statuses</h2>
+              </div>
+              <div class="grid date-picker-wrapper">
+                <div class="datePicker input-daterange">
+                  <div class="col-6-12 p-lr10 fl">
+                    <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                      <input ng-model="fromDateJob" ng-click="clickDateJob($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDateJob('fromDateJob')" id="fromDateInputJob"/>
+                    </div>
+                  </div>
+                  <div class="col-6-12 m-l10 text-right fr">
+                    <div class="" date-format="MM/dd/yyyy" min-date="fromDateJob">
+                      <input ng-model="toDateJob" ng-click="clickDateJob($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDateJob('toDateJob')" />
+                    </div>
+                  </div>
+                </div>
+              </div> <br><br>
+            </div>
+            <div class="row one-job-grid">
+              <div class="col-md-4">
+                    <h3 class="text-center">
+                      Not yet completed
+                      <!-- <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                        <i class="fa fa-question-circle" style="color:#000;" aria-hidden="true"></i>
+                        <span class="sch-help"><p>lorem ipsum</p></span>
+                      </a> -->
+                    </h3>
+                    <div class="row" style="cursor: pointer">
+                      <div class="col-md-6 p-l0">
+                          <div class="one-job-color-box" ng-click="clickJobStatus(1, 'Not Started')">
+                          <h4>Not Started</h4>
+                          <p><strong>{{countNotStarted | number}}</strong> {{amountNotStarted | currency}}</p>
+                        </div>
+                      </div>
+                      <div class="col-md-6 p-l0">
+                        <div class="one-job-color-box one-job-yellow-box" ng-click="clickJobStatus(3, 'In Progress')">
+                          <h4>In Progress <i class="fa fa-clock-o"></i></h4>
+                          <p><strong>{{countInProgress | number}}</strong>{{amountInProgress | currency}}</p>
+                          
+                        </div>
+                      </div>
+                      
+                  </div>
+              </div>
+              <div class="col-md-4">
+                <h3 class="text-center">
+                  Need to be closed
+                  <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span class="sch-help"><p style="text-align: left;">Please change the status for completed jobs to "CLOSED".</br>If products/services exist for the job when status is changed, an invoice will be created automatically.</br>No changes can be made to job once it is closed.</p></span>
+                  </a>
+                </h3>
+                <div class="row" style="cursor: pointer">
+                  <div class="col-md-12">
+                    <div class="one-job-color-box one-job-green-box" ng-click="clickJobStatus(4, 'Completed')">
+                      <h4>Completed <i class="fa fa-check-circle-o"></i></h4>
+                      <p><strong>{{countCompleted | number}}</strong>{{amountCompleted | currency}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <h3 class="text-center">
+                  No action needed
+                  <!-- <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                    <span class="sch-help"><p>lorem ipsum</p></span>
+                  </a> -->
+                </h3>
+                <div class="row" style="cursor: pointer">
+                  <div class="col-md-6 p-r0">
+                    <div class="one-job-color-box  one-job-black-box" ng-click="clickJobStatus(5, 'Closed')">
+                      <h4>Closed <i class="fa fa-check-square"></i></h4>
+                      <p><strong>{{countClosed | number}}</strong>{{amountClosed | currency}}</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6 p-r0">
+                    <div class="one-job-color-box one-job-red-box" ng-click="clickJobStatus(2, 'No Access')">
+                      <h4>No Access <i class="fa fa-lock"></i></h4>
+                      <p><strong>{{countNoAccess | number}}</strong>{{amountNoAccess | currency}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>         
+          </div>
+      </div>       
+  </div>
+</br></br>

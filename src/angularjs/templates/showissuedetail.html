@@ -1,0 +1,19 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white" style="word-break: break-word;">{{desc.subject}} </div>
+    <div class="popup-close"  style="word-break: break-word;" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+
+<div style="padding:10px;word-break: break-word">
+
+    <p>{{desc.message}}</p>
+    <p>{{desc.reply}}</p>
+
+</div>
+</div>
+</div>

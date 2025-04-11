@@ -1,0 +1,530 @@
+<div ng-controller="automaticEmailsController" class="email-center-ae-page">
+    <div class="row">
+        <div class="col-xs-12 email-center-top-messages">
+            <success ng-if="sendEmailSuccess" message="{{sendEmailSuccess}}"></success>
+            <error ng-if="sendEmailError" message="{{sendEmailError}}"></error>                        
+        </div>
+    </div>
+    <div class="ecp-section">                        
+        <div class="ecp-section-body">                          
+            <div class="ecp-section-card" style="min-height: calc(100vh - 200px);"> 
+                <div class="automatic-email-area">
+                    <div class="automatic-email-tabs">
+                        <div class="automatic-email-tab-btn-group">
+                            <ul>
+                                <li ng-repeat="tab in aeTabs">
+                                    <a href="javascript:void(0)" ng-click="getActiveAeTab().key != tab.key && setCurrentAeTab(tab)" ng-class="{ 'active' : getActiveAeTab().key == tab.key }">{{tab.title}}</a>
+                                </li>
+                            </ul>
+                        </div>       
+                        <div class="automatic-email-tab-content-group">
+                            <div class="spinner" ng-if="autoSendToggleStatusLoading">
+                                <div class="spinner-item">
+                                  <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                                </div>
+                            </div>
+                            <div class="automatic-email-tab-content">
+                                <div class="ae-tab-header">
+                                    <div class="ae-header-row">
+                                        <div class="ae-header-col">
+                                            <div class="ae-auto-send-toggle">
+                                                <span class="ae-auto-send-toggle-label">AUTO-SEND</span>
+                                                <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                                    <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                    <span ng-if="getActiveAeTab().key=='pastDueInvoices'">If toggle is activated, system will automatically send emails based on the schedule & settings below for each reminder row</span>
+                                                    <span ng-if="getActiveAeTab().key=='openQuotes'">If toggle is activated, system will automatically send emails based on the schedule & settings below for each reminder row</span>
+                                                    <span ng-if="getActiveAeTab().key=='routeDayChanges'">If toggle is activated, system will automatically send emails based on the schedule & settings below for each notification type</span>
+                                                  </a>
+                                                <label class="switch switch-quote-settings" ng-click="!autoSendToggleStatusUpdating ? toggleAutoSend() : null">
+                                                    <span ng-class="{ 'active' : getActiveAeTab().autoSend }" class="slider round"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="ae-header-col">
+                                            <a href="javascript:void(0)" class="ae-header-add-link" ng-if="getActiveAeTab().key!=='routeDayChanges'" ng-click="openaeReminderModificationModal(getActiveAeTab(), 'Add')">
+                                                <span>Add Reminder</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="ae-grid-area">
+                                        <table class="ae-table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="center">SENDS WHEN</th>
+                                                    <th class="">TEMPLATE USED</th>
+                                                    <th class="center">SEND TO</th>
+                                                    <th class="center">&nbsp;</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="ae-grid-loader" ng-if="getActiveAeTab().isGridLoading && !autoSendToggleStatusLoading">
+                                            <!-- <tbody> -->
+                                                <tr>
+                                                    <td colspan="100">
+                                                        <div class="spinner">
+                                                            <div class="spinner-item">
+                                                              <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>                                                
+                                            </tbody>                                         
+                                            <tbody ng-repeat="row in getAeGridData()" ng-if="!getActiveAeTab().isGridLoading">
+                                                <tr>
+                                                    <td class="blank-gap" colspan="100%"></td>
+                                                </tr>
+                                                <tr ng-if="getActiveAeTab().key === 'routeDayChanges'">
+                                                    <td colspan="100%" class="route-day-changes-properties-count-area-td">
+                                                        <div class="route-day-changes-properties-count-area">
+                                                            <div class="route-day-changes-properties-move-type">
+                                                                {{row.moveTypeLabel}} 
+                                                            </div>
+                                                            <div class="route-day-changes-properties-count">
+                                                                <span ng-if="!row.propertiesCount || row.propertiesCount == 0">0 properties</span>
+                                                                <span class="moved-properties-link" ng-click="openMovedProperties(row)" ng-if="row.propertiesCount && row.propertiesCount > 0">{{row.propertiesCount}} properties</span>
+                                                                <a href="javascript:void(0)" class="route-reminder-send-link" ng-click="!routeReminderSending[row.id] ? sendNowRouteReminderConfirmation(row) : null" ng-class="{ 'route-reminder-sending' : routeReminderSending[row.id] || row.propertiesCount == 0 }">
+                                                                    <span ng-if="!routeReminderSending[row.id]">send now</span>
+                                                                    <span ng-if="routeReminderSending[row.id]">sending...</span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="center">
+                                                        <span ng-if="getActiveAeTab().key === 'pastDueInvoices'">
+                                                            {{row.scheduleDays}} 
+                                                            {{row.scheduleDays > 1 ? 'Days' : 'Day' }} Past Due
+                                                        </span>
+                                                        <span ng-if="getActiveAeTab().key === 'openQuotes'">
+                                                            {{row.scheduleDays}} 
+                                                            {{row.scheduleDays > 1 ? 'Days' : 'Day' }} Old
+                                                        </span>
+                                                        <span ng-if="getActiveAeTab().key === 'routeDayChanges'">
+                                                            {{getAMPMTime(row.scheduleTime)}} 
+                                                            Daily
+                                                        </span>
+                                                    </td>
+                                                    <td class="">
+                                                        {{row.templateName}}
+                                                    </td>
+                                                    <td class="center">
+                                                        {{emailTypeEnums(row.emailType).label}}
+                                                    </td>
+                                                    <td class="center">
+                                                        <div class="ae-action-btn-area" ng-class="{ 'right-aligned' : getActiveAeTab().key == 'routeDayChanges' }">
+                                                            <a ng-click="openaeReminderModificationModal(getActiveAeTab(), 'Edit', row)" href="javascript:void(0)" class="ae-action-btn ae-action-btn-edit" ng-class="{ 'route-reminder-sending' : (getActiveAeTab().key == 'routeDayChanges' && routeReminderSending[row.id]) }"><img src="resources/images/ae_edit.png"></a>
+                                                            <a ng-click="openaeReminderModificationModal(getActiveAeTab(), 'Delete', row)" ng-if="getActiveAeTab().key !== 'routeDayChanges'" href="javascript:void(0)" class="ae-action-btn ae-action-btn-remove"><img src="resources/images/ae_remove.png"></a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="row" ng-if="getActiveAeTab().key==='routeDayChanges'">
+                                        <div class="col-xs-12 text-center">
+                                            <p class="route-changes-bottom-info">If a routed property is moved to a different day in the scheduling section, the customer will be notified automatically based on the settings above</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>             
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="aeReminderModificationModal.html">
+        <div class="dataTables_wrapper modal-box common-popup modal-box-{{aeReminderModificationModalData.method}}">             
+          <div class="popup-header">
+            <span class="heading"> 
+                {{aeReminderModificationModalData.modalTitle}}
+            </span>
+          </div>
+          <div class="popup-body"> 
+            <div class="spinner" ng-if="reminderUpdating">
+                <div class="spinner-item">
+                <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                </div>
+            </div>
+            <ng-container ng-if="aeReminderModificationModalData.method == 'Add' || aeReminderModificationModalData.method == 'Edit'">
+                <form name="reminderForm" novalidate>                    
+                    <div class="ae-wrapper">                
+                        <div class="ae-modal-body scrollareaCls">
+                            <error ng-if="reminderModifyError" message="{{reminderModifyError}}"></error>
+                            <div class="form-group m-b0">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="ae-modal-form-row">
+                                            <div class="ae-modal-form-column">
+                                                <label class="ae-modal-form-label">
+                                                    <span>Send To</span>                                                    
+                                                </label>
+                                            </div>
+                                            <div class="ae-modal-form-column">
+                                                <div class="ae-send-to-picker">
+                                                    <div class="ae-send-to-picker-col">
+                                                        <div class="ae-send-to-picker-item">
+                                                            <label>
+                                                                <input type="checkbox" ng-click="toggleCheckbox(2, $event)" ng-checked="getCheckBoxStatus(2)">
+                                                                <span>Billing Contact</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="ae-send-to-picker-item">
+                                                            <label>
+                                                                <input type="checkbox" ng-click="toggleCheckbox(1, $event)" ng-checked="getCheckBoxStatus(1)">
+                                                                <span>Primary Contact</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ae-send-to-picker-col">
+                                                        <div class="ae-send-to-picker-item">
+                                                            <span class="or-divider">
+                                                                - or - 
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ae-send-to-picker-col">
+                                                        <div class="ae-send-to-picker-item">
+                                                            <label>
+                                                                <input type="checkbox" ng-click="toggleCheckbox(4, $event)" ng-checked="getCheckBoxStatus(4)">
+                                                                <span>Internal Email</span>
+                                                            </label>
+                                                            <input type="text" class="form-control" 
+                                                                id="internalEmail"
+                                                                ng-model="aeReminderModificationModalData.reminder.email"
+                                                                ng-disabled="!emailTypeData.includes(4)"
+                                                                ng-maxlength="100" 
+                                                                name="emailId"
+                                                                ng-minlength="6" 
+                                                                ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                                                                ng-class="{ 'transparent-input' : !emailTypeData.includes(4), 'has-error': emailTypeData.includes(4) && reminderForm.$submitted && reminderForm.emailId.$invalid }"
+                                                                ng-required="emailTypeData.includes(4)"
+                                                            >                                                            
+                                                        </div>
+                                                        <div ng-if="emailTypeData.includes(4) && reminderForm.$submitted && reminderForm.emailId.$invalid" class="email-field-error has-error-inside">
+                                                            <span class="required-template-input">Internal Email is required</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ae-modal-form-row">
+                                            <div class="ae-modal-form-column">
+                                                <label class="ae-modal-form-label">
+                                                    <span>Schedule</span>                                                    
+                                                </label>
+                                            </div>
+                                            <div class="ae-modal-form-column">
+                                                <div class="scheule-picker-area">                                                    
+                                                    <input type="text" class="form-control dayOnly" ng-if="getActiveAeTab().key == 'pastDueInvoices' || getActiveAeTab().key == 'openQuotes'"
+                                                    ng-model="aeReminderModificationModalData.reminder.scheduleDays"
+                                                    name="scheduleDays"
+                                                    allow-typing="^[0-9]+$"
+                                                    maxlength="4"
+                                                    required
+                                                    ng-class="{'has-error': reminderForm.$submitted && reminderForm.scheduleDays.$error.required }"
+                                                    >    
+                                                    <span class="scheule-picker-area-text" ng-if="getActiveAeTab().key === 'pastDueInvoices'">
+                                                        days past due at
+                                                    </span>
+                                                    <span class="scheule-picker-area-text" ng-if="getActiveAeTab().key === 'openQuotes'">
+                                                        days old at
+                                                    </span>                                              
+                                                    <input class="form-control text-center" id="durationPicker" type="text" 
+                                                    datetimepicker 
+                                                    datetimepicker-disable-drop 
+                                                    options="routeReminderDurationPicker" 
+                                                    ng-model="aeReminderModificationModalData.reminder.scheduleTime" 
+                                                    ps-datetime-picker   
+                                                    required
+                                                    ng-class="{'has-error': reminderForm.$submitted && reminderForm.scheduleTime.$error.required }"                                                
+                                                    />     
+                                                    <span class="scheule-picker-area-text" ng-if="getActiveAeTab().key === 'routeDayChanges'">
+                                                        daily
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div ng-if="((getActiveAeTab().key == 'pastDueInvoices' || getActiveAeTab().key == 'openQuotes') && reminderForm.$submitted && reminderForm.scheduleDays.$error.required)" class="schedule-field-error has-error-inside">
+                                            <span class="required-template-input">Schedule is required</span>
+                                        </div>                                                                             
+                                        <div class="ae-modal-form-row">
+                                            <div class="ae-modal-form-column">
+                                                <label class="ae-modal-form-label">
+                                                    <span>Template</span>                                                    
+                                                </label>
+                                            </div>
+                                            <div class="ae-modal-form-column">
+                                                <div class="dropdown select-wrap email-compose-mail-form-group-dropdown" ng-if="getActiveAeTab().key!=='routeDayChanges'">
+                                                    <!-- ng-class="{'has-error': reminderForm.$submitted && reminderForm.templateId.$error.required }" -->
+                                                    <button ng-disabled="isEmailTemplatesLoading" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()" aria-expanded="false"
+                                                        >
+                                                        <span>{{selectedEmailTemplate.templateName}}</span>
+                                                        <span ng-if="!isEmailTemplatesLoading" class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu scrollable-menu">                                                              
+                                                        <li ng-repeat="template in templateContentData" ng-if="template.templateType == getActiveAeTab().data.templateType">
+                                                            <a href="javascript:void(0)" ng-click="setSelectedTemplate(template, true)">{{template.templateName}}</a>
+                                                        </li>
+                                                    </ul>                                                    
+                                                    <span class="email-templates-loader" ng-if="isEmailTemplatesLoading"></span>
+                                                </div>
+                                                <!-- <input type="hidden" class="form-control"
+                                                    ng-model="selectedEmailTemplate.templateId"
+                                                    name="templateId"
+                                                    readonly
+                                                    required
+                                                    ng-class="{'has-error': reminderForm.$submitted && reminderForm.templateId.$error.required }"
+                                                > -->
+                                                <div class="route-reminder-template-name" ng-if="getActiveAeTab().key==='routeDayChanges'">
+                                                    <span><b>{{selectedEmailTemplate.templateName}}</b></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div ng-if="(reminderForm.$submitted && reminderForm.templateId.$error.required)" class="schedule-field-error has-error-inside">
+                                            <span class="required-template-input">Template is required</span>
+                                        </div>
+                                        <div class="ae-modal-form-row email-center-dynamic-content-dd email-center-dynamic-content-dd-automated-reminder">
+                                            <div class="ae-modal-form-column">
+                                                <label class="ae-modal-form-label">
+                                                    <span>Subject</span>
+                                                </label>
+                                            </div>
+                                            <div class="ae-modal-form-column">
+                                                <input type="text" class="form-control" 
+                                                ng-model="aeReminderModificationModalData.reminder.subject" 
+                                                name="subject" 
+                                                id="templateSubject"
+                                                ng-class="{'has-error': reminderForm.$submitted && reminderForm.subject.$error.required }"
+                                                required>
+                                                <span class="required-template-input">Subject is required</span>                                                 
+                                                <div class="dropdown select-wrap">
+                                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" title="Dynamic Content">
+                                                    Dynamic Content                             
+                                                    <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                    <li ng-repeat="emailVar in getEmailVars(aeReminderModificationModalData.tab.data.templateType)" ng-click="replaceText(emailVar)" ng-if="emailVar.isSubject == 'true'">
+                                                        <a href="#">{{emailVar.title}}</a>
+                                                    </li>
+                                                    </ul>
+                                                </div>  
+                                            </div>                                         
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group m-b0">
+                                <div class="row" ng-if="froalaOptionsAutomaticEmails" id="automaticEmailsFroala">
+                                    <div class="col-xs-12 insert_email_variables" ng-class="{'has-froala-error': templateBodyError || (reminderForm.$submitted && reminderForm.templateBody.$invalid || reminderForm.templateBody.$touched && reminderForm.templateBody.$invalid) }">                                        
+                                        <textarea class="form-control" 
+                                            ng-model="aeReminderModificationModalData.reminder.emailBody"
+                                            froala="froalaOptionsAutomaticEmails"                                              
+                                            name="templateBody"
+                                            ng-class="{'has-error': templateBodyError || (reminderForm.$submitted && reminderForm.templateBody.$invalid || reminderForm.templateBody.$touched && reminderForm.templateBody.$invalid) }"
+                                            required                                            
+                                            ></textarea>
+                                            <span class="required-template-input">Body is required</span>
+                                    </div>
+                                </div>
+                            </div>                    
+                        </div>                    
+                        <div class="ae-modal-footer">
+                            <div class="ae-modal-btn-left">
+                                <button ng-if="getActiveAeTab().key!=='routeDayChanges'" ng-disabled="reminderUpdating" class="ae-modal-btn" type="button" ng-click="openModifyAutomatedEmailTemplate(reminderForm)">Save as new template</button>
+                            </div>
+                            <div class="ae-modal-btn-right">
+                                <button ng-disabled="reminderUpdating" class="ae-modal-btn" type="button" ng-click="cancelModification()">Cancel</button>
+                                <button id="submitReminderFormBtn" ng-disabled="reminderUpdating" class="ae-modal-btn filled" type="submit" ng-click="modifyReminder(reminderForm)">Save</button>                            
+                            </div>
+                        </div>
+                    </div>
+                </form>                
+            </ng-container>
+            <ng-container ng-if="aeReminderModificationModalData.method == 'Delete'">
+                <div class="automated-email-delete-alert">
+                    <b>Are you sure you want to delete this reminder?</b>
+                </div>
+                <div class="automated-email-delete-btn-area">
+                    <button ng-disabled="reminderUpdating" type="button" ng-click="cancelModification()">CANCEL</button>
+                    <button ng-disabled="reminderUpdating" type="button" class="bg-red" ng-click="modifyReminder()">DELETE</button>
+                </div>
+            </ng-container>                             
+          </div>   
+        </div>
+    </script>
+    <script type="text/ng-template" id="modifyAutomatedEmailTemplate.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:450px; ">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Save New Template</span>
+                </span>      
+            </div>
+        <div class="popup-body text-center" style="position: relative">
+            <form name="automatedEmailtemplateNameForm" novalidate>
+                <div class="spinner" ng-if="isAutomatedEmailTemplatesUpdating">
+                    <div class="spinner-item">
+                    <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <error ng-if="templateExistErrorMsg" message="{{templateExistErrorMsg}}"></error>
+                        <input id="templateName" type="text" class="form-control" placeholder="Enter Template Name" 
+                        ng-model="selectedAutomatedEmailTemplateForModify.templateName" name="templateName"
+                        ng-class="{'has-error': automatedEmailtemplateNameForm.$submitted && automatedEmailtemplateNameForm.templateName.$invalid || automatedEmailtemplateNameForm.templateName.$touched && automatedEmailtemplateNameForm.templateName.$invalid}"
+                        maxlength="50"
+                        required
+                        >
+                        <span class="required-template-input" ng-show="automatedEmailtemplateNameForm.templateName.$error.required && automatedEmailtemplateNameForm.templateName.$dirty">Template name is required.</span>                 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="set-chem-button m-t20 modify-email-template-btns">
+                            <button ng-disabled="isAutomatedEmailTemplatesUpdating" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                            <button ng-disabled="isAutomatedEmailTemplatesUpdating" class="add-button" type="button" ng-click="saveAutomatedEmailTemplate(selectedAutomatedEmailreminderFormodify)">
+                                SAVE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div> 
+        </div>
+    </script>
+    <script type="text/ng-template" id="aeRouteReminderSendNowConfirmation.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:350px; ">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Confirm</span>
+                </span>      
+            </div>
+            <div class="popup-body text-center">                           
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="automated-email-delete-alert">
+                            <b>Are you sure you want to send these notifications to your customers now?</b>
+                        </div>
+                        <div class="automated-email-delete-btn-area">
+                            <button type="button" ng-click="closeThisDialog()">CANCEL</button>
+                            <button type="button" ng-click="sendNowRouteReminder()">SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </script>
+    <script type="text/ng-template" id="confirmTemplateOverwriteModal.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:350px; ">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Confirm</span>
+                </span>      
+            </div>
+            <div class="popup-body text-center">                           
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="automated-email-delete-alert">
+                            <span>This will overwrite the data in the email template named <b>{{saveTemplateAndReminderForm.payload.templateName}}</b></span>
+                        </div>
+                        <div class="automated-email-delete-btn-area">
+                            <button type="button" ng-click="closeThisDialog()">CANCEL</button>
+                            <button type="button" ng-click="confirmTemplateOverwrite()">PROCEED</button>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </script>
+    <script type="text/ng-template" id="openMovedProperties.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:600px;">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Moved Properties</span>
+                </span>      
+                <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+            </div>
+            <div class="popup-body popup-body-moved-properties-area">                           
+                <div class="popup-body-moved-properties scrollareaCls" infinite-scroll="loadMore()">
+                    <div class="row">
+                        <div class="col-xs-12">                           
+                            <ul class="moved-properties-list">                                 
+                                <li ng-if="!movedPropertiesLoading && movedProperties.length == 0">
+                                    <div class="moved-properties-no-result" >
+                                        No moved properties
+                                    </div>
+                                </li>                 
+                                <li ng-if="movedProperties.length > 0">
+                                    <div class="moved-properties-remove-all">
+                                        <a href="javascript:void(0)" ng-click="openRemoveAllPropertiesConfirmation()">remove all</a>
+                                    </div>
+                                </li>             
+                                <li ng-repeat="property in movedProperties" ng-if="movedProperties.length > 0 && !property.isDeleted">
+                                    <div class="property-details 
+                                        {{ property.isDeleting ? 'property-deleting' : ''}}
+                                        {{ property.msgDeleteSuccess ? 'property-details-has-success' : ''}}
+                                        {{ property.msgDeleteError ? 'property-details-has-error' : ''}}
+                                        ">
+                                        <p>
+                                            <ng-container ng-if="property.msgDeleteSuccess">
+                                                <span class="property-details-remove-success">Removed</span>
+                                            </ng-container>
+                                            <ng-container ng-if="property.msgDeleteError">
+                                                <span class="property-details-remove-error">Something went wrong. Please try again.</span>                                                
+                                            </ng-container>
+                                            <ng-container ng-if="!property.msgDeleteSuccess && !property.msgDeleteError">
+                                                <span class="property-details-customer-name">{{property.displayName}}</span>
+                                                <span class="property-details-address">{{property.address}}</span>
+                                            </ng-container>
+                                        </p>
+                                        <span class="remove-from-list" ng-click="removePropertyFromSendList(false, property)" ng-if="!property.msgDeleteSuccess && !property.msgDeleteError">
+                                            <img ng-if="!property.isDeleting" src="resources/images/ae_remove.png">
+                                            <i ng-if="property.isDeleting" class="removing-loader"><b></b></i>
+                                        </span>
+                                    </div>
+                                </li>
+                                <li ng-if="movedPropertiesLoading">
+                                    <div class="moved-properties-loader">
+                                        <i></i>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+        </div>
+    </script>
+    <script type="text/ng-template" id="removeAllPropertiesConfirmation.html">
+        <div class="dataTables_wrapper modal-box common-popup" style="width:350px; ">
+            <div class="popup-header text-center">
+                <span class="heading">                
+                    <span>Confirm</span>
+                </span>      
+            </div>
+            <div class="popup-body text-center">                           
+                <div class="row">
+                    <div class="col-xs-12">                                         
+                        <div class="spinner" ng-if="isRemovingAll">
+                            <div class="spinner-item">
+                              <div class="spinner-animation"><img src="resources/images/spinner.gif"  style="width: 71px;padding: 10px 20px;" /></div>
+                            </div>
+                        </div>
+                        <div class="automated-email-delete-alert">
+                            <error ng-if="isRemoveAllError" message="{{isRemoveAllError}}"></error>
+                            <b>Are you sure you want to remove all properties?</b>
+                        </div>
+                        <div class="automated-email-delete-btn-area">
+                            <button type="button" ng-click="closeThisDialog()">CANCEL</button>
+                            <button type="button" ng-click="removePropertyFromSendList(true)">REMOVE</button>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </script>
+</div>

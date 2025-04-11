@@ -1,0 +1,338 @@
+<div ng-init="getPayaSettings()">
+<div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+  <div class="spinner-item">
+    <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+  </div>
+</div>
+
+<div ng-if="!customerBillingData.activateBilling" class="h-2x light-blue p-tb20 text-center">
+  BILLING CAN BE ACTIVATED IN SETTINGS
+</div>
+<ng-container ng-if="customerBillingData.activateBilling">
+  <!--div class="invoice-type-toggle">
+    <label class="h-12x">COMBINE INVOICES  <a href="javascript:void(0)" class="icon-required customer-subdomain-help ">
+      <i class="fa fa-question-circle" aria-hidden="true"></i>
+      <span >Help Text</span>
+    </a> </label>
+    <span href="javascript:void(0)" class="blue-tooltip-large">
+      <label class="switch small" ng-click="toggleSwitch('isCombineInvoices')" style="vertical-align: text-bottom;" >
+        <span ng-class="{'active' : modelCustomerBillingData.isCombineInvoices }" class="slider round" ></span>
+      </label>
+      <span class="cfcbd-popup-no-help" ng-style="{'display': combineInvoiceError ? 'block' : 'none' }">{{combineInvoiceError}}
+      </span>
+    </span>
+    
+  </div-->
+  <error ng-if="billingErrorMsg" message="{{billingErrorMsg}}"></error>
+  <div class="p-l20 h-0-5x" >
+    <div class="customer-contact-relation h-12x">Billing Address</div>
+    <div class="b customer-contact-name">
+      <i style="margin-left: -24px; font-size: 18px;" class="fa fa-map-marker" aria-hidden="true"></i> 
+      {{billingAddress.address.address}}<br />
+      {{billingAddress.address.city}}, {{billingAddress.address.state}} {{billingAddress.address.zipcode}}             
+    </div>  
+  </div>
+  <div class="p-l20 h-0-5x p-t20">
+    <div class="customer-contact-relation h-12x">Billing Contact</div>
+    <div class="b customer-contact-name"><i class="fa fa-address-book" aria-hidden="true"></i> {{billingAddress.contact.firstName}} {{billingAddress.contact.lastName}}</div>                  
+    <div class="customer-contact-detail m-tb5">
+      <div ng-if="billingAddress.contact.contactNumber">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+          <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+        </svg>
+  
+        <a href="tel:{{billingAddress.contact.contactNumber}}" class="">
+        <phone-Number number="{{billingAddress.contact.contactNumber}}"></phone-Number>
+        </a>
+      </div>
+      <div class="customer-email" ng-if="billingAddress.contact.email">
+  
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+          <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+        </svg>
+  
+        <p><a class="show" ng-repeat="email in billingAddress.contact.email | convertToArrayByComma" href="mailto:{{email}}" class="">{{email}}</a></p>
+      
+      </div>
+    </div>                  
+  </div>
+  <div class="p-l20  p-t20">
+    <div class="row">
+      <div class="col-sm-6">
+        <label>TERMS</label>
+        <div class="dropdown select-wrap ">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+            <b>{{modelCustomerBillingData.terms ? modelCustomerBillingData.terms : '--'   }}</b>
+          <span class="caret"></span></button>
+          <ul class="dropdown-menu scrollable-menu">                         
+            <li ng-hide="modelCustomerBillingData.terms == 'Due Immediately'" ng-click="modelCustomerBillingData.terms = 'Due Immediately'; updateBilling('terms')"><a href="javascript:void(0)">Due Immediately</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 3 days'" ng-click="modelCustomerBillingData.terms = 'Due in 3 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 3 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 7 days'" ng-click="modelCustomerBillingData.terms = 'Due in 7 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 7 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 14 days'" ng-click="modelCustomerBillingData.terms = 'Due in 14 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 14 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 30 days'" ng-click="modelCustomerBillingData.terms = 'Due in 30 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 30 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 45 days'" ng-click="modelCustomerBillingData.terms = 'Due in 45 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 45 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 60 days'" ng-click="modelCustomerBillingData.terms = 'Due in 60 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 60 days</a></li>
+            <li ng-hide="modelCustomerBillingData.terms == 'Due in 90 days'" ng-click="modelCustomerBillingData.terms = 'Due in 90 days'; updateBilling('terms')"><a href="javascript:void(0)">Due in 90 days</a></li>
+          </ul>
+        </div>
+      </div>
+      <!-- <div class="col-sm-6">
+        <label>TAX RATE</label>
+        <div class="dropdown select-wrap " ng-init="taxRate()">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+            <b>{{modelCustomerBillingData.taxTitle ? modelCustomerBillingData.taxTitle : 'None'   }} <span ng-if="modelCustomerBillingData.taxTitle">({{modelCustomerBillingData.taxPercentValue}}%)</span></b>
+          <span class="caret"></span></button>
+          <ul class="dropdown-menu scrollable-menu">
+            <li ng-if="modelCustomerBillingData.taxTitle"><a ng-click="removeTax()" href="javascript:void(0)">None</a></li>                         
+            <li ng-repeat="taxRateDataList in taxRateData" ng-hide="modelCustomerBillingData.taxTitle == taxRateDataList.title" ng-click="updateTax(taxRateDataList)"><a href="javascript:void(0)">{{taxRateDataList.title}} ({{taxRateDataList.amount}}%)</a></li>
+          </ul>
+        </div>
+      </div> -->
+    </div>    
+    <div ng-if="isQBODeptSyncEnabled || (!isQBODeptSyncEnabled && selectedCustomerDepartment.id != 0)" class="row tree-dropdown-department-area {{ !isQBODeptSyncEnabled ?'department-disabled' : ''}}">
+      <div class="col-sm-8">
+        <label>QBO Location</label>
+        <tree-dropdown title="{{selectedCustomerDepartment ? selectedCustomerDepartment.name : '' }}" data-sid="{{setSelectedCustomerDepartment(selectedCustomerDepartment)}}" class="tree-dropdown tree-dropdown-department" data="activeDepartmentList" selected="selectedCustomerDepartment"></tree-dropdown>
+      </div>
+    </div>  
+  </div>
+  <div class="p-l20  p-t10">
+    <div>
+      <label>
+        SAVED PAYMENT METHODS 
+        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span style="right: -109px; width: 242px;">Save a payment method for later use and name it anything you want for easy reference (Repairs Only, Weekly Service, etc)</br></br>
+
+            You will need to save at least one to auto charge this client</span>
+        </a>
+      </label>  
+      <a style="margin: 6px 0px 0 10px; font-size: 13px; color: #285fc6;"  href="javascript:void(0)" class="icon-required customer-subdomain-help" ng-if="payaData.status==0 || !payaData.status">
+        Add
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+        </svg>
+        <span style="right: -109px; width: 242px;">To save a payment method, activate your payments account in settings.</span>
+      </a>
+
+      <span style="display: inline-block;" ng-if="payaData.status==1">
+        <div class="pb-checklist-add-new" style="margin: 6px 0px 0 10px; font-size: 13px; color: #285fc6;" ng-click="addPaymentMethod()">
+          <span>Add</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+          </svg>
+        </div> 
+      </span> 
+    </div>
+    <div id="scrollarea" class="payment-method-list">
+      <div class="p-l10 p-t10 payment-profile-list" ng-repeat="profile in paymentProfiles">
+      
+        <div style="line-height: 18px;">
+          {{profile.paymentProfileName}}   
+          <i ng-click="addPaymentMethod($index, profile)" class="fa fa-pencil-square icon" aria-hidden="true"></i>
+          <!--i ng-click="paymentMethodDeleteConfirm(profile)" class="fa fa-trash icon" aria-hidden="true" style="color:red"></i-->
+        </div>
+        <small class="h-12x light-grey">{{(profile.paymentMethod == 'ach' ? 'ACH' : 'Credit Card')}} - {{(profile.paymentMethod == 'cc' ? profile.accountType : '') | uppercase }} x{{profile.accountLastFourDigits}} {{profile.expiryDate && profile.expiryDate != 'None' ? profile.expiryDate : null}}</small>
+      </div> 
+    </div>
+   
+  </div>
+ 
+ 
+</ng-container>
+</div>
+<script type="text/ng-template" id="addPaymentMethodPopup.html">
+  <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+    <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <form class="set-chem-form card-form" name="paymentForm" autocomplete="off" ng-submit="paymentForm.$valid && modelPaymentMethodData.card && submitForm(modelPaymentMethodData, ccinfo)" novalidate>
+      <div class="popup-header">
+        <span class="heading">{{modeEdit ? 'Edit' : 'Create New'}} Payment Method</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+        <success ng-if="successMsg" message="{{successMsg}}"></success>
+        <error ng-if="errorMsg" message="{{errorMsg}}"></error> 
+        <ng-container ng-if="payaErrors && payaErrors.length > 0">
+            <ng-container ng-repeat="error in payaErrors">
+              <error ng-if="error" message="{{error}}"></error>
+            </ng-container>
+        </ng-container>    
+      </div>   
+      <div class="detail-box">
+        <!--a href="javascript:void(0)" ng-if="modeEdit" ng-click="addPaymentMethod('', obj)" class="delete-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="17" viewBox="0 0 15 17">
+            <path fill="#34495E" fill-rule="evenodd" d="M11.816 15.622l.665-11.747H2.356l.67 11.706 8.79.041zM7.418 2.04c-.441 0-.848.18-1.155.475h2.309a1.672 1.672 0 0 0-1.154-.475zm6.766.475c.36 0 .652.304.652.68 0 .375-.291.68-.652.68h-.398v.001l-.675 11.787c-.045.741-.614 1.319-1.295 1.319H3.022c-.685 0-1.255-.58-1.298-1.32L1.05 3.877l.001-.001H.652A.666.666 0 0 1 0 3.195c0-.376.292-.68.652-.68h4.032C5.169 1.423 6.225.68 7.419.68c1.192 0 2.248.743 2.733 1.835h4.033zm-9.24 11.97a.664.664 0 0 1-.651-.641L3.86 5.74a.67.67 0 0 1 .614-.716c.357-.026.667.266.687.64l.435 8.104c.02.375-.255.696-.615.717h-.037zm4.91 0a.67.67 0 0 1-.615-.717l.435-8.103c.02-.375.335-.669.686-.642a.67.67 0 0 1 .615.718l-.434 8.103a.664.664 0 0 1-.65.641h-.037zm-2.437 0a.666.666 0 0 1-.652-.68V5.703c0-.375.292-.68.652-.68.361 0 .653.305.653.68v8.104c0 .375-.292.68-.653.68z"></path>
+          </svg>
+        </a-->
+        <div class="grid text-left box colored-scroll-bar" style="{{(modeEdit && 'height:410px')}}">
+          <!-- Step 1 Start-->
+          <div class="col-12-12" ng-if="stepOne">     
+            <div class="formGroup" >
+              <label >Payment Profile Name<span class="clr-red">*</span> </label>
+              <input type="text" name="paymentProfileName" class="form-control" ng-model="modelPaymentMethodData.paymentProfileName" maxlength="50"  required >
+              <span class="has-required" ng-show="paymentForm.$submitted && paymentForm.paymentProfileName.$invalid">Payment Profile Name is required</span>
+            </div>
+            <div class="formGroup">
+              <label >Type<span class="clr-red">*</span> </label>
+              <div class="dropdown select-wrap ">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="modeEdit" >
+                  <b>{{modelPaymentMethodData.card ? modelPaymentMethodData.card : '--'   }}</b>
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu scrollable-menu"> 
+                  <li ng-hide="modelPaymentMethodData.card == 'Credit Card'" ng-click="modelPaymentMethodData.card = 'Credit Card';"><a href="javascript:void(0)">Credit Card</a></li>                        
+                  <li ng-hide="modelPaymentMethodData.card == 'ACH'" ng-click="modelPaymentMethodData.card = 'ACH';"><a href="javascript:void(0)">ACH</a></li>   
+                </ul>                
+              </div> 
+              <div ng-show="paymentForm.$submitted && !modelPaymentMethodData.card">
+                <span class="has-required" >Type is required</span>
+              </div>
+            </div>            
+            <div class="formGroup">
+              <label >Notes </label>
+              <textarea class="form-control" name="notes" style="height: 140px!important;" row='1' ng-model="modelPaymentMethodData.notes" maxLength="300">{{modelPaymentMethodData.notes}}</textarea>
+              <span class="c-limit">Characters limit: 300</span>             
+            </div>  
+            <div class="text-center p-t20">
+              <button class="add-button" style="background-color:{{modeEdit? 'red' : ''}}" ng-click="modeEdit ? paymentMethodDeleteConfirm(obj) : closeThisDialog()" type="button">{{modeEdit ? 'DELETE' : 'CANCEL'}}</button>
+              <span class="p-l10"><button class="add-button" type="submit" ng-click="paymentForm.submitAttempt==true;">{{'NEXT'}}</button></span>
+            </div>
+          </div>
+          <!-- Step 1 End-->
+          <!-- Step 2 Start-->
+          <div class="col-12-12" ng-show="stepTwo"> 
+            <div class="p-b10"><a href="#" ng-click="backToStepOne()"><i class="fa fa-arrow-left" aria-hidden="true"></i><span class="h-0-5x p-l5">BACK</span></a></div>
+            <div id="payaPaymentMethodIframeContainer"></div> 
+            <ng-container ng-if="modeEdit && stepTwo">
+              <div class="formGroup" >
+                <label>Account Holder Name<span class="clr-red" ng-if="modelPaymentMethodData.card == 'ACH'">*</span> </label>
+                <input type="text" name="accountHolderName" class="form-control" ng-model="modelPaymentMethodData.accountHolderName"  ng-disabled="(modeEdit && paymentGatewayName == paymentGateWayNames.paya) || (modeEdit && modelPaymentMethodData.card=='ACH' && paymentGatewayName==paymentGateWayNames.nuvei)" maxlength="32"  ng-required="modelPaymentMethodData.card == 'ACH'" />                
+              </div>  
+              <div class="formGroup" ng-if="modelPaymentMethodData.card == 'ACH' && paymentGatewayName == paymentGateWayNames.paya">
+                <div class="flex">
+                <label class="p-r10 m-0">Account Type</label>
+                
+                  <div class="radio-default2" ng-class="{'disabled':modeEdit}">               
+                    <label for="accountType1" style="font-weight: normal;margin-bottom: 0;">
+                      Checking
+                      <input type="radio" name="accountType" id="accountType1" value="checking" ng-model="modelPaymentMethodData.accountType"  ng-disabled="modeEdit"  />
+                      <span></span>
+                    </label>                   
+                  </div>
+                  <div class="radio-default2" ng-class="{'disabled':modeEdit}">               
+                    <label for="accountType2" style="font-weight: normal;margin-bottom: 0;">
+                      Savings
+                      <input type="radio" name="accountType" id="accountType2" value="savings" ng-model="modelPaymentMethodData.accountType"   ng-disabled="modeEdit"  />
+                      <span></span>
+                    </label>                   
+                  </div>
+                </div>
+              </div>              
+              <div class="formGroup" ng-if="modelPaymentMethodData.card == 'ACH'">
+                <label >Account Number<span class="clr-red" >*</span> </label>
+                <input type="text"  name="accountNumber" class="form-control" ng-model="modelPaymentMethodData.accountNumber" ng-disabled="modeEdit" allow-typing="^[0-9]+$"  maxlength="17" required />             
+              
+              </div>
+              <div ng-if="modelPaymentMethodData.card == 'Credit Card'" >                
+                <div class="formGroup" ng-if="modelPaymentMethodData.card == 'Credit Card' && modeEdit" >
+                  <label >Credit Card Number<span class="clr-red">*</span> </label>
+                  <input
+                    class="form-control"
+                    type="text"                  
+                    ng-model="ccinfo.number"
+                    placeholder="Card Number" ng-disabled="true" /><!--{{ccinfo.type}}-->              
+                </div> 
+                  <div class="formGroup">
+                    <label>Expiration Month <span class="clr-red">*</span> </label>   
+                    <select ng-model="ccinfo.month" class="form-control" name="month" data-card-expiration required>
+                      <option ng-repeat="month in months" value="{{('0' + ($index+1)).slice(-2)}}" >{{('0' + ($index+1)).slice(-2)}} - {{month}}</option>
+                    </select>
+                    <div ng-show="paymentForm.submitAttempt && !paymentForm.$valid">
+                      <span class="has-required" ng-show="paymentForm.month.$error.required">Expiration Month is required</span>
+                      <span class="has-required" ng-show="paymentForm.month.$error.invalid">Please select a valid expiration month</span>
+                    </div>
+                  </div>
+                  <div class="formGroup">
+                    <label>Expiration Year <span class="clr-red">*</span> </label>   
+                    <select ng-model="ccinfo.year" class="form-control" name="year" data-card-expiration required>
+                      <option ng-repeat="year in [] | range:currentYear:currentYear+16">{{year}}</option>
+                    </select>
+                    <div ng-show="paymentForm.submitAttempt && !paymentForm.$valid">
+                      <span class="has-required" ng-show="paymentForm.year.$error.required">Expiration Year is required</span>
+                      <span class="has-required" ng-show="paymentForm.year.$error.invalid">Please select a valid expiration year </span>
+                    </div>
+                  </div>                
+                  <div class="formGroup" ng-if="modelPaymentMethodData.card == 'Credit Card' && modeEdit" >
+                    <label >Billing Street Address<span class="clr-red">*</span> </label>
+                    <input
+                      class="form-control"
+                      type="text"                  
+                      ng-model="ccinfo.billing_address"
+                      name="billing_address"
+                      required
+                      placeholder="Billing Street Address"
+                      ng-class="{ 'has-error' : paymentForm.submitAttempt && !paymentForm.$valid && paymentForm.billing_address.$error.required }"
+                      />   
+                      <div ng-show="paymentForm.submitAttempt && !paymentForm.$valid">
+                        <span class="has-required" ng-show="paymentForm.billing_address.$error.required">Billing street address is required</span>
+                      </div>          
+                  </div>    
+                  <div class="formGroup" ng-if="modelPaymentMethodData.card == 'Credit Card' && modeEdit" >
+                    <label >Billing Zip Code<span class="clr-red">*</span> </label>
+                    <input
+                      class="form-control"
+                      type="text"                  
+                      ng-model="ccinfo.billing_zip"
+                      name="billing_zip"
+                      required
+                      placeholder="Billing Zip Code"
+                      ng-class="{ 'has-error' : paymentForm.submitAttempt && !paymentForm.$valid && paymentForm.billing_zip.$error.required }"
+                      /> 
+                      <div ng-show="paymentForm.submitAttempt && !paymentForm.$valid">
+                        <span class="has-required" ng-show="paymentForm.billing_zip.$error.required">Billing zip code is required</span>
+                      </div>            
+                  </div>              
+              </div> 
+              <div class="text-center p-t20 ">
+                <button class="add-button" style="background-color:red" ng-click="paymentMethodDeleteConfirm(obj)" type="button">{{'DELETE'}}</button>
+                <span class="p-l10"><button class="add-button" type="submit" ng-click="paymentForm.submitAttempt=true;" >{{'UPDATE'}}</button></span>     
+              </div>
+              </ng-container>
+            
+          </div> 
+          <!-- Step 2 End-->
+        </div>      
+        
+       
+      </div>
+    </form> 
+  
+  </div>
+</script>
+
+<script type="text/ng-template" id="deletePaymentMethodConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:530px;">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>    
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div >
+           <label ng-if="!obj.isAutoCharge">Are you sure you want to completely delete this stored payment profile?</label>
+           <label ng-if="obj.isAutoCharge">This payment method is set to be charged automatically on the 1st for an existing route/billing schedule. If you delete this payment profile without assigning a new one in the route/billing schedule, auto charge will be deactivated. Do you want to delete this payment profile and deactivate auto charge billing?</label>
+          </div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+         <button class="add-button" style="background-color:red; {{obj.isAutoCharge ? 'width: 225px;': ''}}" type="submit" ng-click="paymentMethodDeleteAction()">{{obj.isAutoCharge ? 'DELETE AND DEACTIVATE' : 'DELETE'}}</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+<div ng-include="'/templates/payment/payment.html?ver='+PB_WEB_VERSION"></div>

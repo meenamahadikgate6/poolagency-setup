@@ -1,0 +1,584 @@
+<div class="set-chem-form m-t20 p-relative setting-sm-card-loader-parent" ng-if="canView">
+  <div class="setting-sm-card-loader" ng-if="settingPageLoaders.technicianPaySection">
+    <div class="spinner">
+       <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+       </div>
+    </div>
+ </div>
+  <div class="row">  
+    <div class="col-lg-12">
+      <div class="set-chem-price technician-pay-setting" style="width: 100%;" ng-init="getTechRole()">
+        <div class="p-relative">
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="successUpdateAlert" >  <success  message="{{successUpdateAlert}}"></success></div>
+          <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="errorUpdateAlert">  <error  message="{{errorUpdateAlert}}"></error></div> 
+        </div> 
+        <div class="set-chem-title">
+          Technician Pay 
+          <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+          <i class="fa fa-question-circle" aria-hidden="true" style="color:#fff"></i>
+            <span>Technician pay is determined by the dollar amount entered for each Type. Types are specific to each Service Level and both can be created in the section above this one. Common Types are play pool, dive pool, commercial, oversized, screened, etc. Setup as few types as possible that serve your business needs the best.</span>
+          </a>
+        </div>  
+        <div class="content"> 
+          <div class="row m-t10">
+            <div class="col-md-8 text-left" style="min-height: 40px;" >
+              <ng-container ng-if="techRoleModel.length > 0 && isTechRolesExist">
+                <span class="role-label" >Role</span> 
+
+                <div class="dropdown select-wrap">
+                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                    <b>{{selectedTechnicianRole.role ? selectedTechnicianRole.role : ''}}</b>
+                  <span class="caret"></span></button>
+                  <ul class="dropdown-menu scrollable-menu">
+                    <li 
+                      ng-repeat="item in techRoleModel" 
+                      ng-hide="selectedTechnicianRole.role == item.role" 
+                      ng-click="getTechPayByRole(item)"
+                    >
+                    <a href="javascript:void(0)">{{item.role}}</a>
+                  </li>
+                  </ul>
+                </div>    &nbsp;          
+                <span class="add-tech-role-btn" style="font-size: 14px;" ng-if="isTechRolesExist" ng-click="openAddTechRolePopup('Edit')"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+                <span class="add-tech-role-btn" style="font-size: 14px;" ng-if="isTechRolesExist">
+                  <a href="javascript:void(0)"  ng-click="openDuplicateTechRolePopup()" class="icon-action" style="float: none;right: -10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+                      <g fill="#384B5E" fill-rule="evenodd">
+                          <path d="M22 13.628c-.076.096-.057.218-.081.327-.304 1.338-1.501 2.35-2.875 2.407-.457.019-.914.001-1.37.01-.142.004-.165-.055-.163-.177.005-.457.007-.914 0-1.371-.003-.134.043-.17.171-.168.378.006.757.01 1.135-.003.678-.023 1.24-.466 1.405-1.087a1.22 1.22 0 0 0 .032-.318c.002-3.343.004-6.685.001-10.028 0-.793-.645-1.42-1.462-1.423-1.956-.006-3.912-.002-5.868-.003-1.37 0-2.741-.003-4.112.001-.771.002-1.437.55-1.5 1.256-.033.382-.017.77-.008 1.156.004.157-.034.209-.199.205-.456-.012-.914-.004-1.37-.005-.076 0-.167.02-.164-.105.014-.676-.064-1.358.133-2.022C6.082 1.008 7.29.058 8.62.052 12.06.04 15.5.038 18.942.052c1.497.007 2.786 1.162 3.011 2.638.008.048.004.1.047.137v10.801z"/>
+                          <path d="M1.828 13.785c0 1.698-.001 3.395.001 5.093.001.8.608 1.409 1.413 1.41 3.363.002 6.725.002 10.087-.001.674 0 1.242-.478 1.36-1.141.076-.438.03-.883.03-1.324.004-3.024.003-6.048.003-9.073 0-.298-.065-.579-.234-.83-.322-.481-.788-.639-1.348-.638-3.269.007-6.538.003-9.807.005-.15 0-.302.011-.447.045-.654.154-1.057.706-1.058 1.447-.002 1.669 0 3.338 0 5.007m6.381 8.121H3.273C1.4 21.905 0 20.513 0 18.65V8.828c.001-1.846 1.404-3.248 3.26-3.25 3.306-.004 6.61-.003 9.916 0 1.837 0 3.252 1.407 3.253 3.237.004 3.296.004 6.591.002 9.887a3.195 3.195 0 0 1-3.221 3.204c-1.667.002-3.334 0-5 0"/>
+                      </g>
+                  </svg>
+                  <!-- <span>Duplicate</span> -->
+                </a>
+                </span>
+              </ng-container>
+              
+            </div>
+            <div class="col-md-4 text-right">
+              <span class="add-tech-role-btn" ng-click="openAddTechRolePopup('Add')"><i class="fa fa-plus-circle" aria-hidden="true"></i>
+              Add Role</span>
+            </div>
+          </div>
+          <div ng-if="!isTechRolesExist" class="text-center h-1-5x">
+            <p><b>Add a role to get started<br>examples: Senior Tech, Junior Tech, Trainee, etc</b></p>
+            <p><b>Any role can be assigned to any technician and will determine what they get paid based on your settings</b></p>
+
+          </div>
+        
+          <ng-container ng-if="techRoleModel.length > 0 && isTechRolesExist">
+            <div class="text-left m-t20"><label>PAY BY SERVICE LEVEL & TYPE FOR ROUTE STOPS</label></div>
+            <div class="container-fluid">
+              <div class="service-level-tab-item-wrapper" > 
+
+
+
+
+                <i class="fa fa-arrow-left fl"ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('left')"></i>         
+                <div class="service-tab service-tab-new 0004" ng-class="{'service-fullbox' : tabContainerWidth < 900,  'service-box' : tabContainerWidth > 900    }">
+                  <div style="width:{{tabContainerWidth+'px'}}">
+                  <ul id="serviceTab4" >
+                    <li ng-repeat="item in techPayServiceLevels" ng-class="{'active':$index == selectedTechPayServiceLevelIndex}" ng-click="techPaySettingDropdownChange($index)"><span><b>{{item.title}}</b></span></li>                 
+                  </ul>
+                </div>
+                </div>  
+                <i class="fa fa-arrow-right fr"ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('right')"></i>       
+              </div>
+            </div>          
+            <ng-container ng-repeat="item in techPayServiceLevels" ng-if="$index == selectedTechPayServiceLevelIndex">
+              <div class="pool-body-wrap" style="border: solid 2px #285fc6; padding-bottom: 0;" >
+                <div class="container-fluid colored-scroll-bar" style="height: 164px; overflow: auto;" >
+                  <div class="row tbody">    
+                    <ng-container ng-repeat="poolType in item.poolType; track by $index">         
+                      <div class="col-md-3" >                                        
+                        <div class="chemical-reading-required-setting">
+                          <div class="h-1-5x p-b10 poolType-text"> 
+                            <b>{{poolType.poolType}}</b>
+                          </div>
+                          <span class="h-1-5x">$</span> 
+                          
+                        <!--  <input type="text" mgminmax-validator 
+                          class="input-number maxWidth80 text-center" name="rate" id="rate{{$index}}"  decimals="2" decimal-point="."
+                          ng-model="techPayServiceLevels[selectedTechPayServiceLevelIndex].poolType[$index].rate" 
+                          ng-min="1" ng-max="9999999" value="" ng-blur="updateTechRates($index)" /> -->
+
+                          <input 
+                          type="text" 
+                          format="number"  
+                          allow-typing="^[$,0-9. ]+$" 
+                          class="input-number maxWidth80 text-center" 
+                          name="rate" 
+                          id="rate{{$index}}" 
+                          ng-model="techPayServiceLevels[selectedTechPayServiceLevelIndex].poolType[$index].rate" 
+                          ng-min="1" 
+                          ng-max="9999999" 
+                          value="" 
+                          allowinputonlytwodecimal
+                          ng-keydown="disableTab($event)"
+                          ng-blur="updateTechRates($index)" /> 
+
+                          <span class="light-grey h-0-5x">paid per visit</span>
+                        </div>     
+                      </div> 
+                    </ng-container>  
+                    <p ng-if="item.poolType.length == 0" class="m-t10 m-b30 text-center">         
+                      No Types are added in service level
+                    </p>              
+                  </div>       
+                </div>
+              </div>
+            </ng-container>
+                      
+          </ng-container>
+          <error ng-if="coveredRouteStopBonusError" message="{{coveredRouteStopBonusError}}"></error> 
+          <div class="tech-pay-bottom-settings" ng-if="techRoleModel.length > 0 && isTechRolesExist">
+            <div class="text-center m-b10  h-1-5x">
+              <b>No Access</b>  
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i class="fa fa-question-circle" aria-hidden="true"></i><span>Choose how much to pay a technician when they cannot access the property (locked out, dog in yard, etc). If you don't want to pay anything for No Access visits, leave it at zero.</span></a>&nbsp;&nbsp;  
+              <span class="h-1-5x">$</span>
+              <input type="text"  
+              class="input-number maxWidth80 text-center" 
+              format="number"  
+              allow-typing="^[$,0-9. ]+$" 
+              name="noAccess" 
+              id="noAccess" 
+              allowinputonlytwodecimal
+              ng-keydown="disableTab($event)"
+              ng-model="techPayNoAccess.rate" 
+              ng-min="1" ng-max="9999999" value="" ng-blur="updateTechRates('', 'noAccess')" />            
+              <span class="light-grey h-0-5x">paid per visit</span>
+            </div>
+            <div class="text-center m-b10  h-1-5x">
+              <b>Covered Route Stop Bonus</b>  
+              <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i class="fa fa-question-circle" aria-hidden="true"></i><span>Choose whether to pay an additional bonus amount to the technician for completing a route stop that doesn't normally belong on their route (any route stop completed in "one time moved" status). If you don't want to pay an additional bonus for this, leave it at zero.</span></a>&nbsp;&nbsp;  
+              <span class="h-1-5x">%</span>
+              <input type="text"  
+              class="input-number maxWidth80 text-center" 
+              format="number"  
+              allow-typing="^[0-9.]+$" 
+              name="coveredRouteStopBonus" 
+              id="coveredRouteStopBonus" 
+              allowinputonlytwodecimal
+              ng-keydown="disableTab($event)"
+              ng-focus="removeErrorClass('coveredRouteStopBonus')"
+              ng-model="coveredRouteStopBonus.rate" 
+              ng-min="0" ng-max="100" value="" ng-blur="updateTechRates('', 'coveredRouteStopBonus')" />            
+              <span class="light-grey h-0-5x">paid per visit</span>
+            </div>
+          </div>
+          <ng-container ng-if="isTechRolesExist">
+            <div class="text-left m-t20">
+              <label>PAY COMMISSION FOR JOBS
+                 <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i class="fa fa-question-circle" aria-hidden="true"></i>
+                  <!-- <span>Choose how much to pay a technician when they cannot access the property (locked out, dog in yard, etc). If you don't want to pay anything for No Access visits, leave it at zero.</span> -->
+                </a>
+              </label>
+            </div>
+            
+            <ng-container ng-repeat="item in techPayServiceLevels" ng-if="$index == selectedTechPayServiceLevelIndex">
+              <div class="pool-body-wrap" style="border: solid 2px #285fc6; padding-bottom: 0;" >
+                <div class="container-fluid colored-scroll-bar" style="height: 250px; overflow: auto;" >    
+                  <div class="" style="position:absolute; z-index: 1; margin-top: -24px;">     
+                    <!-- <success ng-if="techPaySuccess" message="{{techPaySuccess}}"></success> -->
+                    <error ng-if="commissionFJobsError" message="{{commissionFJobsError}}"></error> 
+                  </div> 
+                  <div class="row">
+                    <div class="col-md-4">
+                      <!-- <label>Amounts paid
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i class="fa fa-question-circle" aria-hidden="true"></i>
+                        </a>
+                      </label>     -->
+                      <div class="flex list" style="padding-top:5px">
+                        <div style="padding-left: 5px;padding-right: 30px;">
+                          <label>All Products</label>
+                          <div class="input-percentage">
+                            <span>%</span>
+                            <input 
+                              class="form-control small-input input-number" 
+                              mgminmax-validator 
+                              type="number" 
+                              name="amount{{$index}}" 
+                              id="amount{{$index}}" 
+                              ng-model="techcommissionpayFJobs.prodPrcntJobSales" 
+                              ng-min="0" 
+                              ng-max="100" 
+                              style="width: 90px; height:30px" 
+                              ng-blur="updateCommissionFJobs(techcommissionpayFJobs)"
+                              required 
+                              allowinputonlytwodecimal
+                              allow-typing="^[0-9. ]+$"
+                            />
+                          </div> 
+                        </div>
+                        <div>
+                          <label>All Services</label>
+                          <div class="input-percentage">
+                            <span>%</span>
+                            <input 
+                              class="form-control small-input input-number" 
+                              mgminmax-validator 
+                              type="number" 
+                              name="amount{{$index}}" 
+                              id="amount{{$index}}" 
+                              ng-model="techcommissionpayFJobs.serPrcntJobSales" 
+                              ng-min="0" 
+                              ng-max="100" 
+                              style="width: 90px; height:30px" 
+                              ng-blur="updateCommissionFJobs(techcommissionpayFJobs)"
+                              required 
+                              allowinputonlytwodecimal
+                              allow-typing="^[0-9. ]+$"
+                            />
+                          </div>                          
+                        </div>
+                      </div>              
+                    </div>
+                    <div class="col-md-8">
+                      <div class="product-add-new-form-top">
+                        <label class="ooj-on-ooj-page">Different amounts paid for specific products / services
+                          <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i class="fa fa-question-circle" aria-hidden="true"></i>
+                          </a>
+                        </label>
+                        <button type="button" class="btn" ng-click="addBundleProductSearchFJ()" tabindex="12"> Add <i class="fa fa-plus-circle "></i></button>
+                      </div>
+                      <div class="grey-box">
+                        <div id="scrollarea"  style="overflow:auto; height:200px;">
+                        <table class="product-services-list" style="width:100%">
+                          <thead>
+                            <tr colspan="5">
+                              <td style="width:40px" ></td>
+                              <td style="width:325px; text-align:left;font-size: small;">NAME</td>
+                              <td style="width:50px; text-align:left;font-size: small;">COMMISSION %</td>
+                              <td style="width:30px;"></td>
+                            </tr>
+                          </thead>
+                          <tbody ng-if="productNoItemFJ">
+                            <tr><td colspan="5" style="text-align:center;padding-top: 75px">NOTHING ADDED</td></tr>
+                          </tbody> 
+                          <tbody ng-if="bundleSearchFormFJ">
+                            <tr>
+                              <td colspan="100%" class="bundle-search" ng-style="{'position': productNoItemFJStyle.position, 'top': productNoItemFJStyle.top + 'px'}">
+                                <div class="product-search-widget-holder --small --fixed">
+                                  <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('techPayJob',[], selectedTechnicianRole.id, 'job')"></div>
+                                </div>
+                                <!-- <div class="bundle-search-box">
+                                    <span class="search-icon" style="top: 10px"></span>
+                                    <input type="search" placeholder="Search name or part number" ng-model="bundleSearchText" id="bundleSearchText" class="form-control" ng-keyup="showListForBundle(bundleSearchText,'job')" tabindex="1" ng-blur="hideSearchBarFJ()" style="padding: 6px 18px 6px 60px;text-align: left;">
+                                    <a href="" class="close-search-bar" ng-click="hideSearchBarIconFJ()"><i class="fa fa-times"></i></a>
+                                </div>
+                                <table id="product-list" ng-if="isBundleSearchFJ" style="width: 640px">
+                                  <tbody ng-repeat="productBundleListCategory in productBundleListFJ" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                                    <tr tabindex="13" class="even" style="cursor: pointer;" ng-click="addProductToBundleFJ(productBundleListCategory)">
+                                      <td><div class="product-sevices-category" ng-class="productBundleListCategory.category"></div></td>
+                                      <td>{{productBundleListCategory.name}} <br><span style="color: #9b9999;font-size: 11px;" ng-if="productBundleListCategory.sku">part #{{productBundleListCategory.sku}}</span></td>
+                                      <td style="text-align:center">{{productBundleListCategory.price | currency}}</td>
+                                    </tr>                            
+                                  </tbody>
+                                  <tbody ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="productBundleListFJ.length < 1 &&isBundleSearchFJ">                              
+                                    <tr class="even" style="cursor: pointer;">
+                                      <td colspan="3" cellpadding="10" class="text-center"><strong class="p-tb10" style="display: block;">No results match your search</strong></td>
+                                    </tr>                            
+                                  </tbody>
+                                </table> -->
+                              </td>
+                            </tr>
+                          </tbody>
+                          <tbody class="bundleSearchResult charge-tax-checkbox-tbody" ng-repeat="productBundleListNewCategory in productBundleListNewFJ track by $index">
+                            <tr>
+                              <td><div class="product-sevices-category Product" ng-class="productBundleListNewCategory.category"></div></td>
+                              <td>{{productBundleListNewCategory.itemName}}<br>
+                                <span style="color: #9b9999;font-size: 11px;" ng-if="productBundleListNewCategory.category == 'Product'" class="ng-binding ng-scope">part #{{productBundleListNewCategory.partNumber}}</span>
+                              </td>
+                              <td style="text-align:center">
+                              <div class="input-percentage">
+                                <span>%</span>
+                                <input 
+                                    class="form-control small-input input-number" 
+                                    mgminmax-validator 
+                                    type="number" 
+                                    name="amount{{$index}}" 
+                                    id="amount{{$index}}" 
+                                    ng-model="productBundleListNewCategory.itemPercentage" 
+                                    ng-min="0" 
+                                    ng-max="100" 
+                                    ng-blur="addProductToBundleFJ(productBundleListNewCategory)"
+                                    required 
+                                    allowinputonlytwodecimal
+                                    allow-typing="^[0-9. ]+$"
+                                  />
+                              </div></td>
+                              <td style="width:30px;"><a class="delete-btn" href="javascript:void(0)" ng-click="removeProductToBundle(productBundleListNewCategory,$index,'job')"><i class="fa fa-times"></i></a></td>
+                            </tr>
+                          </tbody>                   
+                        </table>
+                      </div>
+                    </div>
+                    </div>
+                  </div>  
+                </div>
+              </div>
+            </ng-container>
+                      
+          </ng-container>
+          <ng-container ng-if="isTechRolesExist">
+            <div class="text-left m-t20">
+              <label>PAY COMMISSION FOR SALES
+                <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i
+                    class="fa fa-question-circle" aria-hidden="true"></i>
+                </a>
+              </label>
+            </div>
+            
+            <ng-container ng-repeat="item in techPayServiceLevels" ng-if="$index == selectedTechPayServiceLevelIndex">
+              <div class="pool-body-wrap" style="border: solid 2px #285fc6; padding-bottom: 0;" >
+                <div class="container-fluid colored-scroll-bar" style="height: 250px; overflow: auto;" >    
+                  <div class="" style="position:absolute; z-index: 1; margin-top: -24px;">     
+                    <!-- <success ng-if="techPaySuccess" message="{{techPaySuccess}}"></success> -->
+                    <error ng-if="commissionFSalesError" message="{{commissionFSalesError}}"></error> 
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <!-- <label>Amounts paid
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i
+                            class="fa fa-question-circle" aria-hidden="true"></i>
+                        </a>
+                      </label> -->
+                      <div class="flex list" style="padding-top:5px">
+                        <div style="padding-left: 5px;padding-right: 30px;">
+                          <label>All Products</label>
+                          <div class="input-percentage">
+                            <span>%</span>
+                            <input 
+                              class="form-control small-input input-number" 
+                              mgminmax-validator 
+                              type="number" 
+                              name="amount{{$index}}" 
+                              id="amount{{$index}}" 
+                              ng-model="techcommissionpayFSales.prodPrcntJobSales" 
+                              ng-min="0" 
+                              ng-max="100" 
+                              style="width: 90px; height:30px" 
+                              ng-blur="updateCommissionFSales(techcommissionpayFSales)"
+                              required 
+                              allowinputonlytwodecimal
+                              allow-typing="^[0-9. ]+$"
+                            />
+                          </div> 
+                        </div>
+                        <div>
+                          <label>All Services</label>
+                          <div class="input-percentage">
+                            <span>%</span>
+                            <input 
+                              class="form-control small-input input-number" 
+                              mgminmax-validator 
+                              type="number" 
+                              name="amount{{$index}}" 
+                              id="amount{{$index}}" 
+                              ng-model="techcommissionpayFSales.serPrcntJobSales" 
+                              ng-min="0" 
+                              ng-max="100" 
+                              style="width: 90px; height:30px" 
+                              ng-blur="updateCommissionFSales(techcommissionpayFSales)"
+                              required 
+                              allowinputonlytwodecimal
+                              allow-typing="^[0-9. ]+$"
+                            />
+                          </div>                          
+                        </div>
+                      </div>                   
+                    </div>
+                    <div class="col-md-8">
+                      <div class="product-add-new-form-top">
+                        <label class="ooj-on-ooj-page">Different amounts paid for specific products / services
+                          <a href="javascript:void(0)" class="icon-required customer-subdomain-help" style="vertical-align: top;"><i
+                              class="fa fa-question-circle" aria-hidden="true"></i>
+                          </a>
+                        </label>
+                        <button type="button" class="btn" ng-click="addBundleProductSearchFS()" tabindex="12"> Add <i class="fa fa-plus-circle "></i></button>
+                      </div>
+                      <div class="grey-box">
+                        <div id="scrollarea"  style="overflow:auto; height:200px;">
+                        <table class="product-services-list" style="width:100%">
+                          <thead>
+                            <tr colspan="5">
+                              <td style="width:40px" ></td>
+                              <td style="width:325px; text-align:left;font-size: small;">NAME</td>
+                              <td style="width:50px; text-align:left;font-size: small;">COMMISSION %</td>
+                              <td style="width:30px;"></td>
+                            </tr>
+                          </thead>
+                          <tbody ng-if="productNoItemFS">
+                            <tr><td colspan="5" style="text-align:center;padding-top: 75px">NOTHING ADDED</td></tr>
+                          </tbody> 
+                          <tbody ng-if="bundleSearchFormFS">
+                            <tr>
+                              <td colspan="100%" class="bundle-search" ng-style="{'position': productNoItemFSStyle.position, 'top': productNoItemFSStyle.top + 'px'}">
+                                <div class="product-search-widget-holder --small --fixed">
+                                  <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('techPaySale',[], selectedTechnicianRole.id, 'sale')"></div>
+                                </div>
+                                <!-- <div class="bundle-search-box">
+                                    <span class="search-icon" style="top: 10px"></span>
+                                    <input type="search" placeholder="Search name or part number" ng-model="bundleSearchText" id="bundleSearchText" class="form-control" ng-keyup="showListForBundle(bundleSearchText,'sale')" tabindex="1" ng-blur="hideSearchBarFS()" style="padding: 6px 18px 6px 60px;text-align: left;">
+                                    <a href="" class="close-search-bar" ng-click="hideSearchBarIconFS()"><i class="fa fa-times"></i></a>
+                                </div>
+                                <table id="product-list" ng-if="isBundleSearchFS" style="width: 640px">
+                                  <tbody ng-repeat="productBundleListCategory in productBundleListFS" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                                    <tr tabindex="13" class="even" style="cursor: pointer;" ng-click="addProductToBundleFS(productBundleListCategory)">
+                                      <td><div class="product-sevices-category" ng-class="productBundleListCategory.category"></div></td>
+                                      <td>{{productBundleListCategory.name}} <br><span style="color: #9b9999;font-size: 11px;" ng-if="productBundleListCategory.sku">part #{{productBundleListCategory.partNumber}}</span></td>
+                                      <td style="text-align:center">{{productBundleListCategory.price | currency}}</td>
+                                    </tr>                            
+                                  </tbody>
+                                  <tbody ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="productBundleListFS.length < 1 && isBundleSearchFS">                              
+                                    <tr class="even" style="cursor: pointer;">
+                                      <td colspan="3" cellpadding="10" class="text-center"><strong class="p-tb10" style="display: block;">No results match your search</strong></td>
+                                    </tr>                            
+                                  </tbody>
+                                </table> -->
+                              </td>
+                            </tr>
+                          </tbody>
+                          <tbody class="bundleSearchResult charge-tax-checkbox-tbody" ng-repeat="productBundleListNewCategory in productBundleListNewFS track by $index">
+                            <tr>
+                              <td><div class="product-sevices-category Product" ng-class="productBundleListNewCategory.category"></div></td>
+                              <td>{{productBundleListNewCategory.itemName}}<br>
+                                <span style="color: #9b9999;font-size: 11px;" ng-if="productBundleListNewCategory.category == 'Product'" class="ng-binding ng-scope">part #{{productBundleListNewCategory.partNumber}}</span>
+                              </td>
+                              <td style="text-align:center"><div class="input-percentage">
+                                <span>%</span>
+                                <input 
+                                    class="form-control small-input input-number" 
+                                    mgminmax-validator 
+                                    type="number" 
+                                    name="amount{{$index}}" 
+                                    id="amount{{$index}}" 
+                                    ng-model="productBundleListNewCategory.itemPercentage" 
+                                    ng-min="0" 
+                                    ng-max="100" 
+                                    ng-blur="addProductToBundleFS(productBundleListNewCategory)"
+                                    required 
+                                    allowinputonlytwodecimal
+                                    allow-typing="^[0-9. ]+$"
+                                  />
+                              </div></td>
+                              <td style="width:30px;"><a class="delete-btn" href="javascript:void(0)" ng-click="removeProductToBundle(productBundleListNewCategory,$index,'sale')"><i class="fa fa-times"></i></a></td>
+                            </tr>
+                          </tbody>  
+                        </table>
+                      </div>
+                    </div>
+                    </div>
+                  </div>   
+                </div>
+              </div>
+            </ng-container>
+                      
+          </ng-container>
+        </div> 
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="addTechRole.html">
+  <div class="dataTables_wrapper modal-box common-popup">  
+    <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <form class="set-chem-form" name="addTechRoleForm" ng-submit="addTechRoleForm.$valid && addTechRole(techRole)" novalidate>
+      <div class="popup-header">
+        <span class="heading">{{type == 'Edit' ? 'Edit' : 'Create New'}} Technician Role</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+      <success ng-if="techPaySuccess" message="{{techPaySuccess}}"></success>
+      <error ng-if="techPayError" message="{{techPayError}}"></error> 
+      </div>   
+      <div class="detail-box">
+        <div class="grid text-left">
+          <div class="col-12-12 p-0">    
+            <div class="formGroup">
+              <label>Role</label>
+              <input class="form-control" name="techRole" ng-model="techRole" ng-class="{'has-error': addTechRoleForm.$submitted && addTechRoleForm.techRole.$invalid}" maxlength="50" required />
+             <span class="has-required" ng-show="addTechRoleForm.$submitted && addTechRoleForm.techRole.$invalid">Please enter Name</span>
+            </div>                 
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <span class="p-r10"><button class="add-button" style="background-color:{{type == 'Edit' ? 'red' : ''}}" ng-click="type == 'Edit' ? techRoleDeleteConfirm() : closeThisDialog()" type="button">{{type == 'Edit' ? 'DELETE' : 'CANCEL'}}</button></span>
+          <span class="p-r10"><button class="add-button" type="submit" >SAVE</button></span>  
+        </div>
+      </div>
+    </form> 
+  
+  </div>
+</script>
+
+<script type="text/ng-template" id="removeTechRoleConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete role?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red" type="submit" ng-click="techRoleDeleteAction()">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+
+<script type="text/ng-template" id="duplicateTechRole.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="max-width: 900px;">  
+    <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+    <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <form class="set-chem-form" name="addTechRoleForm" ng-submit="addTechRoleForm.$valid && addDuplicateTechRole(techRole)" novalidate>
+      <div class="p-relative">
+        <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="successDuplicateAlert" >  <success  message="{{successDuplicateAlert}}"></success></div>
+        <div style="position: absolute; z-index: 1; left: 0px; top: 26px; right: 0; padding: 0px;" ng-if="errorDuplicateAlert">  <error  message="{{errorDuplicateAlert}}"></error></div> 
+      </div> 
+      <div class="popup-header">
+        <span class="heading" style="width: 80%;display: inline-block;font-size: medium;">
+          <div>You are about to create a new technician pay role with the same settings as ( {{selectedTechnicianRole.role}} ).</div>
+          <div>What would you like to name the new role?</div>           
+        </span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">     
+      <success ng-if="techPaySuccess" message="{{techPaySuccess}}"></success>
+      <error ng-if="techPayError" message="{{techPayError}}"></error> 
+      </div>   
+      <div class="detail-box">
+        <div class="grid text-left">
+          <div class="col-12-12 p-0">    
+            <div class="formGroup">
+              <label>Name</label>
+              <input class="form-control" name="techRole" ng-model="techRole" ng-class="{'has-error': addTechRoleForm.$submitted && addTechRoleForm.techRole.$invalid}" maxlength="50" required />
+             <span class="has-required" ng-show="addTechRoleForm.$submitted && addTechRoleForm.techRole.$invalid">Please enter Name</span>
+            </div>                 
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <span class="p-r10"><button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button></span>
+          <span class="p-r10"><button class="add-button" type="submit" >Create New Role</button></span>  
+        </div>
+      </div>
+    </form> 
+  
+  </div>
+</script>

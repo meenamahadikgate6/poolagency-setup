@@ -1,0 +1,570 @@
+<div class="install-details">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+
+  <div class="grid customer-add-moreinfo" ng-init="getCustomerInfo()">
+    <div class="col-1-2 col-md-6 col-sm-6 col-xs-12">
+      <div class="white-bg text-left p-tb20 p-lr20 ">
+        <div class="grid">
+          <div class="fl">
+
+<div class="image-radius" ng-style="{'background-image': 'url({{'resources/images/customer-icon.jpg'}})'}" style="background-size: cover;"></div>
+          </div>
+          <div class="fl p-l10">
+            <div> <span ><a class="h-4x b underline-none" ng-href="app/customerdetail/{{addressId}}" >{{customerinfo.customer.firstName}} {{customerinfo.customer.lastName}}</a></span> </div>
+          </div>
+        </div>
+
+        <div class="customer-add-block">
+          <div class="customer-add p-t10" ng-if="customerinfo.customer.contactNumber"> <img border="0" src="resources/images/phone-icon.png" class="phone-icon p-r5" style="vertical-align: middle" /> <a href="tel:{{customerinfo.customer.contactNumber}}" class="" ng-if="customerinfo.customer.contactNumber">
+            <phone-number number="{{customerinfo.customer.contactNumber}}"></phone-number>
+            </a> </div>
+          <div class="customer-add p-t10" ng-if="customerinfo.customer.email"><img border="0" src="resources/images/email-icon.png" class="phone-icon p-r5" style="vertical-align: middle" /> <a href="mailto:{{customerinfo.customer.email}}" class="">{{customerinfo.customer.email}}</a></div>
+          <div class="customer-add p-t10 b grid ">
+            <div class="cust-with-email-left" style="width: inherit;">
+              <div class="fl"><img border="0" src="resources/images/map-icon.png" class="phone-icon p-r5" style="vertical-align: middle" /></div>
+              <div class="fl" ng-if="customerinfo.customer.address" style="width:240px;">
+              <span>{{customerinfo.customer.address}}<br ng-if="customerinfo.customer.city">
+              <span ng-if="customerinfo.customer.city">{{customerinfo.customer.city}}, {{customerinfo.customer.state}} {{customerinfo.customer.zipcode}}</span></span>
+                <!-- <format-address address="{{customerinfo.customer.address}}"></format-address> -->
+              </div>
+            </div>
+            <!-- <div class="cust-with-email-right"><a href="">
+              <div class="button"><img src="resources/images/mail-icon.png" /> email summary</div>
+              </a>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-1-2 col-md-6 col-sm-6 col-xs-12 intallation-edit">
+      <div class="white-bg text-left p-tb20 p-lr20 ">
+        <div class="grid">
+          <!--Installation -->
+          <div style="display: inline-block;width: 100%">
+            <div class="fl">
+              <div class="h-1-5x p-b20">Details:</div>
+
+            <form ng-submit="saveInstall()" name="saveInstallForm">
+              <div class="gallanogeCalculated">
+                <input type="number" step="0.01" name="gallanogeCalculated" min="0"
+                ng-class="{'has-error': saveInstallForm.$submitted && saveInstallForm.gallanogeCalculated.$invalid}" style="-moz-appearance: textfield;"
+                ng-model="activityModel.gallanogeCalculated" ng-blur="installDetail.gallonage != activityModel.gallanogeCalculated ? saveInstall() : null">
+                gallons
+                <div class="salt-system">
+                  <ul>
+                    <li>
+                      <div class="chemical-add">
+                        <input type="checkbox" name="saltSystem" id="active" ng-model="activityModel.saltSystem" value="active" ng-change="saveInstall()">
+                        <label for="saltSystem">Salt System</label>
+                      </div>
+                    </li>
+
+                  </ul>
+                </div>
+                <!-- <div class="salt-system-save"><button class="button bt-blue" type="submit">SAVE</button></div> -->
+                <!-- <div class="m-r10">
+                  <button class="button bt-blue" type="submit">SAVE</button> <button class="button bt-blue" style="padding:6px 20px;" type="button" ng-click="editInstall()">CANCEL</button>
+                </div> -->
+              </div>
+            </form>
+          </div>
+
+            <!-- <div class="fr" ng-if="!preventDefaultAction">
+              <div class="grid">
+                <div class="fl">
+                  <div class="text-right p-l30">
+                    <img  border="0" src="resources/images/setting-icon.png" class="setting-icon p-r5" style="vertical-align: middle" />
+                    <a href="javascript:void(0)" ng-click="editInstall()" ng-if="instHistory && !editInstallCond" style="p-l10">Edit</a>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+          </div>
+          <!--Installation End-->
+
+          <!--Sensors -->
+          <div style="display: inline-block; width: 100%" class="p-t20" ng-if="jobSensor.length > 0 && !editInstallCond">
+            <div class="fl"><div >
+              <div class="b p-b5">SENSORS  </div>
+              <div ng-repeat="sensor in jobSensor track by $index" ng-if="$index < 2"> {{sensor.name}} - <span style="color:#797979; font-size: 13px;">{{sensor.sensorType}}</span><a href="javascript:void(0)" ng-click="showSensor()" ng-if="jobSensor.length > 2 && $index == 1" style="text-decoration: none;"> ..more</a> </div>
+            </div></div>
+            <div class="fr">
+              <div class="fr" ng-if="!preventDefaultAction">
+                <div class="text-right p-l30">
+
+                  <img border="0" src="resources/images/setting-icon.png" class="setting-icon p-r5" style="vertical-align: middle" /> <a href="javascript:void(0)" ng-click="showSensor()" ng-if="instHistory && !editInstallCond" style="p-l10">Edit</a> </div>
+              </div>
+          </div>
+          </div>
+          <!--Sensors End-->
+
+          <div class="fl">
+
+
+          </div>
+          <div class="fr">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/ng-template" id="sensor.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="p-b10">
+       <div class="p-t10" ng-if="jobSensor.length > 0">
+
+
+              <div class="b" style="padding-left: 10px;">SENSORS</div>
+              <div style="padding:10px 10px; height: 30px" ng-repeat="sensor in jobSensor track by $index" >
+                  <div class="fl">
+                  <span ng-if="showField[$index].edit">{{sensor.name}} - <span style="color:#797979; font-size: 13px;">{{sensor.sensorType}}</span>
+                  </span>
+                  <form  name="sensorForm[$index]" class="fl">
+                    <div class="sensor-edit fl" ng-class="{'has-error':!sensorForm[$index].$valid}" ng-if="!showField[$index].edit">
+                      <input type="text" ng-model="sensorModel[$index].name" required   class="">
+                    </div>
+                  </form>
+                </div>
+                  <div class="fr" ng-if="loggedInRole!='viewer'">
+                    <span class="" ng-if="showField[$index].update">
+                      <a href="javascript:void(0)" ng-click="updateSensor(sensorForm[$index],$index)"><i title="Save Sensors" class="fa fa-check light-blue" aria-hidden="true"></i></a>
+                    </span>
+
+                    <span ng-if="showField[$index].edit"><a href="javascript:void(0)" ng-click="editSensor(sensorForm[$index],$index)"><i title="Edit Sensors" class="fa fa-pencil-square-o light-blue" aria-hidden="true"></i></a></span>
+
+                   <span  ng-if="showField[$index].delete" class="p-l10"><a href="javascript:void(0)" ng-click="deleteSensor(sensorForm[$index],$index)"><i title="Delete Sensors" class="fa fa-trash-o light-blue" aria-hidden="true"></i></a></span>
+                    <span  ng-if="showField[$index].cancel" class="p-l10"><a href="javascript:void(0)" ng-click="cancelSensor($index)"><i title="Cancel Sensors" class="fa fa-times light-blue" aria-hidden="true"></i></a></span>
+                </div>
+              </div>
+              <!-- Left Basket<br />
+              Right Basket -->
+              </div>
+          </div>
+</div>
+</script>
+  <script type="text/ng-template" id="picturesVideos.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div >
+            <ui-carousel
+        slides="slides"
+        slides-to-show="1"
+        slides-to-scroll="1"
+        initial-slide="1"
+        autoplay="true"
+        autoplay-speed="2000"
+        dots="false">
+              <carousel-item>
+                <!-- <div class="image"><img src="{{ item.filePath }}"></div> -->
+                 <div class="image popup">
+                  <!-- <img src="{{ item.filePath }}"> -->
+                  <div class="slide-image" ng-style="{'background-image':'url('+item.filePath+')'}" style="height: 500px;background-size:contain"></div>
+                </div>
+                <div class="carousel-content">{{item.assetsType}}</div>
+              </carousel-item>
+            </ui-carousel>
+          </div>
+</div>
+</script>
+<script type="text/ng-template" id="activityPictures.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div >
+            <ui-carousel
+        slides="activityPictures"
+        slides-to-show="1"
+        slides-to-scroll="1"
+        initial-slide="1"
+        autoplay="true"
+        autoplay-speed="2000"
+        dots="false">
+              <carousel-item>
+                <!-- <div class="image"><img src="{{ item.image }}"></div> -->
+                 <div class="image popup">
+                  <!-- <img src="{{ item.filePath }}"> -->
+                  <div class="slide-image" ng-style="{'background-image':'url('+item.image+')'}" style="height: 500px;background-size:contain"></div>
+                </div>
+                <!-- <div class="carousel-content">{{item.assetsType}}</div> -->
+              </carousel-item>
+            </ui-carousel>
+          </div>
+</div>
+</script>
+<script type="text/ng-template" id="alertPictures.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div >
+            <ui-carousel
+        slides="alertPictures"
+        slides-to-show="1"
+        slides-to-scroll="1"
+        initial-slide="1"
+        autoplay="true"
+        autoplay-speed="2000"
+        dots="false">
+              <carousel-item>
+                <!-- <div class="image popup"><img src="{{ item.image }}"></div> -->
+                 <div class="image popup">
+                  <!-- <img src="{{ item.filePath }}"> -->
+                  <div class="slide-image" ng-style="{'background-image':'url('+item.filePath+')'}" style="height: 500px;background-size:contain"></div>
+                </div>
+                <!-- <div class="carousel-content">{{item.assetsType}}</div> -->
+              </carousel-item>
+            </ui-carousel>
+          </div>
+</div>
+</script>
+
+
+  <div class="clean-data m-t20 p-lr10" >
+    <div class="flex-container cleaning-header">
+      <div class="cleaning-data">Installation: <span class="b">{{startDate |  date:"MM/dd/yyyy"}}</span> </div>
+      <div class="cleaning-data tech-name">INSTALLER: <img class="customer-image" ng-src="{{installer.userImage}}" alt="{{installer.firstName}}" title="{{installer.firstName}}">{{installer.firstName}} {{installer.lastName}}</div>
+    </div>
+    <div class="cleaning-details p-lr20">
+      <div class="data-table-grid">
+        <div class="dataTables_wrapper">
+          <table class="row-border hover no-footer dataTable" width="100%">
+            <tbody dt-rows ng-class="{'shown': job.jobId == openedJobId, 'bounceIn animated popIn' : isPopOut}" class="">
+              <tr>
+                <td colspan="3" class="cleaning-details-issues"><div class="cleaning-issues">
+                    <div class="issues-tabs" id="issues-tabs-{{job.jobId}}" ng-class="{'open': job.jobId == openedJobId}">
+                      <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.issue.length > 0"> <a ng-repeat="issue in alertIssue.issue" href='javascript:void(0)'
+                   ng-init="checkConfirmOverRide(issue, 'client')"
+                   ng-click="alertsIssueTabs(job, issue, 'client')"
+                   class="linkClass clientIssue" ng-class="{'selected': issue.alertIssueId == issueObj.alertIssueId}" data-title="{{issue.type}}">
+                        <div ng-if="showDot['client'][issue.alertIssueId]" class="blue-dot-alert"> <span class="blue-dot"></span> </div>
+                        <img border="0" src="resources/images/clientIssue.jpg" alt="{{issue.type}}"  title="{{setTitle(issue.type)}}"/>
+                        <div class="alertNote" ng-bind="getAlertTabName(issue.type)"></div>
+                        </a> </div>
+                      <div class="tech-action-buttons" ng-repeat="alertIssue in job.alerts" ng-if="alertIssue.systemIssue.length > 0"> <a ng-repeat="issue in alertIssue.systemIssue" href="javascript:void(0)"
+                   ng-click="alertsIssueTabs(job, issue, 'system')"
+                   ng-init="checkConfirmOverRide(issue, 'system')"
+                   class="linkClass {{(issue.symbol == 'OUT_OF_WATER' || issue.symbol == 'PUMP_NOT_RUNNING' || issue.symbol == 'LOW_TESTING_PADS' || issue.symbol == 'LOW_BATTERY') ? 'water_guru_color' : issue.priority }}" ng-class="{'selected': issue == issueObj}" data-title="{{issue.type}}">
+                        <div ng-if="showDot['system'][issue.systemIssueId]" class="blue-dot-alert"> <span class="blue-dot"></span> </div>
+                        <img border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" alt="{{issue.description}}" title="{{issue.description}}"/>
+                        <div class="alertNote">{{issue.title}}</div>
+                        </a> </div>
+                    </div>
+                    <div style="padding-bottom: 5px;" class="issues-tabs manager-name flex-display" ng-if="serviceManagerName">MANAGER: <!-- <img class="customer-image" ng-src="{{managerProfileImage}}" alt="{{serviceManagerName}}" width="100px" height="100px" title="{{serviceManagerName}}"> -->
+ <div class="image-radius-small m-lr10" ng-style="{'background-image': 'url({{managerProfileImage}})'}" style="background-size: cover;"></div>
+
+                    {{serviceManagerName}}</div>
+                  </div></td>
+              </tr>
+              <tr>
+                <td colspan="3" class="details-expand-hide" ng-class="{'details-expand': job.jobId == openedJobId}">
+                  <div class="tech-expand" ng-if="openedJobId==job.jobId">
+                    <div class="brushing-expand tabDivs" ng-if="issueObj">
+                      <div class="tech-note text-left">
+                        <div class="darkGray notEnough">
+                          <span class="b notEnough"> {{openedIssueType == 'client' ? getAlertTabName(issueObj.type) : issueObj.description}} </span>
+                          {{issueObj.time ? ': '+issueObj.time : ''}} </div>
+                          <div ng-if="openedIssueType == 'client' && gaugeDescription" class="darkGray text-italic notEnough">
+                            <span class="b notEnough fl p-r10">
+                              <span style="font-weight: normal;font-size: 15px;">{{gaugeDescription}}</span>
+                            </span>
+                          </div>
+                        <div ng-if="openedIssueType == 'client'" class="darkGray text-italic notEnough">
+                          <span class="b notEnough fl p-r10">Tech Note:
+                            <span style="font-weight: normal;font-size: 15px;">{{issueObj.issueNote}}</span>
+                          </span>
+                        </div>
+                      </div>
+                      <!--  <div class="brushing-video" ng-if="openedIssueType == 'client' && jobDetails.alertsAssetsArray[selectedAlertIssueId].length > 0">
+                        <div class="fl p-r10 light-blue"><i class="fa fa-camera" aria-hidden="true"></i></div>
+                        <div class="light-blue fl"> <a class="light-blue" href="javascript:void(0)"> {{jobDetails.alertsAssetsArray[selectedAlertIssueId][0].filePath.split('/').pop()}} </a> </div>
+
+                      </div> -->
+
+                      <div class="brushing-video" ng-if="openedIssueType == 'client' && jobDetails.alertsAssetsArray[selectedAlertIssueId].length > 0">
+
+                        <div class="fl p-r10 light-blue">
+                          <i class="fa fa-camera" aria-hidden="true"></i>
+                        </div>
+                        <div class="light-blue fl">
+                          <a class="light-blue" href="javascript:void(0)" ng-click="showAlertPictures(jobDetails.alertsAssetsArray[selectedAlertIssueId])">View Pictures</a>
+                        </div>
+
+                      </div>
+                      <!--  <div class="fr">
+                        <div class="confirm-list"> <a href="javascript:void(0)" class="mclass" ng-class="{'disabled':!checkConfirmDetail(issueObj.confirmDetail)}" data-id="confirmDiv">
+                          <div class="button" >CONFIRM </div>
+                          </a> </div>
+                        <div class="override-list"> <a href="javascript:void(0)" id="overRide" class="mclass" ng-class="{'disabled':issueObj.overrideNote == ''}" data-class="alertTab"  data-id="overrideDiv">
+                          <div class="button" >OVERRIDE </div>
+                          </a> </div>
+                      </div> -->
+                      <div class="fr">
+                        <div ng-if="(!checkConfirmDetail(issueObj.confirmDetail) && issueObj.overrideNote == '')">
+                          <div class="confirm-list">
+                            <a href="javascript:void(0)" class="mclass" ng-class="{'selected' : confirmOpen }" data-id="confirmDiv"
+                              ng-click="toggleConfirm()">
+                              <div class="button blue-bg">CONFIRM </div>
+                            </a>
+                          </div>
+                          <div class="override-list">
+                            <a href="javascript:void(0)" id="overRide" class="mclass" ng-class="{'selected' : overRide }" data-class="alertTab"
+                              ng-click="toggleOverRide()" data-id="overrideDiv">
+                              <div class="button dark-gray-bg">OVERRIDE </div>
+                            </a>
+                          </div>
+                        </div>
+
+                        <div ng-if="checkConfirmDetail(issueObj.confirmDetail)">
+                          <a href="javascript:void(0)" class="mclass">
+                            <div class="button blue-bg">CONFIRMED </div>
+                          </a>
+                        </div>
+                        <div ng-if="issueObj.overrideNote != ''">
+                          <a href="javascript:void(0)" id="overRide" class="mclass">
+                            <div class="button dark-gray-bg">OVERRIDDEN </div>
+                          </a>
+                        </div>
+
+                      </div>
+
+
+                      <div class="confirm" ng-class="{'fadein' : confirmOpen }">
+                        <div ng-if="confirmOpen" class="alert-tab confirm-tab  alertTab">
+                          <table class="alert-table" cellpadding="0" cellspacing="0" border="0" width="100%">
+                            <tr>
+                              <td>Contact Installer</td>
+                              <td>{{installer.firstName}} {{installer.lastName}}</td>
+                              <td>
+                                <div class="p-b5">
+                                  <i class="fa fa-phone" aria-hidden="true"></i>
+                                  <a class="white" href="tel: {{installer.contactNumber}}">{{installer.contactNumber}}</a>
+                                </div>
+                              </td>
+                              <td class="text-right">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" type="radio" name="technicianCheck1" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech"
+                                  title="Completed" ng-click="callConfirmSubmit()" value="true" ng-value="true" id="technicianCheck1"
+                                />
+                                <label for="technicianCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+                                <input ng-disabled="preventDefaultAction" class="css-cancel-medium" type="radio" name="technicianCheck2" title="Unnecessary" ng-change="callConfirmSubmit()"
+                                  ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech"
+                                  value="false" ng-value="false" id="technicianCheck2" />
+                                <label for="technicianCheck2" class="css-label-medium lite-orange-cancel-medium" title="Unnecessary" ng-true-value="true"> </label>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Contact Customer</td>
+                              <td>{{customerinfo.customer.firstName}} {{customerinfo.customer.lastName}}</td>
+                              <td>
+                                <div class="p-b5">
+                                  <i class="fa fa-phone" aria-hidden="true"></i>
+                                  <a class="white" href="tel:'{{customerinfo.customer.contactNumber}}"> {{customerinfo.customer.contactNumber}}</a>
+                                </div>
+                                <div>
+                                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                                  <a class="white" href="mailto:{{customerinfo.customer.email}}">{{customerinfo.customer.email}} </a>
+                                </div>
+                              </td>
+                              <td class="text-right">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" type="radio" title="Completed" ng-click="callConfirmSubmit(alertId)"
+                                  name="customerCheck1" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer"
+                                  value="true" ng-value="true" id="customerCheck1" />
+                                <label for="customerCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+                                <input ng-disabled="preventDefaultAction" class="css-cancel-medium" type="radio" name="customerCheck2" title="Unnecessary" ng-click="callConfirmSubmit()" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer"
+                                  value="false" ng-value="false" id="customerCheck2" />
+                                <label for="customerCheck2" class="css-label-medium lite-orange-cancel-medium" title="Unnecessary"> </label>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Schedule Visit</td>
+                              <td>&nbsp;</td>
+                              <td>
+                                <div> </div>
+                                <div> </div>
+                              </td>
+                              <td class="text-right">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" type="radio" name="schVisitCheck1" title="Completed" ng-click="callConfirmSubmit()"
+                                  ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit"
+                                  value="true" ng-value="true" id="schVisitCheck1" />
+                                <label for="schVisitCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+                                <input ng-disabled="preventDefaultAction" class="css-cancel-medium" type="radio" name="schVisitCheck2" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit"
+                                  ng-click="callConfirmSubmit()" title="Unnecessary" value="false" ng-value="false" id="schVisitCheck2"
+                                />
+                                <label for="schVisitCheck2" class="css-label-medium lite-orange-cancel-medium" title="Unnecessary"> </label>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Disciplinary Action</td>
+                              <td>&nbsp;</td>
+                              <td>
+                                <div> </div>
+                                <div> </div>
+                              </td>
+                              <td class="text-right">
+                                <input ng-disabled="preventDefaultAction" class="css-checkbox-medium" type="radio" name="disActionCheck1" title="Completed" ng-click="callConfirmSubmit()"
+                                  ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction"
+                                  value="true" ng-value="true" id="disActionCheck1" />
+                                <label for="disActionCheck1" class="css-label-medium lite-orange-check-medium" title="Completed"> </label>
+                                <input ng-disabled="preventDefaultAction" class="css-cancel-medium" type="radio" name="disActionCheck2" ng-click="callConfirmSubmit()" title="Unnecessary" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction"
+                                  id="disActionCheck2" value="false" ng-value="false" />
+                                <label for="disActionCheck2" class="css-label-medium lite-orange-cancel-medium" title="Unnecessary"> </label>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+                      <div class="overRide" ng-class="{'fadein' : overRide }">
+                        <div ng-if="overRide" class="alert-tab override-tab">
+                          <success ng-if="successOveride" message="{{successOveride}}"></success>
+                          <error ng-if="errorOveride" message="{{errorOveride}}"></error>
+                          <div class="p-b15 h-1-5x">Explain why alert is being overriden</div>
+                          <form ng-submit="submitOveride(jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote)" name="overridenForm[selectedAlertIssueId]">
+                            <textarea ng-disabled="preventDefaultAction" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote" ng-change="changeOver($event,selectedAlertIssueId)"
+                              required rows="4" columns="20" placeholder="Type message here..."></textarea>
+                            <div class="text-right">
+                              <button class="button override-btn disabledBtn" ng-attr-id="btn{{selectedAlertIssueId}}" type="submit" disabled="true">Submit</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                      <br>
+                      <div class="" ng-if="checkConfirmDetail(issueObj.confirmDetail)" style="clear:both;">
+                        Confirmation Actions:
+                        <ul>
+                          <li ng-repeat="(confirmOptKey, confirmOptValue) in issueObj.confirmDetail" ng-show="confirmOptValue">
+                            <span ng-if="confirmOptKey == 'contactPoolTech' && confirmOptValue">Contact Pool Tech</span>
+                            <span ng-if="confirmOptKey == 'contactCustomer' && confirmOptValue">Contact Customer</span>
+                            <span ng-if="confirmOptKey == 'scheduleVisit' && confirmOptValue">Schedule Visit</span>
+                            <span ng-if="confirmOptKey == 'discipliniaryAction' && confirmOptValue">Disciplinary Action</span>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="" ng-if="!checkConfirmDetail(issueObj.confirmDetail) &&
+                jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail
+                && (jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech ||
+                jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer ||
+                jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit ||
+                jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction )"
+                        style="clear:both;">
+                        Confirmation Actions:
+                        <ul ng-if="!checkConfirmDetail(issueObj.confirmDetail)">
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactPoolTech">Contact Pool Tech</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.contactCustomer">Contact Customer</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.scheduleVisit">Schedule Visit</li>
+                          <li ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].confirmDetail.discipliniaryAction">Disciplinary Action</li>
+                        </ul>
+                      </div>
+                      <br>
+                      <div class="brushing-search" ng-class="{'p-t5' : confirmOpen || overRide }" ng-if="(((checkConfirmDetail(issueObj.confirmDetail) && jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote2 == '') || (!checkConfirmDetail(issueObj.confirmDetail) && jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote == '')) && jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote == '')">
+                        <success ng-if="successCustomNote" message="{{successCustomNote}}"></success>
+                        <error ng-if="errorCustomNote" message="{{errorCustomNote}}"></error>
+                        <form ng-if="!overRide">
+                          <input ng-disabled="preventDefaultAction" type="search" ng-blur="saveCustomNote($event)" ng-model="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote"
+                            placeholder="Type notes here..." />
+                        </form>
+                      </div>
+                      <div class="action-note flex-container">
+                        <div class="action" ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote == '' && checkConfirmDetail(issueObj.confirmDetail) && jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote2 != ''">
+                          <span class="action-title">Manager notes:</span>
+                          <div style="word-break: break-all;" ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote != ''">{{jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote}}</div>
+                          <div ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].customNote == ''">No notes available</div>
+                        </div>
+                        <div class="action" ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote != ''">
+                          <span class="action-title">Override note:</span>
+                          <div style="word-break: break-all;" ng-if="jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote != ''">{{jobDetails.alertsIssueArray[openedIssueType][selectedAlertIssueId].overrideNote}}</div>
+                        </div>
+                      </div>
+
+
+
+                    </div>
+                  </div>
+        </div>
+        </td>
+        </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="cleaning-activity flex-container">
+        <div class="chemical">
+          <div class="chemical-title">JOB ACTIVITY</div>
+          <div class="chemical-data input activity" id="scrollarea">
+            <ul>
+              <li ng-if="instHistory.length > 0" ng-repeat="activity in instHistory"><span>{{activity.createTimeFormatted}}</span> {{activity.newTitle}}<a href="javascript:void(0)" ng-if="activity.images.length > 0" ng-click="showActivityPictures(activity.images)"><i class="fa fa-camera" aria-hidden="true"></i> View Pictures</a><a href="javascript:void(0)" ng-if="activity.note != ''" ng-click="showNote(activity.note)"><img border="0" src="resources/images/notes-icon.png" class="p-l20 p-r5" style="vertical-align: middle" /> Note</a></li>
+              <li ng-if="instHistory.length < 1">
+                <div class="fl p-r20 text-center">No Job Activity </div>
+              </li>
+            </ul>
+            <!-- <ul>
+              <li><span>12:00 pm</span> Start job</li>
+              <li><span>12:01 pm</span> Before pictures <img border="0" src="resources/images/photo-camera.png" class="p-l20 p-r5" style="vertical-align: middle" /> <a href="">View Pictures</a></li>
+              <li><span>12:02 pm</span> Before pictures Alert - Water level low</li>
+              <li><span>12:03 pm</span> Chemical readings recorded</li>
+              <li><span>12:08 pm</span> Alert - PH level was not recorded</li>
+              <li><span>12:03 pm</span> Override <img border="0" src="resources/images/notes-icon.png" class="p-l20 p-r5" style="vertical-align: middle" /> <a href="">View Pictures</a></li>
+              <li><span>12:10 pm</span> Added 1.5oz trichlor</li>
+              <li><span>12:00 pm</span> Start job</li>
+              <li><span>12:01 pm</span> Before pictures <img border="0" src="resources/images/photo-camera.png" class="p-l20 p-r5" style="vertical-align: middle" /> <a href="">View Pictures</a></li>
+              <li><span>12:02 pm</span> Before pictures Alert - Water level low</li>
+              <li><span>12:03 pm</span> Chemical readings recorded</li>
+              <li><span>12:08 pm</span> Alert - PH level was not recorded</li>
+              <li><span>12:03 pm</span> Override <img border="0" src="resources/images/notes-icon.png" class="p-l20 p-r5" style="vertical-align: middle" /> <a href="">View Pictures</a></li>
+              <li><span>12:10 pm</span> Added 1.5oz trichlor</li>
+             </ul> -->
+          </div>
+          <div class="chemical-cost">total duration: <span class="cost-value">{{installerHistory.totalMinutes}}</span></div>
+        </div>
+
+        <div class="chemical job-activity-right">
+          <div class="chemical-title">Installer Notes</div>
+          <div class="chemical-data job-tech-note" id="scrollarea" style="min-height: 67px; overflow-x: hidden; max-height: 100px;"> <p style="margin: 0; padding-bottom:10px;" ng-repeat="installnote in installNotes"> {{installnote.confirmNote}} </p></div>
+          <div class="chemical-title">Pictures <a href="javascript:void(0)" ng-click="showPicturesVideos()" class="h-2x b underline-none ng-binding"><img border="0" src="resources/images/zoom-in-icon.png" class="zoom-icon p-r5" style="vertical-align: middle"></a></div>
+          <div>
+            <ui-carousel
+			  slides="slides"
+			  slides-to-show="2"
+			  slides-to-scroll="1"
+			  initial-slide="1"
+			  autoplay="true"
+
+			  autoplay-speed="2000"
+			  dots="false">
+              <carousel-item>
+                <div class="image">
+                  <!-- <img src="{{ item.filePath }}"> -->
+                  <div class="slide-image" ng-style="{'background-image':'url('+item.filePath+')'}"></div>
+                </div>
+                <div class="carousel-content">{{ item.assetsType }}</div>
+              </carousel-item>
+            </ui-carousel>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--<div class="text-right audit-link p-tb10"><a href="">AUDIT</a></div>-->
+  </div>
+</div>
+<script type="text/ng-template" id="note.html" >
+<div class="dataTables_wrapper modal-box pupup-sm">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div class="popup-body text-center">
+      <div>{{note}}</div>
+  </div>
+</div>
+</script>

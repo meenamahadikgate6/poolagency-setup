@@ -1,0 +1,883 @@
+<div class="data-table-grid technicians dataTables_wrapper">
+  
+  <error ng-if="customizeAlertError" message="{{customizeAlertError}}"></error>
+    <div class="set-chem-form m-t20" ng-if="customizeAlertsList.length > 0">
+      <div class="spinner" ng-if="isProcessingSystem">
+        <div class="spinner-item">
+          <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="settingForm" ng-submit="settingForm.$valid ? updateSyatemAlerts() : null" novalidate>
+        <!-- <div ng-if="permissions.canDismissAlerts == 1" class="m-t20" style="text-align: end;">
+          <button class="button btn-blue btn-red-large" type="button" ng-click="dismissAllAlertConfirm()">Dismiss All
+            Alerts Now</button>
+        </div> -->
+        <div class="set-chem-price" style="width:100% !important">
+          <div class="set-chem-title">
+            System Alerts
+            <button class="button reset-def-btn" ng-click="resetToDefaultConfirm()" type="button"> RESET DEFAULTS </button>
+          </div>
+          <div class="set-chem-details">
+             <div>
+               <div class="pool-datagrid custom-alerts-box custom-alerts-top">
+                <div class="row thead">
+                  <div class="col-md-2">ALERT NAME</div>
+                  <div class="col-md-3 text-center trigger-value">
+  
+                      <div class="row">
+                          <div class="col-md-12">TRIGGER VALUE</div>
+                          
+                          </div>
+  
+  
+                    </div>
+                  <div class="col-md-2 text-center">TRIGGER ON</div>
+                  <div class="col-md-2 text-center">EMAIL</div>
+                  <div class="col-md-3 text-center">ACTIVE / INACTIVE</div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 pool-body-wrap p-lr20">
+                    <div class="row tbody" ng-repeat="customizeAlerts in customizeAlertsList" ng-if="customizeAlerts.alertType=='SYSTEM'" ng-class-odd="'odd'" ng-class-even="'even'">
+                          <ng-container>
+                            <div class="col-md-2 drop-title col-alert" alert-label="ALERT NAME">
+                              <label>{{customizeAlerts.alertName}}</label>
+                              <div class="priority-select">
+                              <div class="select border-select custom-select custom-select-noimage">
+                                <select ng-model="customizeAlertsList[$index].priorityLevel" ng-change="submitSystemAlertForm()">
+                                  <option value="{{priorityLevel.label}}" ng-repeat="priorityLevel in priorityLevelList">{{priorityLevel.name}}</option>
+                                </select>     
+                              </div>
+                             </div>                          
+                            </div>
+                            <div class="col-md-3 text-center col-alert col-trigger-section col-trigger-value" alert-label="TRIGGER VALUE">
+                                <div class="row">
+                                    <div class="left-section-input col-lg-{{customizeAlerts.checkLastJobValue ? '8' : 8}}  col-md-{{customizeAlerts.checkLastJobValue ? '12' : 12}}">
+                                        <span>{{customizeAlerts.valueTopString}}</span>
+                                        <div class="dropdown select-wrap 03" ng-if="customizeAlerts.inputType=='SELECT' && customizeAlerts.valueType!='TIME'">
+                                           <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()">
+                                             <b>
+                                               {{customizeAlerts.valueType=='DOLLER'?'$':''}}
+                                               {{customizeAlerts.valueType=='TIME' ? convertIntoTime(customizeAlertsList[$index].triggerValue) : customizeAlertsList[$index].triggerValue}}
+                                               {{customizeAlerts.valueType=='DOLLER'?'.00':''}}
+                                               {{customizeAlerts.valueType=='PERCENT' ? '%': ''}}
+                                             </b><span class="caret"></span>
+                                           </button>
+                                           <ul class="dropdown-menu">
+                                             <li ng-repeat="option in parseSelectOptions(customizeAlertsList[$index].selectOptions) track by $index"
+                                             ng-hide="customizeAlertsList[$parent.$index].triggerValue==option"
+                                             ng-click="customizeAlertsList[$parent.$index].triggerValue=option;setLateTime(customizeAlerts.alertKey, $parent.$index, option);submitSystemAlertForm()">
+                                               <a href="javascript:void(0)">
+                                                 {{customizeAlerts.valueType=='DOLLER'?'$':''}}
+                                                 {{customizeAlerts.valueType=='TIME' ? convertIntoTime(option) : option}}
+                                                 {{customizeAlerts.valueType=='DOLLER'?'.00':''}}
+                                                 {{customizeAlerts.valueType=='PERCENT' ? '%': ''}}
+                                               </a>
+                                             </li>
+                                           </ul>
+                                         </div>
+                                         <div class="dropdown select-wrap 03" ng-if="customizeAlerts.inputType=='SELECT' && customizeAlerts.valueType=='TIME'"
+                                         ng-init="parseTimeForLatStart($index, customizeAlertsList[$index].triggerValue)">
+                                             <div class="input-group">
+                                                 <input type="text" datetimepicker datetimepicker-disable-drop options="dateTimePickerOption" ng-model="customizeAlertsList[$index].triggerValueMoc"
+                                                  on-change="lateStartOnChange(customizeAlertsList[$index].triggerValueMoc, $index)" ng-click="clearInterval(); openLateAlertDatePicker()"
+                                                  ps-datetime-picker class="form-control" required>
+                                                 <span class="input-group-addon datetimepicker-icon datetimepicker-icon-clicker-target">
+                                                   <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                 </span>
+                                             </div>
+                                         </div>
+                                         <div class="input-withziro">
+                                         <span ng-if="customizeAlerts.alertKey=='PSI_AT_ZERO'" class="customizealerts-eq">=</span>
+                                         <span ng-if="customizeAlerts.alertKey=='CHEM_COST_HIGH'" class="customizealerts-eq">$</span>
+                                         <input ng-if="customizeAlerts.inputType=='INPUT' &&  customizeAlerts.alertKey=='CHEM_COST_HIGH'"
+                                         class="form-control" name="{{'triggerValue_'+[$index]+'_'+customizeAlerts.alertKey}}"
+                                         ng-model="customizeAlertsList[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9]*[1-9][0-9]*(\.[0-9]+)?|[1]+\.[1-9]*[1-9][1-9]*)$/" 
+                                         ng-blur="submitSystemAlertForm()"
+                                         ng-click="clearInterval()"
+                                         ng-maxLength="{{customizeAlerts.maxValues > 0 ? customizeAlerts.maxValues : 100}}"
+                                         ng-minLength="{{customizeAlerts.minValues}}"
+                                         ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$invalid}" valid-number/>
+                                         <input ng-if="customizeAlerts.inputType=='INPUT' && customizeAlerts.alertKey!='CHEM_COST_HIGH'"
+                                            class="form-control" name="{{'triggerValue_'+[$index]+'_'+customizeAlerts.alertKey}}"
+                                            ng-model="customizeAlertsList[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9.]+)$/" 
+                                            ng-blur="submitSystemAlertForm()"
+                                            ng-click="clearInterval()"
+                                            ng-maxLength="{{customizeAlerts.maxValues > 0 ? customizeAlerts.maxValues : 100}}"
+                                            ng-minLength="{{customizeAlerts.minValues}}"
+                                            ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+customizeAlerts.alertKey].$invalid}" />
+                                          </div><span>{{customizeAlerts.valueBottomString}}</span>
+                                    </div>
+  
+  
+                                    <div class="col-lg-4 col-md-12 select-wrap-two" ng-if="customizeAlerts.checkLastJobValue">
+                                      <span>over the last</span>
+                                        <div class="dropdown select-wrap 04"
+                                        ng-class="{'has-error': settingForm.$submitted && settingForm['checkLastJobValue_'+customizeAlerts.alertKey].$invalid ||  settingForm['checkLastJobValue_'+customizeAlerts.alertKey].$touched && settingForm['checkLastJobValue_'+customizeAlerts.alertKey].$invalid}">
+                                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()">
+                                           <b>{{customizeAlertsList[$index].checkLastJobValue ? customizeAlertsList[$index].checkLastJobValue : ''}}</b><span class="caret"></span>
+                                         </button>
+                                         <ul class="dropdown-menu">
+                                           <li ng-repeat="num in visitsArray track by $index"
+                                           ng-hide="customizeAlertsList[$parent.$index].checkLastJobValue==($index+1)"
+                                           ng-click="customizeAlertsList[$parent.$index].checkLastJobValue=($index+1); submitSystemAlertForm()"><a href="javascript:void(0)">{{$index+1}}</a></li>
+                                         </ul>
+                                       </div>
+                                       <span>visits</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center col-alert trigger-setting-section triggeron-section p-t20" alert-label="TRIGGER ON">
+                              {{customizeAlerts.triggerStatus | capitalize}} <a title="Edit" class="underline-none setting-btn" ng-click="addTrigger(customizeAlerts.serviceLevel,customizeAlerts.isSalt,$index,false,customizeAlerts.visits, customizeAlerts.alertKey, customizeAlerts)" href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> </a>
+                             
+                              <input type="hidden"  name="{{'isSalt_'+[$index]}}" ng-model="customizeAlertsList[$index].isSalt" value="{{customizeAlerts.isSalt}}">
+
+  
+                              <input
+                              class="form-control"
+                              name="{{'serviceLevel_'+[$index]}}"
+                              ng-model="customizeAlertsList[$index].serviceLevel"
+                              type="hidden"
+                              value="{{customizeAlerts.serviceLevel}}"
+                               />
+                               <input
+                               class="form-control"
+                               name="{{'triggerStatus_'+[$index]}}"
+                               ng-model="customizeAlertsList[$index].triggerStatus"
+                               type="hidden"
+                               value="{{customizeAlerts.triggerStatus}}"
+                                />
+                            </div>
+                            <div class="col-md-2 text-center col-alert trigger-setting-section triggeron-section p-t20" alert-label="EMAIL">
+                              {{customizeAlerts.isEmailAlertOn ? 'yes' : 'no' | capitalize}} 
+                              <a 
+                                title="Edit" 
+                                class="underline-none setting-btn" 
+                                ng-click="addEmailAddressesModal(customizeAlerts.id, $index, 'SYSTEM')" 
+                                href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> 
+                              </a>
+                            </div>
+                             <div class="col-md-3 text-center col-alert col-active-inactive"  alert-label="ACTIVE / INACTIVE">
+                                 <label class="switch" ng-click="customizeAlertsList[$index].status = (customizeAlertsList[$index].status==1 ? 0 : 1); submitSystemAlertForm()">
+                                   <span ng-class="{'active' : customizeAlertsList[$index].status == '1'}" class="slider round"></span>
+                                </label>
+                                <a href="javascript:void(0)" ng-click="addDuplicateRow(customizeAlerts, 'system')" class="icon-action">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+                                  <g fill="#384B5E" fill-rule="evenodd">
+                                      <path d="M22 13.628c-.076.096-.057.218-.081.327-.304 1.338-1.501 2.35-2.875 2.407-.457.019-.914.001-1.37.01-.142.004-.165-.055-.163-.177.005-.457.007-.914 0-1.371-.003-.134.043-.17.171-.168.378.006.757.01 1.135-.003.678-.023 1.24-.466 1.405-1.087a1.22 1.22 0 0 0 .032-.318c.002-3.343.004-6.685.001-10.028 0-.793-.645-1.42-1.462-1.423-1.956-.006-3.912-.002-5.868-.003-1.37 0-2.741-.003-4.112.001-.771.002-1.437.55-1.5 1.256-.033.382-.017.77-.008 1.156.004.157-.034.209-.199.205-.456-.012-.914-.004-1.37-.005-.076 0-.167.02-.164-.105.014-.676-.064-1.358.133-2.022C6.082 1.008 7.29.058 8.62.052 12.06.04 15.5.038 18.942.052c1.497.007 2.786 1.162 3.011 2.638.008.048.004.1.047.137v10.801z"/>
+                                      <path d="M1.828 13.785c0 1.698-.001 3.395.001 5.093.001.8.608 1.409 1.413 1.41 3.363.002 6.725.002 10.087-.001.674 0 1.242-.478 1.36-1.141.076-.438.03-.883.03-1.324.004-3.024.003-6.048.003-9.073 0-.298-.065-.579-.234-.83-.322-.481-.788-.639-1.348-.638-3.269.007-6.538.003-9.807.005-.15 0-.302.011-.447.045-.654.154-1.057.706-1.058 1.447-.002 1.669 0 3.338 0 5.007m6.381 8.121H3.273C1.4 21.905 0 20.513 0 18.65V8.828c.001-1.846 1.404-3.248 3.26-3.25 3.306-.004 6.61-.003 9.916 0 1.837 0 3.252 1.407 3.253 3.237.004 3.296.004 6.591.002 9.887a3.195 3.195 0 0 1-3.221 3.204c-1.667.002-3.334 0-5 0"/>
+                                  </g>
+                              </svg>
+                              <span>Duplicate</span>
+                            </a>
+  
+                             </div>
+  
+                             <div ng-if="($index+1)!=customizeAlertsList.length" class="col-md-12"> <hr /> </div>
+  
+                          </ng-container>
+                    </div>
+                  </div>
+                </div>
+               </div>
+               <div class="row">
+                 <div class="col">
+                   <error ng-if="customizeAlertErrorMessage" message="{{customizeAlertErrorMessage}}"></error>
+                 </div>
+               </div>
+               <input type="submit" id="systemAlertSubmit" style="display: none">
+  
+             </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="set-chem-form m-t20" ng-if="waterGuruAlerts.length > 0">
+      <div class="spinner" ng-if="isProcessingWater">
+        <div class="spinner-item">
+          <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="waterGuruForm" ng-submit="waterGuruForm.$valid ? updateWaterGuruAlerts() : null" novalidate>
+        <div class="set-chem-price" style="width:100% !important">
+          <div class="set-chem-title">
+            Water Guru Alerts
+          </div>
+          <div class="set-chem-details">
+             <div>
+               <div class="pool-datagrid custom-alerts-box custom-alerts-top">
+                <div class="row thead">
+                  <div class="col-md-2">ALERT NAME</div>
+                  <div class="col-md-3 text-center trigger-value">
+                      <div class="row">
+                          <div class="col-md-12">TRIGGER VALUE</div>
+                      </div>
+                  </div>
+                  <div class="col-md-2 text-center">TRIGGER ON</div>
+                  <div class="col-md-2 text-center">EMAIL</div>
+                  <div class="col-md-3 text-center">ACTIVE / INACTIVE</div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12 pool-body-wrap p-lr20 alert-mgmnt-resp">
+                    <div class="row tbody" ng-repeat="waterAlerts in waterGuruAlerts" ng-if="waterAlerts.alertType=='WATERGURU'" ng-class-odd="'odd'" ng-class-even="'even'">
+                          <ng-container>
+                            <div class="col-md-2 drop-title col-alert resp-alert-content" alert-label="ALERT NAME">
+                              <label>{{waterAlerts.alertName}}</label>
+                              <div class="priority-select">
+                              <div class="select border-select custom-select custom-select-noimage resp-custom-select">
+                                <select ng-model="waterGuruAlerts[$index].priorityLevel" ng-change="submitWaterGuruForm()">
+                                  <option value="{{priorityLevel.label}}" ng-repeat="priorityLevel in priorityLevelList">{{priorityLevel.name}}</option>
+                                </select>     
+                              </div>
+                             </div>                          
+                            </div>
+                            <div class="col-md-3 text-center col-alert col-trigger-section col-trigger-value" alert-label="TRIGGER VALUE">
+                                <div class="row">
+                                    <div class="left-section-input col-lg-{{waterAlerts.checkLastJobValue ? '12' : 12}}  col-md-{{waterAlerts.checkLastJobValue ? '12' : 12}}">
+                                        <span>{{waterAlerts.valueTopString}}</span>
+                                        <div ng-if="waterAlerts.inputType=='BOOLEAN'" style="margin-top: 15px;">
+                                          <span ng-if="waterAlerts.alertKey != 'OUT_OF_WATER' && waterAlerts.alertKey != 'PUMP_NOT_RUNNING'">{{waterAlerts.triggerValue}}</span>
+                                          <span ng-if="waterAlerts.alertKey == 'OUT_OF_WATER'">Water guru device was out of water at time of measurement</span>
+                                          <span ng-if="waterAlerts.alertKey == 'PUMP_NOT_RUNNING'">Pump off at time of measurement</span>
+                                        </div>
+                                        <div class="dropdown select-wrap 03" ng-if="waterAlerts.inputType=='SELECT'">
+                                           <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()">
+                                             <b>
+                                               {{waterAlerts.valueType=='DOLLER'?'$':''}}
+                                               {{waterAlerts.valueType=='TIME' ? convertIntoTime(waterGuruAlerts[$index].triggerValue) : waterGuruAlerts[$index].triggerValue}}
+                                               {{waterAlerts.valueType=='DOLLER'?'.00':''}}
+                                               {{waterAlerts.valueType=='PERCENT' ? '%': ''}}
+                                             </b><span class="caret"></span>
+                                           </button>
+                                           <ul class="dropdown-menu scrollareaCls">
+                                             <li ng-repeat="option in parseSelectOptions(waterGuruAlerts[$index].selectOptions) track by $index"
+                                             ng-hide="waterGuruAlerts[$parent.$index].triggerValue==option"
+                                             ng-click="waterGuruAlerts[$parent.$index].triggerValue=option;setLateTime(waterAlerts.alertKey, $parent.$index, option);submitWaterGuruForm()">
+                                               <a href="javascript:void(0)">
+                                                 {{waterAlerts.valueType=='DOLLER'?'$':''}}
+                                                 {{waterAlerts.valueType=='TIME' ? convertIntoTime(option) : option}}
+                                                 {{waterAlerts.valueType=='DOLLER'?'.00':''}}
+                                                 {{waterAlerts.valueType=='PERCENT' ? '%': ''}}
+                                               </a>
+                                             </li>
+                                           </ul>
+                                         </div>
+                                         <div class="input-withziro">
+                                         <input ng-if="waterAlerts.inputType=='INPUT' &&  waterAlerts.alertKey=='CHEM_COST_HIGH'"
+                                         class="form-control" name="{{'triggerValue_'+[$index]+'_'+waterAlerts.alertKey}}"
+                                         ng-model="waterGuruAlerts[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9]*[1-9][0-9]*(\.[0-9]+)?|[1]+\.[1-9]*[1-9][1-9]*)$/" 
+                                         ng-blur="submitWaterGuruForm()"
+                                         ng-click="clearInterval()"
+                                         ng-maxLength="{{waterAlerts.maxValues > 0 ? waterAlerts.maxValues : 100}}"
+                                         ng-minLength="{{waterAlerts.minValues}}"
+                                         ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$invalid}" valid-number/>
+                                         <input ng-if="waterAlerts.inputType=='INPUT' && waterAlerts.alertKey!='CHEM_COST_HIGH'"
+                                            class="form-control" name="{{'triggerValue_'+[$index]+'_'+waterAlerts.alertKey}}"
+                                            ng-model="waterGuruAlerts[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9.]+)$/" 
+                                            ng-blur="submitWaterGuruForm()"
+                                            ng-click="clearInterval()"
+                                            ng-maxLength="{{waterAlerts.maxValues > 0 ? waterAlerts.maxValues : 100}}"
+                                            ng-minLength="{{waterAlerts.minValues}}"
+                                            ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+waterAlerts.alertKey].$invalid}" />
+                                          </div><span>{{waterAlerts.valueBottomString}}</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center col-alert trigger-setting-section triggeron-section p-t20" alert-label="TRIGGER ON">
+                              {{waterAlerts.triggerStatus | capitalize}} <a title="Edit" class="underline-none setting-btn" ng-click="addTrigger(waterAlerts.serviceLevel,waterAlerts.isSalt,$index,false,waterAlerts.visits, waterAlerts.alertKey, waterAlerts)" href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> </a>
+                             
+                              <input type="hidden"  name="{{'isSalt_'+[$index]}}" ng-model="waterGuruAlerts[$index].isSalt" value="{{waterAlerts.isSalt}}">
+                              <input class="form-control" name="{{'serviceLevel_'+[$index]}}" ng-model="waterGuruAlerts[$index].serviceLevel" type="hidden" value="{{waterAlerts.serviceLevel}}" />
+                              <input class="form-control" name="{{'triggerStatus_'+[$index]}}" ng-model="waterGuruAlerts[$index].triggerStatus" type="hidden" value="{{waterAlerts.triggerStatus}}" />
+                             </div>
+                             <div class="col-md-2 text-center col-alert trigger-setting-section triggeron-section p-t20" alert-label="EMAIL">
+                              {{waterAlerts.isEmailAlertOn ? 'yes' : 'no' | capitalize}} 
+                              <a title="Edit" class="underline-none setting-btn" ng-click="addEmailAddressesModal(waterAlerts.id, $index, 'WATERGURU')" href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i></a>
+                             </div>
+                             <div class="col-md-3 text-center col-alert col-active-inactive" alert-label="ACTIVE / INACTIVE">
+                                 <label class="switch" ng-click="waterGuruAlerts[$index].status = (waterGuruAlerts[$index].status==1 ? 0 : 1); submitWaterGuruForm()">
+                                   <span ng-class="{'active' : waterGuruAlerts[$index].status == '1'}" class="slider round"></span>
+                                 </label>
+                             </div>
+                             <div ng-if="($index+1)!=waterGuruAlerts.length" class="col-md-12"> <hr /> </div>
+                          </ng-container>
+                    </div>
+                  </div>
+                </div>
+               </div>
+               <div class="row">
+                 <div class="col">
+                   <error ng-if="customizeAlertErrorMessage" message="{{customizeAlertErrorMessage}}"></error>
+                 </div>
+               </div>
+               <input type="submit" id="waterGuruFormSubmit" style="display: none">
+             </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  
+    <div class="set-chem-form m-t20" ng-if="customizeAlertsList.length > 0">
+      <div class="spinner" ng-if="isProcessingCustom">
+        <div class="spinner-item">
+          <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="settingFormCustomAlert" ng-submit="settingFormCustomAlert.$valid ? saveCustomAlerts() : null" novalidate>
+        <div class="set-chem-price" style="width:100% !important">
+          <div class="set-chem-title">Custom Alerts</div>
+          <div class="set-chem-details">
+             <div>
+               <div class="pool-datagrid custom-alerts-box">
+                <div class="row thead">
+                  <div class="col-md-2">ALERT NAME</div>
+                  <div class="col-md-2 text-center">PARAMETER</div>
+                  <div class="col-md-2 text-center">CONDITION</div>
+                  <div class="col-md-1">NUMBER</div>
+                  <div class="col-md-5 text-center">
+                    <div class="row"  style="padding:0 ;">
+                      <div class="col-md-4 text-center" style="padding:0 5px ;">TRIGGER ON</div>
+                      <div class="col-md-3 text-center" style="padding:0 5px ;">EMAIL</div> 
+                    </div>
+                  </div>
+                   
+                </div>
+                <div class="row">
+                  <div class="col-md-12 pool-body-wrap p-lr20">
+                    <div class="row tbody" ng-repeat="customAlerts in customizeCustomAlertsList" ng-if="customAlerts.alertType=='CUSTOM' || customAlerts.alertType == 'CUSTOM_SYSTEM'" ng-class-odd="'odd'" ng-class-even="'even'" ng-init="customAlerts.alertType=='CUSTOM' ? calculateIconColor($index) : null">
+                          <ng-container>
+                            <div class="col-lg-2 col-md-3 col-alert title-btm-box" alert-label="ALERT NAME">
+                             
+                              <input class="form-control ipadp-w50" name="{{'alertName_'+[$index]}}"
+                                  ng-model="customizeCustomAlertsList[$index].alertName"
+                                  placeholder="Display Name" required="" type="text"
+                                  ng-keyup="customAlerts.alertType=='CUSTOM' ? cleanAlertNameString($index, customizeCustomAlertsList[$index].alertName) : null"
+                                  ng-click="clearCustomAlertInterval()"
+                                  ng-blur="submitCustomAlert()"
+                                  ng-maxLength="50"
+                                  ng-minLength="1"
+                                  ng-class="{'has-error': settingFormCustomAlert.$submitted && settingFormCustomAlert['alertName_'+[$index]].$invalid || settingFormCustomAlert['alertName_'+[$index]].$touched && settingFormCustomAlert['alertName_'+[$index]].$invalid}" />
+                                  <div class="priority-select">
+                                  <div class="select border-select custom-select custom-select-noimage">
+                                    
+                                    <select ng-model="customizeCustomAlertsList[$index].priorityLevel" ng-change="submitCustomAlert()">
+                                      <option value="{{priorityLevel.label}}" ng-repeat="priorityLevel in priorityLevelList">{{priorityLevel.name}}</option>
+                                    </select>     
+                                  </div>  
+                                 </div> 
+                                  
+                            </div>
+                            <div ng-if="customAlerts.alertType == 'CUSTOM'" class="col-lg-2 col-md-3 col-alert title-btm-box" alert-label="PARAMETER">
+                                <div class="dropdown select-wrap 01 ipadp-left ipadpp-50">
+                                   <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearCustomAlertInterval()" style="padding-left: 12px;min-height: 31px;">
+                                     <b>{{customizeCustomAlertsList[$index].parameter ? customizeCustomAlertsList[$index].parameter : ''}}</b><span class="caret"></span>
+                                   </button>
+                                   <ul class="dropdown-menu">
+                                     <li ng-repeat="option in parameterOptions track by $index"
+                                     ng-hide="customizeCustomAlertsList[$parent.$index].parameter==option"
+                                     ng-click="customizeCustomAlertsList[$parent.$index].parameter=option;calculateIconColor($parent.$index); submitCustomAlert()">
+                                     <a href="javascript:void(0)">{{option}}</a></li>
+                                   </ul>
+                                 </div>
+                            </div>
+                            <div ng-if="customAlerts.alertType == 'CUSTOM'" class="col-lg-2 col-md-3 col-alert title-btm-box" alert-label="CONDITION">
+                                 <div class="dropdown select-wrap  02 ipadp-left ipadpp-50"
+                                   ng-class="{'has-error': settingFormCustomAlert.$submitted && settingFormCustomAlert['checkLastJobValue_'+customAlerts.alertKey].$invalid ||  settingFormCustomAlert['checkLastJobValue_'+customAlerts.alertKey].$touched && settingFormCustomAlert['checkLastJobValue_'+customAlerts.alertKey].$invalid}">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="padding-left: 12px; min-height: 31px;" ng-click="clearCustomAlertInterval()">
+                                      <b>{{getConditionValue(customizeCustomAlertsList[$index].conditionVal)}}</b><span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                      <li ng-repeat="condOption in conditionOption track by $index"
+                                      ng-hide="customizeCustomAlertsList[$parent.$index].conditionVal==condOption.key"
+                                      ng-click="customizeCustomAlertsList[$parent.$index].conditionVal=condOption.key; calculateIconColor($parent.$index); submitCustomAlert()">
+                                      <a href="javascript:void(0)">{{condOption.value}} </a></li>
+                                    </ul>
+                                  </div>
+                            </div>
+                            <div ng-if="customAlerts.alertType == 'CUSTOM'" class="col-lg-1 col-md-3 col-alert title-btm-box device-alert-input-parent" alert-label="NUMBER">
+                              <input class="form-control ipadp-w50 device-alert-input" name="{{'triggerValue_'+[$index]}}"
+                                  ng-model="customizeCustomAlertsList[$index].triggerValue"
+                                  placeholder="" required="" type="text"
+                                  ng-click="clearCustomAlertInterval()"
+                                  ng-blur="customizeCustomAlertsList[$index].triggerValue && submitCustomAlert()"
+                                  allow-typing="^[0-9.]+$"
+                                  ng-pattern="/^([0-9.]+)$/"
+                                  ng-maxLength="10000"
+                                  ng-minLength="0"
+                                  ng-class="{'has-error': settingFormCustomAlert.$submitted && settingFormCustomAlert['triggerValue_'+[$index]].$invalid || settingFormCustomAlert['triggerValue_'+[$index]].$touched && settingFormCustomAlert['triggerValue_'+[$index]].$invalid}" />
+                                  <span class="device-alert-input-error" ng-if="(customizeCustomAlertsList[$index].triggerValue == '') && settingFormCustomAlert.$submitted && settingFormCustomAlert['triggerValue_'+[$index]].$invalid || settingFormCustomAlert['triggerValue_'+[$index]].$touched && settingFormCustomAlert['triggerValue_'+[$index]].$invalid">
+                                    value can't be blank
+                                  </span>
+                            </div>
+  
+                            <div ng-if="customAlerts.alertType == 'CUSTOM_SYSTEM'" style="padding-top: 25px;" class="col-md-2 drop-title col-alert text-center ipadp-left" alert-label="PARAMETER">
+                              <label>{{customAlerts.parameter}}</label>
+                            </div>
+                            <div ng-if="customAlerts.alertType == 'CUSTOM_SYSTEM'" class="col-md-3 text-center ipadp-left col-alert col-trigger-section col-trigger-value" alert-label="TRIGGER VALUE">
+                                <div class="row">
+                                    <div class="left-section-input col-lg-{{customAlerts.checkLastJobValue ? '8' : 8}}  col-md-{{customAlerts.checkLastJobValue ? '12' : 12}}">
+                                        <span>{{customAlerts.valueTopString}}</span>
+                                        <div class="dropdown select-wrap 03" ng-if="customAlerts.inputType=='SELECT' && customAlerts.valueType!='TIME'">
+                                           <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()">
+                                             <b>
+                                               {{customAlerts.valueType=='DOLLER'?'$':''}}
+                                               {{customAlerts.valueType=='TIME' ? convertIntoTime(customizeCustomAlertsList[$index].triggerValue) : customizeCustomAlertsList[$index].triggerValue}}
+                                               {{customAlerts.valueType=='DOLLER'?'.00':''}}
+                                               {{customAlerts.valueType=='PERCENT' ? '%': ''}}
+                                             </b><span class="caret"></span>
+                                           </button>
+                                           <ul class="dropdown-menu">
+                                             <li ng-repeat="option in parseSelectOptions(customizeCustomAlertsList[$index].selectOptions) track by $index"
+                                             ng-hide="customizeCustomAlertsList[$parent.$index].triggerValue==option"
+                                             ng-click="customizeCustomAlertsList[$parent.$index].triggerValue=option;setLateTime(customAlerts.alertKey, $parent.$index, option);submitCustomAlert()">
+                                               <a href="javascript:void(0)">
+                                                 {{customAlerts.valueType=='DOLLER'?'$':''}}
+                                                 {{customAlerts.valueType=='TIME' ? convertIntoTime(option) : option}}
+                                                 {{customAlerts.valueType=='DOLLER'?'.00':''}}
+                                                 {{customAlerts.valueType=='PERCENT' ? '%': ''}}
+                                               </a>
+                                             </li>
+                                           </ul>
+                                         </div>
+                                         <div class="dropdown select-wrap 03" ng-if="customAlerts.inputType=='SELECT' && customAlerts.valueType=='TIME'"
+                                         ng-init="parseTimeForLatStart($index, customizeCustomAlertsList[$index].triggerValue, 'custom')">
+                                             <div class="input-group">
+                                                 <input type="text" datetimepicker datetimepicker-disable-drop options="dateTimePickerOption" ng-model="customizeCustomAlertsList[$index].triggerValueMoc"
+                                                   on-change="lateStartOnChange(customizeCustomAlertsList[$index].triggerValueMoc, $index,   'custom');"
+                                                   ng-click="clearInterval()"
+                                                  ps-datetime-picker class="form-control">
+                                                 <span class="input-group-addon datetimepicker-icon "><span class="fa fa-calendar"></span></span>
+                                             </div>
+                                         </div>
+                                         <div class="input-withziro">
+                                           
+                                         <span ng-if="customAlerts.alertKey=='PSI_AT_ZERO'" class="customizealerts-eq">=</span>
+                                         <span ng-if="customAlerts.alertKey=='CHEM_COST_HIGH'" class="customizealerts-eq">$</span>
+                                         <input ng-if="customAlerts.inputType=='INPUT' &&  customAlerts.alertKey=='CHEM_COST_HIGH'"
+                                            class="form-control" name="{{'triggerValue_'+[$index]+'_'+customAlerts.alertKey}}"
+                                            ng-model="customizeCustomAlertsList[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9]*[1-9][0-9]*(\.[0-9]+)?|[1]+\.[1-9]*[1-9][1-9]*)$/"
+                                            style="margin-top: 18px"
+                                            ng-blur="submitCustomAlert()"
+                                            ng-click="clearInterval()"
+                                            ng-maxLength="{{customAlerts.maxValues > 0 ? customAlerts.maxValues : 100}}"
+                                            ng-minLength="{{customAlerts.minValues}}"
+                                            ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$invalid}" valid-number/>
+                                            <input ng-if="customAlerts.inputType=='INPUT' &&  customAlerts.alertKey!= 'CHEM_COST_HIGH'"
+                                            class="form-control" name="{{'triggerValue_'+[$index]+'_'+customAlerts.alertKey}}"
+                                            ng-model="customizeCustomAlertsList[$index].triggerValue" placeholder="" required="" type="text" ng-pattern="/^([0-9.]+)$/"
+                                            style="margin-top: 18px"
+                                            ng-blur="submitCustomAlert()"
+                                            ng-click="clearInterval()"
+                                            ng-maxLength="{{customAlerts.maxValues > 0 ? customAlerts.maxValues : 100}}"
+                                            ng-minLength="{{customAlerts.minValues}}"
+                                            ng-class="{'has-error': settingForm.$submitted && settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$invalid || settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$touched && settingForm['triggerValue_'+[$index]+'_'+customAlerts.alertKey].$invalid}" />
+                                          </div><span>{{customAlerts.valueBottomString}}</span>
+                                    </div>
+                                    <div class="col-lg-4 col-md-12 select-wrap-two p-lr0 reset-col-pad" ng-if="customAlerts.checkLastJobValue">
+                                      <span>over the last</span>
+                                        <div class="dropdown select-wrap 04"
+                                        ng-class="{'has-error': settingForm.$submitted && settingForm['checkLastJobValue_'+customAlerts.alertKey].$invalid ||  settingForm['checkLastJobValue_'+customAlerts.alertKey].$touched && settingForm['checkLastJobValue_'+customAlerts.alertKey].$invalid}">
+                                         <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="clearInterval()">
+                                           <b>{{customizeCustomAlertsList[$index].checkLastJobValue ? customizeCustomAlertsList[$index].checkLastJobValue : ''}}</b><span class="caret"></span>
+                                         </button>
+                                         <ul class="dropdown-menu">
+                                           <li ng-repeat="num in visitsArray track by $index"
+                                           ng-hide="customizeCustomAlertsList[$parent.$index].checkLastJobValue==($index+1)"
+                                           ng-click="customizeCustomAlertsList[$parent.$index].checkLastJobValue=($index+1); submitCustomAlert()"><a href="javascript:void(0)">{{$index+1}}</a></li>
+                                         </ul>
+                                       </div>
+                                       <span>visits</span>
+                                    </div>
+                                </div>
+                            </div>
+  
+                            <div class="col-lg-5 col-md-12 text-center  ipadp-left custom-triggeron col-alert"  alert-label="TRIGGER ON">
+  
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-6 custom-triggeron-left p-t20 trigger-setting-section">
+                                        {{customAlerts.triggerStatus | capitalize}} <a title="Edit" class="underline-none setting-btn" ng-click="addTrigger(customAlerts.serviceLevel,customAlerts.isSalt,$index,true,customAlerts.visits,customAlerts.alertKey, customAlerts)" href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> </a>
+                             
+                                        <input type="hidden"  name="{{'isSalt_'+[$index]}}"  ng-model="customizeCustomAlertsList[$index].isSalt" value="{{customAlerts.isSalt}}">
+
+                                   
+                                        <input
+                                        class="form-control"
+                                        name="{{'serviceLevel_'+[$index]}}"
+                                        ng-model="customizeCustomAlertsList[$index].serviceLevel"
+                                        type="hidden"
+                                        value="{{customAlerts.serviceLevel}}"
+                                        />
+                                        <input
+                                        class="form-control"
+                                        name="{{'triggerStatus_'+[$index]}}"
+                                        ng-model="customizeCustomAlertsList[$index].triggerStatus"
+                                        type="hidden"
+                                        value="{{customAlerts.triggerStatus}}"
+                                          />
+                                      
+                                      
+                      
+                                      </div>
+                                      <div class="col-md-3 text-center col-alert trigger-setting-section triggeron-section p-t20" style="opacity:{{customizeCustomAlertsList[$index].id ? 1 : 0.5}};" alert-label="EMAIL">
+                                        {{customAlerts.isEmailAlertOn ? 'yes' : 'no' | capitalize}} 
+                                        <a 
+                                          title="Edit" 
+                                          class="underline-none setting-btn" 
+                                          ng-click="customizeCustomAlertsList[$index].id ? addEmailAddressesModal(customAlerts.id, $index, 'CUSTOM') : null" 
+                                          href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> 
+                                        </a>
+                                      </div>
+                                      <div class="col-lg-5 col-md-4 custom-triggeron-right">
+                                        <div class="action-section-btm ipadp-left ipadpp-52">
+                                          <label class="switch" ng-click="customizeCustomAlertsList[$index].status = (customizeCustomAlertsList[$index].status==1 ? 0 : 1); submitCustomAlert()">
+                                              <span ng-class="{'active' : customizeCustomAlertsList[$index].status == '1'}" class="slider round"></span>
+                                           </label>
+                                           <img class="link-trash" ng-click="deleteRow(customAlerts, $index)"  border="0" src="resources/images/icon-trash.png" />
+  
+                                           <a href="javascript:void(0)" ng-click="addDuplicateRow(customAlerts)" class="icon-action">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+                                                <g fill="#384B5E" fill-rule="evenodd">
+                                                    <path d="M22 13.628c-.076.096-.057.218-.081.327-.304 1.338-1.501 2.35-2.875 2.407-.457.019-.914.001-1.37.01-.142.004-.165-.055-.163-.177.005-.457.007-.914 0-1.371-.003-.134.043-.17.171-.168.378.006.757.01 1.135-.003.678-.023 1.24-.466 1.405-1.087a1.22 1.22 0 0 0 .032-.318c.002-3.343.004-6.685.001-10.028 0-.793-.645-1.42-1.462-1.423-1.956-.006-3.912-.002-5.868-.003-1.37 0-2.741-.003-4.112.001-.771.002-1.437.55-1.5 1.256-.033.382-.017.77-.008 1.156.004.157-.034.209-.199.205-.456-.012-.914-.004-1.37-.005-.076 0-.167.02-.164-.105.014-.676-.064-1.358.133-2.022C6.082 1.008 7.29.058 8.62.052 12.06.04 15.5.038 18.942.052c1.497.007 2.786 1.162 3.011 2.638.008.048.004.1.047.137v10.801z"/>
+                                                    <path d="M1.828 13.785c0 1.698-.001 3.395.001 5.093.001.8.608 1.409 1.413 1.41 3.363.002 6.725.002 10.087-.001.674 0 1.242-.478 1.36-1.141.076-.438.03-.883.03-1.324.004-3.024.003-6.048.003-9.073 0-.298-.065-.579-.234-.83-.322-.481-.788-.639-1.348-.638-3.269.007-6.538.003-9.807.005-.15 0-.302.011-.447.045-.654.154-1.057.706-1.058 1.447-.002 1.669 0 3.338 0 5.007m6.381 8.121H3.273C1.4 21.905 0 20.513 0 18.65V8.828c.001-1.846 1.404-3.248 3.26-3.25 3.306-.004 6.61-.003 9.916 0 1.837 0 3.252 1.407 3.253 3.237.004 3.296.004 6.591.002 9.887a3.195 3.195 0 0 1-3.221 3.204c-1.667.002-3.334 0-5 0"/>
+                                                </g>
+                                            </svg>
+                                            <span>Duplicate</span>
+                                          </a>
+                                        </div>
+                                        </div>
+                                      </div>
+  
+                            </div>
+                            
+                             <div class="col-md-12"> <hr /> </div>
+                          </ng-container>
+                    </div>
+                    <div class="row tbody" >
+                        <div class="col-md-12">
+                          <div class="add-new-row" ng-click="addCustomAlert()">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                               <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"/>
+                             </svg><span>  Add New </span>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+               </div>
+               <div class="row">
+                 <div class="col">
+                   <error ng-if="customAlertErrorMessage" message="{{customAlertErrorMessage}}"></error>
+                 </div>
+               </div>
+               <input type="submit" id="customAlertSubmit" style="display: none">
+  
+  
+             </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  
+    <div class="set-chem-form m-t20" ng-if="issueReportAlertsList.length > 0">
+      <div class="spinner" ng-if="isProcessingIssueAlert">
+        <div class="spinner-item">
+          <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+        </div>
+      </div>
+      <form class="set-chem-form" name="issueSettingForm" ng-submit="issueSettingForm.$valid ? updateIssueAlerts() : null" novalidate>
+        <div class="set-chem-price" style="width:100% !important">
+          <div class="set-chem-title">
+            Issue Report Alerts
+          </div>
+          <div class="set-chem-details">
+             <div>
+               <div class="pool-datagrid custom-alerts-box custom-alerts-top">
+                <div class="row thead">
+                  <div class="col-md-2">ALERT NAME</div>
+                  <div class="col-md-2 text-center"></div>
+                  <div class="col-md-6 text-center">PRIORITY &nbsp; &nbsp;</div>
+                  <div class="col-md-2 text-center">EMAIL &nbsp; &nbsp;</div>
+                  
+                </div>
+                <div class="row">
+                  <div class="col-md-12 pool-body-wrap p-lr20">
+                    <div class="row tbody" ng-repeat="issueAlerts in issueReportAlertsList"  ng-class-odd="'odd'" ng-class-even="'even'">
+                          <ng-container>
+                            <div class="col-md-2 drop-title col-alert" alert-label="ALERT NAME">
+                              <label>{{issueAlerts.alertName}}
+                               
+                              </label>                           
+                            </div>
+                            <div class="col-md-2 drop-title col-alert" alert-label="ALERT NAME">
+                              <label>
+                                <a class="icon-required toggle-icon font-large" ng-click="toggleIssueAlertsRequired($index)">
+                                  <i class="fa fa-exclamation-circle" ng-class="{active: issueReportAlertsList[$index].required }" aria-hidden="true"></i>
+                                  <span>{{(issueReportAlertsList[$index].required ? 'Notes Required' : 'Notes Optional')}}</span>
+                                </a> 
+                                <a class="icon-required toggle-icon font-large m-l20" style="font-size: 20px;" ng-click="toggleIssueAlertsPhoto($index)">
+                                  <i class="fa fa-camera" ng-class="{active: issueReportAlertsList[$index].photo }" aria-hidden="true"></i>
+                                  <span>{{(issueReportAlertsList[$index].photo ? 'Photo Required' : 'Photo Optional')}}</span>
+                                </a>
+                              </label>                           
+                            </div>
+                            
+                            
+                             <div class="col-md-6 text-center col-alert col-active-inactive"  alert-label="Priority">
+                              <div class="select border-select custom-select custom-select-noimage">
+                                <select ng-model="issueReportAlertsList[$index].priorityLevel" ng-change="submitIssueAlertForm()">
+                                  <option value="{{priorityLevel.label}}" ng-repeat="priorityLevel in priorityLevelList">{{priorityLevel.name}}</option>
+                                </select>     
+                              </div>  
+  
+                             </div>
+                             <div class="col-md-2 text-center col-alert trigger-setting-section triggeron-section p-t20"  alert-label="EMAIL">
+                              {{ issueReportAlertsList[$index].isEmailAlertOn ? 'yes' : 'no' | capitalize}} 
+                              <a 
+                                title="Edit" 
+                                class="underline-none setting-btn" 
+                                ng-click="addEmailAddressesModal( issueReportAlertsList[$index].id, $index, 'ISSUE')" 
+                                href="javascript:void(0)"> <i class="fa fa-gear" aria-hidden="true"></i> 
+                              </a>
+                            </div>
+                             <div ng-if="($index+1)!=issueReportAlertsList.length" class="col-md-12"> <hr /> </div>
+  
+                          </ng-container>
+                    </div>
+                  </div>
+                </div>
+               </div>
+               <div class="row">
+                 <div class="col">
+                   <error ng-if="issueAlertErrorMessage" message="{{issueAlertErrorMessage}}"></error>
+                 </div>
+               </div>
+               <input type="submit" id="issueAlertSubmit" style="display: none">
+  
+             </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script type="text/ng-template" id="deletCustomAlertConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>      
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to delete custom alert?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="confirmCustomAlertAction(customAlertObj, index)">OK</button>
+           </div>
+         </div>
+       </div>
+     </div>
+    </script>
+  
+  <script type="text/ng-template" id="resetToDefaultConfirm.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to reset to default settings?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="confirmResetAction()">OK</button>
+           </div>
+         </div>
+       </div>
+     </div>
+    </script>
+  
+    <script type="text/ng-template" id="addTriggerTemplate.html" >
+      <div class="dataTables_wrapper modal-box common-popup" style="max-width: 350px; min-height: auto;">
+        <div class="spinner" ng-if="isProcessing">
+          <div class="spinner-item">
+            <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+          </div>
+        </div>
+        <error ng-if="triggerModelError" message="{{triggerModelError}}"></error>
+        <div class="popup-header">
+          <span class="heading">TRIGGER ON</span>
+          <div class="popup-close" ng-click="closeTriggerModal()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+          </div>
+          <div>
+              <form class="form-signin trigger-alert-form" id="triggerModelForm" name="triggerModelForm" ng-submit="triggerModelForm.$valid && updateAlertTrigger(alertSelectedIndex)" novalidate>
+                  <div class="row">
+                      <div class="col-lg-12">
+                      <div class="formGroup">
+                        <div class="radio-default2">
+                          <label for="frequencyType1" >
+                            Always 
+                            <input type="radio" name="frequencyType" id="frequencyType1" ng-model="triggerModel.frequencyType" ng-checked="triggerModel.frequencyType == 1" ng-change="setFrequency(1)" ng-disabled="triggerModel.frequencyType == 1" />
+                            <span></span>
+                          </label>                    
+                        </div>
+                        <div class="radio-default2" ng-hide="alertKey == 'PSI_TRENDING_DOWN' || alertKey == 'SALT_TRENDING_DOWN'">
+                          <label for="frequencyType2" >
+                            ( X ) Consecutive visits  <input type="number" ng-min="1" ng-if="triggerModel.frequencyType != 1" class="input-under-radio" name="frequency" id="frequency" ng-model="triggerModel.visits" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)"  ng-blur="frequencyKeyUp(triggerModel.visits)" ng-change="checkVisitInput(triggerModel.visits)"/>
+                            <input type="radio" name="frequencyType" id="frequencyType2" ng-model="triggerModel.frequencyType" ng-checked="triggerModel.frequencyType != 1" ng-change="setFrequency(2)" ng-disabled="triggerModel.frequencyType == 2" />
+                            <span></span>
+                          </label>              
+                        </div>
+                        <hr id="trigger-hr" />
+                          <div class="trigger-model-cb">
+                            <div class="radio-default2" >
+                              <label for="isSaltTrigger" >
+                                Working Salt System
+                                <input type="radio"  name="isSaltTrigger" id="isSaltTrigger" value="1" ng-model="triggerModel['isSalt']" ng-checked="triggerModel['isSalt'] == 1"/>
+                                <span></span>
+                              </label>
+                            </div>
+                          </div>
+                          <div class="trigger-model-cb">
+                            <div class="radio-default2" >
+                              <label for="noSaltTrigger" >
+                                No Salt System
+                                <input type="radio"  name="noSaltTrigger" id="noSaltTrigger" value="0" ng-model="triggerModel['isSalt']" ng-checked="triggerModel['isSalt'] == 0"/>
+                                <span></span>
+                              </label>
+                            </div>
+                          </div>
+                          <div class="trigger-model-cb">
+                            <div class="radio-default2" >
+                              <label for="bothTrigger" >
+                                Both
+                                <input type="radio"  name="bothTrigger" id="bothTrigger" value="2"  ng-model="triggerModel['isSalt']" ng-checked="triggerModel['isSalt'] == 2"/>
+                                <span></span>
+                              </label>
+                            </div>
+                          </div>
+                          <hr id="trigger-hr" ng-if="showWaterGuru" />
+                          <div class="trigger-model-cb" ng-if="showWaterGuru">
+                            <div  class="checkbox-default" >
+                              <label for="isRemoteMonitoringData" >
+                                Remote Monitoring Data 
+                                <input type="checkbox" name="isRemoteMonitoringData" id="isRemoteMonitoringData" ng-model="triggerModel['isRemoteMonitoringData']" value="{{triggerModel.isRemoteMonitoringData}}" />
+                                <span></span>
+                              </label>
+                            </div>
+                          </div>
+                          <hr id="trigger-hr"/>
+                          <div class="main-title">Service Level</div>
+                          <div class="service-level-scroll colored-scroll-bar">
+                          <div class="trigger-model-cb" ng-repeat="serviceLevel in serviceLevelList">
+                            <div  class="checkbox-default" >
+                              <label for="serviceLevel{{serviceLevel.id}}" >
+                                {{serviceLevel.title}} 
+                                <input type="checkbox"  name="trigger" id="serviceLevel{{serviceLevel.id}}" ng-model="triggerModel['serviceLevel'][serviceLevel.id]" value="{{serviceLevel.id}}" />
+                                <span></span>
+                              </label>
+                            </div>
+                          </div>    
+                          </div>                                              
+                        </div>                  
+                      </div>
+                    </div>
+                 <div class="technicians-button">
+                   <button style="position: inherit !important;" id="addCustomerSubmitButton" class="add-button " type="submit">Update</button>
+                 </div>
+               </form>
+          </div> 
+      </div>
+      </script>
+
+      <script type="text/ng-template" id="addEmailAddresses.html" >
+        <div class="dataTables_wrapper modal-box common-popup" style="max-width: 500px; min-height: auto;">
+          <div class="spinner" ng-if="isProcessingEmailAdd">
+            <div class="spinner-item">
+              <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+            </div>
+          </div>
+          <div class="popup-header">
+            <span class="heading">EMAIL ON ALERT</span>
+            <div class="popup-close" ng-click="closeTriggerModal()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+            </div>
+            <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+              <success ng-if="emailOnAlertValidationSuccess" message="{{emailOnAlertValidationSuccess}}"></success>
+            </div>
+            <div class="popup-body text-center">
+              <div class="row-container">
+                <div>When this alert is triggered, a notification will be sent separately to each email below</div>
+                <br />
+                <div class="detail-box" id="scrollarea" style="overflow:auto; height:300px;">
+                  <form id="emailOnAlert" name="emailOnAlert" novalidate autocomplete="off">  
+                    <div class="poolType-wrap" ng-if="emailAddress.length > 0" ng-repeat="emailAdd in emailAddress">
+                      <div>
+                      <input type="email" 
+                        name="email_{{$index}}"
+                        id="email_{{$index}}"
+                        class="form-control grey-border-input"
+                        ng-class="{'has-error': emailOnAlertValidationError[$index]}"
+                        ng-model="emailAddress[$index].email" 
+                        ng-blur="addEmailOnAlert(emailAddress[$index].email, $index, emailAdd.id)" 
+                        ng-keyPress="emailOnAlertValidationError[$index]=null; $event.which === 13 ? addEmailOnAlert(emailAddress[$index].email, $index, emailAdd.id) : null;"
+                        ng-maxlength="50" 
+                        ng-minlength="6"
+                        autocomplete="new-password"
+                        placeholder="Email Address"
+                      />
+                      <small style="color: red;" ng-if="emailOnAlertValidationError[$index]">{{emailOnAlertValidationError[$index]}}</small>
+                      </div>
+                      <a class="delete" href="javascript:void(0)" ng-click="removeEmailInput(emailAdd.id,$index)">
+                        <i class="fa fa-times" style="visibility: visible"></i>
+                      </a>
+                    </div>
+                  </form>
+                  <div ng-if="emailAddress.length < 10" class="set-chem-button m-b20" style="text-align: center;">
+                    <a href="javascript:void(0)" ng-click="addEmailInput()">ADD EMAIL <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
+                  </div>
+                </div>
+               
+              </div>
+            </div> 
+        </div>
+      </script>
+
+      <script type="text/ng-template" id="deletEmailFromCustomAlertConfirm.html" >
+        <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+          <div class="popup-header">
+            <div class="h-1-5x b white text-center">Confirm</div>          
+          </div>
+           <div class="popup-body text-center">
+             <div class="row-container">
+               <div><label>Are you sure you want to delete Email?</label></div>
+               <br />
+               <div class="set-chem-button m-b20" style="text-align: center;">
+                 <button class="add-button" type="submit" ng-click="closeDeleteEmailModal()">CANCEL</button>&nbsp;
+                 <button class="add-button" style="background-color:red" type="submit" ng-click="confirmEmailCustomAlertAction(customAlertObj, index)">DELETE</button>
+               </div>
+             </div>
+           </div>
+         </div>
+        </script>
+        
+        <script type="text/ng-template" id="dismissAllAlertConfirm.html">
+          <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+            <div class="popup-header">
+              <div class="h-1-5x b white text-center">Confirm</div>
+            </div>
+             <div class="popup-body text-center">
+               <div class="row-container">
+                 <div><label>Are you sure you want to dismiss all alerts?</label></div>
+                 <br />
+                 <div class="set-chem-button m-b20" style="text-align: center;">
+                   <button class="add-button" type="submit" ng-click="closeModal()">CANCEL</button>&nbsp;
+                   <button class="add-button" style="background:#ff0000" type="submit" ng-click="confirmDismissAllAlertAction()">YES</button>
+                 </div>
+               </div>
+             </div>
+        
+          </div>
+         </script>
+
+
+       

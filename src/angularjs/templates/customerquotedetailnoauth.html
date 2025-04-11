@@ -1,0 +1,825 @@
+<style>#intercom-frame, .intercom-lightweight-app{display: none !important;}</style>
+<div class="white-bg text-left p-20 p-relative m-b20 mobile_responsive m-r20 remove-for-print" style="min-height:800px;" ng-init="getQuotesDetails();">
+    <div class="spinner" ng-if="isProcessing">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+    </div>
+    <div class="remove-for-print p-relative" >
+        <div style="position: absolute; z-index: 1; left: 0px; top: -30px; right: 0; padding: 0px;">
+            <success ng-if="successMsg" message="{{successMsg}}"></success>
+            <error ng-if="error" message="{{error}}"></error>
+        </div>
+    </div> 
+    <div class="customer second-address-print add-for-print">
+        <a href="{{quotesDetails.billingDetails.isPrimary ? '/app/customerdetail/' : '/app/locationdetail/' }}{{quotesDetails.billingDetails.addressId}}" class="i-title print-clr-dark print-22x remove-for-print">{{quotesDetails.billingDetails.name}}</a>
+        <a href="#" class="i-title print-clr-dark print-20x add-for-print">{{quotesDetails.billingDetails.name}}</a>
+        <div class="h-2x print-16x">
+            {{quotesDetails.billingDetails.address}}</br>
+            {{quotesDetails.billingDetails.city}}, {{quotesDetails.billingDetails.state}} {{quotesDetails.billingDetails.zipCode}}
+            
+        </div>
+        <p class="h-0-5x remove-for-print">
+            <span ng-if="quotesDetails.billingDetails.phone">
+            <phone-Number number="{{quotesDetails.billingDetails.phone}}"></phone-Number><br /></span>
+            <span  ng-if="quotesDetails.billingDetails.email">{{quotesDetails.billingDetails.email}}</span>
+        </p>
+    </div> 
+    <div class="col-md-5 service-address-print add-for-print">   
+        <div ng-repeat="invoice in quotesDetails.details">             
+            <div class="sub-title-custom">Service Address</div>                
+            <div class="h-2x print-16x">
+                {{invoice.serviceAddress.address}}</br>
+                {{invoice.serviceAddress.city}}, {{invoice.serviceAddress.state}} {{invoice.serviceAddress.zipCode}}
+            </div> 
+        </div>               
+    </div> 
+    <div ng-if="invoiceNotFoundStatus" class="invoice-not-found">
+        {{invoiceNotFoundText}}
+    </div>
+    
+  
+    <div  ng-if="!invoiceNotFoundStatus" class="container invoice-detail-page public-quotes-detail-page darkGray" ng-init="getPayaSettingsNonAuth()">
+        <div class="envalop-window-wrapper">
+            <div class="row add-for-print print-top-header">
+                <div class="col-md-6 company-add">
+                    <div class="flex">
+                        <div ng-if="quotesDetails.companyDetails.logo">
+                            <img style="max-width: 150px!important; max-height:100px; padding-right: 20px;" src="{{quotesDetails.companyDetails.logo}}" />
+                        </div>                   
+                        <div class="customer">
+                        
+                            <div class="h-2x print-16x">
+                                {{quotesDetails.companyDetails.address}}</br>
+                                {{quotesDetails.companyDetails.city}}, {{quotesDetails.companyDetails.state}} {{quotesDetails.companyDetails.zipCode}}
+                            </div>
+                            <p class="h-2x print-16x">
+                                <phone-Number ng-if="quotesDetails.companyDetails.phone" number="{{quotesDetails.companyDetails.phone}}"></phone-Number>                      
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="col-md-12">  
+                        <div class="h-3x text-right">
+                            <strong>Quote #{{quotesDetails.quoteNumber}}</strong>
+                            <span class="p-l20" ng-if="quotesDetails.createdOn">{{quotesDetails.createdOn | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</span>                
+                            <p><strong class="upperCase">{{quotesModel.status}}</strong></p>              
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-right">  
+                        <!-- <p class="upperCase h-2x darkGray p-t10"><strong>DUE ON {{quotesDetails.dueDate | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</strong></p> -->
+                        <div ng-if="quotesDetails.invoiceStatus == 'Past Due'" class="status upperCase {{quotesDetails.invoiceStatus}}">
+                            {{quotesDetails.invoiceStatus}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-section">
+            <div class="col-md-3 remove-for-print">                               
+                <div class="customer">
+                    <div class="h-0-5x">
+                        <div ng-if="quotesDetails.companyDetails.logo" class="m-b10">
+                            <a href="{{quotesDetails.companyDetails.website}}" target="_blank" class="remove-for-print">
+                                <img style="max-width: 250px!important; max-height:200px; padding-right: 20px;" src="{{quotesDetails.companyDetails.logo}}" />
+                            </a>
+                            <img style="max-width: 250px!important; max-height:200px; padding-right: 20px;" src="{{quotesDetails.companyDetails.logo}}" class="add-for-print"/>
+                        </div>    
+                        <div class="h-2x" ng-if="quotesDetails.companyDetails.name"><strong>{{quotesDetails.companyDetails.name}}</strong></div>
+                        <div>{{quotesDetails.companyDetails.replyTo ? quotesDetails.companyDetails.replyTo : (quotesDetails.companyDetails.email ? quotesDetails.companyDetails.email : '') }}</div>
+                        <span ng-if="quotesDetails.companyDetails.phone"><phone-Number number="{{quotesDetails.companyDetails.phone}}"></phone-Number></span>
+                    </div>
+                </div>                
+            </div>
+           
+            <div class="col-md-5 remove-for-print">
+                <div class="flex align-items-center justify-content-flex-start small-noflex">
+                    <div class="h-3x p-r20">
+                        <strong ng-if="quotesDetails.quoteNumber">Quote #{{quotesDetails.quoteNumber}}</strong>
+                        <span class="p-l20" ng-if="quotesDetails.quoteNumber">{{quotesDetails.createdOn | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</span>                 
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 remove-for-print" ng-if="(quotesDetails | json) != '{}'">
+                <div class="flex justify-content-flex-end small-noflex">
+                    <div class="m-r20 small-">
+                        <div class="flex align-items-center small-noflex">
+                            <span ng-click="generatePdf()" class="custom-pdf-icon m-r20">PDF</span>
+                            <i class="fa fa-print light-blue icon-large pointer" ng-click="printQuotes()"></i>
+                        </div>
+                        
+                    </div>
+                    <div class="text-center">
+                        <div class="pqd-action-btns" ng-if="quotesDetails.status==='Open'">
+                            <button ng-click="stausNoAuthChange('Approved')" type="button" class="btn btn-take-payment btn-pqd-btn-approve">APPROVE</button>
+                            <button ng-click="stausNoAuthChange('Denied')" type="button" class="btn btn-take-payment btn-pqd-btn-deny">DENY</button>
+                        </div>
+                        <div class="pqd-action-btns" ng-if="quotesDetails.status!=='Open'">
+                            <button type="button" class="btn btn-take-payment btn-pqd-btn-status-{{(quotesDetails.status).toLowerCase()}} btn-pqd-btn-no-click">{{quotesDetails.status}}</button>
+                        </div>
+                        <div class="pqd-action-btns" >
+                            <button type="button" class="btn add-button btn-ask-a-question" ng-click="askQuestionModalOpen()">Ask a question</button>
+                        </div>
+                        <!-- <p class="upperCase h-2x darkGray p-t10 "><strong>QUOTE ON {{quotesDetails.quoteDate | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</strong></p> -->
+                        <!-- <p class="h-1x darkGray"><strong>Body of Water : {{quotesDetails.waterBodyName}}</strong></p> -->
+                        <div ng-if="quotesDetails.invoiceStatus == 'Past Due'" class="status upperCase {{quotesDetails.invoiceStatus}}">
+                            {{quotesDetails.invoiceStatus}}
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <div class="row bottom-section text-center h-3x p-r20" ng-if="quotesDetailsLoaded && !quotesDetails.quoteNumber">
+            <strong>This quote has been deleted by the company.</strong>
+          </div>
+        <div class="row bottom-section row-eq-height" ng-repeat="invoice in quotesDetails.details">
+            <div class="col-md-12">
+                <div class="row invoice-grid-small">
+                    <div class="col-md-3 col-xs-6 remove-for-print">  
+                        <div class="sub-title-custom">Bill To</div>            
+                        <span class="i-title print-clr-dark print-22x sub-title-custom-dark i-title-sm">{{quotesDetails.billingDetails.name}}</span>
+                        <div class="h-2x">
+                            {{quotesDetails.billingDetails.address}}</br>
+                            {{quotesDetails.billingDetails.city}}, {{quotesDetails.billingDetails.state}} {{quotesDetails.billingDetails.zipCode}}
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-xs-6 remove-for-print">  
+                        <div class="sub-title-custom">Service Address</div>            
+                        <span class="i-title print-clr-dark print-22x sub-title-custom-dark i-title-sm"></span>
+                        <div class="h-2x">
+                            {{invoice.serviceAddress.address}}</br>
+                            {{invoice.serviceAddress.city}}, {{invoice.serviceAddress.state}} {{invoice.serviceAddress.zipCode}}
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-6 remove-for-print">
+                        <div class="sub-title-custom">Title</div>                       
+                        <div class="h-2x sub-title-custom-dark">
+                            {{quotesDetails.title}}
+                        </div>                
+                    </div>
+                    <div class="col-md-2 col-xs-6 remove-for-print">
+                        <div class="sub-title-custom">Body of Water</div>                       
+                        <div class="h-2x sub-title-custom-dark">
+                            {{quotesDetails.waterBodyName}}
+                        </div>                
+                    </div>
+                </div>
+         <!---   <div class="col-md-12" ng-if="quotesDetails.invoiceType != 'OneOffJob'">
+                <div class="row">      
+                    <div class="col-md-3 col-xs-12 m-b20">
+                        <div class="sub-title-date p-l0">Service Dates</div>
+                    </div>     
+                </div>
+                <div class="row">                   
+                    <div class="col-md-3 m-b20"> 
+                        <div ng-repeat="waterBody in invoice.serviceDetails">
+                            <div ng-if="waterBody.customerPayType == 'Per Visit'" class="print-18x" ng-repeat="job in waterBody.jobDetails" ng-init="uniqueDate(job)">
+                                <div ng-if="$parent.$parent.$last && $parent.$last && $parent.$parent.$parent.$first" ng-repeat="date in jobArray track by $index" >{{date | date: 'MM/dd/yy' }}</div>
+                            </div>   
+                        
+                            <div class="nowrap" ng-if="((waterBody.customerPayType == 'Monthly Flat Rate' && quotesDetails.invoiceTo && quotesDetails.invoiceFrom) || (waterBody.jobDetails.length == 0 && invoice.serviceTotalAmount.totalAmount == 0 )) && $index==0" class="print-18x">
+                            <div  ng-if="waterBody.jobDetails.length == 0">No route stops from </div>  {{quotesDetails.invoiceFrom | date: 'MM/dd/yy' }} - {{quotesDetails.invoiceTo | date: 'MM/dd/yy' }}                          
+                            </div>
+                        </div>
+                    </div>
+                  <div class="col-md-9" ng-if="!quotesDetails.isInvoiceQBOSynced">
+                        <div class="row" ng-repeat="waterBody in invoice.serviceDetails"> 
+                            <div class="col-md-9">
+                                <div class="h-2x print-20x"><strong>{{waterBody.waterBodyName}} - {{waterBody.serviceLevelTitle}}</strong> ({{waterBody.poolType}})</div>
+                                <div class="h-1-5x print-16x">{{waterBody.serviceLevelDescription}}</div> 
+                                <hr class="m-tb10" />
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-right h-2x print-20x">{{waterBody.jobTotal ? waterBody.jobTotal : waterBody.jobRateTotal | currency}}</div>
+                            </div>
+                            <div class="col-md-12">
+                            <div class="row" ng-if="waterBody.chemicalDetails.rows.length > 0">
+                                <div class="m-t10 col-md-9">
+                                    <label class="m-b0 h-2x print-20x">Chemicals Added for {{waterBody.waterBodyName}}</label>                          
+                                    <div ng-repeat="chem in waterBody.chemicalDetails.rows" class="checmical-detail-in-invoice row">
+                                        <span class="col-md-5">{{chem.keyValue}}</span> 
+                                        <div class="col-md-7">
+                                            <div class="row small-padding">
+                                                <div class="col-md-8">{{chem.qty | number : '2'}} &nbsp;x&nbsp; {{chem.rate | currency}} <small>({{chem.unit}})</small></div> 
+                                                <div class="col-md-1">=</div> 
+                                                <div class="col-md-3 text-right print-20x">{{chem.total | currency}}</div>
+                                            </div>                               
+                                        </div>                             
+                                    </div> 
+                                    <hr class="m-t10 m-b20" />                                                 
+                                </div>
+                                <div class="col-md-3 m-t10" ng-if="waterBody.chemicalDetails.rows.length > 0">
+                                    <div class="text-right h-2x print-20x">{{waterBody.chemicalDetails.total | currency}}</div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9" ng-if="quotesDetails.isInvoiceQBOSynced">
+                        <div class="row" ng-repeat="lineItem in invoice.lineData"> 
+                            <div class="col-md-9">
+                                <div class="h-2x print-20x"><strong>{{lineItem.title}}</strong></div>
+                                <div class="h-1-5x print-16x"  style="white-space: pre-line">{{lineItem.description}}</div> 
+                                <hr class="m-tb10" />
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-right h-2x print-20x">{{lineItem.amount | currency}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  -->
+        <!--    <div class="col-md-12" ng-if="quotesDetails.invoiceType == 'OneOffJob' || quotesDetails.invoiceType == 'Manual'"> -->
+            <div class="col-md-12">
+                
+                <!-- <div class="row" ng-if="quotesDetails.invoiceType != 'Manual'">      
+                        <div class="col-md-3 m-b20">
+                        <div class="sub-title-date p-t0 p-l0"><br>Service Date </div>
+                    </div>     
+                </div>
+                <div class="row"  ng-if="quotesDetails.invoiceType != 'Manual'">                   
+                    <div class="col-md-3 m-b20"> 
+                        <div ng-repeat="waterBody in invoice.serviceDetails">
+                            <div ng-if="waterBody.customerPayType == 'Per Visit'" class="print-18x" ng-repeat="job in waterBody.jobDetails" ng-init="uniqueDate(job)">
+                                <div ng-if="$parent.$parent.$last && $parent.$last && $parent.$parent.$parent.$first" ng-repeat="date in jobArray track by $index" >{{date | date: 'MM/dd/yy' }}</div>
+                            </div>   
+                        
+                            <div class="nowrap" ng-if="((waterBody.customerPayType == 'Monthly Flat Rate' && quotesDetails.invoiceTo && quotesDetails.invoiceFrom) || (waterBody.jobDetails.length == 0 && invoice.serviceTotalAmount.totalAmount == 0 )) && $index==0" class="print-18x">
+                            <div  ng-if="waterBody.jobDetails.length == 0">No route stops from </div>  {{quotesDetails.invoiceFrom | date: 'MM/dd/yy' }} - {{quotesDetails.invoiceTo | date: 'MM/dd/yy' }}                          
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="row mob_qty_d_non">     
+                    <div class="col-md-3 m-b20"> 
+                        &nbsp;
+                    </div>              
+                    <div class="col-md-9">
+                        <div class="row">      
+                            <div class="col-md-6 col-xs-12 m-b20">
+                                <div class="sub-title-date p-t0 p-l0">&nbsp;</div>
+                            </div>
+                            <div class="col-md-2 col-xs-12 m-b20">
+                                <div class="sub-title-date p-t0 p-l0">QTY</div>
+                            </div>
+                            <div class="col-md-2 col-xs-12 m-b20">
+                                <div class="sub-title-date p-t0 p-l0">PRICE</div>
+                            </div>
+                            <div class="col-md-2 col-xs-12 m-b20">
+                                <div class="sub-title-date p-t0 p-l0 quote-no-auth-amt-th">AMOUNT</div>
+                            </div>     
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">              
+                    
+                    <div class="col-md-3 m-b20">
+                        <div class="sub-title-custom" ng-if="quotesDetails.invoiceType == 'Manual'">Service Date </div>   
+                        <span ng-if="quotesDetails.invoiceType == 'Manual'" style="position: absolute; top: 33px;">{{quotesDetails.createdOn | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</span>
+                    </div>
+
+                 <!--   <div class="col-md-3 m-b20 h-2x"> 
+                        {{quotesDetails.createdOn | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}
+                    </div> -->
+
+                    <div class="col-md-9">
+                        <hr class="mob_qty_d_block" />
+                        <div class="row" ng-repeat="lineItem in invoice.lineData"> 
+                            <div class="col-md-12 small-p-lr0">
+                                <div class="row mobile_set">
+                                    <div class="col-md-6 label-div-parent">
+                                        <div ng-if="lineItem.islabels==='Y'" class="label-div">{{lineItem.islabelsText}}</div>
+                                    </div>
+                                </div>
+                                <div class="row mobile_set">
+                                    <div class="col-md-6 col-xs-4 small-p-r5 label-div-parent">
+                                        <div class="h-2x print-20x"><strong>{{lineItem.title}}</strong></div>
+                                        <div class="h-1-5x print-16x mob_qty_d_non"  style="white-space: pre-line">{{lineItem.description}}</div> 
+                                    </div>
+                                    <div class="col-md-2 col-xs-2 lineItem-qty">
+                                        <div class="h-2x print-20x">{{lineItem.qty}}</div>
+                                    </div>
+                                    <div class="col-md-2 col-xs-3 lineItem-unitPrice">
+                                        <div class="h-2x print-20x">{{ currencyTrimmer(lineItem.unitPrice) | currency}}</div>
+                                    </div>
+                                    <div class="col-md-2 col-xs-3 lineItem-amount">
+                                        <div class="h-2x print-20x quote-no-auth-amt-td">{{ currencyTrimmer(lineItem.amount) | currency}}</div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row mobile_set mob_qty_d_block">
+                                    <div class="col-md-12 label-div-parent">
+                                        <div class="lineItem-description print-16x"  style="white-space: pre-line">{{lineItem.description}}</div> 
+                                    </div>
+                                </div>
+                                <!-- <hr class="m-tb10" ng-if="!lineItem.bundleItemReference" /> -->
+                            </div>
+
+                            <div class="col-md-12 small-p-lr0" ng-if="lineItem.bundleItemReference">
+                                <div class="row m-t10" ng-repeat="bundleItem in lineItem.bundleItemReference">
+                                    <div class="col-md-6 col-xs-4 small-p-r5">
+                                        <div class="h-2x print-20x small-m-l" style="margin-left: 25px;">{{bundleItem.title}}</div>
+                                        <div class="print-16x mob_qty_d_non"  style="white-space: pre-line; margin-left: 25px;">{{bundleItem.description}}</div> 
+                                    </div>
+                                    <div class="col-md-2 col-xs-2 lineItem-qty-bumdle">
+                                        <div class="h-2x print-20x">{{bundleItem.qty}}</div>
+                                    </div>
+                                    <div class="col-md-2 col-xs-3 lineItem-unitPrice-bumdle">
+                                        <div class="h-2x print-20x"><span ng-if="lineItem.bundleItemReference && lineItem.showIndividualPrice==1">{{ currencyTrimmer(bundleItem.unitPrice) | currency}}</span></div>
+                                    </div>
+                                    <div class="col-md-2 col-xs-3 lineItem-amount-bumdle">
+                                        <div class="h-2x print-20x quote-no-auth-amt-td">
+                                            <span  ng-if="lineItem.bundleItemReference && lineItem.showIndividualPrice==1">{{ currencyTrimmer(bundleItem.amount) | currency}}</span>                                        
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 label-div-parent mob_qty_d_block">
+                                        <div class="print-16x"  style="white-space: pre-line; margin-left: 25px;">{{bundleItem.description}}</div> 
+                                    </div>
+                                </div>
+                                <!-- <hr class="m-tb10" />  -->
+                            </div>
+
+                            <div class="col-md-12 small-p-lr0" style="padding: 20px">                                
+                                <div class="quote-li-img-wrapper">
+                                    <table class="quote-li-img-table">
+                                        <tr>
+                                            <td>                                           
+                                                <div class="quote-li-img-container" ng-class="{ 'disable-img-events' : quoteImageProcessing }">
+                                                    <div class="quote-li-image-div" ng-if="lineItem.photos && lineItem.photos.length > 0"  ng-repeat="photo in lineItem.photos">
+                                                        
+                                                        
+                                                        <!-- <div class="quote-li-img-holder" ng-click="showFullScreenImages($index, getPhotosArr(lineItem.photos), awsCDNpath + '/' + quotesId)">
+                                                            <img ng-if="!photo.isOldMethod" src="{{awsCDNpath}}{{photo.fileName}}" alt=""> 
+                                                            <img ng-if="photo.isOldMethod" src="{{awsCDNpath}}{{(isTestServer || isLocalServer) ? env.awsAssetsPrefix : ''}}{{quotesId}}/{{photo.fileName}}" alt="">      
+                                                        </div> -->
+
+                                                        <div ng-if="!photo.fileName.endsWith('.pdf')" class="quote-li-img-holder" ng-click="showFullScreenImages($index, getPhotosArr(lineItem.photos))">
+                                                            <img ng-if="!photo.isOldMethod" src="{{awsCDNpath}}{{photo.fileName}}" alt=""> 
+                                                            <img ng-if="photo.isOldMethod" src="{{awsCDNpath}}{{(isTestServer || isLocalServer) ? env.awsAssetsPrefix : ''}}{{quotesId}}/{{photo.fileName}}" alt="">     
+                                                          </div>
+                                                          <div ng-if="photo.fileName.endsWith('.pdf')" class="quote-li-img-holder">
+                                                            <a href="javascript:void(0)" ng-click="downloadPDFfromLineItem(awsCDNpath + photo.fileName)" >
+                                                              <i class="fa fa fa-file-pdf-o" style="font-size:48px"></i>
+                                                            </a>
+                                                        </div>
+                                                        <span class="quote-li-img-caption quote-li-img-caption-text" ng-if="photo.caption && photo.caption !== ''" id="qouteImgInput_{{photo.fileName}}_caption_text">{{photo.caption}}</span>                                                                                             
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>                            
+                            </div>
+                          <!--  <div ng-if="lineItem.bundleItemReference && lineItem.showIndividualPrice==0">
+                                <div class="row p-l20">
+                                    <div class="col-md-12">
+                                       <label class="price-shown" ><br>Individual prices hidden
+                                             <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                             <div ng-if="lineItem.bundleItemReference && lineItem.showIndividualPrice==1 && showItemPrint">
+                                <div class="row p-l20">
+                                    <div class="col-md-12">
+                                       <label class="price-shown" ><br>Individual prices shown
+                                             <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                        </div> -->                        
+                        <!-- <hr class="m-tb10" />  -->
+                    </div>
+                </div>  
+              
+            </div>
+
+
+           
+
+
+            <!--div class="col-md-12 m-t20 col-xs-12"  ng-if="invoice.serviceTotalAmount.discountValue">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-3 col-xs-6">
+                        <div class="h-2x print-20x"><strong>Discount</strong></div>
+                        <div class="h-1-5x print-16x">{{invoice.serviceTotalAmount.discountTitle}}</div>
+                    </div>
+                    <div class="col-md-3 col-xs-6 text-right">
+                        <div class="text-right h-2x clr-red print-20x">-{{invoice.serviceTotalAmount.discountValue | currency}}</div>
+                    </div>
+
+                </div>
+            </div-->
+            <!--div class="col-xs-12 m-t20" ng-if="quotesDetails.details.length == 1 && quotesDetails.creditPaymentAdjustment">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-4">
+                        <div class="h-2x print-20x"><strong>Credit/Payment Adjustment</strong></div>            
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-right h-2x clr-red print-20x cpay-mobile">-{{quotesDetails.creditPaymentAdjustment | currency}}</div>
+                    </div>
+                </div>
+            </div-->
+            <div class="row">
+                <div class="col-xs-12 m-t20" ng-if="quotesDetails.subTotalAmount>=0">
+                    <div class="row">
+                        <div class="col-md-6 mob_qty_d_non">
+                            &nbsp;
+                        </div>                   
+                        <div class="col-md-3 col-xs-6 p-0">
+                            <div class="h-2x print-20x"><strong>Subtotal</strong></div>
+                        </div>
+                        <div class="col-md-3  col-xs-6">
+                            <div class="text-right h-2x print-20x">{{ currencyTrimmer(quotesDetails.subTotalAmount) | currency}}</div>
+                        </div>
+                    </div>
+                    <div class="row m-t20">
+                        <div class="col-md-6">
+                            &nbsp;
+                        </div>                   
+                        <div class="col-md-3 col-md-3 pl-0">
+                            <div class="h-2x print-20x"><small><strong>Taxable Subtotal</strong></small></div>            
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-right h-2x print-20x"><small>{{ currencyTrimmer(quotesDetails.details[0].taxableSubtotalAmount ? quotesDetails.details[0].taxableSubtotalAmount : 0) | currency}}</small></div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 m-t20">
+                    <div class="row">
+                        <div class="col-md-6 mob_qty_d_non">
+                            &nbsp;
+                        </div>                   
+                        <div class="col-md-3 col-xs-6 p-0">
+                            <div class="h-2x print-20x"><strong>Discount</strong></div>
+                            <div class="h-1-5x print-16x">{{quotesDetails.discountTitle}}</div>
+                        </div>
+                        <div class="col-md-3 col-xs-6 text-right h-2x print-20x" >
+                            <div ng-class="{'clr-red':quotesDetails.discountValue>0 }">{{quotesDetails.discountValue>0 ? '-':''}}{{ currencyTrimmer(quotesDetails.discountValue > 0 ? quotesDetails.discountValue : 0)  | currency}}</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            <div class="row">
+                <div class="col-xs-12 m-t20">
+                    <div class="row">
+                        <div class="col-md-6 mob_qty_d_non">
+                            &nbsp;
+                        </div>                   
+                        <div class="col-md-3 col-xs-6 p-0">
+                            <div class="h-2x print-20x"><strong>Tax</strong></div>
+                            <div class="h-1-5x print-16x">{{quotesDetails.taxTitle}} <span ng-if="quotesDetails.taxPercentValue && quotesDetails.taxPercentValue != 0 && quotesDetails.taxPercentValue !='' && quotesDetails.taxTitle.indexOf('%') === -1"> ({{quotesDetails.taxPercentValue}}%) </span></div>
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+                            <div class="text-right h-2x print-20x">{{ currencyTrimmer(quotesDetails.taxValue? quotesDetails.taxValue : 0) | currency}}</div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            <div class="row">
+            <div class="col-xs-12 {{quotesDetails.details.length > 1 ? 'subtotal-box' :'m-t40' }} print-avoid">
+                 <div class="row flex align-items-bottom small-noflex">            
+                    <div class="col-md-6">
+                        <!-- Notes -->
+                        <!-- <div ng-if="quotesDetails.notes!==''"><b>Notes</b></div>
+                        <p ng-if="quotesDetails.notes!==''">{{quotesDetails.notes}}</p> -->
+                    </div>          
+                    <div class="col-md-6 pl-sm-0 col-xs-12 h-2-5x print-22x {{quotesDetails.details.length > 1 ? 'd-small-text' :'' }}">
+                        <div class="row">
+                            <div class="col-xs-4 p-0"><span class=" print-22x  print-bold {{quotesDetails.details.length == 1 ? 'bb' :'' }}" >{{quotesDetails.details.length > 1 ? 'Subtotal' : 'TOTAL'}}</span></div>
+                            <div class="col-xs-8 text-right"><strong class="darkGray print-22x "> <span ng-if="quotesDetails.details.length == 1">{{ currencyTrimmer(quotesDetails.totalAmount) | currency}}</span> <span ng-if="quotesDetails.details.length > 1">{{ currencyTrimmer(invoice.serviceTotalAmount.totalAmount) | currency}}</span></strong> </div>
+                        </div>
+                        <!-- <div class="row print-20x print-bold"  ng-if="quotesDetails.details.length == 1">
+                            <div class="col-md-8 col-xs-7 print-22x text-left">BALANCE DUE</div>
+                            <div class="col-md-4 col-xs-5 print-22x text-right">{{quotesDetails.balanceDue | currency}}</div>
+                        </div>                   -->
+                    </div>                    
+                </div>
+                <div class="row flex align-items-bottom small-noflex m-t20">   
+                    <!-- <div class="col-md-2">
+                        &nbsp;
+                    </div>                 -->
+                    <div class="col-md-12 text-left print-notes-no-auth">                        
+                        {{quotesDetails.notes}}
+                        <!-- <ng-container ng-if="quotesDetails.notes">
+                        </ng-container> -->
+                        <!-- <ng-container ng-if="quotesDetails.jobId != null && quotesDetails.jobId != ''">
+                            <br />
+                        <p ><strong>
+                            <p> <strong>Invoice created from <a href="javascript:void(0)">job #{{quotesDetails.jobId}}</a> </strong> </p>
+                        </strong> </p>
+                    </ng-container> -->
+                    </div>                      
+                </div>
+            </div> 
+            </div>
+        </div>
+        <div class="row" ng-if="quotesDetails.details.length > 1 && quotesDetails.creditPaymentAdjustment">
+            <div class="col-xs-12 m-t20 m-b20">
+                <div class="row">
+                    <div class="col-md-6">
+                        &nbsp;
+                    </div>                   
+                    <div class="col-md-4 col-xs-8">
+                        <div class="h-2x print-20x"><strong>Credit/Payment Adjustment</strong></div>            
+                    </div>
+                    <div class="col-md-2 col-xs-4">
+                        <div class="text-right h-2x clr-red print-20x cpay-mobile">-{{ currencyTrimmer(quotesDetails.creditPaymentAdjustment) | currency}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row flex align-items-bottom small-noflex print-avoid print-break-before last-section" ng-if="quotesDetails.details.length > 1">            
+            <div class="col-md-7 col-xs-12 text-left print-avoid"> 
+                <textarea placeholder="Invoice Notes" class="form-control remove-for-print" name="invoiceNotes" style="height: 54px!important;" row='1' ng-model="invoiceModel.invoiceNotes" maxLength="300" ng-blur="saveNotes(invoiceModel.invoiceNotes)">
+                    {{invoiceModel.invoiceNotes}}
+                </textarea> 
+                <p class="add-for-print print-avoid"> {{invoiceModel.invoiceNotes}}</p>
+            </div>  
+            <div class="col-md-5 col-xs-12 text-right h-3x">
+                <strong class="p-r20 remove-for-print" >TOTAL</strong> <strong class="h-6x darkGray "> {{ currencyTrimmer(quotesDetails.totalAmount) | currency}}</strong>
+                <div class="add-for-print">DUE &nbsp;{{quotesDetails.dueDate | convertDateOffset: companyTimeZone: 'MM/dd/yy'}}</div>
+
+            </div>                    
+        </div>
+        
+    </div>
+</div>
+
+<script type="text/ng-template" id="selectPaymentMethodPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="popup-header">
+        <span class="heading">{{ paymentSuccess ? '&nbsp;&nbsp;&nbsp;&nbsp;Success' : 'Add Payment'}}</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -10px;">     
+       
+        <div class="payment-error" ng-if="paymentError" >
+            <div ng-repeat="(key, value) in paymentError">
+                <div ng-repeat="item in value">{{item}}</div>
+            </div>
+        </div> 
+      </div> 
+      <form ng-show="!paymentSuccess" class="set-chem-form" name="paymentForm" autocomplete="off" ng-submit="paymentForm.$valid && checkPaymentType(model)" novalidate>      
+     
+        <div class="detail-box">         
+          <div class="grid text-left colored-scroll-bar" style="height: 340px; overflow: auto;">
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label >Payment Method<span class="clr-red">*</span> </label>
+                    <div class="dropdown select-wrap ">
+                      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  >
+                        <b ng-bind-html="selectedPaymentMethod ? selectedPaymentMethod : '--'" ></b>
+                      <span class="caret"></span></button>
+                      <ul class="dropdown-menu scrollable-menu"> 
+                       
+                        <li ng-hide="model.paymentMethod == 'cc'" ng-click="model.paymentMethod = 'cc'; selectPaymentMethod('Credit Card')"><a href="javascript:void(0)">Credit Card</a></li>
+                        <li ng-hide="model.paymentMethod == 'ach'" ng-click="model.paymentMethod = 'ach'; selectPaymentMethod('ACH')"><a href="javascript:void(0)">ACH</a></li>                
+                      </ul>                
+                    </div> 
+                    <div class="h-12x text-muted m-t10" ng-if="model.paymentMethod == 'ach'">By authorizing this transaction, customer agrees that merchant may convert this transaction into an Electronic Funds Transfer (EFT) transaction or paper draft, and to debit this account for the amount of the transaction. Additionally, in the event this draft or EFT is returned unpaid, a service fee, as allowable by law, will be charged to this account via EFT or draft. In the event you choose to revoke this authorization, please do so by contacting the merchant directly. Please note that processing times may not allow for revocation of this authorization.</div>                   
+                </div> 
+                <div class="formGroup">
+                    <label >Payment Amount<span class="clr-red">*</span> </label>
+
+                    <input 
+                        class="form-control input-number unitPrice-input" 
+                        type="text" 
+                        name="transaction_amount" 
+                        id="transaction_amount" 
+                        ng-model="model.transaction_amount"     
+                        style="width:150px"                  
+                        required 
+                        format="currency"
+                        allow-typing="^[$,0-9. ]+$" 
+                    />
+                    
+                    <span class="has-required" ng-show="paymentForm.$submitted && paymentForm.transaction_amount.$invalid">Please enter Amount</span>
+                </div>  
+                <div class="formGroup" ng-if="model.paymentMethod == 'check'" >
+                    <label >Check Number<span class="clr-red">*</span> </label>
+                    <input type="text" name="checkNumber" class="form-control" ng-model="model.checkNumber" maxlength="50"  ng-required="model.paymentMethod == 'check'" >
+                    <span class="has-required" ng-show="paymentForm.$submitted && model.paymentMethod == 'check' && paymentForm.checkNumber.$invalid">Please enter check number</span>
+                  </div>
+              <div class=" formGroup" ng-if="model.paymentMethod == 'check' || model.paymentMethod == 'cash'" >
+                <label >Notes </label>
+                <textarea class="form-control" name="notes" style="height: 140px!important;" row='1' ng-model="model.notes" maxLength="300">{{model.notes}}</textarea>
+                <span class="c-limit">Characters limit: 300</span>             
+              </div>            
+            </div>
+          </div>  
+
+          <div class="text-center p-t20 m-b20">         
+            <span><button class="add-button" type="submit" ng-click="payRefundForm.submitAttempt=true;" >{{model.paymentMethod == 'check' || model.paymentMethod == 'cash' ? 'SAVE' : 'CONTINUE'}}</button></span>              
+          </div> 
+        
+        </div>
+      </form> 
+      
+    </div>
+  </script>
+
+
+  <script type="text/ng-template" id="sentEmailPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="popup-header">
+        <span class="heading">Email Invoice</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>   
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">    
+        <error ng-if="sentEmailError" message="{{sentEmailError}}"></error>
+      </div>
+      <form class="set-chem-form" name="sentEmailForm" autocomplete="off" ng-submit="sentEmailForm.$valid && emailInvoice(sentEmailModel)" novalidate>
+          
+        <div class="detail-box">         
+          <div class="grid text-left box" >
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label>Email Address</label>
+                    <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="sentEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentEmailForm.$submitted && sentEmailForm.emailId.$invalid || sentEmailForm.emailId.$touched && loginForm.emailId.$invalid}"
+                        required                         
+                    />
+                </div>     
+            </div>
+          </div>      
+          <div class="text-center p-t20">
+            <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <span class="p-l10"><button class="add-button" type="submit" ng-click="sentEmailForm.submitAttempt=true;" >SEND EMAIL</button></span>            
+          </div>        
+        </div>
+      </form> 
+    
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="payaPaymentPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px; min-height:300px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+      <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>  
+      <div class="popup-header">
+        <span class="heading">Pay by {{model.paymentMethod == 'ach' ? 'ACH' : 'Credit Card'}}</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <div class="detail-box">         
+        <div class="grid text-left box colored-scroll-bar" style="max-height:437px; overflow: auto;">
+          <div id="ccIframeContainer" class="pay-form-container"></div>  
+          <div id="achIframeContainer" class="pay-form-container"></div>    
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/ng-template" id="payaErrorPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px; min-height:200px">  
+      <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+   
+      <div class="popup-header">
+        <span class="heading">Error Code <small ng-if="payaErrorCode">- {{payaErrorCode}}</small></span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <div class="detail-box text-center">         
+        <div class="grid box clr-red p-tb20 text-center" style="max-height:300px; overflow: auto;"> 
+          Transaction is declined.
+        </div>
+        <button class="btn btn-primary" ng-click="closeThisDialog('')">OK</div>
+      </div>
+    </div>
+  </script>
+<script type="text/ng-template" id="statusChangeQuotesConfirm.html">
+    <div class="dataTables_wrapper modal-box common-popup pqd-popup" style="width:400px;">          
+        <div class="popup-body" ng-if="!isStatusAPIhitted">
+            <error ng-if="isAlreadyApproved" message="{{isAlreadyApproved}}"></error>               
+            <p ng-if="selectedStatusForAPI==='Approved'">You are about to approve:</p>
+            <p ng-if="selectedStatusForAPI==='Denied'" class="pqd-popup-subtitle-gap">You are about to deny this quote.</p>
+            <div class="row-container">
+                <div class="pqd-popup-title" ng-if="selectedStatusForAPI==='Approved'">
+                    <strong>Quote # {{quotesDetails.quoteNumber}} for {{ currencyTrimmer(quotesDetails.totalAmount) | currency}}</strong>
+                </div>
+                <div>
+                    <p class="pqd-popup-label" ng-if="selectedStatusForAPI==='Approved'">Anything else we should know?</p>
+                    <p class="pqd-popup-label" ng-if="selectedStatusForAPI==='Denied'">Reason</p>
+                    <textarea placeholder="(optional)" class="pqd-popup-textarea form-control remove-for-print ng-pristine ng-valid ng-binding ng-empty ng-valid-maxlength ng-touched" name="statusNote" style="height: 51px!important;" row="5" ng-model="quotesModel.statusNote" maxlength="300"></textarea>
+                </div>
+                <div class="csq-set-chem-button pqd-csq-set-chem-button">
+                    <button ng-class="{ 'quote-change-status-btn-disabled' : isProcessing }" class="add-button {{(quotesModel.status).toLowerCase()}}" type="submit" ng-click="isProcessing ? null : changeQuoteStatus('noauth')">
+                        <span ng-if="selectedStatusForAPI==='Approved'">APPROVE NOW</span>
+                        <span ng-if="selectedStatusForAPI==='Denied'">DENY QUOTE</span>
+                    </button>
+                    <button ng-class="{ 'quote-change-status-btn-disabled' : isProcessing }" class="add-button cancel" type="submit" ng-click="closeThisDialog()">CANCEL</button>
+                </div>
+            </div>
+        </div>   
+        <div class="popup-body" ng-if="isStatusAPIhitted && quotesModel.status!==''">
+            <div class="pqd-popup-alert">
+                <h3>Thank you!</h3>
+                <svg ng-if="selectedStatusForAPI==='Approved'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path d="M7.45 123.27c2.27 2.46 11.62-1.83 19-5.27 5.53-2.57 27.66-11.65 38.66-16.36 2.97-1.27 7.29-2.93 10.4-7.02 2.76-3.64 10.08-19.1-4.66-34.76-14.96-15.9-30.37-11.51-36.13-7.43-3.39 2.4-6.15 7.81-7.39 10.56-5.24 11.62-12.71 32.91-15.75 41.28-2.23 6.17-6.38 16.56-4.13 19z" fill="#ffc107"/><path d="M25.85 66.49c.14 1.74.49 4.57 1.69 10.02.82 3.74 2.16 7.66 3.25 10.25 3.27 7.79 7.86 10.93 12.51 13.45 7.9 4.28 13.27 5.08 13.27 5.08l-6.44 2.63s-3.9-.81-9.22-3.43c-5.07-2.5-10.35-6.73-14.21-15.01-1.67-3.59-2.64-7.07-3.2-9.83-.69-3.42-.8-5.36-.8-5.36l3.15-7.8zM17.94 86.77s.8 6.49 6.16 14.68c6.28 9.58 15.05 11.15 15.05 11.15l-5.83 2.4s-6.51-1.99-12.7-10.44c-3.86-5.27-4.94-11.57-4.94-11.57l2.26-6.22zM12.39 102.15s1.46 5.6 4.66 9.78c3.81 4.99 8.66 6.44 8.66 6.44l-4.47 1.98s-3.39-.71-7.1-5.41c-2.82-3.57-3.62-7.67-3.62-7.67l1.87-5.12z" fill="#ff8f00"/><path d="M9.96 116.37c-.2-.45-.2-.96.01-1.4l25.47-52.82 4.19 15.75-26.8 38.71c-.72 1.08-2.34.94-2.87-.24z" fill="#fffde7" opacity=".44"/><linearGradient id="a" gradientUnits="userSpaceOnUse" x1="74.384" y1="61.839" x2="44.617" y2="79.699"><stop offset=".024" stop-color="#8f4700"/><stop offset="1" stop-color="#703e2d"/></linearGradient><path d="M41.65 83.19c11.9 13.92 25.45 12.18 29.96 8.66 4.52-3.53 8.09-15.66-3.76-29.35-12.42-14.34-26.48-10.25-29.73-7.15s-7.39 15.07 3.53 27.84z" fill="url(#a)"/><path d="M82.52 88.92c-4.34-3.64-6.65-2.99-9.75-1.7-4 1.66-10.29 2.89-18.83 0l2.57-6.19c5.07 1.71 8.74.88 11.91-.99 4.08-2.4 9.66-5.69 18.34 1.6 3.62 3.04 7.33 5.06 10.05 4.14 1.98-.66 3.03-3.61 3.56-5.96.05-.21.13-.81.19-1.34.48-3.67 1.28-11.59 7.18-15.64 6.31-4.33 12.94-4.33 12.94-4.33l1.2 11.92c-3.05-.45-5.17.17-6.96 1.16-6.74 3.75-.87 18.15-11.36 22.99-10.09 4.69-18.34-3.4-21.04-5.66z" fill="#03a9f4"/><path d="M45.4 73.72l-4.34-3.89c7.97-8.9 5.87-15.44 4.34-20.2-.31-.96-.6-1.87-.79-2.74-.68-3.08-.82-5.76-.61-8.1-3.06-3.81-4.41-7.8-4.5-8.07-1.86-5.63-.46-11.12 2.75-16.27C48.74 4 60.49 4 60.49 4l3.92 10.49c-2.98-.12-12.75.03-15.75 4.76-3.79 5.96-1.3 9.64-1.12 10.06.73-.95 1.47-1.71 2.13-2.3 4.79-4.25 8.95-4.86 11.6-4.62 2.98.27 5.68 1.77 7.61 4.23 2.11 2.7 2.98 6.21 2.31 9.4-.65 3.11-2.72 5.74-5.83 7.41-5.43 2.92-9.95 2.52-12.98 1.51.02.07.03.15.05.22.11.5.33 1.2.59 2.01 1.77 5.48 5.06 14.18-7.62 26.55zm7.35-37.53c.58.42 1.19.77 1.82 1.02 2.1.84 4.39.56 6.99-.84 1.53-.82 1.71-1.7 1.77-1.99.18-.87-.12-1.98-.77-2.81-.57-.73-1.23-1.11-2.02-1.19-1.5-.13-3.53.82-5.56 2.63-.97.87-1.71 1.94-2.23 3.18z" fill="#f44336"/><path d="M62.77 75.35l-6.21-.17s2.95-16.66 12.5-19.46c1.79-.52 3.75-1.05 5.72-1.34 1.17-.18 3.02-.45 3.93-.79.21-1.57-.45-3.57-1.19-5.84-.58-1.76-1.18-3.57-1.5-5.55-.62-3.86.41-7.27 2.9-9.62 3.04-2.85 7.95-3.76 13.49-2.5 3.16.72 5.49 2.27 7.54 3.63 2.93 1.95 4.64 2.94 8.22.53 4.33-2.92-1.33-14.35-4.34-20.95l11.23-4.68c1.51 3.3 8.8 20.28 3.99 29.97-1.62 3.26-4.41 5.42-8.07 6.23-7.96 1.78-12.62-1.32-16.02-3.58-1.61-1.07-3.02-1.91-4.55-2.35-10.63-3.03 4.21 12.61-2.74 19.64-4.17 4.21-14.36 5.32-15.02 5.48-6.56 1.58-9.88 11.35-9.88 11.35z" fill="#f48fb1"/><path d="M43.99 38.79c-.19 2.2-.28 3.51.29 6.37 2.75 2.02 8.74 2.02 8.74 2.02-.26-.81-.49-1.51-.59-2.01-.02-.07-.03-.15-.05-.22-6.09-3.04-8.39-6.16-8.39-6.16z" fill="#c92b27"/><g><path fill="#ffc107" d="M31.53 48.64l-10.34-5.07 5.15-7.44 8.11 5.37z"/></g><g><path d="M16.29 34.6c-5.28-.71-10.66-5.19-11.25-5.7l5.19-6.09c1.57 1.33 4.9 3.56 7.13 3.86l-1.07 7.93z" fill="#fb8c00"/></g><g><path d="M25.61 21.27l-7.6-2.49c.87-2.66 1.1-5.53.65-8.3l7.9-1.27c.65 4.02.32 8.19-.95 12.06z" fill="#03a9f4"/></g><g><path fill="#fb8c00" d="M73.073 15.325l7.815-1.71 2.257 10.316-7.815 1.71z"/></g><g><path d="M92.46 17.77l-5.5-5.81c2.88-2.73 3.54-6.3 3.54-6.34l7.9 1.29c-.1.63-1.11 6.29-5.94 10.86z" fill="#ffc107"/></g><g><path fill="#fb8c00" d="M95.516 48.581l6.987-2.183 2.387 7.636-6.987 2.183z"/></g><g><path d="M97.55 113.03l-7.95-.94c.34-2.83-1.77-6.3-2.35-7.07l6.4-4.8c.48.63 4.65 6.4 3.9 12.81z" fill="#f44336"/></g><g><path d="M120.37 102.89c-2.99-.45-6.05-.63-9.07-.52l-.27-8c3.51-.12 7.06.08 10.53.61l-1.19 7.91z" fill="#fb8c00"/></g><g><path fill="#f48fb1" d="M109.614 113.902l5.62-5.693 7.736 7.637-5.621 5.693z"/></g><path fill="#f44336" d="M93.099 63.331l5.78 6.609-6.609 5.78-5.78-6.609z"/></svg>
+                <p ng-if="selectedStatusForAPI==='Approved'">We've received your approval.</p>
+                <p ng-if="selectedStatusForAPI==='Denied'">This quote has now been denied.</p>
+            </div>
+        </div> 
+    </div>
+ </script>
+ <script type="text/ng-template" id="picturesGallery.html">
+    <div class="modal-box modal-gallery full-screen-gallery equipment-gallery full-screen-gallery-quotes">
+      <div class="full-screen-inner">
+        <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+          <i class="fa fa-close" aria-hidden="true"></i>
+        </div>
+        <div ng-if="galleryPhotos.length > 0">
+          <ui-carousel slides="galleryPhotos" slides-to-show="1" slides-to-scroll="1" initial-slide="imageInitialIndex" autoplay="false" autoplay-speed="3000" dots="false">
+            <carousel-item>
+              <div class="image popup">
+                <div class="slide-image {{item.fullPath}}">
+                  <img src="{{item.fullPath}}">
+                    <div class="modal-gallery-btm" ng-show="item.caption" >                  
+                      <span>{{item.caption}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </carousel-item>
+          </ui-carousel>
+        </div>
+      </div>
+    </div>
+    </script> 
+    <script type="text/ng-template" id="askQuestionModal.html">
+        <div class="dataTables_wrapper modal-box common-popup ask-question-popup ">         
+            <div class="popup-header">
+                <span class="heading">Ask a question</span>
+                <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+            </div>  
+            <div class="popup-body">
+                <success ng-if="questionModelSuccess" message="{{questionModelSuccess}}"></success>
+                <error ng-if="questionModelError" message="{{questionModelError}}"></error>
+                <form name="questionModelForm" autocomplete="off" ng-submit="questionModelForm.$valid && submitQuestionToCompany()" novalidate>       
+                    <div class="form-group">
+                        <label>Enter your question below:</label>
+                        <textarea class="form-control" rows="6" 
+                        name="question"
+                        ng-disabled="questionModelSubmtting"
+                        ng-model="questionModel.question" 
+                        ng-class="{'has-error': questionModelForm.$submitted && questionModelForm.question.$invalid || questionModelForm.question.$touched && questionModelForm.question.$invalid}"
+                        required></textarea>
+                    </div>         
+                    <div class="form-group">
+                        <label>Your Email:</label>
+                        <input class="form-control" ng-model="questionModel.emailForReplyAskedQuestion" 
+                        ng-maxlength="100" 
+                        name="emailForReplyAskedQuestion"
+                        ng-minlength="6" 
+                        ng-disabled="questionModelSubmtting"
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': questionModelForm.$submitted && questionModelForm.emailForReplyAskedQuestion.$invalid || questionModelForm.emailForReplyAskedQuestion.$touched && questionModelForm.emailForReplyAskedQuestion.$invalid}"                    
+                        required
+                        >
+                    </div>
+                    <div class="text-center">
+                        <button class="btn" ng-disabled="questionModelSubmtting" type="submit">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </script>
+
+    </div></div>
+    <div class="print-quote-area print-quote-area-public"> 
+        <div ng-include="'templates/component/quote-print-content.html?ver='+PB_WEB_VERSION"></div> 
+    </div> 

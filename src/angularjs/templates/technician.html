@@ -1,0 +1,656 @@
+<div class="data-table-grid technicians">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <div class="m-t20" ng-init="getMeidList()">
+    <div class="fl"  ng-if="meidList.length > 0"><h3>Available MEID List</h3></div>
+    <div class="dataTables_wrapper"  ng-if="meidList.length > 0">
+      <success message="{{successMsg}}" ng-if="successMsg"></success>
+      <div >
+      <div class="meid-table-row" ng-repeat="meidData in meidList track by $index"  id="meidFormDiv{{$index}}">
+        <div class="meid-text meidFormContainer" ng-click="preventDefaultAction ? null : expandMEID($index)">
+          {{meidData.phoneNumber ? 'MEID detected: '+ meidData.meid+'&nbsp;&nbsp;&nbsp;Phone: '+meidData.phoneNumber : 'MEID detected: '+ meidData.meid}}
+          <div ng-if="meidData.id > 0" class="collapse-btn fr deletemeid" ng-click="confirmAlert(meidData.id, 'deletemeid')"><i class="fa fa-trash" aria-hidden="true"></i></div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+
+<!-- <div class="m-t20"  ng-if="deviceListData && deviceListData.freeDeviceList.length > 0">
+  <div class="fl"><h3>Available Device List</h3></div>
+  <div class="dataTables_wrapper">
+    <div>
+    <div class="meid-table-row" ng-repeat="deviceData in deviceListData.freeDeviceList track by $index" >
+      <div class="meid-text meidFormContainer">
+        {{deviceData.deviceName}}
+        <!-- <div ng-if="deviceData.id > 0" class="collapse-btn fr deletemeid" ng-click="deleteMeid(meidData.id)"><i class="fa fa-trash" aria-hidden="true"></i></div> -- >
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div> -->
+
+  <div class="m-t20">
+
+    <div class="fl p-t5 p-b10">
+      <div class="fl dropdown">
+        <button class="btn btn-primary dropdown-toggle button blue-bg" type="button" data-toggle="dropdown">Filter: {{currentFilterValue}}&nbsp;&nbsp;<span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li ng-class="{'active': currentFilterValue == 'All'}"><a href="javascript:void(0)" ng-click="filterBy('All')">All</a></li>
+          <li ng-class="{'active': currentFilterValue == 'Active'}"><a href="javascript:void(0)" ng-click="filterBy('Active')">Active</a></li>
+          <li ng-class="{'active': currentFilterValue == 'Inactive'}"><a href="javascript:void(0)" ng-click="filterBy('Inactive')">Inactive</a></li>
+        </ul>
+      </div>
+      <div class="fr" style="margin: 0 50px 0 50px">
+        <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+        <error message="{{error3}}" ng-if="error3"></error>
+      </div>
+    </div>
+
+    <div class="fr p-t5 p-b10">
+
+      <div ng-if="!preventDefaultAction" class="fl dropdown">
+          <button class="btn btn-primary button blue-bg" ng-click="isCompanyActive ? addTechnicianForm('tech') : addTechnicianConfirm()"> Add Technician </button>
+      </div>
+
+    </div>
+    <div class="dataTables_wrapper customer">
+
+      <table class="row-border hover no-footer dataTable" width="100%">
+        <thead class="dark-gray-bg">
+          <tr>
+            <th style="width:35% !important"> TECHNICIANS </th>
+            <!-- <th> ROLE </th> -->
+            <th> PHONE </th>
+            <th style="width:28% !important"> EMAIL </th>
+            <th style="width:10% !important"> STATUS </th>
+            <th> &nbsp; </th>
+          </tr>
+        </thead>
+        <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="technician in technicianList track by $index">
+          <tr>
+            <td colspan="6" style="background:#edf0f5; height: 10px; padding: 0" ng-init="parseTechRating(technician.id, technician.rating)"></td>
+          </tr>
+          <tr class="even">
+            <td class="technician-name border-top2 border-left2 border-bottom2">            
+              
+                <div class="image-radius name-initial" style="background-image:url({{technician.userImage}});background-size: cover;" >
+                    <span ng-show="!technician.userImage">
+                      {{technician.firstName | convertToInitial: technician.lastName}}                      
+                    </span>
+                    </div>
+                    <a class="" id="{{technician.technicianId}}" title="{{technician.firstName+' '+technician.lastName}}"
+                    ui-sref="app.techniciandetail({technicianId: technician.id})" ng-bind="parseName(technician.firstName+' '+technician.lastName)"> </a>
+            
+            </td>
+            <!-- <td class="border-top2 border-bottom2"><div class="customer-add" id="pool_location_{{technician.id}}"> {{technician.userRolesValue}} </div></td> -->
+            <td class="border-top2 border-bottom2"><div class="customer-add"> <a class="underline-none darkGray" href="tel:{{technician.contactNumber}}">
+                <phone-number number="{{technician.contactNumber}}"></phone-number>
+                </a> </div></td>
+            <td class="border-top2 border-right2 border-bottom2"><div class="customer-add"> <a title="{{technician.email}}" class="underline-none darkGray" href="mailto:{{technician.email}}"> {{technician.email}} </a> </div></td>
+
+            <td class="border-top2 border-right2 border-bottom2">
+              <div class="customer-add m-t10" ng-if="!preventDefaultAction">
+                 <label class="switch" ng-click="setStatus(technician.id,technician.isActive, $index, technician)">
+                    <span ng-class="{'active' : technician.isActive == '1'}" class="slider round"></span>
+                 </label>
+            </td>
+
+            <td>
+                <a title="Edit" class="underline-none" ng-click="showEdit(technician,$index)" href="javascript:void(0)"> Edit </a>
+
+            </td>
+          </tr>
+
+          <tr ng-if="showEditField[$index]" class="editRow showRow">
+            <td colspan="6" class="border-left2 border-right2" style="border-top: 1px solid #d8d8d9;">
+              <form class="form-signin" name="techEditForm[{{$index}}]" ng-submit="editTechnician($index)" novalidate>
+                <div class="add-profile-image fl">
+                  <a href="javascript:void(0)" ng-click="browseImage($index,'edit')">
+                    <img alt="Add Profile Image" border="0" src="{{imgdataedit[$index] ? imgdataedit[$index] : 'resources/images/add-image.png'}}" title="Add Profile Image"/>
+                  <div class="text-center">Add Photo</div>
+                  </a>
+                  <a href="javascript:void(0)"><div ng-if="imgdataedit[$index]" class="text-center" ng-click="removeProfilePicture($index)">Remove Photo</div></a>
+                  <input base-sixty-four-input="" id="imageedit{{$index}}" name="imageedit" ng-change="uploadFileEdit($index)" ng-model="imageedit[$index]" style="display: none" type="file"/>
+                </div>
+                <div class="row-container fl">
+                  <div class="row-item">
+                    <input autocomplete="off" class="form-control input-width" name="firstName" ng-class="{'has-error': techEditForm[{{$index}}].$submitted && techEditForm[{{$index}}].firstName.$invalid || techEditForm[{{$index}}].firstName.$touched && techEditForm[{{$index}}].firstName.$invalid}" ng-maxlength="50" ng-model="techEditModel[$index].firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+
+                    <input autocomplete="off" class="form-control input-width" name="lastName" ng-class="{'has-error': techEditForm[{{$index}}].$submitted && techEditForm[{{$index}}].lastName.$invalid || techEditForm[{{$index}}].lastName.$touched && techEditForm[{{$index}}].lastName.$invalid}" ng-maxlength="50" ng-model="techEditModel[$index].lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+                  </div>
+                  <!-- <div class="row-item">
+                    <div class="edit-cleaningTech">
+                      <div>
+                        <input id="cleaning-tech-edit" type="checkbox" autocomplete="off" class="form-control" name="userTypes" ng-model="techEditModel[$index].userTypes.cleaningtech"  ng-required="!techEditModel[$index].userTypes.cleaningtech && !techEditModel[$index].userTypes.installer" ng-value="cleaningtech">
+                        <label for="cleaning-tech-edit">Cleaning Tech</label>
+                      </div>
+                      <div>
+                        <input id="installer-edit" type="checkbox" autocomplete="off" class="form-control" name="userTypes" ng-model="techEditModel[$index].userTypes.installer" ng-required="!techEditModel[$index].userTypes.cleaningtech && !techEditModel[$index].userTypes.installer" ng-value="installer">
+                        <label for="installer-edit">Installer</label>
+                      </div>
+                    </div>
+                  </div> -->
+                  <div class="row-item">
+                    <input autocomplete="off" class="form-control" name="contactNumber" ng-class="{'has-error': (techEditForm[{{$index}}].$submitted && techEditForm[{{$index}}].contactNumber.$invalid) || (techEditForm[{{$index}}].contactNumber.$touched && techEditForm[{{$index}}].contactNumber.$invalid)}"  maxLength="12" ng-model="techEditModel[$index].contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input="" placeholder="Phone" required="" type="text"/>
+                    <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': techEditForm[{{$index}}].$submitted && techEditForm[{{$index}}].email.$invalid || techEditForm[{{$index}}].email.$touched && techEditForm[{{$index}}].email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="techEditModel[$index].email" ng-pattern="/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/" placeholder="Email" required="" type="email"/>
+                  </div>
+                  <div class="row-item">
+                  </div>
+                </div>
+                <div class="technicians-button m-b20">
+                  <button class="add-button"  type="button" ng-click="cancelEdit($index)">CANCEL</button>&nbsp;
+                  <button class="add-button"  type="submit">UPDATE TECH</button>
+                </div>
+                
+                <div class="row-container fl grid" ng-if="technician.isActive" style="width: 100%!important; display: flex; align-items: center;" >
+                  <div class="col-md-10" ng-if="technician.meid">
+                    <div>
+                      <h4><b>APP LINKED</b></h4>
+                      <span style="word-wrap: break-word;"> MEID: ({{technician.meid}})</span><br /> 
+                      <span ng-if="technician.devicedetails" style="word-wrap: break-word;">{{technician.devicedetails}}</span>
+                    </div>                       
+                  </div>
+                  <div class="col-md-2" ng-if="technician.meid">
+                    <button class="add-button" style="width: auto; padding: 10px 16px;" ng-click="confirmAlert(technician, 'meid')" type="button"><i class="fa fa-trash" aria-hidden="true"></i></button> 
+                  </div>
+                  <div class="col-md-12" ng-if="!technician.meid">  
+                    <span  style="word-wrap: break-word;"><b style="margin-right:7px">PHONE APP NOT LINKED</b>  Have technician download PoolBrain app and enter the phone # shown to begin.</span> 
+                  </div> 
+                </div>
+                <div class="row-container fl grid" ng-if="!technician.isActive" style="width: 100%!important">
+                  <div class="col-md-12">
+                    Technician is Inactive. Please change to Active to enable phone app linking.
+                  </div>
+                </div>
+                  <!--<div class="col-md-6 col-sm-6 col-xs-12 p-r0">
+                    <div class="text-left p-tb20 p-lr20">
+                      <div class="grid" ng-if="technician.isActive">
+                        <div class="col-md-4"><h4 class="m-t0">Device:</h4></div>
+                        <div class="col-md-6" ng-if="technician.deviceName">
+                          {{technician.deviceName}}
+                        </div>
+                        <div class="col-md-2 text-right"  ng-if="technician.deviceName">
+                          <button class="add-button" ng-click="confirmAlert(technician, 'device')" type="button"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="col-md-4 text-center"  ng-if="!technician.deviceName">
+                          <button class="add-button" ng-click="assignMeidDeviceModal('device', technician)" type="button">Assign</button>
+                        </div>
+                      </div>
+                      <div class="grid" ng-if="!technician.isActive">
+                        <div class="col-md-8">
+                            Technician is Inactive. Please make it active to assign Device.
+                        </div>
+                      </div>
+                    </div>
+                  </div>-->
+                <error message="{{errorArr[$index]}}" ng-if="errorArr[$index]"></error>
+              </form>
+              <div class="technician-permission-area">
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canSeeCustDetails == '1'}">
+                      <span>Can see customer contact info</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canSeeCustDetails')">
+                      <span ng-class="{'active' : pmModel.canSeeCustDetails == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditOnTheWayTextMessage == '1'}">
+                      <span>Can edit "on the way" text message</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditOnTheWayTextMessage')">
+                      <span ng-class="{'active' : pmModel.canEditOnTheWayTextMessage == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditEquipmentItems == '1'}">
+                      <span>Can edit equipment items</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditEquipmentItems')">
+                      <span ng-class="{'active' : pmModel.canEditEquipmentItems == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.accessForProducts == '1'}">
+                      <span>Can view and manage existing products/services on Jobs</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'psCheck')">
+                      <span ng-class="{'active' : pmModel.accessForProducts == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                  <div class="technician-permission-row" ng-if="pmModel.accessForProducts == '1'">                                    
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canSeePricesAmounts == '1'}">
+                        <span>Can see prices/amounts</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canSeePricesAmounts')">
+                        <span ng-class="{'active' : pmModel.canSeePricesAmounts == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateProductsServiceInApp == '1'}">
+                      <span>Can create new products/services</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreatePSInApp')">
+                      <span ng-class="{'active' : pmModel.canCreateProductsServiceInApp == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateRouteStops == '1'}">
+                      <span>Can create Route Stops</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreateRouteStops')">
+                      <span ng-class="{'active' : pmModel.canCreateRouteStops == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateJobsInApp == '1'}">
+                      <span>Can create Jobs</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreateJobsInApp')">
+                      <span ng-class="{'active' : pmModel.canCreateJobsInApp == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateInvoiceInApp == '1'}">
+                      <span>Can create Invoices</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                      <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreateInvoiceInApp')">
+                      <span ng-class="{'active' : pmModel.canCreateInvoiceInApp == '1'}" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>       
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateQuotes == '1'}">
+                      <span>Can create Quotes</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreateQuotes')">
+                      <span ng-class="{'active' : pmModel.canCreateQuotes == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canCreateCustomerNotesInApp == '1'}">
+                      <span>Can add notes that customers view in Job/Route Stop Emails</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canCreateCustomerNotesInApp')">
+                      <span ng-class="{'active' : pmModel.canCreateCustomerNotesInApp == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.showCaptionInCustomerEmail == '1'}">
+                      <span>Photo captions show in customer emails</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'showCaptionInCustomerEmail')">
+                      <span ng-class="{'active' : pmModel.showCaptionInCustomerEmail == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditJobsInApp == '1'}">
+                      <span>Can edit Jobs</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditJobsInApp')">
+                      <span ng-class="{'active' : pmModel.canEditJobsInApp == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditInvoiceInApp == '1'}">
+                      <span>Can edit Invoices</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                      <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditInvoiceInApp')">
+                      <span ng-class="{'active' : pmModel.canEditInvoiceInApp == '1'}" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canSendJobEmailsToCustomers == '1'}">
+                      <span>Can send Job emails to customers</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                      <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canSendJobEmailsToCustomers')">
+                      <span ng-class="{'active' : pmModel.canSendJobEmailsToCustomers == '1'}" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>                                       
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canSendInvoiceEmailsToCustomers == '1'}">
+                      <span>Can send Invoice emails to customers</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                      <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canSendInvoiceEmailsToCustomers')">
+                      <span ng-class="{'active' : pmModel.canSendInvoiceEmailsToCustomers == '1'}" class="slider round"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>       
+                <div class="technician-permission">
+                  <div class="technician-permission-row">
+                    <div class="tech-permission-label" ng-class="{'active' : pmModel.canAccessCustomerDetails == '1'}">
+                      <span>Can access customer details/history screen</span>
+                    </div>
+                    <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                    <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canAccessCustomerDetails')">
+                      <span ng-class="{'active' : pmModel.canAccessCustomerDetails == '1'}" class="slider round"></span>
+                    </label>
+                    </div>
+                  </div>
+                  <div class="technician-permission-row" ng-if="pmModel.canAccessCustomerDetails == '1'">                                    
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canViewJobHistory == '1'}">
+                        <span>Can view job & route stop history</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canViewJobHistory')">
+                        <span ng-class="{'active' : pmModel.canViewJobHistory == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canViewQuoteHistory == '1'}">
+                        <span>Can view quote history</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canViewQuoteHistory')">
+                        <span ng-class="{'active' : pmModel.canViewQuoteHistory == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canViewInvoiceHistory == '1'}">
+                        <span>Can view invoice history</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canViewInvoiceHistory')">
+                        <span ng-class="{'active' : pmModel.canViewInvoiceHistory == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canViewPaymentHistory == '1'}">
+                        <span>Can view payment history</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canViewPaymentHistory')">
+                        <span ng-class="{'active' : pmModel.canViewPaymentHistory == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditGateCodes == '1'}">
+                        <span>Can edit gate codes</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditGateCodes')">
+                        <span ng-class="{'active' : pmModel.canEditGateCodes == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditPropertyAccessInstructions == '1'}">
+                        <span>Can edit property access instructions</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditPropertyAccessInstructions')">
+                        <span ng-class="{'active' : pmModel.canEditPropertyAccessInstructions == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="technician-permission-child">
+                      <div class="tech-permission-label" ng-class="{'active' : pmModel.canEditDogInfo == '1'}">
+                        <span>Can edit dog info</span>
+                      </div>
+                      <div class="tech-permission-toggle" ng-if="!preventDefaultAction">
+                        <label class="small switch" ng-click="setCanSeeCustDetails(technician.id, 'canEditDogInfo')">
+                        <span ng-class="{'active' : pmModel.canEditDogInfo == '1'}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <tbody ng-if="technicianList.length < 1">
+          <tr class="even">
+            <td colspan="5" style="text-align: center;"> Add A Technician To Get Started </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-4 p-t20">
+            <div aria-live="polite" class="dataTables_info" id="dashTable_info" role="status"> Showing {{totalRecord > 0 ? showingFrom : 0}} to {{totalRecord >= showingFrom + (limit-1) ? showingFrom + (limit-1) : totalRecord }} of {{totalRecord}} technicians  </div>
+            <!-- <div aria-live="polite" class="dataTables_info" id="dashTable_info" role="status"> Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div> -->
+          </div>
+          <div class="col-md-8">
+              <div class="pagination">
+                  <paging page="page" page-size="limit" paging-action="goToTechnicianPage(page)" show-first-last="true" show-prev-next="true" text-first="First" text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+                </div>
+            </div>
+          </div>
+
+
+    
+    
+  </div>
+</div>
+<script type="text/ng-template" id="addTechTemplate.html" >
+<div class="dataTables_wrapper modal-box chemical-cost-popup" style="width:55%; min-height: auto;">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+ <div class="popup-header">
+   <div class="fl white">{{type=='phone' ? 'Invite Technician' : 'Add Technician'}}</div>
+   <div class="popup-close" ng-click="closeTechModal()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+ </div>
+   <div class="technicians meid-table-row" ng-init="$index=0"  id="meidFormDiv{{$index}}">
+     <div class="meid-form-container">
+        <div ng-if="type=='phone'" style="width: 60%; margin-left: 20%;">
+           <label>Enter phone number to send invitation.</label>
+           <div class="row-box">
+             <form name="inviteForm" ng-submit="invite()" novalidate>
+             <div class="row">
+               <div class="col-md-4 col-sm-4 col-xs-12">
+                 <div class="form-group m-b0">
+                 
+                       <input ng-disabled="preventDefaultAction" class="form-control" name="contactNumber" ng-class="{'has-error': inviteForm.$submitted && inviteForm.contactNumber.$invalid || inviteForm.contactNumber.$touched && inviteForm.contactNumber.$invalid}" maxLength="12" ng-model="inviteModel.contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input="" placeholder="Invite with Phone Number" required  type="text"/>
+                
+                 </div>
+               </div>
+               <div class="col-md-4 col-sm-4 col-xs-12">
+                 <div class="technicians-button" style="margin-top: 3px;">
+                     <button style="position: inherit !important;" class="add-button" ng-class="{'disabledBtn':!inviteModel.contactNumber}" ng-disabled="!inviteModel.contactNumber" type="submit">Invite</button>
+                 </div>
+               </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <success message="{{successMsg2}}" ng-if="successMsg2"></success>
+                  <error message="{{error2}}" ng-if="error2"> </error>
+                </div>
+              </div>
+             </form>
+           </div>
+         </div>
+
+         <form ng-if="type=='tech'" class="form-signin" name="techForm[{{$index}}]" ng-submit="addEditTechnician($index,meidData.meid,techModel[$index])" novalidate>
+           <div class="add-profile-image fl">
+             <a href="javascript:void(0)" ng-click="browseImage($index)">
+               <img alt="Add Profile Image" border="0" src="{{imgdata[$index] ? imgdata[$index] : 'resources/images/add-image.png'}}" title="Add Profile Image"/>
+             <div class="text-center">Add Photo</div>
+             </a>
+             <input base-sixty-four-input="" id="image{{$index}}" name="image" ng-change="uploadFile($index)" ng-model="image[$index]" style="display: none" type="file"/>
+           </div>
+           <div class="row-container fl">
+             <div class="row-item">
+               <input autocomplete="off" class="form-control input-width" name="firstName" ng-class="{'has-error': techForm[{{$index}}].$submitted && techForm[{{$index}}].firstName.$invalid || techForm[{{$index}}].firstName.$touched && techForm[{{$index}}].firstName.$invalid}" ng-maxlength="50" ng-model="techModel[$index].firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+               <input autocomplete="off" class="form-control input-width" name="lastName" ng-class="{'has-error': techForm[{{$index}}].$submitted && techForm[{{$index}}].lastName.$invalid || techForm[{{$index}}].lastName.$touched && techForm[{{$index}}].lastName.$invalid}" ng-maxlength="50" ng-model="techModel[$index].lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+             </div>
+             <!--div class="row-item">
+                 <div class="edit-cleaningTech">
+                   <input id="cleaning-tech" type="checkbox" autocomplete="off" class="form-control" name="userTypes" ng-model="techModel[$index].userTypes.cleaningtech"  ng-required="!techModel[$index].userTypes.cleaningtech && !techModel[$index].userTypes.installer" ng-value="cleaningtech">
+                   <label for="cleaning-tech">Cleaning Tech</label>
+                 </div>
+                 <div class="edit-cleaningTech">
+                   <input id="installer" type="checkbox" autocomplete="off" class="form-control" name="userTypes" ng-model="techModel[$index].userTypes.installer" ng-required="!techModel[$index].userTypes.cleaningtech && !techModel[$index].userTypes.installer" ng-value="installer">
+                   <label for="installer">Installer</label>
+                 </div>
+             </div-->
+             <div class="row-item">
+                 <input autocomplete="off" class="form-control" name="phoneNumber"
+                 ng-class="{'has-error': techForm[{{$index}}].$submitted && techForm[{{$index}}].phoneNumber.$invalid || techForm[{{$index}}].phoneNumber.$touched && techForm[{{$index}}].phoneNumber.$invalid}" maxLength="12"
+                 ng-model="techModel[$index].phoneNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input=""
+                 placeholder="Phone" required="" type="text" />
+             </div>
+             <div class="row-item">
+               <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': techForm[{{$index}}].$submitted && techForm[{{$index}}].email.$invalid || techForm[{{$index}}].email.$touched && techForm[{{$index}}].email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="techModel[$index].email" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" required="" type="email"/>
+             </div>
+           </div>
+           <div class="technicians-button">
+             <button style="position: inherit !important;" class="add-button " ng-class="{'disabledBtn':techForm[{{$index}}].$invalid}" ng-disabled="techForm[{{$index}}].$invalid" type="submit">ADD TECH</button>
+           </div>
+           <error message="{{errormsg}}" ng-if="errormsg"></error>
+           <success message="{{successMsg}}" ng-if="successMsg"></success>
+         </form>
+     </div>
+   </div>
+</div>
+</script>
+<script type="text/ng-template" id="assignMeidDeviceModal.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="spinner" ng-if="isMeidDeviceProcessing">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Assign {{type=='meid' ? 'MEID' : 'Device'}}</div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+      <form name="assignmentForm" class="form-signin" ng-submit="assignmentForm.$invalid ? null : assignMeidDevice(dataObj, type)" novalidate>
+        <label>{{type=='meid' ? 'MEID' : 'Device'}}</label>
+        <select ng-if="type=='meid' && meidList.length > 0" class="m-b20" style="width:100%" ng-model="assignmentModel.meidDevice">
+            <option value="">Select {{type=='meid' ? 'MEID' : 'Device'}}</option>
+            <option ng-repeat="meid in meidList" value="{{meid.meid}}">{{meid.meid}}</option>
+        </select>
+        <div ng-if="type=='meid' && meidList.length == 0" class="has-error-lavel">The system could not find an available MEID.</div>
+
+        <select ng-if="type=='device' && freeDeviceList.length > 0" class="m-b20" ng-model="assignmentModel.meidDevice">
+            <option value="">Select {{type=='meid' ? 'MEID' : 'Device'}}</option>
+            <option ng-repeat="device in freeDeviceList" value="{{device.deviceCompId}}">{{device.deviceName}}</option>
+        </select>
+        <div ng-if="type=='device' && freeDeviceList.length == 0">
+          <div class="has-error-lavel">System haven't find free device.</div>
+          <div ng-if="loggedInRole=='administrator'" class="has-error-lavel"><a href="javascript:void(0)"  ui-sref="administrator.device" ng-click="closeThisDialog()">Click Here</a> to request a device</div>
+          <div ng-if="loggedInRole!='administrator'" class="has-error-lavel"><a href="javascript:void(0)"  ui-sref="app.devices" ng-click="closeThisDialog()">Click Here</a> to request a device</div>
+        </div>
+        <br />
+        <button ng-if="(freeDeviceList.length > 0 && type=='device') || (meidList.length > 0 && type=='meid')" class="add-button" ng-disabled="isProcessing || !assignmentModel.meidDevice" type="submit">Assign</button>
+        <error ng-if="errorDevice" message="{{errorDevice}}"></error>
+      </form>
+  </div>
+</script>
+
+<script type="text/ng-template" id="alertModal.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>{{alertMessage}}</label></div>
+         <br />
+         <div class="technicians-button m-b20">
+           <button class="add-button bt-blue"  type="button" ng-click="closeModal()">CANCEL</button>&nbsp;
+           <button class="add-button bt-blue"  type="button" ng-click="confirmAction()">OK</button>
+         </div>
+       </div>
+     </div>
+
+  </div>
+</script>
+
+<script type="text/ng-template" id="addTechnicianConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:500px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Your subscription is currently not active. If you add a technician, this will reactivate your subscription and you will be responsible for any charges.  Would you like to reactivate your subscription?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" style="background-color:red" type="submit" ng-click="addTechnicianForm('tech')">YES</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>

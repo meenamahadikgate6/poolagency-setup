@@ -1,0 +1,78 @@
+<div class="customerimg-popup" ng-init="jobImages()">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="download-zip-error">
+    <error ng-if="creatingZipError" message="{{creatingZipError}}"></error>
+  </div>
+
+  <div class="scrollable-box img-gallery-popup">
+
+    <div ng-if="imageKeyArray.length > 0" class="large-block-grid-6 medium-block-grid-4 small-block-grid-2 p-b20" ng-repeat="imageKey in imageKeyArray track by $index">
+          <div class="h-1-5x gallery-subtitle">{{imageKey}}   </div>
+            <li ng-repeat="imageObj in imageArray[imageKey] track by $index" >
+              <div class="white-bg text-left p-tb20 p-lr20 data-box">
+                <div class="{{selectedImages.indexOf(imageObj.filePath) != -1 ? 'image-select image-thumbnail ' : 'image-thumbnail '}}"
+                      ng-click="showPictures($event, imageObj)">
+                    <div class="slide-image custJobImages">
+                      <img ng-src="{{imageObj.fileThumbPath}}" onerror="this.src='resources/images/preview-not-avail.png';"/></div>
+                    <!-- <div ng-if="imageObj.filePhisicalPath && imageObj.filePhisicalPath != ''" class="download-wrap" ng-click="checkUnCheckImage(imageObj.filePath)"><i class="fa fa-check" aria-hidden="true"></i> </div> -->
+                    <div ng-if="imageObj.filePhisicalPath && imageObj.filePhisicalPath != ''"
+                    class="download-wrap" ng-click="downloadFile(imageObj.filePath)"
+                    ><i class="fa fa-download" aria-hidden="true"></i></div>                    
+                    <div class="img-caption img-caption-with-tooltip" ng-if="imageObj.caption"><span>{{imageObj.caption | limitTo: 70 }} <span class="job-activity-readmore-tooltip-toggle" ng-if="imageObj.caption.length > 70" ptitle="{{imageObj.caption}}" title-class="job-activity-readmore-tooltip --font-small">...more</span></span></div>
+                </div>
+                <div class="img-caption img-caption-with-tooltip" ng-if="imageObj.installerTrackingValue"><span>{{imageObj.installerTrackingValue | limitTo: 100 }} <span class="job-activity-readmore-tooltip-toggle" ng-if="imageObj.installerTrackingValue.length > 100" ptitle="{{imageObj.installerTrackingValue}}" title-class="job-activity-readmore-tooltip --font-small">...more</span></span></div>
+              </div>
+            </li>
+
+        </div>
+
+      </div>
+
+
+      <div class="jobimg-close-section jobimg-close-section-route-stop">
+        <div class="caption-toggle-job-email" ng-class="{ 'in-progress' : changingShowCaptionInCustomerEmail }">
+          <span>Show captions in customer email</span>
+          <label class="switch small" ng-click="toggleShowCaptionInCustomerEmail()">
+            <span class="slider round {{showCaptionInCustomerEmail ? 'active' : ''}}"></span>
+          </label>
+        </div>
+        <a ng-click="!creatingZip ? downloadZip() : null" ng-disabled="allImages.length == 0" class="download-zip" ng-class="{ 'download-zip-disabled' : allImages.length == 0, 'download-zip-loading' : creatingZip }">
+          <span class="download-zip-text --default">Download All <i class="fa fa-download" aria-hidden="true"></i></span>          
+          <span class="download-zip-text --loading">Downloading <i class="download-zip-spinner"></i></span>
+        </a>
+        <div class="popup-close fr" ng-click="closeThisDialog('Some value')">
+          <img src="resources/images/icon-close.png">
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+<script type="text/ng-template" id="picturesVideos.html">
+
+<div class="modal-box modal-gallery full-screen-gallery full-screen-gallery-customer-job">
+  <div class="full-screen-inner">
+    <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+      <i class="fa fa-close" aria-hidden="true"></i>
+    </div>
+    <div ng-if="allImages.length > 0">
+      <ui-carousel slides="allImageObjects" slides-to-show="1" slides-to-scroll="1" initial-slide="imageStartIndex" autoplay="false" autoplay-speed="3000" dots="false">
+        <carousel-item>
+          <div class="image popup">
+            <div class="slide-image" >
+              <img src="{{ item.filePath }}" onerror="this.onerror=null; this.src='/resources/images/no-sync-image.jpg'">
+              <div class="modal-gallery-btm" ng-show="item.caption">{{item.caption ? item.caption : ''}}</div>
+            </div>
+
+          </div>
+        </carousel-item>
+      </ui-carousel>
+    </div>
+  </div>
+</div>
+</script>

@@ -1,0 +1,40 @@
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width: 700px">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">Add Issue</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+
+
+
+  
+  <div class="dataTables_wrapper" ng-init="getMeidList()">
+      <success message="{{successMsg}}" ng-if="successMsg"></success>
+
+        <div class="meid-form-container">
+          <form class="form-signin" name="profileImageForm" ng-submit="addOrUpdateUser()" novalidate>
+
+            <div class="row-container">
+              <div class="row-item">
+                <input autofocus class="form-control input-width" name="firstName" ng-class="{'has-error': model.$submitted && model.firstName.$invalid || model.firstName.$touched && model.firstName.$invalid}" ng-maxlength="50" ng-model="model.firstName" ng-pattern="/^([a-zA-Z '._-]+)$/" placeholder="First Name" required="" type="text"/>
+               <input autofocus class="form-control input-width" name="lastName" ng-class="{'has-error': model.$submitted && model.lastName.$invalid || model.lastName.$touched && model.lastName.$invalid}" ng-maxlength="50" ng-model="model.lastName" ng-pattern="/^([a-zA-Z '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+                <textarea autofocus class="form-control input-width" name="contmsg" ng-class="{'has-error': model.$submitted && model.contmsg.$invalid || model.contmsg.$touched && model.contmsg.$invalid}" ng-model="model.contmsg" placeholder="Message" required="" style="width:100%;"></textarea>
+              </div>
+            </div>
+
+            <div class="technicians-button">
+              <button class="add-button" ng-disabled="model.$invalid" type="submit">ADD Issue</button>
+            </div>
+            <error message="{{errorArr}}" ng-if="errorArr"></error>
+          </form>
+        </div>
+
+    </div>
+
+
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<div ng-controller="paymentController_Paya" ng-init="initiatePaya()">
+    <div class="spinner" ng-if="isPayaGatewayInitiating" style="border: 0; position: fixed;">
+        <div class="spinner-item">
+           <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+     </div>
+    <div id="paymentPayaContainer" style="display: none">
+        <div id="ccIframeContainer" class="pay-form-container"></div>
+        <div id="achIframeContainer" class="pay-form-container"></div>
+     </div>
+</div>

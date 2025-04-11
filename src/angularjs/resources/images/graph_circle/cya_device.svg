@@ -1,0 +1,11 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 113 113" width="12" height="12">
+	<title>cya_device</title>
+	<style>
+		.s0 { fill: none;stroke:  #660066;stroke-miterlimit:100;stroke-width: 10 } 
+		.s1 { fill:  #660066 } 
+	</style>
+	<g>
+		<path class="s0" d="m56 107c-27.7 0-50-22.4-50-50 0-27.7 22.3-50 50-50 27.6 0 50 22.3 50 50 0 27.6-22.4 50-50 50z"/>
+		<path class="s1" d="m56 85.8c-15.9 0-28.8-12.9-28.8-28.8 0-15.9 12.9-28.8 28.8-28.8 15.9 0 28.8 12.9 28.8 28.8 0 15.9-12.9 28.8-28.8 28.8z"/>
+	</g>
+</svg>

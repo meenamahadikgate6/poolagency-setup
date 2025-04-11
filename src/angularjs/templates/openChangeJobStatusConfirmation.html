@@ -1,0 +1,28 @@
+<div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header text-center">
+      <span class="heading">Confirm</span>      
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>This           
+          <span ng-if="selectedJobForStatusChangeData.selectedJobType=='routeStop'">route stop</span>
+          <span ng-if="selectedJobForStatusChangeData.selectedJobType=='oneTimeJob'">job</span>          
+          has not been completed in the app. If you change it to completed now, it will delete any un-synced data for the          
+          <span ng-if="selectedJobForStatusChangeData.selectedJobType=='routeStop'">route stop</span>
+          <span ng-if="selectedJobForStatusChangeData.selectedJobType=='oneTimeJob'">job</span>          
+          in the app</label></div>
+         <br />
+         <style>
+          .set-chem-button.set-chem-button-job-popup button {
+            height: 36px;
+            width: auto;
+            margin-top: 0;
+          }
+         </style>
+         <div class="set-chem-button set-chem-button-job-popup m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red" type="submit" ng-click="changeJobStatusConfirmed(selectedJobForStatusChangeData)">Change status anyway</button>
+         </div>
+       </div>
+     </div> 
+  </div>

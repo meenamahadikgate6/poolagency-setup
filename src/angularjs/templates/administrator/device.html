@@ -1,0 +1,300 @@
+<div class="data-table-grid dashboard" ng-if="requestedDevice.length > 0">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+
+
+
+  <success ng-if="success" message="{{success}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+  <div  class="p-t5 p-b10">
+    <div class="grid">
+      <div class="col-1-1 p-lr0">
+          <div class="title"> Requests Pending </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="requestedDevice.length > 0" class="dataTables_wrapper p-b20">
+    <table  class="row-border hover no-footer dataTable" width="100%" >
+      <thead>
+        <tr>
+          <!-- <th>Request Serial Id</th> -->
+          <th >REQUEST TYPE</th>
+          <th ng-if="loggedInRole=='administrator'">COMPANY NAME</th>
+          <th>STATUS</th>
+          <th>REQUEST DATE</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+
+      <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="device in requestedDevice">
+        <tr>
+          <td colspan="{{loggedInRole=='administrator' ? '6' : '5'}}" style="background:#edf0f5; height: 10px; padding: 0"></td>
+        </tr>
+        <tr>
+          <!-- <td class="border-top2 border-left2">
+            <div class="tech-date">{{device.requestId}}</div>
+          </td> -->
+          <td class="border-top2">
+            <div class="tech-date">{{device.requestTypeText}}</div>
+          </td>
+          <td ng-if="loggedInRole=='administrator'" class="border-top2">
+            <div class="tech-date">{{device.companyName ? device.companyName : 'N/A'}}</div>
+          </td>
+          <td class="border-top2">
+            <div ng-if="device.requestStatus!= 'rejected'" class="tech-date" style="text-transform: capitalize;">{{device.requestStatus}}</div>
+            <a ng-if="device.requestStatus == 'rejected'" style="text-transform: capitalize;" ng-click="showRejectedNote(device)" href="javascript:void(0)">{{device.requestStatus}}</a>
+          </td>
+          <td class="border-top2">
+            <div class="tech-date" style="text-transform: capitalize;">{{device.createdOn |  date:"MM/dd/yyyy"}}</div>
+          </td>
+          <td class="border-top2" ng-if="loggedInRole!='administrator'">
+            <a class="icon-edit" ng-if="device.requestStatus=='requested'" href="javascript:void(0)" ng-click="actionOnDeviceRequest(device.id, 'cancelled')" title="Cancel">Cancel</a>
+          </td>
+          <td ng-if="loggedInRole=='administrator'" class="border-top2 border-right2">
+            <div ng-if="device.requestStatus == 'requested'">
+              <a class="icon-edit" href="javascript:void(0)" ng-click="actionOnDeviceRequest(device.id, 'approved')" title="Approve">Approve</a> /
+              <a  class="icon-edit" href="javascript:void(0)" ng-click="rejectDeviceRequest(device.id, 'rejected')" title="Deny">Deny</a> /
+              <a class="icon-edit" href="javascript:void(0)" ng-click="printRequest(device)" title="Print">Print</a>
+            </div>
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+    <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite">
+      Showing {{requestedDeviceCurrentPage}} to {{requestedDeviceTotalPage > 0 ? requestedDeviceTotalPage + 1 : 1}} of {{requestedDeviceTotalRecord}} entries
+    </div>
+    <div class="pagination">
+      <paging
+            page="page" page-size="limit" total="requestedDeviceTotalRecord" text-first="First"
+            text-last="Last" text-next="Next" text-prev="Prev"
+            paging-action="changePage(page,'requestDevice')"
+            show-prev-next="true" show-first-last="true"> </paging>
+    </div>
+
+  </div>
+</div>
+<div class="data-table-grid dashboard">
+  <div class="spinner" ng-if="isProcessingDevice">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <success ng-if="successDevice" message="{{successDevice}}"></success>
+  <error ng-if="errorDevice" message="{{errorDevice}}"></error>
+  <div class="p-t5 p-b10">
+
+    <div class="grid row">
+        <div class="col-lg-3">
+          <div class="title"> Device List </div>
+        </div>
+        <div ng-if="loggedInRole=='administrator'" class="col-lg-4 p-t20">
+          <select ng-model="filterStatus" ng-change="filterByStatus(filterStatus)">
+            <option value='all'>All</option>
+            <option value="active">Active</option>
+            <option value="inActive">InActive</option>
+            <option value="assigned">Assigned</option>
+            <option value="shipped">Shipped</option>
+          </select>
+        </div>
+        <div ng-if="loggedInRole=='administrator'" class="col-lg-4 p-t20">
+          <form name="searchForm" ng-submit="searchDeviceByKey(searchKey)" novalidate>
+            <input type="search" name="searchKey" placeholder="Device Name OR Serial no." ng-model="searchKey" />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+        <!-- <div ng-if="loggedInRole=='administrator'" class="col-lg-2">
+            <a href="javascript:void(0)" ng-click="addDevice('Add')">Add Device</a>
+        </div> -->
+        <div ng-if="loggedInRole!='administrator'" class="col-lg-3">
+            <a href="javascript:void(0)" ng-click="requestDevice()">Request Device</a>
+        </div>
+    </div>
+  </div>
+  <div class="dataTables_wrapper">
+    <table  class="row-border hover no-footer dataTable" width="100%" ng-init="getDeivceList()">
+      <thead>
+        <tr>
+          <th>NAME</th>
+          <th>DEVICE SERIAL NO</th>
+          <th ng-if="loggedInRole=='administrator'">COMPANY NAME</th>
+          <th>TECH NAME</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+
+      <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="deviceObj in deviceList">
+        <tr>
+          <td colspan="{{loggedInRole=='administrator' ? '6' : '5'}}" style="background:#edf0f5; height: 10px; padding: 0"></td>
+        </tr>
+        <tr>
+          <td class="border-top2 border-left2">
+            <div class="tech-date">{{deviceObj.deviceName}} <span ng-if="deviceObj.requestId">({{deviceObj.requestSerialId}})</span></div>
+          </td>
+          <td class="border-top2 border-left2">
+            <div class="tech-date">{{deviceObj.deviceSerialNo}}</div>
+          </td>
+          <td ng-if="loggedInRole=='administrator'" class="border-top2">
+            <div class="tech-date">{{deviceObj.companyName ? deviceObj.companyName : 'N/A'}}</div>
+          </td>
+          <td class="border-top2">
+            <div class="tech-date">{{deviceObj.techName && deviceObj.deviceStatus == 'assigned' ? deviceObj.techName : 'N/A'}}</div>
+          </td>
+          <td class="border-top2">
+            <div class="tech-date" style="text-transform: capitalize;">{{deviceObj.status == 'shipped' || deviceObj.status == 'approved' ? deviceObj.status : deviceObj.deviceStatus}}</div>
+          </td>
+          <td class="border-top2 border-right2">
+            <div ng-if="loggedInRole=='administrator'">
+              <a class="icon-edit" href="javascript:void(0)" ng-click="addDevice('Edit', deviceObj)" title="Edit">Edit</a>
+            </div>
+            <div ng-if="loggedInRole=='administrator' && deviceObj.status == 'shipped'">
+              <a class="icon-edit" href="javascript:void(0)" ng-click="actionOnDeviceRequest(deviceObj.requestId, 'recieved')" title="Recieved">Recieved</a>
+            </div>
+            <div ng-if="loggedInRole !='administrator' && deviceObj.deviceStatus == 'assigned'">
+              <a ng-if="deviceObj.techId" class="icon-edit" href="javascript:void(0)" ng-click="changeTech(deviceObj, 'change')" title="Change technician">Change technician</a>
+            </div>
+            <div ng-if="loggedInRole =='administrator' && (deviceObj.deviceStatus == 'approved' || deviceObj.status == 'approved')">
+              <a class="icon-edit" href="javascript:void(0)" ng-click="actionOnDeviceRequest(deviceObj.requestId, 'shipped')" title="Ready To Shipped">Ready To Shipped</a> /
+              <a class="icon-edit" href="javascript:void(0)" ng-click="printRequest(deviceObj)" title="Print">Print</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+      <tbody ng-if="deviceList.length < 1">
+        <tr>
+          <td colspan="{{loggedInRole=='administrator' ? '6' : '5'}}" class="border-td" style="height: 10px; background: #edf0f5;"></td>
+        </tr>
+        <tr>
+          <td colspan="{{loggedInRole=='administrator' ? '6' : '5'}}" style="text-align: center; height: 50px;">Sorry, no results found!</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+<script type="text/ng-template" id="rejectedNote.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Reject Device Reason</div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+      <form class="form-signin">
+        <label>Reason</label>
+        <div>{{requestObj.rejectNote}}</div>
+        <br />
+
+      </form>
+  </div>
+</script>
+<script type="text/ng-template" id="rejectDevice.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="spinner" ng-if="isProcessingDeviceReject">
+      <div class="spinner-item">
+        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+    </div>
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Reject Device Reason</div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+      <form name="rejectDeviceForm" class="form-signin" ng-submit="rejectDeviceForm.$invalid ? null : actionOnDeviceRequest(requestId, status, rejectReason)" novalidate>
+        <label>Reason</label>
+        <textarea name="rejectReason" maxlength="500" ng-model="rejectReason" rows="4" cols="41" placeholder="Enter device reject reason..."
+        ng-class="{'has-error': rejectDeviceForm.$submitted && rejectDeviceForm.requestReason.$invalid || rejectDeviceForm.rejectReason.$touched && rejectDeviceForm.rejectReason.$invalid}"
+        required></textarea>
+        <br />
+        <button class="" ng-disabled="isProcessing || !rejectReason" type="submit">Send</button>
+        <error ng-if="errorDevice" message="{{errorDevice}}"></error>
+      </form>
+  </div>
+</script>
+<script type="text/ng-template" id="requestDevice.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+  <div class="spinner" ng-if="isProcessingRequestDevice">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <div class="fl h-1-5x b white">Request Device</div>
+    <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+    <form name="requestDeviceForm" class="form-signin" ng-submit="requestDeviceForm.$invalid ? null : saveRequestDevice()" novalidate>
+      <label>Reason</label>
+      <select class="form-control" ng-model="requestModel.requestReason" name="requestReason"
+                       ng-class="{'has-error': requestDeviceForm.$submitted && requestDeviceForm.requestReason.$invalid || requestDeviceForm.requestReason.$touched && requestDeviceForm.requestReason.$invalid}"
+                       required>
+         <option ng-repeat="reason in reasonData" ng-selected="{{reason.key == requestReason}}" value="{{reason.key}}">{{reason.value}}</option>
+       </select>
+      <br />
+      <select ng-if="requestModel.requestReason=='replacement'"
+        class="form-control" ng-model="requestModel.deviceobj" name="deviceComp" ng-change="onSelect(requestModel)"
+        ng-class="{'has-error': requestDeviceForm.$submitted && requestDeviceForm.deviceComp.$invalid || requestDeviceForm.deviceComp.$touched && requestDeviceForm.deviceComp.$invalid}"
+        required>
+          <option value="">Select Device to be Replaced</option>
+          <option ng-repeat="device in deviceListFiltered"
+           ng-selected="{{device.deviceCompMapId == requestModel.deviceobj.deviceCompMapId}}"
+           value="{{device}}">{{device.deviceName+' '+device.deviceSerialNo}}</option>
+      </select>
+      <br />
+      <button ng-show="deviceObj.diff.days < 1 && requestModel.requestReason=='replacement'" class="disable-button" ng-disabled="true" type="submit">Device is out of warranty</button>
+      <button ng-show="(!deviceObj.diff || !deviceObj.diff.days || deviceObj.diff.days > 0) || requestModel.requestReason!='replacement'" class="" ng-disabled="isProcessingRequestDevice" type="submit">Send</button>
+      <error ng-if="errorDevice" message="{{errorDevice}}"></error>
+    </form>
+</div>
+</script>
+<div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite">
+  Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries
+</div>
+<div class="pagination">
+  <paging
+				page="page" page-size="limit" total="totalRecord" text-first="First"
+				text-last="Last" text-next="Next" text-prev="Prev"
+				paging-action="changePage(page)"
+				show-prev-next="true" show-first-last="true"> </paging>
+</div>
+</div>
+
+<div style="display: none;" id="printhtml" class="dataTables_wrapper modal-box picture-videos-popup" style="width:600px; ">
+  <style>
+  .invoice-box{max-width:800px;margin:auto;padding:30px;border:1px solid #eee;box-shadow:0 0 10px rgba(0,0,0,.15);background-color:#fff;font-size:16px;line-height:24px;font-family:'Helvetica Neue',Helvetica,Helvetica,Arial,sans-serif;color:#555}.invoice-box table{width:100%;line-height:inherit;text-align:left}.invoice-box table td{padding:5px;vertical-align:top}.invoice-box table tr td:nth-child(2){text-align:right}.invoice-box table tr.top table td{padding-bottom:20px}.invoice-box table tr.top table td.title{font-size:45px;line-height:45px;color:#333}.invoice-box table tr.information table td{padding-bottom:40px}.invoice-box table tr.heading td{background:#eee;border-bottom:1px solid #ddd;font-weight:700;text-align:left!important}.invoice-box table tr.details td{padding-bottom:20px}.invoice-box table tr.item td{border-bottom:1px solid #eee;text-align:left!important}.invoice-box table tr.item.last td{border-bottom:none}.invoice-box table tr.total td:nth-child(2){border-top:2px solid #eee;font-weight:700}@media only screen and (max-width:600px){.invoice-box table tr.information table td,.invoice-box table tr.top table td{width:100%;display:block;text-align:center}}.rtl{direction:rtl;font-family:Tahoma,'Helvetica Neue',Helvetica,Helvetica,Arial,sans-serif}.rtl table{text-align:right}.rtl table tr td:nth-child(2){text-align:left}
+  </style>
+    <form class="form-signin">
+      <div class="invoice-box">
+          <table cellpadding="0" cellspacing="0">
+              <tr class="top">
+                  <td colspan="3">
+                      <table>
+                          <tr>
+                            <td class="title"><img src="../resources/images/triton-logo-login.png" style="width:100%; max-width:300px;"></td>
+                            <td>Invoice #: {{deviceObj.deviceId}}<br>Created: {{deviceObj.addedOn | date: 'MMMM d, yyyy'}}</td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+              <tr class="information">
+                  <td colspan="3">
+                      <table>
+                          <tr>
+                              <td>{{deviceObj.companyName}}<br>{{deviceObj.address}}<br>{{deviceObj.city}}, {{deviceObj.state}} {{deviceObj.zipcode}}</td>
+                              <td>{{deviceObj.firstName}} {{deviceObj.lastName}}<br>{{deviceObj.email}}</td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+              <tr class="heading"><td>Request Type</td><td>Request Id</td><td>Device Type</td></tr>
+              <tr class="item"><td>{{reasonDataText[deviceObj.requestType]}}</td><td>{{deviceObj.requestId}}</td><td style="text-transform: capitalize">{{deviceObj.requestType}}</td></tr>
+              </tr>
+          </table>
+      </div>
+    </form>
+
+</div>

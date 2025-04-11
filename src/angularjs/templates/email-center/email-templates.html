@@ -1,0 +1,299 @@
+<div ng-controller="emailTemplatesController"  class="email-template-wrapper">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="set-chem-price m-b20 setting-sm-card-loader-parent">
+                <div class="setting-sm-card-loader" ng-if="settingPageLoaders.emailSectionTemplatesArea">
+                  <div class="spinner">
+                     <div class="spinner-item">
+                        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                     </div>
+                  </div>
+               </div>
+                <div class="set-chem-title">
+                    <b>
+                        <span>Email Templates</span>                        
+                    </b>
+                </div>
+                <div class="set-chem-details set-chem-details-template-data">             
+                    <success ng-if="templateSuccessMsg" message="{{templateSuccessMsg}}"></success>
+                    <div class="email-template-area-body">                        
+                        <div class="template-data-row">
+                            <div class="template-data-col">
+                                <div class="template-data-card">
+                                    <div class="email-template-area-table-header nowrap">
+                                        <h3>
+                                            <span>Custom Templates</span>
+                                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                <span>These templates can be used to send group emails on demand and can be created, edited or deleted at any time.</span>
+                                            </a>
+                                        </h3>
+                                        <a href="javascript:void(0)" ng-click="openTemplate(getBlankEmailTemplate(), 'add')" class="add-icon-circle modal-opener-link nowrap">Add <i class="fa fa-plus" aria-hidden="true"></i></a> 
+                                    </div>
+                                    <div class="email-template-area-table-wrapper scrollareaCls">                                
+                                        <table class="table email-template-area-table">                                   
+                                            <tbody>
+                                                <tr ng-repeat="template in emailTemplates" ng-if="template.isSystem==0 && template.templateType == 'Default'">
+                                                    <td class="email-template-column-name"><span>{{template.templateName}}</span></td>                                    
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="openTemplate(template, 'edit')"><img src="resources/images/ae_edit.png"></a></td>
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="!template.isSystem && openTemplate(template, 'delete')"  class="template-delete-icon" ng-class="{ 'delete-not-allowed' : template.isSystem}"><img src="resources/images/ae_remove.png"></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="template-data-col">
+                                <div class="template-data-card">
+                                    <div class="email-template-area-table-header nowrap">
+                                        <h3>
+                                            <span>Invoice Reminders</span>
+                                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                <span>These templates can be used to auto-send reminder emails to customers or office staff based on how many days past due an invoice is. They can be created, edited or deleted at any time.</span>
+                                            </a>
+                                        </h3>
+                                        <a href="javascript:void(0)" ng-click="openTemplate(getBlankEmailTemplate('pastDueInvoiceReminder'), 'add')" class="add-icon-circle modal-opener-link nowrap">Add <i class="fa fa-plus" aria-hidden="true"></i></a> 
+                                    </div>
+                                    <div class="email-template-area-table-wrapper scrollareaCls"> 
+                                        <table class="table email-template-area-table">                                   
+                                            <tbody>
+                                                <tr ng-repeat="template in emailTemplates" ng-if="template.isSystem==0 && template.templateType == 'pastDueInvoiceReminder'">
+                                                    <td class="email-template-column-name"><span>{{template.templateName}}</span></td>                                    
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="openTemplate(template, 'edit')"><img src="resources/images/ae_edit.png"></a></td>
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="!template.isSystem && openTemplate(template, 'delete')"  class="template-delete-icon" ng-class="{ 'delete-not-allowed' : template.isSystem}"><img src="resources/images/ae_remove.png"></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="template-data-col">
+                                <div class="template-data-card">
+                                    <div class="email-template-area-table-header nowrap">
+                                        <h3>
+                                            <span>Quote Reminders</span>
+                                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                <span>These templates can be used to auto-send reminder emails to customers or office staff based on how many days have passed since a quote was created but not approved, denied or closed. They can be created, edited or deleted at any time.</span>
+                                            </a>
+                                        </h3>
+                                        <a href="javascript:void(0)" ng-click="openTemplate(getBlankEmailTemplate('openQuotesReminder'), 'add')" class="add-icon-circle modal-opener-link nowrap">Add <i class="fa fa-plus" aria-hidden="true"></i></a> 
+                                    </div>                                
+                                    <div class="email-template-area-table-wrapper scrollareaCls"> 
+                                        <table class="table email-template-area-table">                                   
+                                            <tbody>
+                                                <tr ng-repeat="template in emailTemplates" ng-if="template.isSystem==0 && template.templateType == 'openQuotesReminder'">
+                                                    <td class="email-template-column-name"><span>{{template.templateName}}</span></td>                                    
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="openTemplate(template, 'edit')"><img src="resources/images/ae_edit.png"></a></td>
+                                                    <td class="email-template-column-action"><a class="modal-opener-link" href="javascript:void(0)" ng-click="!template.isSystem && openTemplate(template, 'delete')"  class="template-delete-icon" ng-class="{ 'delete-not-allowed' : template.isSystem}"><img src="resources/images/ae_remove.png"></a></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="template-data-col">
+                                <div class="template-data-card">
+                                    <div class="email-template-area-table-header nowrap">
+                                        <h3>
+                                            <span>System Templates</span>
+                                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                                                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                <span>These are templates the system uses in specific cases like sending Route Stop Emails, Job Emails, Invoices and Quotes. These can be customized however you like but can't be deleted.</span>
+                                            </a>
+                                        </h3>                                    
+                                    </div>
+                                    <div class="email-template-area-table-wrapper scrollareaCls"> 
+                                        <table class="table email-template-area-table">                                  
+                                            <tbody>
+                                                <tr ng-repeat="template in emailTemplates" ng-if="template.isSystem==1">
+                                                    <td class="email-template-column-name"><span>{{template.templateName}}</span></td>                                    
+                                                    <td class="email-template-column-action"><a href="javascript:void(0)" ng-click="openTemplate(template, 'edit')"><img src="resources/images/ae_edit.png"></a></td>                                            
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="emailTemplateModal.html" >
+    <div class="dataTables_wrapper modal-box email-template-wrapper-modal email-template-wrapper-modal-{{selectedTemplateForModificationMode}}">
+        <form name="emailTemplateForm" autocomplete="off" novalidate> 
+        <div class="popup-header">
+            <div class="h-1-5x b white text-center">
+                <div ng-if="selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit'" class="email-template-name-area">
+                    <div ng-if="!emailTemplateNameEditing">{{selectedTemplateForModification.templateName}}</div>
+                    <div ng-if="emailTemplateNameEditing">
+                        <input type="text" class="form-control" ng-model="selectedTemplateForModification.templateName" id="templateName" name="templateName" name="templateName" ng-blur="turnOffTemplateNameEditing()">
+                    </div>
+                    <div ng-hide="selectedTemplateForModification.isSystem==1" ng-click="emailTemplateNameEditing ? turnOffTemplateNameEditing() : turnOnTemplateNameEditing()" class="email-template-name-toggle">
+                        <i class="fa fa-pencil"></i>
+                    </div>
+                </div>
+                <div ng-if="selectedTemplateForModificationMode=='delete'">Confirm</div>                
+            </div>             
+        </div>
+        <div class="setting-sm-card-loader" ng-if="isEmailTemplatesProcessing">
+            <div class="spinner">
+               <div class="spinner-item">
+                  <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+               </div>
+            </div>
+         </div>
+        <div class="popup-body text-center setting-sm-card-loader-parent scrollareaCls">  
+            <div class="row">
+                <div class="col-xs-12">
+                    <success ng-if="sendEmailSuccess" message="{{sendEmailSuccess}}"></success>
+                    <error ng-if="sendEmailError" message="{{sendEmailError}}"></error>
+                </div>
+            </div>     
+            <error ng-if="templateErrorMsg" message="{{templateErrorMsg}}"></error>                   
+            <div id="duplicateVariableError" class="isa_error" style="display: none"></div>              
+            <!-- add edit template -->            
+                <ng-container ng-if="selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit'">                    
+                    <div class="form-group email-center-dynamic-content-dd">
+                        <label class="form-label">Subject</label>                                                
+                        <input type="text" class="form-control" ng-model="selectedTemplateForModification.subject" id="templateSubject" name="templateSubject" 
+                        name="templateSubject"
+                        ng-change="removeErrorClass('templateSubject')"
+                        ng-class="{'has-error': emailTemplateForm.$submitted && emailTemplateForm.templateSubject.$invalid || emailTemplateForm.templateSubject.$touched && emailTemplateForm.templateSubject.$invalid}">
+                        <span class="required-template-input">Subject is required</span>
+                        <div class="dropdown select-wrap">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" title="Dynamic Content">
+                              Dynamic Content                             
+                              <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li ng-repeat="emailVar in getEmailVars(selectedTemplateForModification)" ng-click="replaceText(emailVar)" ng-if="emailVar.isSubject == 'true'">
+                                <a href="#">{{emailVar.title}}</a>
+                              </li>
+                            </ul>
+                          </div>
+                    </div>
+                    <div id="emailTemplatesFroala" ng-if="froalaOptionsEmailTemplates" class="form-group insert_email_variables" ng-class="{'has-froala-error': emailTemplateForm.$submitted && emailTemplateForm.body.$invalid || emailTemplateForm.body.$touched && emailTemplateForm.body.$invalid}">
+                        <label class="form-label">Body</label>
+                        <textarea froala="froalaOptionsEmailTemplates" ng-model="selectedTemplateForModification.body" name="body" required
+                        name="body"
+                        ng-class="{'has-error': emailTemplateForm.$submitted && emailTemplateForm.body.$invalid || emailTemplateForm.body.$touched && emailTemplateForm.body.$invalid}"></textarea>
+                        <span class="required-template-input">Body is required</span>
+                    </div>                    
+                </ng-container>
+                <!-- add edit template -->
+                <!-- delete template -->
+                <ng-container ng-if="selectedTemplateForModificationMode=='delete'">
+                    <div class="row m-b10">
+                        <div class="col-xs-12">
+                            <label>Are you sure you want to delete email template?</label>                                                                     
+                        </div>
+                    </div>                    
+                </ng-container>
+                <!-- delete template -->            
+        </div>
+        <div class="popup-footer {{ selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit' ? 'with-bg' : ''}}">
+            <ng-container ng-if="selectedTemplateForModificationMode=='add' || selectedTemplateForModificationMode=='edit'">
+                <div class="form-group m-b0">
+                    <div class="set-chem-button" style="text-align: center;"> 
+                        <button ng-if="selectedTemplateForModification.isSystem==1" type="button" ng-disabled="isEmailTemplatesProcessing || isPreviewEmailSending" ng-click="openResetDefaultConfirmBox()" class="add-button send-preview left">
+                            RESET DEFAULTS
+                        </button>                             
+                        <button ng-disabled="isEmailTemplatesProcessing" class="add-button" type="button" ng-click="emailTemplateForm.$submitted = true; emailTemplateForm.$valid && saveTemplate()" >SAVE CHANGES</button>
+                        <button ng-disabled="isEmailTemplatesProcessing" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                        <button type="button" ng-disabled="isEmailTemplatesProcessing || isPreviewEmailSending" ng-click="sendPreview(emailTemplateForm)" class="add-button send-preview">
+                            SEND PREVIEW
+                        </button>    
+                    </div>
+                </div>
+            </ng-container>
+            <ng-container ng-if="selectedTemplateForModificationMode=='delete'">
+                <div class="m-b0">
+                    <div class="set-chem-button" style="text-align: center;">                              
+                        <button ng-disabled="isEmailTemplatesProcessing" class="add-button" type="button" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+                        <button ng-disabled="isEmailTemplatesProcessing" class="add-button btn-red" type="button" ng-click="saveTemplate()">DELETE</button>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </form>
+    </div>
+</script>
+<!-- Email Preview Popups -->
+<script type="text/ng-template" id="sentEmailPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup send-preview-popup" style="width:370px">             
+      <div class="popup-header">
+        <span class="heading">Send Preview</span>
+        <div class="popup-close" ng-click="!isPreviewEmailSending && closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>         
+      <form class="set-chem-form" name="sentEmailForm" autocomplete="off" novalidate>                
+        <div class="detail-box">  
+            <div class="setting-sm-card-loader" ng-if="isPreviewEmailSending">
+                <div class="spinner">
+                    <div class="spinner-item">
+                        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+            </div>       
+          <div class="grid text-left box" >
+            <div class="col-12-12">                 
+                <div class="formGroup">
+                    <label>Send preview email to:</label>
+                    <input 
+                        type="email" 
+                        autocomplete="off" 
+                        class="form-control" 
+                        ng-model="sentPreviewEmailModel.email" 
+                        placeholder="Email Address" 
+                        name="emailId" 
+                        ng-maxlength="100" 
+                        ng-minlength="6" 
+                        ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                        ng-class="{'has-error': sentEmailForm.$submitted && sentEmailForm.emailId.$invalid || sentEmailForm.emailId.$touched && sentEmailForm.emailId.$invalid}"
+                        required                         
+                    />
+                    <span class="required-template-input" ng-show="sentEmailForm.emailId.$error.required && sentEmailForm.emailId.$dirty">Please enter a valid email</span>
+                </div>     
+            </div>
+          </div>      
+          <div class="text-center p-t20">
+            <button ng-disabled="isPreviewEmailSending" class="add-button add-button-send-preview-email" ng-click="closeThisDialog()" type="button">CANCEL</button>
+            <span class="p-l10"><button ng-disabled="isPreviewEmailSending" class="add-button add-button-send-preview-email" type="submit" ng-click="sentEmailForm.submitAttempt=true; sendPreviewMail(sentPreviewEmailModel)" >SEND PREVIEW EMAIL</button></span>            
+          </div>        
+        </div>
+      </form>     
+    </div>
+</script>
+<script type="text/ng-template" id="resetDefaultConfirmPopup.html">
+    <div class="dataTables_wrapper modal-box common-popup add-service-level-popup email-template-wrapper-modal" style="width:370px">             
+      <div class="popup-header">
+        <span class="heading">Reset Defaults</span>
+      </div>               
+        <div class="detail-box">  
+            <div class="setting-sm-card-loader" ng-if="isTemplateResetting">
+                <div class="spinner">
+                    <div class="spinner-item">
+                        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-b10" ng-if="templateResetErrorMsg">
+                <div class="col-xs-12">
+                    <error message="{{templateResetErrorMsg}}"></error>
+                </div>
+            </div>
+            <div class="text-center m-b10">
+                <label>Are you sure you want to reset this template to it's default content settings? You will lose any changes you've made to this template.</label>
+            </div>       
+            <div class="text-center">
+                <button ng-disabled="isTemplateResetting" class="add-button add-button-reset-defaults" ng-click="closeThisDialog()" type="button">CANCEL</button>
+                <span class="p-l10"><button ng-disabled="isTemplateResetting" class="add-button add-button-reset-defaults btn-red" type="submit" ng-click="resetTemplate(selectedTemplateForModification)" >RESET</button></span>            
+            </div>        
+        </div>    
+    </div>
+</script>
+<!-- Email Preview Popups -->

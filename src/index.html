@@ -1,13 +1,232 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Poolagancy</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pool Brain Admin </title>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta id="theme-color" name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable = no">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+    <!-- Styles  -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+    <link href="/resources/styles/bootstrap.min.css?ver=localhost" rel="stylesheet">
+    <link href="/scripts/vendor/angular-bootstrap-colorpicker/colorpicker.min.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/ng-sortable/angular-ui-tree.min.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/tooltip/angular-tooltips.min.css" rel="stylesheet" type="text/css">    
+    <link href="/scripts/vendor/froala-editor/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />   
+    <link href="/resources/styles/styles.css?ver=localhost" rel="stylesheet" type="text/css">
+    <link href="/resources/styles/custom.style.css?ver=localhost" rel="stylesheet" type="text/css">
+    <link href="/resources/font-awesome/css/font-awesome.min.css?ver=localhost" rel="stylesheet">
+    <link href="/resources/styles/grid.css?ver=localhost" rel="stylesheet">
+    <link href="/resources/styles/animated.css?ver=localhost" rel="stylesheet">
+    <link href="/scripts/vendor/cropper/ng-img-crop.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/cropper/ui-cropper.css" rel="stylesheet" type="text/css">  
+    <link href="/resources/styles/current.style.css?ver=localhost" rel="stylesheet" type="text/css">
+    <link href="/resources/styles/route.style.css?ver=localhost" rel="stylesheet" type="text/css">
+    <link href="/resources/styles/custom.style.pb.css?ver=localhost" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/datePicker/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/autoComplete/angular-auto-complete.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/datePicker/datepicker.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/timePicker/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/dialog/ngDialog.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+    <link href="/scripts/vendor/tree-dropdown/tree-dropdown.css" rel="stylesheet"/>
+    <link href="/scripts/vendor/carousel/ui-carousel.min.css" type="text/css" rel="stylesheet">
+    <!-- Scripts -->
+    <script src="/scripts/services/app.console.js"></script>
+    <script src="https://js.chargebee.com/v2/chargebee.js" data-cb-site="poolbrain-test" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/dromo-uploader-js/dist/DromoUploader.js" type="text/javascript" ></script>
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyBOva7ykvWdUZNXa4KHKmBCjDz-oHEIQgw&libraries=places" ></script>
+    <script src="https://www.google-analytics.com/analytics.js" async=""></script>
+    <script src="/scripts/vendor/jquery/jquery-2.1.4.min.js"></script>
+    <script src="/scripts/vendor/jquery/date-range-picker/jquery-ui.js" type="text/javascript"></script>
+    <script src="/scripts/vendor/jquery/bootstrap.min.js"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"type="text/javascript"></script>
+    <script src="/scripts/vendor/angular/angular.min.js"></script>
+    <script src="/scripts/vendor/angular/angular-ui-route.min.js"></script>
+    <script src="/scripts/vendor/angular/angular-cookies.min.js"></script>
+    <script src="/scripts/vendor/validator/angular-validator.js" type="text/javascript"></script>
+    <script src="/scripts/vendor/jquery/moment.min.js"></script>
+    <script src="/scripts/vendor/datePicker/bootstrap-datepicker.js"></script>
+    <script src="/scripts/vendor/timePicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/scripts/vendor/masking/jquery.mask.js"></script>
+    <script src="/scripts/vendor/datePicker/angular-eonasdan-datetimepicker.min.js"></script>
+    <script src="/scripts/vendor/dialog/ngDialog.js"></script>
+    <script src="/scripts/vendor/intercomChat/angular-intercom.min.js"></script>
+    <script src="/scripts/services/app.auth.js?ver=localhost"></script>
+    <script src="/scripts/services/app.apiGateWay.js?ver=localhost"></script>
+    <script src="/scripts/app.js?ver=localhost"></script>
+    <script src="/scripts/config.js?ver=localhost"></script>
+    <script src="/scripts/services/app.service.js?ver=localhost"></script>
+    <script src="/scripts/vendor/angular/ui-bootstrap-tpls.min.js"></script>
+    <script src="/scripts/vendor/autoComplete/angular-auto-complete.js"></script>
+    <script src="/scripts/vendor/cropper/ng-img-crop.js"></script>
+    <script src="/scripts/vendor/cropper/ui-cropper.js"></script>
+    <script src="/scripts/controllers/commonController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/authController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/dashboardController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/locationDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerJobDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/remoteDataDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerJobImagesController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/installDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/userManageController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/technicianController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/contactissueController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/managerController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/technicianDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/settingsController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/equipmentController.js?ver=localhost"></script>
+    <script src="/scripts/directives/directive.js?ver=localhost"></script>
+    <script src="/scripts/directives/paging.js?ver=localhost"></script>
+    <script src="/scripts/directives/clickoutside.directive.js?ver=localhost"></script>
+    <script src="/scripts/directives/quickbook.js?ver=localhost"></script>
+    <script src="/scripts/vendor/angular/angulartics.min.js"></script>
+    <script src="/scripts/vendor/angular/angular-google-analytics.js"></script>
+    <script src="/scripts/vendor/angular/angular-base64-upload.js"></script>
+    <script src="/scripts/vendor/angular/ng-device-detector.js"></script>
+    <script src="/scripts/vendor/angular/re-tree.js"></script>
+    <script src="/scripts/vendor/angular/angular-idle.min.js"></script>
+    <script src="/scripts/vendor/ngMap/ng-map.min.js"></script>
+    <script src="/scripts/vendor/angular-bootstrap-colorpicker/bootstrap-colorpicker-module.min.js"></script>
+    <script src="/scripts/vendor/ng-sortable/angular-ui-tree.min.js"></script>
+    <script src="/scripts/vendor/tooltip/angular-tooltips.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js" integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A==" crossorigin="anonymous"></script>
+    <script src="/scripts/vendor/ui-router-styles/ui-router-styles.js"></script>
+    <script src="/scripts/controllers/administrator/authController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/administrator/companyManageController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/administrator/codeManagementController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/administrator/companyDetailsController.js?ver=localhost"></script>
+    <!-- <script src="/scripts/controllers/administrator/dashboardController.js?ver=localhost"></script> -->
+    <script src="/scripts/controllers/administrator/deviceController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/administrator/adminSettingsController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/company/companyController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/company/companySignupController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/company/settingsController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/alertsManagementController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/company/quickbookController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/company/reportsController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/propertyInformationController.js?ver=localhost"></script>  
+    <script src="/scripts/controllers/technician-route/technicianRouteController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerInvoiceDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/products-services/productsnservicesController.js?ver=localhost"></script>
+    <script src="/scripts/vendor/tree-dropdown/tree-dropdown.js"></script>
+    <script src="/scripts/controllers/one-time-job/oneTimeJobController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/one-time-job/oneTimeJobOverviewController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/one-time-job/oneTimeJobListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/one-time-job/oneTimeJobHeaderController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/one-time-job/oneTimeJobSettingController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/customerQuotesListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/serviceScheduleController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/invalidAddressListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/checklistItemController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/technicianPayReportController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/adminServiceLevelSettingController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/technicianPaySettingController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/billingSettingController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/customerBillingTabController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/customerNotesTabController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/dateRoutesListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/customerInvoiceListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/customerPaymentListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/profitReportController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/invoicePaymentAppliedListController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/adminPayaController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/adminQuoteSettingController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/oneJobReportController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/customerQuotesDetailController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/email-center/emailCenterController.js?ver=localhost"></script>    
+    <script src="/scripts/controllers/email-center/groupEmailController.js?ver=localhost"></script>    
+    <script src="/scripts/controllers/email-center/emailHistoryController.js?ver=localhost"></script>    
+    <script src="/scripts/controllers/email-center/suppressionListController.js?ver=localhost"></script>    
+    <script src="/scripts/controllers/email-center/automaticEmailsController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/email-center/emailTemplatesController.js?ver=localhost"></script>
+	  <script src="/scripts/controllers/component/searchProductWidgetController.js?ver=localhost"></script>
+	  <script src="/scripts/controllers/unsubscribeEmailsController.js?ver=localhost"></script>
+	  <script src="/scripts/controllers/analyticsDashboardController.js?ver=localhost"></script>
+	  <script src="/scripts/controllers/component/graphAreaController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/component/equipmentFilterController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/payment/paymentController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/payment/paymentController_Paya.js?ver=localhost"></script>
+    <script src="/scripts/controllers/payment/paymentController_Nuvei.js?ver=localhost"></script>
+    <script src="/scripts/controllers/payment/paymentController_AB.js?ver=localhost"></script>
+    <script src="/scripts/controllers/trucksController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/inventoryController.js?ver=localhost"></script>
+    <script src="/scripts/controllers/logoutController.js?ver=localhost"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.357.0.min.js"></script>
+    <script src="/scripts/vendor/carousel/ui-carousel.min.js"></script>
+    <script src="/scripts/vendor/highchart/highcharts.js"></script>
+    <script src="/scripts/vendor/highchart/highcharts-more.js"></script>
+    <script src="/scripts/vendor/highchart/solid-gauge.js"></script>  
+    <script src="/scripts/vendor/highchart/exporting.js"></script>    
+    <script src="/scripts/vendor/froala-editor/froala_editor.pkgd.pb.min.js?ver=localhost"></script>
+    <script src="/scripts/vendor/froala-editor/angular-froala.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.2/angular-sanitize.min.js"></script>
+    <script data-require="lodash.js@*" data-semver="4.17.5" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.js"></script>
+    <script>
+      (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+    </script>
+    <base href="/">
+    <script type="text/javascript" src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://jstest.authorize.net/v1/AcceptCore.js"></script>
+    <script>
+      $(document).ready(function() {
+        var chargebeeInstance = Chargebee.getInstance();
+        if(chargebeeInstance === undefined) {   
+          chargebeeInstance = Chargebee.init({
+              site: "poolbrain-test"
+          });
+        }
+        var chargebeeInstance = Chargebee.getInstance();
+      });
+    </script>
+    <script>            
+      if ('serviceWorker' in navigator) {        
+        navigator.serviceWorker.register('/serviceworker.js', {scope: '/'})
+        .then((reg) => {
+          console.log('Service Worker Registered...');
+        }).catch((error) => {  
+          console.log('Service Worker Registration Failed...');
+        });
+      }    
+    </script>
+  </head>
+  <body ng-app="POOLAGENCY" ui-router-styles>
+    <a href="javascript:void(0)" style="display:none" data-cb-type="checkout" data-cb-plan-id="poolbrain-access" id="chargebee-plan">subscribe</a>
+    <a href="javascript:void(0)" style="display:none" data-cb-type="portal" id="chargebee-manageaccount">Manage account</a>
+    <div ng-controller="headerController" class="wrapper" ng-class="wrapperClass()" ui-view="">
+      <div class="spinner" ng-if="isProcessing">
+        <div class="spinner-item">
+          <div class="spinner-animation">
+            <img src="/resources/images/spinner.gif">
+          </div>
+        </div>
+      </div>
+    </div>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>    
+  </body>
 </html>
+<!-- This file will run only on local server -->

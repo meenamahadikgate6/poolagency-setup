@@ -1,0 +1,46 @@
+<div  ng-controller="paymentController">
+    <script type="text/ng-template" id="paymentPopup.html" >
+        <div class="dataTables_wrapper modal-box common-popup add-service-level-popup payment-xpopup payment-xpopup-{{ paymentConfig.paymentGateway == paymentGateWayNames.paya ? 'paya' : 'nuvei'}}" style="width:370px;">
+            <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>           
+            <div class="popup-header">
+              <span class="heading" ng-if="widgetData.section != 'payment_profile_area'">Pay by {{widgetData.type == 'ach' ? 'ACH' : 'Credit Card'}}</span>
+              <span class="heading" ng-if="widgetData.section == 'payment_profile_area'">Create New Payment Method</span>
+               <div class="popup-close" ng-click="closePaymentDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+            </div>
+            <div class="detail-box">
+               <div class="grid text-left box colored-scroll-bar" style="">                
+                  <div ng-if="widgetData.section == 'payment_profile_area'">
+                     <div class="go-to-back-payment">
+                        <a href="#" ng-click="closeThisDialog()"><i class="fa fa-arrow-left" aria-hidden="true"></i><span class="h-0-5x p-l5">BACK</span></a>
+                     </div>
+                  </div>
+                  <div ng-repeat="gateway in paymentGateways" 
+                     ng-if="paymentConfig.paymentGateway === gateway.name"
+                     ng-include="gateway.template">
+                  </div>                                  
+               </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="payaErrorPopup.html">
+        <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px; min-height:200px">
+            <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+            <div class="popup-header">
+               <span class="heading">
+                  &nbsp; <!-- Code <small ng-if="payaErrorCode">- {{payaErrorCode}}</small> -->
+               </span>
+               <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+            </div>
+            <div class="detail-box text-center">
+               <div class="grid box clr-red p-tb20 text-center" style="max-height:300px; overflow: auto;">
+                  Transaction Declined
+                  <div ng-if="payaErrorMessage != ''" style="margin-top: 5px;color: #333;font-size: 13px;">
+                     {{payaErrorMessage}}
+                  </div>
+               </div>
+               <button class="btn btn-primary" ng-click="closeThisDialog('')">OK
+            </div>
+         </div>
+         </div>
+    </script>
+</div>

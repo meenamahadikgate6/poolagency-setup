@@ -1,0 +1,77 @@
+<div ng-controller="paymentController_Nuvei" ng-init="initiateNuvei()">
+   <div class="spinner" ng-if="nuveiGatewayInitiating" style="border: 0; position: fixed;">
+      <div class="spinner-item">
+         <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+   </div>
+   <div ng-if="paymentConfig.paymentGateway == paymentGateWayNames.nuvei && isNuveiErrors && isNuveiErrors.length > 0" class="nuvei-alert-danger">
+      <label>Errors</label>
+      <p ng-repeat="error in isNuveiErrors">{{error}}</p>
+   </div>
+   <div ng-if="paymentConfig.paymentGateway == paymentGateWayNames.nuvei && isNuveiSuccess && isNuveiSuccess.length > 0" class="nuvei-alert-success">                     
+      <p ng-repeat="success in isNuveiSuccess">{{success}}</p>
+   </div>
+   <div id="paymentNuveiContainer" style="display: none">
+       <div class="nuvei-form-area {{widgetData.model.paymentMethod == 'ach' ? 'is-ach' : 'is-cc'}}">
+          <div id="nuvei_transaction_amount" ng-if="widgetData.section != 'payment_profile_area'">
+             <div class="">
+                <label class="nuvei-form-label transaction_amount_label">Transaction Amount: <span class="transaction_amount">${{widgetData.amount.toFixed(2)}}</span></label>
+             </div>
+          </div>
+          <div id="nuvei_card_area" style="display: none">
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Account Holder Name <span class="nuvei-required">*</span></label>
+                <input type="text" id="cardHolderName" ng-model="nuveiFormData.cardHolderName" class="nuvei-input" maxlength="50"/>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label has-gap-6">Credit Card Number <span class="nuvei-required">*</span></label>
+                <input type="text" id="cardNumber" ng-model="nuveiFormData.cardNumber" class="nuvei-input" allow-typing="^[0-9]+$" maxlength="50"/>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label has-gap-5">Expiration Month <span class="nuvei-required">*</span></label>                        
+                <select type="text" id="expirationMonth" ng-model="nuveiFormData.expirationMonth" class="nuvei-input">
+                   <option value="" disabled selected></option>
+                   <option ng-repeat="month in nuveiMonths" value="{{month.val}}">{{month.label}}</option>
+                </select>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label has-gap-5">Expiration Year <span class="nuvei-required">*</span></label>
+                <select type="text" id="expirationYear" ng-model="nuveiFormData.expirationYear" class="nuvei-input">
+                   <option value="" disabled selected></option>
+                   <option ng-repeat="year in nuveiYears" value="{{year.val}}">{{year.label}}</option>
+                </select>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Billing Street Address <span class="nuvei-required">*</span></label>
+                <input type="text" id="address" ng-model="nuveiFormData.address" class="nuvei-input" maxlength="100"/>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Billing Zip Code <span class="nuvei-required">*</span></label>
+                <input type="text" id="zip" ng-model="nuveiFormData.zip" class="nuvei-input" maxlength="20"/>
+             </div>
+          </div>
+          <div id="nuvei_ach_area" style="display: none">
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Account Holder Name</label>
+                <input type="text" id="accountHolderName" ng-model="nuveiFormData.accountHolderName" class="nuvei-input" maxlength="50"/>
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Routing Number <span class="nuvei-required">*</span></label>
+                <input type="text" id="routingNumber" ng-model="nuveiFormData.routingNumber" class="nuvei-input" maxlength="50">   
+             </div>
+             <div class="nuvei-form-group">
+                <label class="nuvei-form-label">Account Number <span class="nuvei-required">*</span></label>
+                <input type="text" id="accountNumber" ng-model="nuveiFormData.accountNumber"  class="nuvei-input" maxlength="50">
+             </div>
+          </div>
+          <div class="nuvei-btn-area">
+             <button class="nuvei-btn {{ widgetData.section == 'payment_profile_area' ? 'nuvei-submit-btn' : 'nuvei-btn-sm' }}" ng-click="processNuveiPayment()" ng-disabled="nuveiPaymentProcessing">
+             <span class="nuvei-submit-btn-loader-text">Submit</span>                    
+             <span class="nuvei-submit-btn-loader-holder">
+             <span class="nuvei-submit-btn-loader"></span>
+             </span>
+             </button>
+          </div>
+       </div>
+    </div>
+</div>

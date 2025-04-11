@@ -1,0 +1,273 @@
+<div class="ecp-section" ng-if="!isComposeMailWindow">
+	<div class="ecp-section-header">
+		<div class="ecp-section-title">
+			<span>CHOOSE OPTIONS</span>
+			<a href="javascript:void(0)" class="icon-required mobileTooltip" ng-click="openToolTipInPopup($event)">
+				<i class="fa fa-question-circle" aria-hidden="true"></i>
+				<span class="sch-help2" ng-if="isEmailCenter">Choose any combination of options to create an email audience list below based on your selections.</span>
+				<span class="sch-help2" ng-if="!isEmailCenter">Choose any combination of options to filter customer list below based on your selections.</span>
+			  </a>
+		</div>
+	</div>
+	<div class="ecp-section-body">
+		<div class="spinner" ng-if="isFilterMasterLoading['all']">
+			<div class="spinner-item">
+			  <div class="spinner-animation"><img src="resources/images/spinner.gif" /></div>
+			</div>
+		</div>
+		<div class="ecp-section-card">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="ecp-section-equipment-area">
+						<ul class="ecp-section-equipment-list">
+							<li ng-repeat="equipment in equipments" ng-if="!['waterguru'].includes(equipment.icon)">
+								<div class="ecp-equipment-card" ng-click="toggleEquipmentDropdown(equipment.eqId)">
+									<div class="ecp-equipment-card-icon ecp-equipment-card-icon-{{equipment.icon}}"></div>
+									<div class="ecp-equipment-card-title">{{equipment.label}}</div>
+									<div class="ecp-equipment-card-dropdown" ng-if="equipmentDropdownStatus[equipment.eqId]" click-outside="closeEquipmentDropdown()">
+										<ul class="ecp-equipment-card-dropdown-list">
+											<li class="ecp-equipment-card-dropdown-list-item " ng-repeat="equipmentType in equipment.eqType" ng-click="$event.stopPropagation();addToSelections({labelSuffix: equipment.label, label: equipmentType.eqType, id: equipmentType.typeId }, 'equipment')">
+												{{equipmentType.eqType}}
+											</li>
+										</ul>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div> 
+				</div>
+			</div>       
+			<div class="row">
+				<div class="col-xs-12">                                        
+					<div class="ecp-section-dropdown-area">
+						<div class="ecp-section-dropdown" ng-if="isEmailCenter">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('customerStatus')">
+								<span>CUSTOMER STATUS</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content ecp-section-dropdown-content-fullwidth-options" ng-if="ecpDropwDownOpen['customerStatus']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">                                                        
+									<div class="ecp-section-dropdown-content-list-area">
+										<ul class="ecp-section-dropdown-content-list" ng-show="customerStatuses.length > 0">
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="status in customerStatuses" ng-click="addToSelections(status, 'status')">{{status.label}}</li>
+										</ul>                                                            
+										<div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="customerStatuses.length > 0">
+											No status found
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+						<div class="ecp-section-dropdown" ng-if="!isEmailCenter">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('serviceLevel')">
+								<span>SERVICE LEVEL</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['serviceLevel']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">                                                        
+									<div class="ecp-section-dropdown-content-list-area scrollareaCls">
+										<ul class="ecp-section-dropdown-content-list" ng-show="serviceLevelArray.length > 0">
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="serviceLevel in serviceLevelArray" ng-click="addToSelections(serviceLevel, 'serviceLevel')">{{serviceLevel.serviceLevel.title}}</li>
+										</ul>                                                            
+										<div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="serviceLevelArray.length > 0">
+											No service level found
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+						<div class="ecp-section-dropdown">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('city')">
+								<span>CITY</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['city']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">
+									<div class="ecp-section-dropdown-content-search"  ng-show="citiesMaster.length > 0">
+										<i class="fa fa-search"></i>
+										<input type="text" placeholder="Search" id="searchCity" ng-keyup="filterList('searchCity','cityList')" >
+									</div>
+									<div class="ecp-section-dropdown-content-list-area scrollareaCls">
+										<ul class="ecp-section-dropdown-content-list" id="cityList" ng-show="citiesMaster.length > 0">
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="city in citiesMaster" ng-click="addToSelections(city, 'city')">
+												{{city.label}}
+											</li>
+										</ul>
+										<div class="ecp-section-dropdown-content-list-no-result" ng-hide="citiesMaster.length > 0 || isFilterMasterLoading['city']">
+											No city found
+										</div>
+										<div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+											<i></i>
+											<span>Loading cities</span>
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+						<div class="ecp-section-dropdown">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('zipCode')">
+								<span>ZIP CODE</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['zipCode']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">
+									<div class="ecp-section-dropdown-content-search" ng-show="zipCodesMaster.length > 0">
+										<i class="fa fa-search"></i>
+										<input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','zipCodeList')" >
+									</div>
+									<div class="ecp-section-dropdown-content-list-area scrollareaCls">
+										<ul class="ecp-section-dropdown-content-list" id="zipCodeList" ng-show="zipCodesMaster.length > 0">
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="zip in zipCodesMaster" ng-click="addToSelections(zip, 'zip')">
+												{{zip.label}}
+											</li>
+										</ul>
+										<div class="ecp-section-dropdown-content-list-no-result" ng-hide="zipCodesMaster.length > 0 || isFilterMasterLoading['city']">
+											No zipcode found
+										</div>
+										<div class="ecp-section-dropdown-content-list-no-result filter-loader" ng-if="isFilterMasterLoading['city']">
+											<i></i>
+											<span>Loading zipcodes</span>
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+						<div class="ecp-section-dropdown" >
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('tags')">
+								<span>TAGS</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content" ng-if="ecpDropwDownOpen['tags']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">
+									<div class="ecp-section-dropdown-content-search" ng-show="tagsMaster.length > 0">
+										<i class="fa fa-search"></i>
+										<input type="text" placeholder="Search" id="searchTag" ng-keyup="filterList('searchTag','tagList')" >
+									</div>
+									<div class="ecp-section-dropdown-content-list-area scrollareaCls">
+										<ul class="ecp-section-dropdown-content-list" id="tagList" ng-show="tagsMaster.length > 0" >
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="tag in tagsMaster" ng-click="addToSelections(tag, 'tag')">
+												{{tag.label}}
+											</li>
+										</ul>
+										<div class="ecp-section-dropdown-content-list-no-result" ng-hide="tagsMaster.length > 0">
+											No tags were found. You can create and add tags on any customer page.
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+						<div class="ecp-section-dropdown">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('invoiceStatus')">
+								<span>INVOICE STATUS</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content ecp-section-dropdown-content-fullwidth-options" ng-if="ecpDropwDownOpen['invoiceStatus']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">                                                        
+									<div class="ecp-section-dropdown-content-list-area">
+										<ul class="ecp-section-dropdown-content-list" ng-show="invoiceStatuses.length > 0">
+											<li class="ecp-section-dropdown-content-list-item" ng-repeat="status in invoiceStatuses" ng-click="addToSelections(status, 'invoiceStatus')">{{status.label}}</li>
+										</ul>                                                            
+										<div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options" ng-hide="invoiceStatuses.length > 0">
+											No status found
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>                                            
+						<div class="ecp-section-dropdown">
+							<a href="javascript:void(0)" class="btn btn-primary blue-bg ecp-section-dropdown-btn" ng-click="toggleEcpDropDown('route')">
+								<span>ROUTE</span>
+								<i class="fa fa-sort-desc"></i>
+							</a>
+							<div class="ecp-section-dropdown-content ecp-section-dropdown-content-route-list" ng-if="ecpDropwDownOpen['route']" click-outside="closeEcpDropDown()">
+								<div class="ecp-section-dropdown-content-inner">
+									<div class="ecp-section-dropdown-content-slider">
+										<div class="ecp-section-dropdown-content-slider-left">
+											<a href="javascript:void(0)"  ng-click="modifyRouteListDate('left')"><i class="fa fa-caret-left"></i></a>
+										</div>
+										<div class="ecp-section-dropdown-content-slider-center">
+											{{routeListDate.format('dddd, MMMM D, YYYY')}}
+										</div>
+										<div class="ecp-section-dropdown-content-slider-right">
+											<a href="javascript:void(0)" ng-click="modifyRouteListDate('right')"><i class="fa fa-caret-right"></i></a>
+										</div>
+									</div> 
+									<div class="ecp-section-dropdown-content-search">
+										<i class="fa fa-search"></i>
+										<input type="text" placeholder="Route or technician name" id="searchRoute" ng-keyup="filterList('searchRoute','routeList')" >
+									</div>                                                       
+									<div class="ecp-section-dropdown-content-list-area scrollareaCls">
+										<ul class="ecp-section-dropdown-content-list" id="routeList" ng-show="routes.length > 0 && !isRoutesLoading">
+											<li class="ecp-section-dropdown-content-list-item ecp-section-dropdown-content-list-item-route" ng-repeat="route in routes" ng-click="addToSelections(route, 'routes')">
+												<div class="route-item">
+													<div class="route-item-left">
+														<div class="route-item-image" ng-style="{'color': route.color }">
+															<img ng-if="route.userImage" ng-src="{{route.userImage}}" alt="">
+															<span ng-if="!route.userImage">{{route.techFirstname ? (route.techFirstname | convertToInitial: route.techLastname) : '?'}}     </span>
+														</div>
+													</div>
+													<div class="route-item-right">
+														<div class="route-item-title" ng-style="{'color': route.color }">{{route.label}}</div>
+														<div class="route-item-tech-name">{{route.techFirstname}} {{route.techLastname}}</div>
+													</div>
+												</div>
+											</li>
+										</ul>                                                            
+										<div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="routes.length == 0 && !isRoutesLoading">
+											No route found
+										</div>                                                           
+										<div class="ecp-section-dropdown-content-list-no-result ecp-section-dropdown-content-list-no-result-fullwidth-options filter-loader" ng-if="isRoutesLoading">
+											<i></i>
+											<span>Loading routes</span>
+										</div>
+									</div>                                                        
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>                
+		</div>
+	</div>
+</div>
+<div class="ecp-section">
+	<div class="ecp-section-header">
+		<div class="ecp-section-title">
+			<span>SELECTIONS MADE</span>
+			<a href="javascript:void(0)" class="icon-required clear-all-link" ng-click="removeFromSelections('all')" ng-hide="selectionsMade.length == 0 || isComposeMailWindow">
+				clear all
+			</a>
+			<span class="selection-made-query-type-area" ng-hide="selectionsMade.length == 0 || isComposeMailWindow">
+				<div class="dropdown">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-click="closeAllFilterDropdown()">
+						{{selectedFilterPayloadQueryType.label}}
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" ng-style="{ 'width' : !isEmailCenter ? '160px' : 'auto' }">
+						<li ng-repeat="type in filterPayloadQueryTypes" ng-click="selectedFilterPayloadQueryType.id != type.id && filterPayloadQueryType(type)">
+							<a href="javascript:void(0)">{{type.label}}</a>
+						</li>
+					</ul>
+				</div>
+				must match
+			</span>
+			<a href="javascript:void(0)" class="icon-required clear-all-link" ng-click="!isEmailSending && !isPreviewEmailSending && closeComposeMailWindow(templateForm)" ng-hide="!isComposeMailWindow">
+				Go back
+			</a>
+		</div>
+	</div>
+	<div class="ecp-section-body">                          
+		<div class="ecp-section-card ecp-section-card-selection-made">
+			<div class="selection-made-tag-area" ng-if="selectionsMade.length > 0">   
+				<span class="selection-made-tag " ng-class="{ 'selection-made-tag-disabled' : isComposeMailWindow, 'selection-made-tag-highlight': selectionTag.alreadyExist }" ng-repeat="selectionTag in selectionsMade">                                        
+					<ng-container ng-bind-html="selectionTag.selectionLabel"></ng-container>                                                                                
+					<i class="selection-made-tag-delete" ng-click="removeFromSelections(selectionTag.uid)">&times;</i>
+				</span>
+			</div>
+			<div class="selection-made-tag-area selection-made-tag-area-blank" ng-if="selectionsMade.length == 0">   
+				<p ng-if="isEmailCenter">choose options above to create a custom group of emails based on your selections</p>
+				<p ng-if="!isEmailCenter">choose options above to filter customer based on your selections</p>
+			</div>
+		</div>
+	</div>
+</div>

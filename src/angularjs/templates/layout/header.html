@@ -1,0 +1,876 @@
+<div id="mainWrapper" ng-class="{ 'sidebar-opened' : sidebarOpened, 'sidebar-closed' : !sidebarOpened }">
+  <img style="display:none;" src="resources/images/placeholderphoto.gif"  />
+<header id="pb-header">
+<div class="spinner" ng-if="isProcessing">
+  <div class="spinner-item">
+    <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+  </div>
+</div>
+<div ng-if="useProdDb"  class="system-notifiction">System is currently usgin production database, so please do changes carefully. Please don't upload any images/Media</div>
+<div id="logo">
+    <div class="row d-f-align-center">
+      <div class="col-sm-6 logo-holder"><img  border="0" class="logo-img" src="resources/images/triton-logo.png?ver={{PB_WEB_VERSION}}" />  <img ng-if="useProdDb" id="icon-loading" border="0" src="resources/images/icon-loding.gif" /></div>
+      <div class="col-sm-6 logo-qbo-holder">
+       <span ng-if="(crmStatus | json) != '{}'" class="qbo-placeholder">
+        <div ng-if="crmStatus.quickBook" class="sync-status-box">
+          <span class="icon" ng-class="{ 'connectionError' : crmStatus.quickBook.qbErrorMessage }" style="background-image:url(resources/images/quickbooks_logo-icon.png);"></span>
+          <div><b>Last Synced</b></div>
+          <div>{{crmStatus.quickBook.timeDiff}} ago</div>
+          <div>
+            <ng-container>
+             <!-- <span class="btn" ng-if="qbConnectedNow" ng-click="initSyncCompanyCustomers('manual')"><i class="fa fa-refresh"></i> Sync</span> -->
+             <span ng-if="successSync"  style="display: block;color: #557930;"  >{{successSync}}</span>
+            </ng-container>
+            <span class="btn" ng-if="!qbConnectedNow" ng-controller="quickbookController" ng-click="quickBookIntegration()"><i class="fa fa-refresh"></i> Fix</span>
+          </div>
+          <div ng-if="!qbConnectedNow" class="clr-red">
+            <b ng-if="!crmStatus.quickBook.qbErrorMessage">Not Connected</b>
+            <a ng-if="crmStatus.quickBook.qbErrorMessage" href="javascript:void(0)" class="icon-required sync-error-tooltip">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Connection Error 
+              <span>{{crmStatus.quickBook.qbErrorMessage}}</span>
+            </a>
+
+          </div>
+        </div>
+        
+      </span>
+      </div>
+    </div>
+    <span class="toggle-sidebar-icon toggle-sidebar-icon-sidebar" ng-click="toggleSideBar()" ng-class="{ 'open' : sidebarOpened}">         
+      <i class="fa fa-times"></i>
+    </span>
+</div>
+<div id="headerLinks" >
+  <div class="row headerLinks-row" style="margin: 0;">
+  <div class="col-md-5 p-lr0 headerLinks-col headerLinks-col-1 header-left-links p-name-containerr"  ng-if="!rootJobId && !rootDeviceId">
+    <span class="toggle-sidebar-icon" ng-click="toggleSideBar()" ng-class="{ 'open' : !sidebarOpened}">         
+      <i class="fa fa-bars"></i>
+    </span>
+    <div ng-if="currentState == 'app.onetimejob'" ng-controller="oneTimeJobHeaderController" ng-init="oneTimeJobHeaderData()">
+        <div class="row one-time-job-header">
+            <div class="col-md-5 one-time-job-header-left">
+                <h2>Job Overview</h2>
+                <p>Job #{{jobId}} <br>
+                  <a href="" class="delete-btn delete-btn-job-header {{ (canDeleteJobs == 0 && loggedInRole != 'administrator') ? 'delete-btn-job-header-disabled' : ''}}" ng-click="(canDeleteJobs==1 || loggedInRole=='administrator') ? deleteJobConfirm(jobId) : null">
+                    <i class="fa fa-trash"></i>
+                    <i class="delete-btn-job-permission-tooltip" ng-if="(canDeleteJobs == 0 && loggedInRole != 'administrator')">
+                      You don't have permission to delete jobs
+                    </i>
+                  </a>                   
+                  <a href="javascript:void(0)" ng-click="openOneTimeJobAuditPopup()" class="mail-btn"><i class="fa fa-history"></i></a>
+                  <span class="duplicate-job-icon-holder {{isChecklistUpdatingForDuplicateJob ? 'duplicate-job-icon-holder-disable' : ''}}">
+                    <a href="javascript:void(0)" ng-click="!isChecklistUpdatingForDuplicateJob && duplicateOneTimeJob()" class="mail-btn"><i class="fa fa-copy"></i></a>
+                    <span class="duplicate-job-icon-tooltip" ng-if="!isDuplicateJobCreating">
+                      Create a duplicate of this job
+                    </span>
+                  </span>
+                  <a href="javascript:void(0)" ng-disabled="!jobEmailIcon" ng-click="showEmailJobPopup(jobId)" class="mail-btn" ng-if="jobEmailIcon"><i class="fa fa-envelope"></i></a>                    
+                  <a href="javascript:void(0)" ng-disabled="jobEmailIcon" class="mail-btn mail-btn-desabled" ng-if="!jobEmailIcon"><i class="fa fa-envelope"></i></a>
+                </p>
+            </div>
+            <div class="col-md-7 one-time-job-header-right p-lr0">
+                <h2><i class="fa fa-user-circle"></i><a href="/app/customerdetail/{{customer.primeaddressId}}">{{customer.displayName}}</a></h2>
+                <p><i class="fa fa-map-marker"></i> <a href="/app/locationdetail/{{customer.addressId}}">{{customer.address}}<br>{{customer.city}}, {{customer.state}} {{customer.zipcode}}</a></p></p>
+            </div>
+        </div>
+    </div>
+    <div class="page-title title p-b20 trancate-text invoice-title" ng-if="!loggedInRole!='user' && currentState != 'app.onetimejob' && currentState != 'app.customerquotesdetail'" ng-bind-html="subTitle" title="{{subTitle | htmlToPlaintext}}" > 
+    </div>
+    <ng-container class="title" style="padding:8px 0 0 12px;"
+      ng-if="!loggedInRole!='user' && currentState == 'app.customerdetail'">
+      <button ng-if="isActive == 'Lead'" class="isActive-customer-status status-lead">{{ isActive }}</button>
+      <button ng-if="isActive == 'Active (no route)'" class="isActive-customer-status status-active">{{ isActive }}</button>
+      <button ng-if="isActive == 'Active (routed)'" class="isActive-customer-status status-active">{{ isActive }}</button>
+      <button ng-if="isActive == 'Inactive'" class="isActive-customer-status status-inActive">{{ isActive }}</button>
+      <div class="p-name-container" ng-if="isActive == 'Archived'" style="cursor: pointer;padding: unset;">
+          <button class="isActive-customer-status status-archived">{{ isActive }}</button>
+        <span style="color: #285fc6;
+        font-size: 12px;
+        font-weight: 800;
+        margin-top: 63px;cursor: pointer;" ng-click="activeCustomerConfirm()">Make Active</span>
+      </div>
+    </ng-container>
+    <span class="edit-link" ng-if="isActive != 'Archived'  && currentState == 'app.customerdetail'">
+      <span class="edit-lin-span edit-lin-span-automated-email {{ customerAutomatedEmailOnLoading ? 'customer-automated-mail-changing' : ''}}" >
+          <a href="javascript:void(0)" class="{{ customerAutomatedEmailOn ? 'automated-email-on' : 'automated-email-off' }}" ng-click="toggleCustomerAutomatedEmails()"></a>
+          <div class="edit-lin-span-automated-email-tooltip">
+            <div class="edit-lin-span-automated-email-tooltip-content customer-automated-mail-{{ customerAutomatedEmailOn ? 'on' : 'off'}}">
+              <p>
+                <span>Automatic Emails are</span>
+                <span class="customer-automated-mail-status on">ON</span>
+                <span class="customer-automated-mail-status off">OFF</span>
+              </p>
+              <ul>
+                <li><i class="fa fa-list-icon"></i><span>Past due invoice reminders</span></li>
+                <li><i class="fa fa-list-icon"></i><span>Open quote follow ups</span></li>
+                <li><i class="fa fa-list-icon"></i><span>Route day change notifications</span></li>
+              </ul>
+              <p class="help-text">(job/route stop emails not affected)</p>
+            </div>              
+          </div>
+      </span>
+      <span class="edit-lin-span" style="background-image: url(resources/images/quickbooks_logo-icon.png);" ng-click="showQBOLogs()" ng-if="!loggedInRole!='user' && isActive"></span>
+      <span class="edit-lin-span" ng-if="!loggedInRole!='user' && isActive" style="margin: 15px 0 0 15px;">
+        <a href="javascript:void(0)" ng-click="deleteCustomerConfirm()" class="job-icon e-icon title-invoice-delete-icon"><i class="fa fa-trash false" aria-hidden="true"></i></a> 
+      </span>
+    </span>
+    <div class="title p-b20 invoice-title assigned_qd_parent" ng-if="currentState == 'app.customerquotesdetail'" >
+      <div> QUOTE #{{qd_quoteNo}}</div>
+    </div>
+    <div class="header-sub-title job-subhead job-icon-warpper invoice-delete qd-header-icons" ng-if="currentState == 'app.customerquotesdetail'" style="position: absolute;
+    top: 40px;
+    display: flex;">
+      <div class="cant-add-item title-invoice-edit" ng-class="quotesModelStatus=='Approved' ? 'active' : ''">
+        <div class="cant-add-item-link-holder">
+          <a href="javascript:void(0)" ng-class="{ 'disabled-copy' : !qd_quoteNo }" ng-click="qd_quoteNo ? deleteQuotesConfirm() : ''" class="job-icon e-icon"><i class="fa fa-trash {{quotesModelStatus}}" aria-hidden="true"></i></a>
+          <!-- <a href="javascript:void(0)"  ng-click="deleteInvoiceConfirm()" class="job-icon e-icon title-invoice-delete-icon"><i class="fa fa-trash {{rs_existPaymentValue}}" aria-hidden="true"></i></a>  -->
+        </div>                   
+        <!-- <div class="e-tooltip cant-add-item-e-tooltip delete-item-link" ng-if="quotesModelStatus!='Open'">
+          The invoice can't be deleted because there are payments applied to it. If you'd like to delete this invoice, please first remove all applied payments.
+        </div> -->
+      </div>   
+      <div class="qd-copy-icon-link-holder">
+        <a href="javascript:void(0)" ng-class="{'disabled-copy' : !qd_quoteNo}" ng-click="qd_quoteNo ? duplicateQuote() : ''" class="qd-copy-icon-link">
+          <i class="fa fa-copy"></i>            
+       </a>
+       <div class="e-tooltip cant-add-item-e-tooltip delete-item-link">
+        Create a duplicate of this quote
+      </div>
+      </div>
+      <div class="qd-copy-icon-link-holder">
+        <a href="javascript:void(0)" style="float: left;font-size: 22px" ng-click="openQuoteAuditLog()" class="mail-btn qd-copy-icon-link"><i class="fa fa-history"></i></a>
+      </div>
+      <!-- <span class="qd-date-header" ng-if="quotesDate">{{quotesDate | convertDateOffset: qd_companyTimeZone: 'MM/dd/yy'}}</span> -->
+    </div>
+    <div class="p-b10" style="font-weight: 700;color: #34495e;position: absolute;left: 12px;top: 46px;
+    font-size: 21px;" ng-if="!loggedInRole!='user' && currentState != 'app.onetimejob' && currentState != 'app.customerquotesdetail' && currentState != 'app.customerinvoicedetail'" ng-bind-html="title" title="{{title | htmlToPlaintext}}" >
+    </div>
+    <div class="one-time-invoice-header" ng-if="currentState == 'app.customerinvoicedetail'  &&  (canDeleteInvoice ==1  ||  loggedInRole=='administrator')" style="position: absolute;
+    top: 50px;
+    left: 8px;">
+      <div class="cant-add-item title-invoice-edit" ng-class="rs_existPaymentValue ? 'active' : ''" ng-hide="invoiceDetails.invoiceStatus == 'Upcoming'">
+          <div class="cant-add-item-link-holder">
+            <a href="javascript:void(0)" ng-click="deleteInvoiceConfirm()" class="job-icon e-icon title-invoice-delete-icon"><i class="fa fa-trash {{rs_existPaymentValue}}" aria-hidden="true"></i></a> 
+          </div>                   
+          <div class="e-tooltip cant-add-item-e-tooltip delete-item-link" ng-if="rs_existPaymentValue">
+            The invoice can't be deleted because there are payments applied to it. If you'd like to delete this invoice, please first remove all applied payments.
+          </div>
+      </div>
+      <div class="cant-add-item title-invoice-edit" ng-class="invoiceDetails.invoiceStatus == 'Upcoming' ? 'active' : ''" ng-show="invoiceDetails.invoiceStatus == 'Upcoming'">
+        <div class="cant-add-item-link-holder">
+          <a href="javascript:void(0)" ng-click="deleteInvoiceConfirm()" class="job-icon e-icon title-invoice-delete-icon"><i class="fa fa-trash {{invoiceDetails.invoiceStatus == 'Upcoming'}}" aria-hidden="true"></i></a> 
+        </div>                   
+        <div class="e-tooltip cant-add-item-e-tooltip delete-item-link" ng-if="invoiceDetails.invoiceStatus == 'Upcoming'">
+          Upcoming invoices can't be deleted. If a Route Schedule is active, an upcoming invoice will always exist.
+        </div>
+      </div>
+    </div>
+    <div class="one-time-invoice-header" ng-if="currentState == 'app.customerinvoicedetail'  &&  (canDeleteInvoice ==1  ||  loggedInRole=='administrator') && invoiceDetails.invoiceNumber" style="   
+    position: absolute;
+    left: 45px;
+    top: 52px;">
+      <a href="javascript:void(0)" style="float: left;" ng-click="openInvoiceAuditLog()" class="mail-btn"><i class="fa fa-history"></i></a>
+    </div>
+    <!-- <a href="javascript:void(0)" style="display:block;" class="sync-log" ng-click="showQBOLogs()">Audit Log</a> -->
+    <!-- <div class="col-md-4" style="bottom: 0;position: absolute;top: 55px;left: 5px;" ng-if="currentState == 'app.customerinvoicedetail' && invoiceDetails.invoiceNumber">
+  <div class="p-name-container h-2x b darkGray grid text-left" ng-if="!shownInvoiceDate">
+    <ng-container>{{createdOn | date: 'MM/dd/yy'}}</ng-container>
+    <span class="edit-link" ng-click="showInvoiceDate()">Edit</span>
+  </div>
+  <div class="customer-edit-wrapper" ng-if="shownInvoiceDate">
+    <div class="address-search datePicker" style="padding-left:0!important">
+      <div class="smallview">
+        <i class="fa fa-times searchbtn" aria-hidden="true" ng-click="hideInvoiceDate()" style="top: 8px;
+        left: 175px;"></i>
+        <input type="text" tabindex="4" class="form-control" datetimepicker options="datePickerOption" ng-blur="saveInvoiceDate(createdOn)" ng-model="createdOn" placeholder="Date" style="height: 20px;
+        margin-top: 10px;"/>
+      </div>
+  </div> 
+  </div>
+    </div> -->
+  </div>
+  <div class="col-md-5 p-lr0 headerLinks-col headerLinks-col-1" ng-if="rootJobId" style="z-index: 9;">
+    <span class="toggle-sidebar-icon" ng-click="toggleSideBar()" ng-class="{ 'open' : !sidebarOpened}">         
+      <i class="fa fa-bars"></i>
+    </span>
+    <div class="page-title title page-title-rootJobId" ng-if="!loggedInRole!='user'" >
+      <div class="" ng-bind-html="title" title="{{title | htmlToPlaintext}}" >{{title}}</div>
+      <h4 class="second-title second-title-route-stop header-sub-title job-subhead job-icon-warpper">        
+        <span class="route-stop-header-icons-area">
+          <span>Job #{{rootJobId}}</span>
+          <div class="route-stop-header-icons">
+            <a href="javascript:void(0)" ng-click="(canDeleteJobs==1 || loggedInRole=='administrator') ? deleteJobConfirm() : null" class="job-icon e-icon {{ (canDeleteJobs== 0 && loggedInRole != 'administrator') ? 'e-icon-disabled' : ''}}">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+              <div class="e-tooltip" ng-if="(canDeleteJobs==1 || loggedInRole=='administrator')">
+                Job done for wrong property?
+                <br/>Click to delete
+              </div>
+              <div class="e-tooltip e-tooltip-permission" ng-if="(canDeleteJobs== 0 && loggedInRole != 'administrator')">
+                You don't have permission to delete jobs
+              </div>
+            </a>
+            <a href="javascript:void(0)" class="route-stop-email-icon" ng-click="rootOpenEmailSummaryPopup()">
+              <i class="fa fa-envelope"></i>
+            </a>   
+          </div>                 
+        </span>
+      </h4>
+      
+    </div>
+  </div>
+  <div class="col-md-5 p-lr0 headerLinks-col headerLinks-col-1" ng-if="rootDeviceId">
+    <span class="toggle-sidebar-icon" ng-click="toggleSideBar()" ng-class="{ 'open' : !sidebarOpened}">         
+      <i class="fa fa-bars"></i>
+    </span>
+    <div class="page-title title page-title-rootJobId" ng-if="!loggedInRole!='user'" >
+      <div class="" ng-bind-html="title" title="{{title | htmlToPlaintext}}" >{{title}}</div>
+      <h4 class="second-title second-title-route-stop header-sub-title job-subhead job-icon-warpper">        
+        <span class="route-stop-header-icons-area">
+          <span>Data #{{rootDeviceId}}</span>
+          <div class="route-stop-header-icons">
+            <a href="javascript:void(0)" ng-click="(canDeleteJobs==1 || loggedInRole=='administrator') ? deleteJobConfirm() : null" class="job-icon e-icon {{ (canDeleteJobs== 0 && loggedInRole != 'administrator') ? 'e-icon-disabled' : ''}}">
+              <i class="fa fa-trash" aria-hidden="true"></i>
+              <div class="e-tooltip" ng-if="(canDeleteJobs==1 || loggedInRole=='administrator')">
+                Remote Data Sent For Wrong
+                <br/> Property? Click to delete
+              </div>
+              <div class="e-tooltip e-tooltip-permission" ng-if="(canDeleteJobs== 0 && loggedInRole != 'administrator')">
+                You don't have permission to delete jobs
+              </div>
+            </a> 
+          </div>                 
+        </span>
+      </h4>
+      
+    </div>
+  </div>
+
+  <div class="col-md-7 p-lr0 headerLinks-col headerLinks-col-2" ng-class="{ 'fullScreenSearchBox' : isFullScreenSearchBoxOpen }">
+    <div class="dropdown select-wrap create-job-dropdown">
+      <button class="btn btn-primary dropdown-toggle create-job-btn" type="button" data-toggle="dropdown" ng-class="{'disabled': !isCompanyHasFullSignUp && loggedInRole !=='administrator'}"></button>
+      <ul class="dropdown-menu scrollable-menu">   
+        <li>Create New</li>          
+        <li><a href="javascript:void(0)" ng-click="createJobModal()">Job</a></li> 
+        <li><a href="javascript:void(0)" ng-click="createQuotesModal()">Quote</a></li> 
+        <li><a href="javascript:void(0)" ng-click="createInvoiceModal()">Invoice</a></li> 
+        <li><a href="javascript:void(0)" ng-click="addEditCustomerForm()" ng-controller="customerController">Customer</a></li>          
+      </ul>
+    </div>
+  <span class="headerSearchBox" ng-class="{'edit-not-allowed': !isCompanyHasFullSignUp && loggedInRole !=='administrator' }">
+    <img src="resources/images/magnifiy.png">
+    <input type="text" ng-model="customerName" placeholder="customer, address, job #" auto-complete="autoCompleteOptions" class="customer-search" ng-class="{'disabled-input': !isCompanyHasFullSignUp && loggedInRole !=='administrator' }"/>
+    <span class="customer-search-toggle customer-search-close" ng-click="isFullScreenSearchBoxOpen=false"><i class="fa fa-times"></i></span>
+  </span>
+  <span class="customer-search-toggle" ng-click="isFullScreenSearchBoxOpen=true"><img src="resources/images/magnifiy.png"></span>
+    <div class="admin-profile" ng-class="{'selected' : hoverProfile }" click-outside="hoverProfileFn(false)" >
+
+   <a ng-if="loggedInRole!='user' && loggedInRole != 'administrator'" href="javascript:void(0)" ui-sref="app.profile" ng-click="hoverProfileFn(false)" >
+      <div class="image-radius name-initial image-radius-pp-header " style="background-image:url({{userSession.userImage}});background-size:cover;">
+          <span ng-show="!userSession.userImage">
+            {{userSession.firstName | convertToInitial: userSession.lastName}}
+          </span>
+        </div>
+     <span class="header-name">{{userSession.firstName}} {{userSession.lastName}}</span>
+   </a>
+   <a ng-if="loggedInRole=='user' || loggedInRole == 'administrator'" href="javascript:void(0)" ng-click="hoverProfileFn(false)" >
+      <div class="image-radius name-initial image-radius-pp-header " style="background-image:url({{userSession.userImage}});background-size:cover;">
+          <span ng-show="!userSession.userImage">
+              {{userSession.firstName | convertToInitial: userSession.lastName}}              
+          </span>
+        </div>
+        <span class="header-name">{{userSession.firstName}} {{userSession.lastName}}</span>
+   </a>
+     <span href="javascript:void(0)" ng-click="hoverProfileFn()" class="arrow-down" ></span>
+     <span href="javascript:void(0)" ng-click="hoverProfileFn()" class="view-more-btn">
+      <div class="image-radius name-initial image-radius-pp-header name-initial-sm" style="background-image:url({{userSession.userImage}});background-size:cover;">
+        <span ng-show="!userSession.userImage">
+            {{userSession.firstName | convertToInitial: userSession.lastName}}              
+        </span>
+      </div>
+      <i class="view-more fa fa-ellipsis-v"></i>
+     </span>
+    <div ng-show="hoverProfile" ng-if="hoverProfile" class="ser-managers-info animate-show">
+      <!-- for displaying name in small devices -->
+      <ul> 
+        <li class="profile-link-li"><span class="name-in-sm-menu">{{userSession.firstName}} {{userSession.lastName}}</span> </li>
+      </ul>
+      <!-- for displaying name in small devices -->
+      <ul ng-if="loggedInRole!='user' && loggedInRole != 'viewer' && loggedInRole != 'servicemanager' && loggedInRole!='administrator' && isCompanyHasFullSignUp">
+        <li class="profile-link-li"><span class="manager-contact"><a href="javascript:void()" title="Profile" ng-click="hoverProfileFn(false)" ui-sref="app.profile"><i class="fa fa-user" aria-hidden="true"></i>Profile</a></span> </li>        
+        <li><span class="manager-contact"><a href="javascript:void()" title="Settings" ng-click="hoverProfileFn(false)" ui-sref="app.companysettings"><i class="fa fa-gear" aria-hidden="true"></i>Settings</a></span> </li>        
+        <li ng-if="editAlertPermission"><span class="manager-contact"><a href="javascript:void()" title="Alerts Management" ng-click="hoverProfileFn(false)" ui-sref="app.alertsmanagement"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>Customize Alerts</a></span> </li>
+        <li><span class="manager-contact"><a href="javascript:void()" title="User Management" ng-click="hoverProfileFn(false)" ui-sref="app.usermanagement"><i class="fa fa-users" aria-hidden="true"></i>User Management</a></span> </li>
+        <li><span class="manager-contact"><a href="javascript:void()" title="Billing Management" ng-click="openChargeBee()"><i class="fa fa-dollar" aria-hidden="true"></i>Subscription</a></span> </li>
+        <li><span class="manager-contact"><a href="http://help.poolbrain.com/" target="_blank" title="Help" ><i class="fa fa-question-circle-o" aria-hidden="true"></i>Help</a></span> </li>
+      </ul>
+      <ul ng-if="loggedInRole=='administrator'">
+        <li><span class="manager-contact"><a href="javascript:void()" ng-click="hoverProfileFn(false)" ui-sref="administrator.settings"><i class="fa fa-gear" aria-hidden="true"></i> Settings</a></span> </li>
+        <li ng-if="editAlertPermission"><span class="manager-contact"><a href="javascript:void()" title="Alerts Management" ng-click="hoverProfileFn(false)" ui-sref="app.alertsmanagement"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>Customize Alerts</a></span> </li>
+        <li><span class="manager-contact"><a href="javascript:void()" title="User Management" ng-click="hoverProfileFn(false)" ui-sref="app.usermanagement"><i class="fa fa-users" aria-hidden="true"></i>User Management</a></span> </li>
+        <li><span class="manager-contact"><a href="javascript:void()" title="Billing Management" ng-click="openChargeBeeSAdmin()"><i class="fa fa-dollar" aria-hidden="true"></i>Subscription</a></span> </li>
+        <li ng-if="!isNppServer && userSession.isSuperAdmin"><span class="manager-contact"><a href="javascript:void()" title="Companies" ng-click="hoverProfileFn(false)" ui-sref="administrator.company"><i class="fa fa-codiepie" aria-hidden="true"></i>Companies</a></span> </li>
+        <li><span class="manager-contact"><a href="http://help.poolbrain.com/" target="_blank" title="Help" ><i class="fa fa-question-circle-o" aria-hidden="true"></i>Help</a></span> </li>
+      </ul>
+      <ul ng-if="loggedInRole=='user' || loggedInRole == 'viewer' || loggedInRole == 'servicemanager'">        
+        <li ng-if="editAlertPermission && isCompanyHasFullSignUp"><span class="manager-contact"><a href="javascript:void()" title="Alerts Management" ui-sref="app.alertsmanagement"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>Customize Alerts</a></span> </li>        
+      </ul>
+      <!-- for displaying logout button in all role -->
+      <ul>
+        <li><a href="javascript:void(0)" ng-click="doLogout()" ng-controller="authController"><i class="fa fa-sign-out" aria-hidden="true"></i> LogOut</a></li>
+      </ul>
+      <!-- for displaying logout button in all role -->
+    </div>
+  </div>
+</div>
+  </div>
+</div>
+</header>
+<error ng-if="errorMail" message="{{errorMail}}"></error>
+<script type="text/ng-template" id="emailConfirm.html">
+<div class="dataTables_wrapper modal-box common-popup oneOffJobMail" style="width:400px; ">
+  <div class="popup-header"><span class="heading ng-binding">Email Job Summary</span>
+    <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+   <div class="popup-body text-center">
+    <span>{{responseMsg}}</span>
+   </div> 
+</div>  
+</script>
+<script type="text/ng-template" id="sentJobEmailPopup.html">
+<div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:370px">  
+  <div ng-if="isApiProcessing" class="transparent-bg-fixed"></div>
+  <div class="spinner" ng-if="isProcessing" style="border:none; position: fixed;">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="popup-header">
+    <span class="heading">Email Job Summary</span>
+    <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>   
+  <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">    
+    <error ng-if="sentEmailError" message="{{sentEmailError}}"></error>
+  </div>
+  <form class="set-chem-form" name="sentEmailForm" autocomplete="off" ng-submit="sentEmailForm.$valid && emailJob(sentEmailModel)" novalidate>
+     <input type="hidden" name="jobId" id="jobId" ng-model="sentEmailModel.jobId">
+    <div class="detail-box">         
+      <div class="grid text-left box" >
+        <div class="col-12-12">                 
+            <div class="formGroup">
+                <label>Email Address</label>
+                <input 
+                    type="email" 
+                    autocomplete="off" 
+                    class="form-control" 
+                    ng-model="sentEmailModel.email" 
+                    placeholder="Email Address" 
+                    name="emailId" 
+                    ng-maxlength="100" 
+                    ng-minlength="6" 
+                    ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                    ng-class="{'has-error': sentEmailForm.$submitted && sentEmailForm.emailId.$invalid || sentEmailForm.emailId.$touched && loginForm.emailId.$invalid}"
+                    required                         
+                />
+            </div>     
+        </div>
+      </div>      
+      <div class="text-center p-t20">
+        <button class="add-button" ng-click="closeThisDialog()" type="button">CANCEL</button>
+        <span class="p-l10"><button class="add-button" type="submit" ng-click="sentEmailForm.submitAttempt=true;" >SEND EMAIL</button></span>            
+      </div>        
+    </div>
+  </form> 
+
+</div>
+</script>
+
+
+<script type="text/ng-template" id="createJob.html" >
+<div class="dataTables_wrapper modal-box modal-box-v2 common-popup" style="max-width: 700px; min-height: auto;">
+    <div class="popup-header">
+      <span class="heading ">Create New Job</span>
+    </div>
+    <div class="create-new-job">
+      <div class="search">
+        <span class="search-icon"></span>                
+        <span class="loading-icon" ng-if="loadingCustomerApi"></span>
+        <input type="search" style="opacity: 0;position: absolute;">
+        <!-- <input type="text" id="newJobPopupInput" ng-model="customerName" placeholder="Customer name or address" auto-complete="showListCustomer" class="customer-search"/> -->
+        <input type="text" id="newJobPopupInput" ng-model="searchCustomerPayload.searchKey" placeholder="Customer name or address" class="customer-search" ng-change="showCustomerList(searchCustomerPayload.searchKey, false)" />
+        <div class="selectedCustomerForJob" ng-if="selectedCustomerNew">
+          <div class="customer-name">{{selectedCustomerNew.displayName}}</div> 
+          <div class="customer-address">{{selectedCustomerNew.fullAddress}} </div>
+          <button ng-click="selectedCustomerRemove()" class="close-btn-job"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </div>
+          <!-- <table id="customer-list" ng-if="isCustomerSearch && !loaderApi && productBundleList.length > 0">
+            <tbody ng-repeat="customer in productBundleList" ng-class="">
+              <tr style="cursor: pointer;">
+                <td ng-click="selectCustomer(customer)">
+                  <div class="customer-name">{{customer.displayName}}</div>
+                  <div class="customer-address">{{customer.fullAddress}}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table> -->
+          <div class="ps-picker colored-scroll-bar comm-src" style="margin-top: -29px; position: absolute;" ng-hide="selectedCustomerNew">
+            <table id="product-list" ng-if="isCustomerSearch">
+              <tbody ng-if="searchListCustomer.length > 0" ng-repeat="customer in searchListCustomer" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                <tr class="new-search-list" ng-click="selectCustomerNew(customer)">
+                  <td class="search-list-div">
+                    <div class="customer-name"><span class="hightLight" ng-bind-html="customer.displayName | highlight: searchCustomerPayload.searchKey"></span></div>
+                    <div class="customer-address"><span class="hightLight" ng-bind-html="customer.fullAddress | highlight: searchCustomerPayload.searchKey"></span></div>
+                </td>
+                </tr>                            
+              </tbody>                          
+              <tbody ng-if="searchListCustomer.length > 0 && searchCustomerPayload.hasMoreData">
+                <tr>
+                    <td colspan="100" style="padding: 0">
+                        <div class="loadMoreProductData-btn-holder">
+                            <a href="javascript:void(0)" class="loadMoreProductData-btn" ng-class="{ 'disabled' : isProductPopupSearching}" ng-click="loadMoreCustomer()">
+                                <span ng-if="!isProductPopupSearching">Load more</span>
+                                <span ng-if="isProductPopupSearching">Loading...</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody ng-if="searchListCustomer.length == 0 && searchCustomerPayload.searchKey != '' && !isProductPopupSearching">
+              <tr><td colspan="5" style="text-align:center"> <strong>No customer found with this name.</strong> </td></tr>
+            </tbody>
+           </table>
+        </div>
+      </div>
+      <div>
+        <a class="btn btn-primary" ng-click="createNewJob()" ng-if="selectedCustomerNew">CREATE JOB</a><button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="createInvoice.html" >
+<div class="dataTables_wrapper modal-box modal-box-v2 common-popup" style="max-width: 700px; min-height: auto;">
+    <div class="popup-header">
+      <span class="heading ">Create New Invoice</span>
+    </div>
+    <div class="create-new-job">
+      <div class="search">
+        <span class="loading-icon" ng-if="loadingCustomerApi"></span>
+        <span class="search-icon"></span>
+        <input type="search" style="opacity: 0;position: absolute;">
+        <!-- <input type="text" id="newInvoicePopupInput" ng-model="customerName" placeholder="Customer name or address" auto-complete="showListCustomer" class="customer-search"/> -->
+        <input type="text" id="newInvoicePopupInput" ng-model="searchCustomerPayload.searchKey" placeholder="Customer name or address" class="customer-search" ng-change="showCustomerList(searchCustomerPayload.searchKey, false)" />
+        <div class="selectedCustomerForJob" ng-if="selectedCustomerNew">
+          <div class="customer-name">{{selectedCustomerNew.displayName}}</div> 
+          <div class="customer-address">{{selectedCustomerNew.fullAddress}} </div>
+          <button ng-click="selectedCustomerRemove()" class="close-btn-job"><i class="fa fa-times" aria-hidden="true"></i></button></div>
+          <!-- <table class="loading-api" ng-if="loaderApi">
+            <tbody>
+              <tr>
+                <td>Loading...</td>
+              </tr>
+            </tbody>
+          </table> -->
+          <!-- <table id="customer-list" ng-if="isCustomerSearch && !loaderApi && productBundleList.length > 0">
+            <tbody ng-repeat="customer in productBundleList" ng-class="">
+              <tr style="cursor: pointer;">
+                <td ng-click="selectCustomer(customer)">
+                  <div class="customer-name">{{customer.displayName}}</div>
+                  <div class="customer-address">{{customer.fullAddress}}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table> -->
+          <div class="ps-picker colored-scroll-bar comm-src" style="margin-top: -29px; position: absolute;" ng-hide="selectedCustomerNew">
+            <table id="product-list" ng-if="isCustomerSearch">
+              <tbody ng-if="searchListCustomer.length > 0" ng-repeat="customer in searchListCustomer" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                <tr class="new-search-list" style="cursor: pointer;" ng-click="selectCustomerNew(customer)">
+                  <td class="search-list-div">
+                    <div class="customer-name"><span class="hightLight" ng-bind-html="customer.displayName | highlight: searchCustomerPayload.searchKey"></span></div>
+                    <div class="customer-address"><span class="hightLight" ng-bind-html="customer.fullAddress | highlight: searchCustomerPayload.searchKey"></span></div>
+                </td>
+                </tr>                            
+              </tbody>                          
+              <tbody ng-if="searchListCustomer.length > 0 && searchCustomerPayload.hasMoreData">
+                <tr>
+                    <td colspan="100" style="padding: 0">
+                        <div class="loadMoreProductData-btn-holder">
+                            <a href="javascript:void(0)" class="loadMoreProductData-btn" ng-class="{ 'disabled' : isProductPopupSearching}" ng-click="loadMoreCustomer()">
+                                <span ng-if="!isProductPopupSearching">Load more</span>
+                                <span ng-if="isProductPopupSearching">Loading...</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody ng-if="searchListCustomer.length == 0 && searchCustomerPayload.searchKey != '' && !isProductPopupSearching">
+              <tr><td colspan="5" style="text-align:center"> <strong>No customer found with this name.</strong> </td></tr>
+            </tbody>
+           </table>
+        </div>
+          
+        <!-- <span class="search-icon"></span> -->
+        <!-- <input type="search" ng-model="searchText" placeholder="Search customer name or address" ng-keyup="showListCustomer(searchText)" ng-blur="hideListCustomer(searchText)">
+        <div class="selectedCustomerForJob" ng-if="selectedCustomerForJob">
+          <div class="customer-name">{{selectedCustomerForJob.displayName}}</div> 
+          <div class="customer-address">{{selectedCustomerForJob.address}} </div>
+          <button ng-click="selectCustomerRemove()" class="close-btn-job"><i class="fa fa-times" aria-hidden="true"></i></button></div>
+        <table id="customer-list" ng-if="isCustomerSearch">
+          <tbody ng-repeat="customer in productBundleList" ng-class="">
+            <tr style="cursor: pointer;">
+              <td ng-click="selectCustomer(customer)">
+                <div class="customer-name">{{customer.displayName}}</div>
+                <div class="customer-address">{{customer.fullAddress}}</div>
+              </td>
+            </tr>
+          </tbody> -->
+        </table>
+      </div>
+      <div>
+        <a class="btn btn-primary" ng-click="createNewInvoice()" ng-if="selectedCustomerNew">CREATE INVOICE</a><button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</script>
+<script type="text/ng-template" id="showMsg.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header">
+      <span class="heading">Confirm</span>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>To create invoices, you must first activate billing in settings</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+          <button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+<script type="text/ng-template" id="showMsg.html" >
+<div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+  <div class="popup-header text-left">
+    <span class="heading text-center">Confirm</span>
+  </div>
+   <div class="popup-body text-center">
+     <div class="row-container">
+       <div><label>To create invoices, you must first activate billing in settings</label></div>
+       <br />
+       <div class="set-chem-button m-b20" style="text-align: center;">
+        <button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+       </div>
+     </div>
+   </div>
+
+</div>
+</script>
+<script type="text/ng-template" id="addCustomerTemplate.html" >
+<div class="dataTables_wrapper modal-box" style="max-width: 600px;min-height: auto;width: auto;">
+  <div class="spinner" ng-if="isProcessingxRs">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+ <div class="popup-header">
+   <div class="white text-center"><strong> {{customerModel.customerId ? 'Edit' : 'New'}} Customer </strong></div>
+   <div class="popup-close popup-right-section fr" ng-click="closeCustomerPopup()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+ </div>
+   <div>
+         <form class="form-signin" id="customerModelForm" name="customerModelForm" ng-submit="customerModelFormIsSubmit = true; customerModelForm.$valid && addEditCustomer(customerModel)" novalidate>           
+            <div class="row">
+              <div class="col-md-6">
+               <input autocomplete="off" class="form-control" name="firstName" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.firstName.$invalid}" ng-maxlength="50" ng-model="customerModel.firstName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="First Name" required="" type="text"/>
+               <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.firstName.$invalid">First Name should contain letters and numbers only</span> </span>
+              </div>
+
+              <div class="col-md-6">
+                <input autocomplete="off" class="form-control" name="lastName" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.lastName.$invalid}" ng-maxlength="50" ng-model="customerModel.lastName" ng-pattern="/^([a-zA-Z0-9 '._-]+)$/" placeholder="Last Name" required="" type="text"/>
+                <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.lastName.$invalid">Last Name should contain letters and numbers only</span> </span>
+               </div>
+                         
+             <div class="col-md-6">
+                <input autocomplete="off" class="form-control" name="contactNumber"
+                ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.contactNumber.$invalid}" maxLength="12"
+                ng-model="customerModel.contactNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input=""
+                placeholder="Phone" type="text" />      
+                <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.contactNumber.$invalid">Please enter valid Phone</span> </span>           
+             </div>
+             <div class="col-md-6">
+               <input autocomplete="off" class="form-control" name="email" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm.email.$invalid}" ng-maxlength="100" ng-minlength="6" ng-model="customerModel.email" ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' placeholder="Email" type="email"/>
+               <span class="has-required p-b10"><span ng-show="customerModelFormIsSubmit && customerModelForm.email.$invalid">Please enter valid Email</span> </span>
+             </div>
+            </div>
+            <hr />
+            <!-- <label class="p-b10" >Addresses <span ng-show="customerModel.addressList && customerModel.addressList.length > 0" class="btn btn-primary button blue-bg add-address-btn fr" ng-click="customerModelFormIsSubmit = false; addNewAddress()" >ADD ADDRESS</span></label> -->
+            <div class="customerAddressFieldBox header-address-box">
+              <!-- <div class="text-center p-tb10"  ng-show="customerModel.addressList && customerModel.addressList.length == 0">
+                <span class="btn btn-primary button blue-bg add-address-btn" ng-click="customerModelFormIsSubmit = false; addNewAddress()" >ADD ADDRESS</span>
+              </div> -->
+              <div class="row" ng-repeat="addressListPopupModel in customerModel.addressList">
+                <div class="col-md-12">
+                 
+                  <input 
+                  autocomplete="off" 
+                  class="form-control" 
+                  name="address{{$index}}" 
+                  ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['address'+$index].$invalid}" 
+                  maxlength="150" 
+                  ng-model="customerModel.addressList[$index].addressLine1"  
+                  ng-blur="(customerModel.addressList[$index].addressLine1 && customerModel.addressList[$index].addressLine1 != '') ? IsVisibleCityState = true : null"
+                  placeholder="Address"            
+                  required 
+                  ng-focus="setSelectedAutoCompleteId($index)"  
+                  details="chosenPlaceDetails" 
+                  googleplace  
+                  type="text" />
+                  
+                  
+                  
+                    
+                  <span class="has-required p-b10">
+                  <span ng-show="customerModelFormIsSubmit && customerModelForm['address'+$index].$invalid">Please enter Address</span></span>
+              
+                </div>
+                <!-- <div class="col-md-1" ng-show="!customerModel.addressList[$index].addressId"> <img  ng-click="deleteAddress(customerModel, $index)" class="btn-trash" border="0" src="resources/images/icon-trash.png" /></div> -->
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                  <input autocomplete="off" class="form-control" name="city{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['city'+$index].$invalid}" maxlength="25" ng-model="customerModel.addressList[$index].city"  placeholder="City" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"   />
+                  <span class="has-required p-b10">
+                    <span ng-show="customerModelFormIsSubmit && customerModelForm['city'+$index].$error.required">City is required</span>
+                    <span ng-show="customerModelFormIsSubmit && customerModelForm['city'+$index].$error.pattern">City should contain letters only</span> 
+                  </span>
+                </div>             
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                    <input autocomplete="off" class="form-control" name="state{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['state'+$index].$invalid}" maxlength="25" ng-model="customerModel.addressList[$index].state"  placeholder="State" required="" ng-pattern="/^[a-zA-Z ]*$/" type="text"  /> 
+                    <span class="has-required p-b10">
+                      <span ng-show="customerModelFormIsSubmit && customerModelForm['state'+$index].$error.required">State is required</span> 
+                      <span ng-show="customerModelFormIsSubmit && customerModelForm['state'+$index].$error.pattern">State should contain letters only</span> 
+                    </span>                  
+                </div>
+                <div class="col-md-4" ng-if="IsVisibleCityState">
+                  <input autocomplete="off" class="form-control" name="zipcode{{$index}}" ng-class="{'has-error': customerModelFormIsSubmit && customerModelForm['zipcode'+$index].$invalid}" maxlength="5"  ng-model="customerModel.addressList[$index].zipcode" placeholder="Zipcode" required="" ng-pattern="/^(['0-9']+)$/" only-num="" type="text"   />
+                  <span class="has-required p-b10">
+                    <span ng-show="customerModelFormIsSubmit && customerModelForm['zipcode'+$index].$error.required">Zipcode is required</span> 
+                    <span ng-show="customerModelFormIsSubmit && customerModelForm['zipcode'+$index].$error.pattern">Zipcode should contain numbers only</span> 
+                  </span>
+                </div>               
+              </div>
+            
+            </div>
+            <error message="{{errorCustomerFormxRs}}" ng-if="errorCustomerFormxRs"></error>
+            <success message="{{successCustomerFormxRs}}" ng-if="successCustomerFormxRs"></success>
+           <div class="technicians-button text-center">
+             <button style="position: inherit !important; width: auto; font-weight: 400; padding-left: 20px; padding-right: 20px;" id="addCustomerSubmitButton" class="add-button btn btn-primary button blue-bg" type="submit">{{customerModel.customerId ? 'Update' : 'Create'}} CUSTOMER</button>
+           </div>
+           
+         </form>
+   </div>
+</div>
+</script>
+<script type="text/ng-template" id="createQuotes.html" >
+  <div class="dataTables_wrapper modal-box modal-box-v2 common-popup" style="max-width: 700px; min-height: auto;">
+      <div class="popup-header">
+        <span class="heading ">Create New Quote</span>
+      </div>
+      <div class="create-new-job">
+        <div class="search">
+          <span class="search-icon"></span>                
+          <span class="loading-icon" ng-if="loadingCustomerApi"></span>
+          <input type="search" style="opacity: 0;position: absolute;">
+          <!-- <input type="text" id="newQuotePopupInput" ng-model="customerName" placeholder="Customer name or address" auto-complete="showListCustomer" class="customer-search"/> -->
+          <input type="text" id="newQuotePopupInput" ng-model="searchCustomerPayload.searchKey" placeholder="Customer name or address" class="customer-search" ng-change="showCustomerList(searchCustomerPayload.searchKey, false)" />
+          <div class="selectedCustomerForJob" ng-if="selectedCustomerNew">
+            <div class="customer-name">{{selectedCustomerNew.displayName}}</div> 
+            <div class="customer-address">{{selectedCustomerNew.fullAddress}} </div>
+            <button ng-click="selectedCustomerRemove()" class="close-btn-job"><i class="fa fa-times" aria-hidden="true"></i></button>
+          </div>
+            <!-- <table id="customer-list" ng-if="isCustomerSearch && !loaderApi && productBundleList.length > 0">
+              <tbody ng-repeat="customer in productBundleList" ng-class="">
+                <tr style="cursor: pointer;">
+                  <td ng-click="selectCustomer(customer)">
+                    <div class="customer-name">{{customer.displayName}} ----</div>
+                    <div class="customer-address">{{customer.fullAddress}}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table> -->
+            <div class="ps-picker colored-scroll-bar comm-src" style="margin-top: -29px; position: absolute;" ng-hide="selectedCustomerNew">
+              <table id="product-list" ng-if="isCustomerSearch">
+                <tbody ng-if="searchListCustomer.length > 0" ng-repeat="customer in searchListCustomer" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="">                              
+                  <tr class="new-search-list" style="cursor: pointer;" ng-click="selectCustomerNew(customer)">
+                    <td class="search-list-div">
+                      <div class="customer-name"><span class="hightLight" ng-bind-html="customer.displayName | highlight: searchCustomerPayload.searchKey"></span></div>
+                      <div class="customer-address"><span class="hightLight" ng-bind-html="customer.fullAddress | highlight: searchCustomerPayload.searchKey"></span></div>
+                  </td>
+                  </tr>                            
+                </tbody>                          
+                <tbody ng-if="searchListCustomer.length > 0 && searchCustomerPayload.hasMoreData">
+                  <tr>
+                      <td colspan="100" style="padding: 0">
+                          <div class="loadMoreProductData-btn-holder">
+                              <a href="javascript:void(0)" class="loadMoreProductData-btn" ng-class="{ 'disabled' : isProductPopupSearching}" ng-click="loadMoreCustomer()">
+                                  <span ng-if="!isProductPopupSearching">Load more</span>
+                                  <span ng-if="isProductPopupSearching">Loading...</span>
+                              </a>
+                          </div>
+                      </td>
+                  </tr>
+              </tbody>
+              <tbody ng-if="searchListCustomer.length == 0 && searchCustomerPayload.searchKey != '' && !isProductPopupSearching">
+                <tr><td colspan="5" style="text-align:center"> <strong>No customer found with this name.</strong> </td></tr>
+              </tbody>
+             </table>
+          </div>
+        </div>
+        <div>
+          <a class="btn btn-primary" ng-click="createNewQuote()" ng-if="selectedCustomerNew">CREATE QUOTE</a><button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+        </div>
+      </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="showMsg.html" >
+    <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+      <div class="popup-header text-center">
+        <span class="heading">Confirm</span>
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>To create invoices, you must first activate billing in settings</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+            <button class="btn btn-primary" ng-click="closeJob()">CANCEL</button>
+           </div>
+         </div>
+       </div>
+   
+    </div>
+</script>
+
+<script type="text/ng-template" id="deleteCustomerConfirm.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header text-center">
+      <span class="heading">Confirm</span>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div>
+            <div ng-if="!qbConnectedNow && !existsInvoicePayment" style="font-size: 15px;">
+              <div ng-if="isActive=='Lead'"> 
+                <label>Are you sure you want to delete this customer? 
+                </label>
+                <div>
+                  <strong style="font-weight: 900;">{{displayName}}</strong>
+                </div>
+              </div>
+              <div ng-if="isActive!='Lead'">
+                <label>Are you sure you want to archive this customer? </label>
+                <div class="m-b10">
+                  <strong style="font-weight: 900;">{{displayName}}</strong>
+                </div>
+                 <label>This will make the customer inactive and they will no longer display in any lists or calculations.</label>
+              </div>
+            </div>
+          
+           <div ng-if="qbConnectedNow && !existsInvoicePayment" style="font-size: 15px;">
+            <div ng-if="isActive=='Lead'"> 
+              <label>Are you sure you want to delete this customer?</label>
+              <div class="m-b10">
+                <strong style="font-weight: 900;">{{displayName}}</strong>
+              </div>
+              <label>If you use Quickbooks Online, you will also need to delete this customer there manually.</label>
+            </div>
+            <div ng-if="isActive!='Lead'">
+              <label>Are you sure you want to archive this customer? </label>
+              <div class="m-b10">
+                <strong style="font-weight: 900;">{{displayName}}</strong>
+              </div>
+               <label>This will make the customer inactive and they will no longer display in any lists or calculations.</label>
+            </div>
+           </div>
+
+
+           <label ng-if="existsInvoicePayment">To archive this customer, all invoices that aren't fully paid must be paid or deleted. All payments that aren't fully applied must be applied or deleted. Please make these corrections and try again.</label>
+          </div>
+          <div ng-if="existsInvoicePayment"><a href="https://help.poolbrain.com/en/articles/8234986-delete-or-archive-a-customer" target="_blank"><b>view help article on this</b></a></div>
+         <!-- <div ng-if="!existsInvoicePayment"><strong style="font-weight: 900;">{{displayName}}</strong></div> -->
+         <div class="set-chem-button" style="text-align: center;" ng-if="!existsInvoicePayment">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red customerInvoiceDeleteBtn" type="submit"  ng-disabled="isDeleting" ng-click="deleteCustomer()" >
+              {{isActive=='Lead'? 'DELETE' : 'ARCHIVE'}}
+           </button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+ <script type="text/ng-template" id="activeCustomerConfirm.html">
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header text-center">
+      <span class="heading">Confirm</span>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure want to make this customer active again?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red customerInvoiceDeleteBtn" type="submit"  ng-disabled="isDeleting" ng-click="activeCustomer()" style="font-size: 13px;">
+              Make Active
+           </button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>
+<style>
+.hightLight>span{
+color: #1bb4e9;
+}
+div.auto-complete-container table.auto-complete tr {
+  white-space: normal;
+}
+</style>
+<div ui-view="leftBarView"></div>
+
+<script type="text/ng-template" id="canNotCreateInvoiceMsg.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header text-center">
+      <span class="heading">Confirm</span>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div class="m-b10"><label>You do not have permission to create invoices</label></div>         
+         <div class="set-chem-button m-b10" style="text-align: center;">
+          <button class="btn btn-primary" ng-click="closeThisDialog()">CANCEL</button>
+         </div>
+       </div>
+     </div> 
+  </div>
+</script>
+<script type="text/ng-template" id="fullScreenPictureGallery.html">
+  <div class="modal-box modal-gallery full-screen-gallery equipment-gallery full-screen-gallery-quotes">
+    <div class="full-screen-inner">
+      <div ng-click="closeThisDialog('Some value')" class="btn-cls" style="right: 2%;">
+      <i class="fa fa-close" aria-hidden="true"></i>
+      </div>
+      <div ng-if="galleryPhotos.length > 0">
+      <ui-carousel slides="galleryPhotos" slides-to-show="1" slides-to-scroll="1" initial-slide="imageInitialIndex" autoplay="false" autoplay-speed="3000" dots="false">
+        <carousel-item>
+        <div class="image popup">
+          <div class="slide-image {{item.fullPath}}">
+          <img src="{{item.fullPath}}">
+            <div class="modal-gallery-btm" ng-show="item.caption" >                  
+            <span>{{item.caption}}</span>
+            </div>
+          </div>
+          </div>
+        </div>
+        </carousel-item>
+      </ui-carousel>
+      </div>
+    </div>
+    </div>
+</script>

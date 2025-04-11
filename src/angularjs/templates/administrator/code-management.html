@@ -1,0 +1,128 @@
+<div class="data-table-grid dashboard">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <success ng-if="success" message="{{success}}"></success>
+  <div class="m-tb20" ng-init="getUsersList()">
+    <div class="">
+    <div class="popup-header">
+    <div class="h-1-5x b white text-center">Upload Code Files</div>    
+  </div>
+    <form style="border-radius: 0px!important" name="codeFileForm" class="form-signin" ng-submit="codeFileForm.$invalid ? null : uploadCodeFiles()" novalidate>
+     <label>Version Name</label>
+      <input type="text" readonly class="form-control"  ng-model="model.versionName" name="versionName"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.versionName.$invalid || codeFileForm.versionName.$touched && codeFileForm.versionName.$invalid}"
+                       required autofocus>
+      <label>Version Description</label>
+      <textarea class="form-control"  ng-model="model.versionDescription" placeholder="Version Description" name="versionDescription"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.versionDescription.$invalid}" required></textarea>
+
+      <label>Select Files (.py)</label>
+      <input type="file" class="form-control" accept=".py" file-model="files" multiple  name="codeFiles"
+                       ng-class="{'has-error': codeFileForm.$submitted && codeFileForm.codeFiles.$invalid || codeFileForm.codeFiles.$touched && codeFileForm.codeFiles.$invalid}"
+                       required autofocus>
+
+      <br />
+      <button class="" ng-disabled="isProcessing" type="submit">Save</button>
+      <error ng-if="error" message="{{error}}"></error>
+    </form>
+    </div>
+
+    <div class="p-t20">
+        <div class="grid cust-job-history data-table-grid versionTable">
+            <div >
+
+                <div class="dataTables_wrapper" ng-init="getcodeList()">
+                  <div class="list-box" id="scrollarea">
+      <table  class="row-border hover no-footer dataTable" width="100%" >
+        <thead>
+          <tr>
+            <th>Version Name</th>
+            <th>Version Description</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+
+        <tbody dt-rows class="" ng-repeat="codeObj in codeList">
+          <tr>
+            <td colspan="3" class="border-td" style=" background: #edf0f5;"></td>
+          </tr>
+          <tr>
+
+            <td class="border-top2 border-left2">
+              <div class="tech-date">{{codeObj.versionName}}</div>
+            </td>
+            <td class="border-top2">
+              <div class="tech-date">{{codeObj.versionDescription}}</div>
+            </td>
+            <td class="border-top2 border-right2" >
+              <div>
+                <a class="icon-edit" href="javascript:void(0)" ng-click="viewFiles(codeObj, $index)">View Files</a>
+
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <tbody ng-if="jobList.length < 1">
+          <tr>
+            <td colspan="3" class="border-td" style="background: #edf0f5;"></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align: center; height: 50px;">Sorry, no results found!</td>
+          </tr>
+        </tbody>
+      </table>
+      </div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite">
+  Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries
+</div>
+<div class="pagination">
+  <paging
+				page="page" page-size="limit" total="totalRecord" text-first="First"
+				text-last="Last" text-next="Next" text-prev="Prev"
+				paging-action="changePage(page)"
+				show-prev-next="true" show-first-last="true"> </paging>
+</div>
+<script type="text/ng-template" id="codeFiles.html" >
+<div class="dataTables_wrapper modal-box" style="width:600px; ">
+  <div class="spinner" ng-if="isProcessingDownload">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Version ("{{versionName}}") Code Files</div>
+      <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+    <div class="list-box" id="scrollarea" style="max-height: 400px; height: 400px; padding: 0">
+      <error ng-if="errorDownload" message="{{errorDownload}}"></error>
+      <table  class="row-border hover no-footer dataTable" width="100%" >
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody dt-rows class="" ng-repeat="codefile in codeFiles track by $index">
+            <tr>
+              <td class="border-left2">
+                <div class="tech-date">{{codefile}}</div>
+              </td>
+              <td class="border-right2" >
+                <div>
+                  <a class="icon-edit" href="javascript:void(0)" ng-click="downloadFile(codefile, versionName)">Download</a>
+                </div>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+</div>
+</script>

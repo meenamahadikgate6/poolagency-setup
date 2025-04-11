@@ -1,0 +1,478 @@
+<div class="inventory-page">
+   <div class="inventory-layout" ng-class="{ 'sidebar-toggled' : sidebarToggled}">
+       <div class="inventory-sidebar">
+            <span class="inventory-sidebar-toggle" ng-click="toggleSidebar()"><i class="fa {{ sidebarToggled ? 'fa-chevron-right' : 'fa-chevron-left' }}"></i></span>
+            <ul class="pb-tabs-outlined">
+                <li class="pb-tab-outlined-btn">
+                    <a class="pb-tab-outlined-link" ng-class="{ 'active' : inventorySidebarType == 'inventory' }" ng-click="inventorySidebarType != 'inventory' ? setInventorySidebarType('inventory') : return" href="javascript:void(0)" >Locations</a>
+                </li>               
+                <li class="pb-tab-outlined-btn">
+                    <a class="pb-tab-outlined-link" ng-class="{ 'active' : inventorySidebarType == 'trucks' }" ng-click="inventorySidebarType != 'trucks' ? setInventorySidebarType('trucks') : returm" href="javascript:void(0)" >Trucks</a>
+                </li>                
+            </ul>
+            <div class="pbx-form-control-search">
+                <img src="resources/images/magnifiy.png">
+                <input type="text" class="pbx-form-control" placeholder="{{inventorySidebarType == 'inventory' ? 'location' : 'truck'}} name" ng-model="globalSearchText" ng-keyup="searchGlobally($event)" />
+            </div>         
+            <div class="inventory-location-area scrollareaCls" ng-if="inventorySidebarType == 'inventory'">
+                <script type="text/ng-template" id="location_renderer.html">
+                    <div ui-tree-handle ng-class="{ 'xselected': location.selected}">
+                        <a ng-if="location.sublocations && location.sublocations.length > 0" data-nodrag ng-click="toggleSubLocations(location)">
+                            <span class="fa" ng-class="{ 'fa-chevron-right': location.isCollapsed, 'fa-chevron-down': !location.isCollapsed }"></span>
+                        </a>
+                        <div class="location-root-list-click" ng-click="clickMe(location)">
+                            {{location.name}}
+                        </div>
+                    </div>
+                    <ol ui-tree-nodes="" ng-model="location.sublocations" ng-class="{hidden: location.isCollapsed}">
+                        <li ng-repeat="location in location.sublocations" ui-tree-node ng-include="'location_renderer.html'" >
+                        </li>
+                    </ol>
+                </script>
+                <div ui-tree data-nodrop-enabled="false" data-nodrag class="location-root-list-parent">
+                    <ol ui-tree-nodes="" ng-model="allLocationList" class="location-root-list-area" ng-if="allLocationList && allLocationList[0].sublocations && allLocationList[0].sublocations.length > 0">
+                        <li ng-repeat="location in allLocationList" ui-tree-node ng-include="'location_renderer.html'" ></li>
+                    </ol>
+                </div>
+                <div class="no-data-found" ng-if="!locationDetailFetching && allLocationList.length == 0">
+                    <p class="pbx-gray-text text-center" ng-if="globalSearchText == ''">No locations have been created yet</p>
+                    <p class="pbx-gray-text text-center" ng-if="globalSearchText != ''">Location not found</p>
+                </div>
+            </div>
+            <div class="inventory-location-area scrollareaCls" ng-if="inventorySidebarType == 'trucks'">
+                <script type="text/ng-template" id="truck_renderer.html">
+                    <div ui-tree-handle ng-class="{ 'xselected': truck.selected}">
+                        <div class="location-root-list-click" ng-click="clickMe(truck)">
+                            {{truck.name}}
+                        </div>
+                    </div>
+                </script>
+                <div ui-tree data-nodrop-enabled="false" data-nodrag class="location-root-list-parent">
+                    <ol ui-tree-nodes="" ng-model="allTruckList" class="location-root-list-area" ng-if="allTruckList && allTruckList.length > 0">
+                        <li ng-repeat="truck in allTruckList" ui-tree-node ng-include="'truck_renderer.html'" ></li>
+                    </ol>
+                </div>
+                <div class="no-data-found" ng-if="!locationDetailFetching && allTruckList && allTruckList.length == 0">
+                    <p class="pbx-gray-text text-center" ng-if="globalSearchText == ''">No trucks have been created yet</p>
+                    <p class="pbx-gray-text text-center" ng-if="globalSearchText != ''">Truck not found</p>
+                </div>
+            </div>
+        </div>
+        <div class="inventory-content-area" ng-init="fetchData()">               
+            <div class="inventory-page-header-area">
+                <div class="inventory-page-header-col">
+                    <div class="inventory-path">                        
+                        <span>
+                            <a href="javascript:void(0)" ng-click="goToLanding()">Home</a>
+                            <span ng-if="!isLanding && selectedPath && selectedPath[0].id != 0"> > </span>
+                        </span>
+                        <span ng-repeat="location in selectedPath track by $index" ng-if="inventorySidebarType == 'inventory'">
+                            <a href="javascript:void(0)" ng-click="clickMe(location)" ng-if="location.id > 0">{{location.name}}</a>
+                            <span ng-hide="($index + 1) == selectedPath.length"> > </span>
+                        </span>
+                        <span ng-repeat="truck in selectedPath track by $index" ng-if="inventorySidebarType == 'trucks'">
+                            <a href="javascript:void(0)" ng-click="clickMe(truck)">{{truck.name}}</a>
+                            <span ng-hide="($index + 1) == selectedPath.length"> > </span>
+                        </span>
+                    </div>  
+                </div>
+            </div>
+            <div class="inventory-page-header-area">
+                <div class="inventory-page-header-col">                              
+                    <div class="inventory-page-title" ng-if="selectedItem && inventorySidebarType == 'inventory' && selectedItem.id > 0">
+                        <span>{{selectedItem ? selectedItem.name : 'Please select a location'}}</span>                                      
+                        <i class="fa fa-edit inventory-location-edit-icon" ng-click="openEditLocationPopup()"></i>
+                    </div>
+                    <div class="inventory-page-title" ng-if="selectedItem && inventorySidebarType == 'trucks'">
+                        <span>{{selectedItem ? selectedItem.name : 'Please select a truck'}}</span>                                      
+                        <!-- <i class="fa fa-edit inventory-location-edit-icon" ng-click="openEditTruckPopup()"></i> -->
+                    </div>        
+                    <div class="inventory-page-title" ng-if="isLanding && inventorySidebarType == 'inventory'">
+                        All Locations
+                    </div>
+                    <div class="inventory-page-title" ng-if="isLanding && inventorySidebarType == 'trucks'">
+                        All Trucks
+                    </div>
+                </div>  
+                <div class="inventory-page-header-col">                                     
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="inventory-item-search">
+                                <button class="pbx-btn pbx-btn-transparent" ng-class="{'selected-view': inventoryViewType == 'tile'}" ng-click="setInventoryViewType('tile')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.856 5.333h2.178a1.64 1.64 0 0 1 1.632 1.647v2.196a1.64 1.64 0 0 1-1.632 1.646h-2.178a1.64 1.64 0 0 1-1.632-1.646V6.98c0-.91.73-1.647 1.632-1.647m-7.89 0h2.177a1.64 1.64 0 0 1 1.632 1.647v2.196c0 .909-.73 1.646-1.632 1.646H6.966a1.64 1.64 0 0 1-1.633-1.646V6.98c0-.91.73-1.647 1.633-1.647m0 7.844h2.177a1.64 1.64 0 0 1 1.632 1.647v2.196c0 .909-.73 1.646-1.632 1.646H6.966a1.64 1.64 0 0 1-1.633-1.646v-2.196c0-.91.73-1.647 1.633-1.647m7.891 0h2.178a1.64 1.64 0 0 1 1.632 1.647v2.196a1.64 1.64 0 0 1-1.632 1.646h-2.178a1.64 1.64 0 0 1-1.632-1.646v-2.196c0-.91.73-1.647 1.632-1.647" clip-rule="evenodd"></path></svg>
+                                    GRID
+                                </button>
+                                <button class="pbx-btn pbx-btn-transparent" ng-class="{'selected-view': inventoryViewType == 'grid'}" ng-click="setInventoryViewType('grid')">           
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><rect width="13.948" height="5.5" x="5.026" y="5.3" stroke="currentColor" stroke-width="1.5" rx="1.25"></rect><rect width="13.948" height="5.5" x="5.026" y="13.2" stroke="currentColor" stroke-width="1.5" rx="1.25"></rect></svg>
+                                    LIST
+                                </button>                                  
+                                <button ng-if="!isLanding && selectedPath" tabindex="-1" class="pbx-btn pbx-btn-bold-sm" ng-disabled="isProcessing" ng-click="openAddItemPopup()">Add Item</button>             
+                                <button tabindex="-1" class="pbx-btn pbx-btn-bold-sm" ng-disabled="isProcessing" ng-click="openAddLocationPopup()">Add Location</button>                   
+                            </div>                        
+                        </div>
+                    </div>    
+                </div>          
+            </div>        
+            <div class="inventory-page-divider"></div>
+            <div class="inventory-page-box">
+                <div class="inventory-loader" ng-if="locationDetailFetching">
+                    <div class="spinner">
+                        <div class="spinner-item">
+                            <div class="spinner-animation">
+                                <img src="/resources/images/spinner.gif">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="pbx-form-control-search inventory-search">
+                            <img src="resources/images/magnifiy.png">
+                            <input type="text" class="pbx-form-control"
+                                placeholder="{{ inventorySidebarType == 'inventory' ? selectedPath == null || selectedPath[0].id == 0 ? 'location name' : 'location, product or tool name' : selectedPath ? 'product or tool name' : 'truck name' }}"
+                                ng-model="selectedSearchText" ng-keyup="searchOnSelected($event)" />
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="inventorySidebarType == 'inventory'">
+                    <div class="row" ng-if="!isLanding && selectedPath && selectedPath[0].id != 0 && (selectedSearchText == '' || globalSearchText == '')">
+                        <div class="col-xs-12">
+                            <div class="inventory-box">
+                                <span>Sublocations: <b>{{quantityData.sublocationsCount}}</b></span>
+                                <span>Items: <b>{{quantityData.items}}</b></span>
+                                <span>Total Quantity: <b>{{quantityData.totalQty}}</b></span>
+                                <span>Total Value: <b>{{ currencyTrimmer(quantityData.totalValue) | currency }}</b></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row sublocation-area" ng-if="isLanding || (selectedItem && selectedItem.sublocations.length > 0)">
+                        <div class="col-xs-12">
+                            <table class="pb-table pb-table-{{inventoryViewType}}-view" cellspacing="0" cellpadding="0">
+                                <thead class="hide-in-tile-view" ng-if="locationList || locationList.sublocations.length > 0">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Items</th>
+                                        <th>Locations</th>
+                                        <th class="hide-in-grid-view"></th>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="location in (isLanding ? locationList[0].sublocations : selectedItem.sublocations) track by location.id">
+                                    <tr ng-click="clickMe(location, isLanding ? false : true)">
+                                        <td class="hide-in-tile-view">{{location.name}}</td>
+                                        <td class="hide-in-tile-view">{{location.totalItemsCount ? location.totalItemsCount : 0}}
+                                        </td>
+                                        <td class="hide-in-tile-view">{{location.totalSublocationCount ? location.totalSublocationCount : 0}}</td>
+                                        <td class="hide-in-grid-view">
+                                            <div class="grid-card">
+                                                <div class="grid-card-cover-photo">
+                                                    <img ng-if="!location.coverPhoto"
+                                                        ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                                    <img ng-if="location.coverPhoto" ng-src="{{location.coverPhoto}}"
+                                                        onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'"
+                                                        alt="" />
+                                                </div>
+                                                <div class="grid-card-content">
+                                                    <h3 class="grid-card-title">
+                                                        <img src="resources/images/inventory-location.png" alt="">
+                                                        <span>{{location.name}}</span>
+                                                    </h3>
+                                                    <p class="grid-card-text">
+                                                        <span class="grid-card-text-bold">{{location.totalItemsCount ?
+                                                            location.totalItemsCount : 0}} Items</span>
+                                                        <span>|</span>
+                                                        <span class="grid-card-text-normal">{{location.totalSublocationCount ?
+                                                            location.totalSublocationCount : 0}} Locations</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="inventory-items-area" ng-if="(isLanding || (selectedItem && selectedItem.sublocations.length > 0)) && (selectedItem && selectedItem.items.length > 0)"></div>
+                    <div class="row" ng-if="(selectedItem && selectedItem.items.length > 0)">
+                        <div class="col-xs-12">
+                            <table class="pb-table pb-table-{{inventoryViewType}}-view" cellspacing="0" cellpadding="0">
+                                <thead class="hide-in-tile-view">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Quantity</th>
+                                        <th>Cost</th>
+                                        <th class="hide-in-grid-view"></th>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="item in selectedItem.items">
+                                    <tr ng-click="showItemDetails(item)">
+                                        <td class="hide-in-tile-view">{{item.name}}</td>
+                                        <td class="hide-in-tile-view">{{item.qty ? item.qty : 0}}</td>
+                                        <td class="hide-in-tile-view">{{ currencyTrimmer(item.price) | currency }}</td>
+                                        <td class="hide-in-grid-view">
+                                            <div class="grid-card">
+                                                <div class="grid-card-cover-photo">
+                                                    <img ng-if="!item.coverPhoto"
+                                                        ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                                    <img ng-if="item.coverPhoto" ng-src="{{item.coverPhoto}}"
+                                                        onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'"
+                                                        alt="" />
+                                                </div>
+                                                <div class="grid-card-content">
+                                                    <h3 class="grid-card-title">
+                                                        <img ng-if="item.itemType == 'Product'" ng-class="item.itemType" src="resources/images/products-icon-grey.png" alt="">
+                                                        <img ng-if="item.itemType == 'Tool'" ng-class="item.itemType" src="resources/images/tool-icon-gray.png" alt="">
+                                                        <span>{{item.name}}</span>
+                                                    </h3>
+                                                    <p class="grid-card-text">
+                                                        <span class="grid-card-text-bold">{{item.qty ? item.qty : 0}} QTY</span>
+                                                        <span>|</span>
+                                                        <span class="grid-card-text-normal">{{ currencyTrimmer(item.price) |
+                                                            currency }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- truck section start here -->
+                <div ng-if="inventorySidebarType == 'trucks'">
+                    <div class="row sublocation-area" ng-if="isLanding || (selectedItem && selectedItem.length > 0)">
+                        <div class="col-xs-12">
+                            <table class="pb-table pb-table-{{inventoryViewType}}-view" cellspacing="0" cellpadding="0">
+                                <thead class="hide-in-tile-view" ng-if="truckList || truckList.length > 0">
+                                    <tr>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'name' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'name' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('name')">Name</div>
+                                        </th>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'year' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'year' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('year')">Year</div>
+                                        </th>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'make' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'make' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('make')">Make</div>
+                                        </th>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'model' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'model' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('model')">Model</div>
+            
+                                        </th>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'licensePlate' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'licensePlate' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('licensePlate')">Plate</div>
+                                        </th>
+                                        <th>
+                                            <div class="sorting"
+                                                ng-class="{'sorting_asc': sortColumn == 'vin' && sortOrder == 'asc', 'sorting_desc': sortColumn == 'vin' && sortOrder == 'desc', }"
+                                                aria-sort="ascending" aria-label="DATE: activate to sort column descending"
+                                                ng-click="sortInventoryBy('vin')">VIN</div>
+                                        </th>
+                                        <th>Assigned To</th>
+                                        <th class="hide-in-grid-view"></th>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="truck in (isLanding ? truckList : selectedItem) track by $index">
+                                    <tr ng-click="clickMe(truck, isLanding ? false : true)">
+                                        <td class="hide-in-tile-view">{{truck.name}}</td>
+                                        <td class="hide-in-tile-view">{{truck.year}}</td>
+                                        <td class="hide-in-tile-view">{{(truck.make) ? truck.make : ''}}</td>
+                                        <td class="hide-in-tile-view">{{(truck.model) ? truck.model : ''}}</td>
+                                        <td class="hide-in-tile-view">{{(truck.licensePlate) ? truck.licensePlate : ''}}</td>
+                                        <td class="hide-in-tile-view">{{truck.vin}}</td>
+                                        <td class="hide-in-tile-view">
+                                            <span class="technician-card">
+                                                <span class="technician-card-photo" ng-if="truck.assignedTechName">
+                                                    <div ng-if="!truck.assignedTechImage" class="image-radius name-initial">
+                                                        <span>
+                                                            {{(truck.assignedTechName) ? (truck.assignedTechName | convertToInitial:
+                                                            truck.assignedTechName.split(' ')[1]) : 'N'}}
+                                                        </span>
+                                                    </div>
+                                                    <div ng-if="truck.assignedTechImage" class="image-radius name-initial"
+                                                        style="background-image: url('{{truck.assignedTechImage}}');">
+                                                    </div>
+                                                </span>
+                                                <span class="technician-card-title">
+                                                    {{(truck.assignedTechName) ? truck.assignedTechName : ''}}
+                                                </span>
+                                            </span>
+                                        </td>
+                                        <td class="hide-in-grid-view">
+                                            <div class="grid-card">
+                                                <div class="grid-card-cover-photo">
+                                                    <span ng-if="truck.year"
+                                                        class="grid-card-cover-photo-badge">{{truck.year}}</span>
+                                                    <img ng-if="!truck.coverPhoto"
+                                                        ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                                    <img ng-if="truck.coverPhoto" ng-src="{{truck.coverPhoto.mediaPath}}"
+                                                        onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'"
+                                                        alt="" />
+                                                </div>
+                                                <div class="grid-card-content">
+                                                    <h3 class="grid-card-title">{{truck.name}}</h3>
+                                                    <p class="grid-card-text">
+                                                        VIN: {{truck.vin}}
+                                                    </p>
+                                                    <p class="grid-card-text">
+                                                        Plate: {{(truck.licensePlate) ? truck.licensePlate : '-'}}
+                                                    </p>
+                                                    <p class="grid-card-text">
+                                                        Color: {{truck.color}}
+                                                    </p>
+                                                    <p class="grid-card-text">
+                                                        <span class="grid-card-text-normal"
+                                                            ng-class="{'grid-card-text-gray': !truck.make || truck.make == '' }">{{(truck.make)
+                                                            ? truck.make : 'make'}}</span>
+                                                        <span>|</span>
+                                                        <span class="grid-card-text-normal"
+                                                            ng-class="{'grid-card-text-gray': !truck.model || truck.model == '' }">{{(truck.model)
+                                                            ? truck.model : 'model'}}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- <div class="inventory-items-area" ng-if="!isLanding && (selectedItem && selectedItem.items.length > 0)"></div> -->
+                    <div class="row" ng-if="(selectedItem && selectedItem.items.length > 0)">
+                        <div class="col-xs-12">
+                            <table class="pb-table pb-table-{{inventoryViewType}}-view" cellspacing="0" cellpadding="0">
+                                <thead class="hide-in-tile-view">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Quantity</th>
+                                        <th>Cost</th>
+                                        <th class="hide-in-grid-view"></th>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="item in selectedItem.items">
+                                    <tr ng-click="showItemDetails(item)">
+                                        <td class="hide-in-tile-view">{{item.name}}</td>
+                                        <td class="hide-in-tile-view">{{item.qty ? item.qty : 0}}</td>
+                                        <td class="hide-in-tile-view">{{ currencyTrimmer(item.price) | currency }}</td>
+                                        <td class="hide-in-grid-view">
+                                            <div class="grid-card">
+                                                <div class="grid-card-cover-photo">
+                                                    <img ng-if="!item.coverPhoto"
+                                                        ng-src="../resources/images/image_not_available.jpg" alt="" />
+                                                    <img ng-if="item.coverPhoto" ng-src="{{item.coverPhoto}}"
+                                                        onerror="this.onerror=null; this.src='../resources/images/image_not_available.jpg'"
+                                                        alt="" />
+                                                </div>
+                                                <div class="grid-card-content">
+                                                    <h3 class="grid-card-title">
+                                                        <img ng-if="item.itemType == 'Product'" ng-class="item.itemType" src="resources/images/products-icon-grey.png" alt="">
+                                                        <img ng-if="item.itemType == 'Tool'" ng-class="item.itemType" src="resources/images/tool-icon-gray.png" alt="">
+                                                        <span>{{item.name}}</span>
+                                                    </h3>
+                                                    <p class="grid-card-text">
+                                                        <span class="grid-card-text-bold">{{item.qty ? item.qty : 0}} QTY</span>
+                                                        <span>|</span>
+                                                        <span class="grid-card-text-normal">{{ currencyTrimmer(item.price) |
+                                                            currency }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="spacer-tr">
+                                        <td colspan="100" class="spacer"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="paging-warp p-l20" ng-if="inventorySidebarType == 'trucks'">
+                    <!-- paging for trucks only -->
+                    <div class="row" ng-if="(isLanding ? truckList : (selectedItem && selectedItem)).length > 0">
+                      <div class="col-md-4 p-t20">
+                        <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite" ng-if="!locationDetailFetching"> 
+                          Showing
+                          {{totalItems ? (totalPage == page-1 ? (totalRecord-totalItems) == -1 ? 1 :(totalRecord-totalItems)+1 : (page > 0 ? ((page-1)*totalItems)+1 : 1)) : 1 }}
+                          to
+                          {{ totalItems ? (totalPage == page-1 ? totalRecord : page*totalItems) : 0 }}
+                          of
+                          {{totalRecord}}
+                        </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="pagination">
+                              <paging page="page" page-size="limit" total="totalRecord" text-first="First"
+                              text-last="Last" text-next="Next" text-prev="Prev"
+                              paging-action="inventoryPaging(page)"
+                              show-prev-next="true" show-first-last="true"> </paging>
+                              </div>
+                        </div>
+                    </div>
+                    <!-- paging for selected truck items -->
+                    <div class="row" ng-if="!isLanding && selectedItem && selectedItem.items.length > 0">
+                        <div class="col-md-4 p-t20">
+                          <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite" ng-if="!locationDetailFetching"> 
+                            Showing
+                            {{totalItems ? (totalPage == page-1 ? (totalRecord-totalItems) == -1 ? 1 :(totalRecord-totalItems)+1 : (page > 0 ? ((page-1)*totalItems)+1 : 1)) : 1 }}
+                            to
+                            {{ totalItems ? (totalPage == page-1 ? totalRecord : page*totalItems) : 0 }}
+                            of
+                            {{totalRecord}}
+                          </div>
+                          </div>
+                          <div class="col-md-8">
+                              <div class="pagination">
+                                <paging page="page" page-size="limit" total="totalRecord" text-first="First"
+                                text-last="Last" text-next="Next" text-prev="Prev"
+                                paging-action="inventoryPaging(page)"
+                                show-prev-next="true" show-first-last="true"> </paging>
+                                </div>
+                          </div>
+                    </div>
+                </div>
+                <div class="no-data-found" ng-if="inventorySidebarType == 'inventory' && !locationDetailFetching && !isLanding">
+                    <p class="pbx-gray-text text-center" ng-if="selectedSearchText && selectedItem && selectedItem.items.length == 0 && selectedItem.sublocations.length == 0" style="font-size: 16px;">Location not found</p>
+                </div>
+                <div class="no-data-found" ng-if="inventorySidebarType == 'trucks' && !locationDetailFetching && !isLanding">
+                    <p class="pbx-gray-text text-center" ng-if="selectedSearchText && selectedItem && selectedItem.length == 0" style="font-size: 16px;">Truck not found</p>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>

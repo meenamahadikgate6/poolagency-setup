@@ -1,0 +1,225 @@
+<div class="p-relative">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="checklist-msg">
+    <!--success ng-if="successMsg" message="{{successMsg}}"></success-->
+    <error ng-if="error" message="{{error}}"></error>
+  </div>
+  <hr ng-if="parentPage == 'app.customerinvoicedetail'" />
+<div class="dataTables_wrapper small-table popup-table table8Col" ng-class="{'invoice-page-table': parentPage == 'app.customerinvoicedetail'} " ng-repeat="x in ['top', 'bottom']">
+  <div>
+    <div class="{{ parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail' || parentPage == 'app.paymentlistingSingle' ? 'col-md-4' : 'col-md-8' }} text-left">
+      <label class="label-title">{{(parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail' || parentPage == 'app.paymentlistingSingle') ? (x == 'top' ? 'Payment applied to' : 'Unpaid invoices for this customer') : (x == 'top' ? 'Payment(s) applied to this invoice' : 'Existing payments for this customer')}}</label>    
+    </div>
+    <div class="col-md-2 text-left" ng-if="parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail' || parentPage == 'app.paymentlistingSingle'">
+      
+      <div ng-if="x == 'top'">{{modelPaymentData.amountApplied | currency}} applied</div>
+    </div>
+    <div class="col-md-2 text-left" ng-if="parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail'|| parentPage == 'app.paymentlistingSingle'">
+      <div ng-if="x == 'top'">{{modelPaymentData.amountUnApplied | currency}} unapplied</div>
+    </div>
+    <div class="col-md-4" ng-if="parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail' || parentPage == 'app.paymentlistingSingle'">
+      <div class="checkbox-default"  ng-if="x == 'top' && modelPaymentData.amountUnApplied > 0" >
+        <label for="applyOnNextInvoice">
+          Apply to next created invoice
+          <input type="checkbox" name="applyOnNextInvoice" id="applyOnNextInvoice"  ng-model="modelPaymentData.applyOnNextInvoice" ng-checked="modelPaymentData.applyOnNextInvoice" ng-Click="modeEdit ?  takePayment(modelPaymentData, '', 'applyOnNextInvoice', true) : null"/>
+          <span></span>
+        </label>                    
+      </div> 
+      <div class="search-box m-b10" ng-if="x == 'bottom'" style="padding-right: 0;">
+        <i class="fa fa-search searchbtn" ng-click="doSearchList(pageObj[x].searchTextModel, x)" aria-hidden="true"></i>
+        <input type="search" ng-model="pageObj[x].searchTextModel" 
+        ng-blur="doSearchList(pageObj[x].searchTextModel, x)"
+        placeholder="{{parentPage == 'app.customerinvoicedetail' ? 'number or amount' : 'Invoice #, amount, service address'}}" 
+        class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchList(pageObj[x].searchTextModel, x) : null">
+      </div>
+    </div>
+    
+    <table class="row-border hover no-footer dataTable" width="100%" ng-init="getInvoiceData(x)">
+      
+      <thead class="dark-gray-bg" ng-if="parentPage != 'app.customerinvoicedetail'">
+        <tr>
+          <th></th>
+          <th class="text-left" >
+            <div class="sorting"
+                ng-click="orderByJobList('createdOn', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'createdOn' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'createdOn' && pageObj[x].dir == 'desc' }">
+              DATE
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('invoiceNumber', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'invoiceNumber' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'invoiceNumber' && pageObj[x].dir == 'desc' }">
+              INVOICE #
+            </div>
+          </th>
+          <th style="width: 20%!important;" class="text-left">
+            <div class="sorting" 
+                ng-click="orderByJobList('address', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'address' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'address' && pageObj[x].dir == 'desc' }">
+              ADDRESS
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('dueDate', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'dueDate' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'dueDate' && pageObj[x].dir == 'desc' }">
+              DUE
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('invoiceStatus', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'invoiceStatus' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'invoiceStatus' && pageObj[x].dir == 'desc' }">
+              STATUS
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('totalAmount', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'totalAmount' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'totalAmount' && pageObj[x].dir == 'desc' }">
+              AMOUNT
+            </div>
+          </th>     
+          <th style="width: 15.5%!important;">
+            <div class="sorting"
+                ng-click="orderByJobList('creditPaymentAdjustment', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'creditPaymentAdjustment' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'creditPaymentAdjustment' && pageObj[x].dir == 'desc' }">
+              BALANCE OWED
+            </div>
+          </th>                
+         
+        </tr>
+      </thead>
+      <tbody dt-rows ng-repeat="invoice in invoiceData[x].list" ng-if="parentPage != 'app.customerinvoicedetail'" >
+        <tr>
+          <td colspan="8" class="border-td"></td>
+        </tr>
+        <tr class="text-center">
+          <td> <span ng-click="moveRow(invoice, x, 'payment')" ng-if="modelPaymentData.amountUnApplied > 0 || x == 'top'"><i class="fa fa-circle-plus-minus light-blue pointer" ng-class="{'fa-minus': x == 'top','fa-plus': x == 'bottom' }" aria-hidden="true"></i></span> </td>
+          <td class="text-left">{{invoice.createdOn | date:"MM/dd/yy" }}</td>
+          <td >{{invoice.invoiceNumber}}</td>
+          <td class="text-left">{{invoice.address}}</td>        
+          <td >{{invoice.dueDate | convertDateOffset: companyTimeZone:"MM/dd/yy" }}</td>
+          <td ><div class="{{invoice.invoiceStatus}} badge">{{(invoice.invoiceStatus == 'Awaiting Payment' ? 'NOT PAID' : invoice.invoiceStatus.toUpperCase())}}</div></td>                    
+          <td >{{invoice.totalAmount | currency }}</td>  
+          <td >{{invoice.creditPaymentAdjustment | currency}}</td>  
+
+                           
+        </tr>
+      </tbody>
+    
+      <thead class="dark-gray-bg" ng-if="parentPage == 'app.customerinvoicedetail'">
+        <tr>
+          <th style="width: 5%!important;"></th>
+          <th class="text-left" >
+            <div class="sorting"
+                ng-click="orderByJobList('createTime', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'createTime' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'createTime' && pageObj[x].dir == 'desc' }">
+              DATE
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('transactionType', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'transactionType' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'transactionType' && pageObj[x].dir == 'desc' }">
+              TYPE
+            </div>
+          </th>
+          <th>
+            <div class="sorting" 
+                ng-click="orderByJobList('id', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'id' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'id' && pageObj[x].dir == 'desc' }">
+              NUMBER
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('paymentMethod', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'paymentMethod' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'paymentMethod' && pageObj[x].dir == 'desc' }">
+              METHOD
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('applied', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'applied' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'applied' && pageObj[x].dir == 'desc' }">
+              STATUS
+            </div>
+          </th>
+          <th>
+            <div class="sorting"
+                ng-click="orderByJobList('amount', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'amount' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'amount' && pageObj[x].dir == 'desc' }">
+              AMOUNT
+            </div>
+          </th>     
+          <th style="width: 15.5%!important;">
+            <div class="sorting"
+                ng-click="orderByJobList('amountApplied', x)"
+                ng-class="{'sorting_asc': pageObj[x].column == 'amountApplied' && pageObj[x].dir == 'asc', 'sorting_desc': pageObj[x].column == 'amountApplied' && pageObj[x].dir == 'desc' }">
+              UNAPPLIED
+            </div>
+          </th>                
+         
+        </tr>
+      </thead>
+      <tbody dt-rows ng-repeat="invoice in invoiceData[x].list" ng-if="parentPage == 'app.customerinvoicedetail'" >
+        <tr>
+          <td colspan="8" class="border-td"></td>
+        </tr>
+        <tr class="text-center">
+          <td><span ng-click="moveRow(invoice, x)" ng-hide="x=='bottom' && balanceDue <= 0"><i class="fa fa-circle-plus-minus light-blue pointer" ng-class="{'fa-minus': x == 'top','fa-plus': x == 'bottom' }" aria-hidden="true"></i></span> </td>
+          <td class="text-left">{{invoice.createTime | date:"MM/dd/yy" }}</td>
+          <td >{{invoice.transactionType}}</td>
+          <td >{{invoice.id}}</td>        
+          <td ><div class="pay-method"></div>{{invoice.paymentMethod=='cc' ? 'Credit Card' : (invoice.paymentMethod=='ach' ? 'ACH' : invoice.paymentMethod)}}</div></td>
+          <td><div class="unapplied badge" ng-if="invoice.applied==0">UNAPPLIED</div><div class="applied badge" ng-if="invoice.applied==1">APPLIED</div>
+            <div class="partial badge" ng-if="invoice.applied==2">PARTIAL</div><div class="applied badge" ng-if="invoice.applied==3">REFUND</div></td>                  
+          <td >{{invoice.amount | currency }}</td>  
+          <td >{{invoice.amountBalance | currency}}</td>  
+
+                           
+        </tr>
+      </tbody>
+    
+
+    </table>
+    
+    <div ng-if="parentPage=='app.customerinvoicedetail' && invoiceData[x].list.length == 0" class="m-t20 text-center">
+      {{x =='top' ? 'NO PAYMENTS HAVE BEEN APPLIED' : 'NO UNAPPLIED PAYMENTS EXIST FOR THIS CUSTOMER'}}
+    </div>
+  </div>
+  <div class="paging-warp container-fluid">
+    <div class="row p-t10">
+      <div class="col-md-5 text-left p-l20 p-b10" ng-if="invoiceData[x].list.length > 0">
+          Showing 
+          {{invoiceData[x].list.length > 0 ? (pageObj[x].totalPage == pageObj[x].currentPage-1 ? (pageObj[x].totalRecord-invoiceData[x].list.length)+1 : (pageObj[x].currentPage > 1 ? ((pageObj[x].currentPage-1)*invoiceData[x].list.length)+1 : 1)) : 0 }} 
+          to 
+          {{ invoiceData[x].list.length > 0 ? (pageObj[x].totalPage == pageObj[x].currentPage-1 ? pageObj[x].totalRecord : pageObj[x].page*invoiceData[x].list.length) : 0 }}  
+          of 
+          {{pageObj[x].totalRecord}} {{(parentPage == 'app.customerdetail' || parentPage == 'app.locationdetail') ?  'invoices' : 'payments'}}     
+          
+        
+      </div>  
+      
+      <div class="col-md-7" ng-if="pageObj[x].limit < pageObj[x].totalRecord">
+        <div class="pagination m-t0">                  
+          <paging
+          page="pageObj[x].page" page-size="pageObj[x].limit" total="pageObj[x].totalRecord" text-first="First"
+          text-last="Last" text-next="Next" text-prev="Prev"
+          paging-action="goToListPage(page, x)"
+          show-prev-next="true" show-first-last="true"> </paging>                  
+            
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+</div>

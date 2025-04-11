@@ -1,0 +1,1405 @@
+<ng-container ng-init="getAllCategories()">
+<div ng-if="!isCommonForm" class="data-table-grid products-services-category--wrapper" >
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation">
+        <img border="0" src="resources/images/spinner.gif" />
+      </div>
+    </div>
+  </div>
+  <!-- <div class="spinner" id="PSImageProcessing_loader">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div> -->
+  <!--No Products Found - Service Bridge Section start-->
+  <div class="products-services-top-bar">
+    <div class="c-psb-row">
+      <div class="c-psb-col c-psb-col-left">
+        <div class="products-services-top-bar-left">
+          <button ng-class="{'disabled': !productType['Product'] }" class="btn btn-psc-filter btn-orange"
+            ng-click="filterByCategory('Product')">Products <span>{{ topCounts.products }}</span></button>
+          <button ng-class="{'disabled': !productType['Service'] }" class="btn btn-psc-filter btn-blue"
+            ng-click="filterByCategory('Service')">Services <span>{{ topCounts.services }}</span></button>
+          <button ng-class="{'disabled': !productType['Bundle'] }" class="btn btn-psc-filter btn-purple"
+            ng-click="filterByCategory('Bundle')">Bundles <span>{{ topCounts.bundles }}</span></button>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle button blue-bg" type="button" data-toggle="dropdown">
+            <span class="selected-currentFilterValue">{{currentFilterValue}}</span>
+            <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <!-- <li class="archive-filter-dd">
+              <p>Products</p>
+            </li> -->
+            <li ng-class="{'active': currentFilterValue == 'Active'}"><a href="javascript:void(0)"
+                ng-click="filterByStatus('Active')">Active</a></li>
+            <li ng-class="{'active': currentFilterValue == 'Archived'}"><a href="javascript:void(0)"
+                ng-click="filterByStatus('Archived')">Archived</a></li>
+            <li ng-class="{'active': currentFilterValue == 'All'}"><a href="javascript:void(0)"
+                ng-click="filterByStatus('All')">All</a></li>
+            <!-- <div class="archive-filter-dd-gap"></div> -->
+            <!-- <li class="archive-filter-dd">
+              <p>Category</p>
+            </li>
+            <li ng-class="{'active': currentFilterValueForCategory == 'Active'}"><a href="javascript:void(0)"
+                ng-click="filterCategroryByStatus('Active')">Active</a></li>
+            <li ng-class="{'active': currentFilterValueForCategory == 'Archived'}"><a href="javascript:void(0)"
+                ng-click="filterCategroryByStatus('Archived')">Archived</a></li>
+            <li ng-class="{'active': currentFilterValueForCategory == 'All'}"><a href="javascript:void(0)"
+                ng-click="filterCategroryByStatus('All')">All</a></li> -->
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle button blue-bg" type="button" data-toggle="dropdown">
+            <span class="selected-cat-name">{{ selectedCategoryForFilter.name ? selectedCategoryForFilter.name :
+              'All'}}</span>
+            <span class="caret"></span></button>
+          <ul class="dropdown-menu category-selector-dd">
+            <li class="cat-search-li">
+              <div class="search cat-search">
+                <span class="search-icon"></span>
+                <input autocomplete="off" type="search" placeholder="Categories" ng-keyup="filterCatList()"
+                  id="filterCatListInput">
+                <a href="javascript:void(0)" class="resetCatSearch-link"
+                  ng-click="$event.stopPropagation();resetCatSearch()">clear</a>
+              </div>
+            </li>
+            <li class="dropdown-menu-inner-ul-parent">
+              <ul class="dropdown-menu-inner-ul scrollareaCls" id="filterCatListUl">
+                <li ng-class="{'active': !selectedCategoryForFilter.id }"><a href="javascript:void(0)"
+                    ng-click="filterByCategoryID({})">All</a></li>
+                <li ng-class="{'active': selectedCategoryForFilter.id == cat.id}" ng-repeat="cat in allCategories"><a
+                    href="javascript:void(0)" ng-click="filterByCategoryID(cat)">{{cat.name}}</a></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- <tree-dropdown style="width: 200px" ng-click="filterByCategoryID(selectedForFilter)" class="tree-dropdown" data="treeDataForFilter" id="filterCatListInput" selected="selectedForFilter" name="qboCatId" ></tree-dropdown> -->
+        </div>
+        <div class="expand-collapse-link">
+          <a href="javascript:void(0)" class="font-size-link-psc" ng-click="toggleCategoryCollapse()">
+            {{ toggleCategoryCollapsed ? 'expand all' : 'collapse all'}}
+          </a>
+        </div>
+      </div>
+      <div class="c-psb-col c-psb-col-right">
+        <div class="search">
+          <span class="search-icon"></span>
+          <input type="search" placeholder="Search name or part number" ng-model="searchProductText"
+            ng-keyup="searchProductList(searchProductText)">
+          <span class="product-searching-spinner" ng-if="isProductSearching"></span>
+        </div>
+        <div class="fr">
+          <div class="fl dropdown">
+            <!-- <button class="btn add-btn add-link-psc" ng-click="openProductForm(undefined ,'Bundle')"> <span>Add New</span> <i class="fa fa-plus-circle "></i></button> -->
+            <button class="btn dropdown-toggle add-btn add-link-psc" data-toggle="dropdown" ng-class="{ 'cant-add-category' : loggedInuser.canCreateProducts == 0 }" title="{{loggedInuser.canCreateProducts == 0 ? cantAllowPermission : ''}}"> <span>Add New</span> <i
+              class="fa fa-plus-circle "></i></button>
+          <ul class="dropdown-menu openProductForm-dd-box" ng-if="loggedInuser.canCreateProducts == 1 || loggedInuser.userType == 'administrator'">
+            <li><a href="javascript:void(0)" ng-click="openProductForm(undefined, 'Product')">Product</a></li>
+            <li><a href="javascript:void(0)" ng-click="openProductForm(undefined, 'Service')">Service</a></li>
+            <li><a href="javascript:void(0)" ng-click="openProductForm(undefined, 'Bundle')">Bundle</a></li>
+            <li><a href="javascript:void(0)" ng-click="openProductForm(undefined, 'Category')">Category</a></li>
+          </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--No Products Found - Service Bridge Section End-->
+  <!--  -->
+  <div class="dataTables_wrapper product product-sevices-datatable" ng-class="{ 'hide-cats': isProcessing}">
+    <table class="row-border hover no-footer dataTable short-icon" width="100%">
+      <!-- <thead class="dark-gray-bg">
+        <tr>
+          <th style="width:100px !important;text-align: center;" class="sorting"
+            ng-click="orderByProductList('category')"
+            ng-class="{'sorting_asc': column == 'category' && sortOrder == 'asc', 'sorting_desc': column == 'category' && sortOrder == 'desc', }">
+            <span>TYPE</span>
+          </th>
+          <th style="width:200px !important;" class="sorting" ng-click="orderByProductList('name')"
+            ng-class="{'sorting_asc': column == 'name' && sortOrder == 'asc', 'sorting_desc': column == 'name' && sortOrder == 'desc', }">
+            <span>NAME</span>
+          </th>
+          <th style="width:300px !important;" class="sorting" ng-click="orderByProductList('description')"
+            ng-class="{'sorting_asc': column == 'description' && sortOrder == 'asc', 'sorting_desc': column == 'description' && sortOrder == 'desc', }">
+            <span>DESCRIPTION</span>
+          </th>
+          <th style="width:120px !important;" class="sorting" ng-click="orderByProductList('sku')"
+            ng-class="{'sorting_asc': column == 'sku' && sortOrder == 'asc', 'sorting_desc': column == 'sku' && sortOrder == 'desc', }">
+            <span>PART #</span>
+          </th>
+          <th style="width:100px !important;text-align: center;" class="sorting" ng-click="orderByProductList('cost')"
+            ng-class="{'sorting_asc': column == 'cost' && sortOrder == 'asc', 'sorting_desc': column == 'cost' && sortOrder == 'desc', }">
+            <span>COST</span>
+          </th>
+          <th style="width:100px !important;text-align: center;" class="sorting" ng-click="orderByProductList('price')"
+            ng-class="{'sorting_asc': column == 'price' && sortOrder == 'asc', 'sorting_desc': column == 'price' && sortOrder == 'desc', }">
+            <span>PRICE</span>
+          </th>
+        </tr>
+      </thead> -->
+      <error message="{{errorProductList}}" ng-if="errorProductList"></error>
+      <success message="{{successProductList}}" ng-if="successProductList"></success>
+      <tbody dt-rows ng-repeat="catId in selectedCategories" ng-class-odd="'odd'" ng-class-even="'even'" ng-class=""
+        ng-if="selectedCategories.length > 0" ng-hide="
+          (searchProductText != '' && getCatDetailsById(catId).items.length == 0 ) ||
+          (currentFilterValue == 'Archived' && getCatDetailsById(catId).items.length == 0)">
+        <!-- <tr>
+          <td colspan="100%" style="background:#edf0f5; height: 10px; padding: 0"></td>
+        </tr> -->
+        <tr class="even click-arrow">
+          <td class="reset-td-gap" colspan="100%">
+            <div class="category-panel-header collapsed" data-toggle="collapse" data-target="#cat_panel_{{catId}}"
+              ng-if="getCatDetailsById(catId).id" style="margin-top:10px" ng-click="getProductList(catId)">
+              <div class="category-panel-header-col-left">
+                <div class="category-header-icon">
+                  <i class="fa fa-caret-right"></i>
+                </div>
+                <div class="category-panel-heading">{{getCatDetailsById(catId).name }}    
+                  <span style="font-size: 13px;font-weight: normal;margin-left: 8px;">({{getCatDetailsById(catId).itemsCount ? getCatDetailsById(catId).itemsCount : 0 }} Items)</span></div>
+              </div>
+              <div class="category-panel-header-col-right">
+                <a ng-hide="catId==0" href="javascript:void(0)"
+                  ng-click="$event.stopPropagation();openProductForm(getCatDetailsById(catId),'Category')"
+                  class="category-setting-link">
+                  <i class="fa fa-gear"></i>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="100%" class="reset-td-gap">
+            <div class="collapse" id="cat_panel_{{catId}}">
+              <div class="category-panel-body category-panel-body-transparent scrollareaCls" style="overflow: auto;">
+                <div class="category-panel-body-loader" id="cat_loader_{{catId}}">
+                  <img border="0" src="resources/images/spinner.gif" />
+                </div>
+                <table class="row-border hover no-footer dataTable short-icon" width="100%">
+                  <thead class="dark-gray-bg">
+                    <tr style="background-color: #34495e !important;">
+                          <th class="p-0" style="width:30px !important;"
+                             ng-click="orderByProductList('category')"
+                            >
+                            <!-- <span>TYPE</span> -->
+                          </th>
+                          <th class="p-0" style="width:250px !important;" ng-click="orderByProductList('name')">
+                            <span class="p-5">NAME</span>
+                          </th>
+                          <th class="p-0" style="width:300px !important;" ng-click="orderByProductList('description')">
+                            <span class="p-5">DESCRIPTION</span>
+                          </th>
+                          <th class="p-0" style="width:120px !important;" ng-click="orderByProductList('sku')">
+                            <span class="p-5">PART #</span>
+                          </th>
+                          <th class="p-0" style="width:120px !important;text-align: left;" ng-click="orderByProductList('cost')">
+                            <span class="p-5">COST</span>
+                          </th>
+                          <th class="p-0" style="width:120px !important;text-align: left;"  ng-click="orderByProductList('price')">
+                            <span class="p-5">PRICE</span>
+                          </th>
+                          <th style="display: none"></th>
+                    </tr>
+                  </thead>
+                  <div>
+                    <tbody dt-rows ng-repeat="product in getCatDetailsById(catId).items" ng-class-odd="'odd'"
+                    ng-class-even="'even'" ng-if="product.name">
+                    <tr>
+                      <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                    </tr>
+                    <tr class="even">
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:30px !important" class="product-name border-top2 border-left2 border-bottom2">
+                        <div class="product-sevices-category {{product.category}}"></div>
+                      </td>
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:250px !important" class="border-top2 border-bottom2">
+                        <div class="product-name-container">{{product.name | truncate:false:30 }}</div>
+                      </td>
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:300px !important" class="border-top2 border-bottom2">
+                        <div class="product-description-container">{{product.description | truncate:false:40 }}</div>
+                      </td>
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important" class="border-top2 border-bottom2">
+                        {{product.sku | truncate:false:11 }}
+                      </td>
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                        {{product.cost | currency}}
+                      </td>
+                      <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                        {{product.price | currency}}
+                      </td>
+                      <td ng-if="product.isQBSync" class="has-sync-error-td">                    
+                        <span class="has-sync-error">
+                          <i ng-click="isSyncErrorLogProcessing ? '' : openSyncErrorPopup(product, 'other')" class="has-sync-error__icon fa fa-info-circle"></i>
+                          <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                  </div>
+                  <tbody ng-if="getCatDetailsById(catId).items.length < 1 || !getCatDetailsById(catId).items[0].id">
+                    <tr>
+                      <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                    </tr>
+                    <tr class="even">
+                      <td colspan="6" style="text-align: center;padding: 0">
+                        <div class="no-results-div no-results-div-transparent ">
+                          No Items to Display
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tbody ng-if="getCatDetailsById(catId).items.length > 0">
+                    <tr>
+                      <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                    </tr>
+                    <tr>
+                      <td colspan="100%" class="reset-td-gap text-center">
+                        <a href="javascript:void(0)" ng-if="(getCatDetailsById(catId).items.length < getCatDetailsById(catId).rows)"
+                          id="load_more_btn_{{catId}}" ng-click="loadMoreProducts(getCatDetailsById(catId))"
+                          class="btn btn-primary blue-bg btn-load-more">
+                          <span class="txt">Load More</span>
+                          <span class="load-more-cats-loader-wrapper">
+                            <span class="load-more-cat-spinner"></span>
+                          </span>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <table class="row-border hover no-footer dataTable short-icon" style="margin-left: 3% ! important;width:97%">
+                  <tbody ng-repeat="level1 in getlevel1(getCatDetailsById(catId))" ng-class-odd="'odd'" ng-class-even="'even'" ng-class=""
+                   ng-hide="
+                    (searchProductText != '' && getLevel1CatDetailsById(level1).items.length == 0 ) ||
+                    (currentFilterValue == 'Archived' && getLevel1CatDetailsById(level1).items.length == 0)">
+                    <tr>
+                      <td colspan="100%" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                    </tr>
+                    <tr class="even click-arrow">
+                      <td class="reset-td-gap" colspan="100%">
+                        <div class="category-panel-subHeader1 collapsed" data-toggle="collapse"
+                          data-target="#cat_panel_level1_{{level1.id}}" ng-click="getProductList(getLevel1CatDetailsById(level1).id)">
+                          <div class="category-panel-subHeader1-col-left">
+                            <div class="category-subHeader1-icon">
+                              <i class="fa fa-caret-right"></i>
+                            </div>
+                            <div class="category-panel-subHeading1">{{getLevel1CatDetailsById(level1).fullyQualifiedName }}
+                              <span style="font-size: 13px;font-weight: normal;margin-left: 8px;">({{getLevel1CatDetailsById(level1).itemsCount ? getLevel1CatDetailsById(level1).itemsCount : 0 }}
+                              Items)</span></div>
+                          </div>
+                          <div class="category-panel-subHeader1-col-right">
+                            <a ng-hide="level1==0" href="javascript:void(0)"
+                              ng-click="$event.stopPropagation();openProductForm(getLevel1CatDetailsById(level1),'Category')"
+                              class="category-setting-link">
+                              <i class="fa fa-gear"></i>
+                            </a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="100%" class="reset-td-gap">
+                        <div class="collapse" id="cat_panel_level1_{{level1.id}}">
+                          <div class="category-panel-body category-panel-body-transparent scrollareaCls" style="overflow: auto;">
+                            <div class="category-panel-body-loader" id="cat_panel_level1_{{level1.id}}">
+                              <img border="0" src="resources/images/spinner.gif" />
+                            </div>
+                            <table class="row-border hover no-footer dataTable short-icon" width="100%">
+                              <thead class="dark-gray-bg">
+                                <tr style="background-color: #34495e !important;">
+                                  <th class="p-0" style="width:30px !important;"
+                                     ng-click="orderByProductList('category')"
+                                    >
+                                    <!-- <span>TYPE</span> -->
+                                  </th>
+                                  <th class="p-0" style="width:250px !important;" ng-click="orderByProductList('name')">
+                                    <span class="p-5">NAME</span>
+                                  </th>
+                                  <th class="p-0" style="width:300px !important;" ng-click="orderByProductList('description')">
+                                    <span class="p-5">DESCRIPTION</span>
+                                  </th>
+                                  <th class="p-0" style="width:120px !important;" ng-click="orderByProductList('sku')">
+                                    <span class="p-5">PART #</span>
+                                  </th>
+                                  <th class="p-0" style="width:120px !important;text-align: left;" ng-click="orderByProductList('cost')">
+                                    <span class="p-5">COST</span>
+                                  </th>
+                                  <th class="p-0" style="width:120px !important;text-align: left;"  ng-click="orderByProductList('price')">
+                                    <span class="p-5">PRICE</span>
+                                  </th>
+                                  <th style="display: none"></th>
+                                </tr>
+                              </thead>
+                              <tbody dt-rows ng-repeat="product in getLevel1CatDetailsById(level1).items"
+                                ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="product.name">
+                                <tr>
+                                  <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                </tr>
+                                <tr class="even">
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:30px !important" class="product-name border-top2 border-left2 border-bottom2">
+                                    <div class="product-sevices-category {{product.category}}"></div>
+                                  </td>
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:250px !important" class="border-top2 border-bottom2">
+                                    <div class="product-name-container">{{product.name | truncate:false:30 }}</div>
+                                  </td>
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:300px !important" class="border-top2 border-bottom2">
+                                    <div class="product-description-container">{{product.description | truncate:false:40 }}</div>
+                                  </td>
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important" class="border-top2 border-bottom2">
+                                    {{product.sku | truncate:false:11 }}
+                                  </td>
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                    {{product.cost | currency}}
+                                  </td>
+                                  <td  ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                    {{product.price | currency}}
+                                  </td>                                  
+                                  <td ng-if="product.isQBSync" class="has-sync-error-td">                    
+                                    <span class="has-sync-error">
+                                      <i ng-click="isSyncErrorLogProcessing ? '' : openSyncErrorPopup(product, 'other')" class="has-sync-error__icon fa fa-info-circle"></i>
+                                      <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                                    </span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                              <tbody ng-if="getLevel1CatDetailsById(level1).items.length < 1 || !getLevel1CatDetailsById(level1).items[0].id">
+                                <tr>
+                                  <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                </tr>
+                                <tr class="even">
+                                  <td colspan="6" style="text-align: center;padding: 0">
+                                    <div class="no-results-div no-results-div-transparent ">
+                                      No Items to Display
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td colspan="100%" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                </tr>
+                              </tbody>
+                              <tbody ng-if="getLevel1CatDetailsById(level1).items.length > 0">
+                                <tr>
+                                  <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                </tr>
+                                <tr>
+                                  <td colspan="100%" class="reset-td-gap text-center">
+                                    <a href="javascript:void(0)"
+                                      ng-if="getLevel1CatDetailsById(level1).items.length < getLevel1CatDetailsById(level1).rows"
+                                      id="load_more_btn_{{level1.id}}" ng-click="loadMoreProducts(getLevel1CatDetailsById(level1))"
+                                      class="btn btn-primary blue-bg btn-load-more">
+                                      <span class="txt">Load More</span>
+                                      <span class="load-more-cats-loader-wrapper">
+                                        <span class="load-more-cat-spinner"></span>
+                                      </span>
+                                    </a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div>
+                            <table class="row-border hover no-footer dataTable short-icon" style="margin-left: 3% ! important;width:97%">
+                              <tbody ng-repeat="level2 in getlevel2(getLevel1CatDetailsById(level1))" >
+                                <tr>
+                                  <td colspan="100%" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                </tr>
+                                <tr class="even click-arrow">
+                                  <td class="reset-td-gap" colspan="100%">
+                                    <div class="category-panel-subHeader2 collapsed" data-toggle="collapse"
+                                      data-target="#cat_panel_level2_{{level2.id}}" ng-click="getProductList(getLevel2CatDetailsById(level2).id)">
+                                      <div class="category-panel-subHeader2-col-left">
+                                        <div class="category-subHeader2-icon">
+                                          <i class="fa fa-caret-right"></i>
+                                        </div>
+                                        <div class="category-panel-subHeading2">
+                                          {{getLevel2CatDetailsById(level2).fullyQualifiedName }}
+                                          <span style="font-size: 13px;font-weight: normal;margin-left: 8px;">({{getLevel2CatDetailsById(level2).itemsCount ? getLevel2CatDetailsById(level2).itemsCount
+                                            : 0 }} Items)</span></div>
+                                      </div>
+                                      <div class="category-panel-subHeader2-col-right">
+                                        <a ng-hide="level2==0" href="javascript:void(0)"
+                                          ng-click="$event.stopPropagation();openProductForm(getLevel2CatDetailsById(level2),'Category')"
+                                          class="category-setting-link">
+                                          <i class="fa fa-gear"></i>
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td colspan="100%" class="reset-td-gap">
+                                    <div class="collapse" id="cat_panel_level2_{{level2.id}}">
+                                      <div class="category-panel-body category-panel-body-transparent scrollareaCls" style="overflow: auto;">
+                                        <div class="category-panel-body-loader" id="cat_panel_level2_{{level2.id}}">
+                                          <img border="0" src="resources/images/spinner.gif" />
+                                        </div>
+                                        <table class="row-border hover no-footer dataTable short-icon" width="100%">
+                                          <thead class="dark-gray-bg">
+                                            <tr style="background-color: #34495e !important;">
+                                              <th class="p-0" style="width:30px !important;"
+                                                 ng-click="orderByProductList('category')"
+                                                >
+                                                <!-- <span>TYPE</span> -->
+                                              </th>
+                                              <th class="p-0" style="width:250px !important;" ng-click="orderByProductList('name')">
+                                                <span class="p-5">NAME</span>
+                                              </th>
+                                              <th class="p-0" style="width:300px !important;" ng-click="orderByProductList('description')">
+                                                <span class="p-5">DESCRIPTION</span>
+                                              </th>
+                                              <th class="p-0" style="width:120px !important;" ng-click="orderByProductList('sku')">
+                                                <span class="p-5">PART #</span>
+                                              </th>
+                                              <th class="p-0" style="width:120px !important;text-align: left;" ng-click="orderByProductList('cost')">
+                                                <span class="p-5">COST</span>
+                                              </th>
+                                              <th class="p-0" style="width:120px !important;text-align: left;"  ng-click="orderByProductList('price')">
+                                                <span class="p-5">PRICE</span>
+                                              </th>
+                                              <th style="display:none;"></th>
+                                            </tr>
+                                          </thead>
+                                          <tbody dt-rows ng-repeat="product in getLevel2CatDetailsById(level2).items"
+                                            ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="product.name">
+                                            <tr>
+                                              <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                            </tr>
+                                            <tr class="even">
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:30px !important" class="product-name border-top2 border-left2 border-bottom2">
+                                                <div class="product-sevices-category {{product.category}}"></div>
+                                              </td>
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:250px !important" class="border-top2 border-bottom2">
+                                                <div class="product-name-container">{{product.name | truncate:false:30 }}</div>
+                                              </td>
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:300px !important" class="border-top2 border-bottom2">
+                                                <div class="product-description-container">{{product.description | truncate:false:40 }}</div>
+                                              </td>
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important" class="border-top2 border-bottom2">
+                                                {{product.sku | truncate:false:11 }}
+                                              </td>
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                                {{product.cost | currency}}
+                                              </td>
+                                              <td ng-click="openProductForm(product)" style="cursor: pointer; width:120px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                                {{product.price | currency}}
+                                              </td>
+                                              <td ng-if="product.isQBSync" class="has-sync-error-td">                    
+                                                <span class="has-sync-error">
+                                                  <i ng-click="isSyncErrorLogProcessing ? '' : openSyncErrorPopup(product, 'other')" class="has-sync-error__icon fa fa-info-circle"></i>
+                                                  <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                                                </span>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                          <tbody ng-if="getLevel2CatDetailsById(level2).items.length < 1 || !getLevel2CatDetailsById(level2).items[0].id">
+                                            <tr>
+                                              <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                            </tr>
+                                            <tr class="even">
+                                              <td colspan="6" style="text-align: center;padding: 0">
+                                                <div class="no-results-div no-results-div-transparent ">
+                                                  No Items to Display
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                          <tbody ng-if="getLevel2CatDetailsById(level2).items.length > 0">
+                                            <tr>
+                                              <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                            </tr>
+                                            <tr>
+                                              <td colspan="100%" class="reset-td-gap text-center">
+                                                <a href="javascript:void(0)"
+                                                  ng-if="getLevel2CatDetailsById(level2).items.length < getLevel2CatDetailsById(level2).rows"
+                                                  id="load_more_btn_{{level2.id}}" ng-click="loadMoreProducts(getLevel2CatDetailsById(level2))"
+                                                  class="btn btn-primary blue-bg btn-load-more">
+                                                  <span class="txt">Load More</span>
+                                                  <span class="load-more-cats-loader-wrapper">
+                                                    <span class="load-more-cat-spinner"></span>
+                                                  </span>
+                                                </a>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                      <div>
+                                        <table class="row-border hover no-footer dataTable short-icon" style="margin-left: 3% ! important;width:97%">
+                                          <tbody
+                                            ng-repeat="level3 in getlevel3(getLevel2CatDetailsById(level2))">
+                                            <tr>
+                                              <td colspan="100%" style="background:#edf0f5; height: 5px; padding: 0">
+                                              </td>
+                                            </tr>
+                                            <tr class="even click-arrow">
+                                              <td class="reset-td-gap" colspan="100%">
+                                                <div class="category-panel-subHeader3 collapsed" data-toggle="collapse"
+                                                  data-target="#cat_panel_level3_{{level3.id}}" ng-click="getProductList(getLevel3CatDetailsById(level3).id)">
+                                                  <div class="category-panel-subHeader3-col-left">
+                                                    <div class="category-subHeader3-icon">
+                                                      <i class="fa fa-caret-right"></i>
+                                                    </div>
+                                                    <div class="category-panel-subHeading3">
+                                                      {{getLevel3CatDetailsById(level3).fullyQualifiedName }}
+                                                      <span style="font-size: 13px;font-weight: normal;margin-left: 8px;">
+                                                        ({{getLevel3CatDetailsById(level3).itemsCount ?
+                                                          getLevel3CatDetailsById(level3).itemsCount : 0 }} Items)
+                                                      </span></div>
+                                                  </div>
+                                                  <div class="category-panel-subHeader3-col-right">
+                                                    <a ng-hide="catId==0" href="javascript:void(0)"
+                                                      ng-click="$event.stopPropagation();openProductForm(getLevel3CatDetailsById(level3),'Category')"
+                                                      class="category-setting-link">
+                                                      <i class="fa fa-gear"></i>
+                                                    </a>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td colspan="100%" class="reset-td-gap">
+                                                <div class="collapse" id="cat_panel_level3_{{level3.id}}">
+                                                  <div class="category-panel-body category-panel-body-transparent scrollareaCls" style="overflow: auto;">
+                                                    <div class="category-panel-body-loader"
+                                                      id="cat_panel_level3_{{level3.id}}">
+                                                      <img border="0" src="resources/images/spinner.gif" />
+                                                    </div>
+                                                    <table class="row-border hover no-footer dataTable short-icon"
+                                                      width="100%">
+                                                      <thead class="dark-gray-bg">
+                                                        <tr style="background-color: #34495e !important;">
+                                                          <th class="p-0" style="width:30px !important;"
+                                                             ng-click="orderByProductList('category')"
+                                                            >
+                                                            <!-- <span>TYPE</span> -->
+                                                          </th>
+                                                          <th class="p-0" style="width:250px !important;" ng-click="orderByProductList('name')">
+                                                            <span class="p-5">NAME</span>
+                                                          </th>
+                                                          <th class="p-0" style="width:300px !important;" ng-click="orderByProductList('description')">
+                                                            <span class="p-5">DESCRIPTION</span>
+                                                          </th>
+                                                          <th class="p-0" style="width:120px !important;" ng-click="orderByProductList('sku')">
+                                                            <span class="p-5">PART #</span>
+                                                          </th>
+                                                          <th class="p-0" style="width:190px !important;text-align: left;" ng-click="orderByProductList('cost')">
+                                                            <span class="p-5">COST</span>
+                                                          </th>
+                                                          <th class="p-0" style="width:190px !important;text-align: left;"  ng-click="orderByProductList('price')">
+                                                            <span class="p-5">PRICE</span>
+                                                          </th>
+                                                          <th style="display: none"></th>
+                                                        </tr>
+                                                      </thead>
+                                                      <tbody dt-rows
+                                                        ng-repeat="product in getLevel3CatDetailsById(level3).items"
+                                                        ng-class-odd="'odd'" ng-class-even="'even'" ng-class="" ng-if="product.name">
+                                                        <tr>
+                                                          <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                                        </tr>
+                                                        <tr class="even" >
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:30px !important" class="product-name border-top2 border-left2 border-bottom2">
+                                                            <div class="product-sevices-category {{product.category}}"></div>
+                                                          </td>
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:250px !important" class="border-top2 border-bottom2">
+                                                            <div class="product-name-container">{{product.name | truncate:false:30 }}</div>
+                                                          </td>
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:300px !important" class="border-top2 border-bottom2">
+                                                            <div class="product-description-container">{{product.description | truncate:false:40 }}</div>
+                                                          </td>
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:190px !important" class="border-top2 border-bottom2">
+                                                            {{product.sku | truncate:false:11 }}
+                                                          </td>
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:190px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                                            {{product.cost | currency}}
+                                                          </td>
+                                                          <td ng-click="openProductForm(product)" style="cursor: pointer; width:190px !important;text-align: left;" class="border-top2 border-bottom2 text-center">
+                                                            {{product.price | currency}}
+                                                          </td>
+                                                          <td ng-if="product.isQBSync" class="has-sync-error-td">                    
+                                                            <span class="has-sync-error">
+                                                              <i ng-click="isSyncErrorLogProcessing ? '' : openSyncErrorPopup(product, 'other')" class="has-sync-error__icon fa fa-info-circle"></i>
+                                                              <span class="has-sync-error__tooltip">This item has not been synced to Quickbooks Online. <br> CLICK ICON FOR MORE INFO</span>
+                                                            </span>
+                                                          </td>
+                                                        </tr>
+                                                      </tbody>
+                                                      <tbody ng-if="getLevel3CatDetailsById(level3).items.length < 1 || !getLevel3CatDetailsById(level3).items[0].id">
+                                                        <tr>
+                                                          <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                                        </tr>
+                                                        <tr class="even">
+                                                          <td colspan="6" style="text-align: center;padding: 0">
+                                                            <div class="no-results-div no-results-div-transparent ">
+                                                              No Items to Display
+                                                            </div>
+                                                          </td>
+                                                        </tr>
+                                                      </tbody>
+                                                      <tbody ng-if="getLevel3CatDetailsById(level3).items.length > 0">
+                                                        <tr>
+                                                          <td colspan="6" style="background:#edf0f5; height: 5px; padding: 0"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td colspan="100%" class="reset-td-gap text-center">
+                                                            <a href="javascript:void(0)"
+                                                              ng-if="getLevel3CatDetailsById(level3).items.length < getLevel3CatDetailsById(level3).rows"
+                                                              id="load_more_btn_{{level3.id}}" ng-click="loadMoreProducts(getLevel3CatDetailsById(level3))"
+                                                              class="btn btn-primary blue-bg btn-load-more">
+                                                              <span class="txt">Load More</span>
+                                                              <span class="load-more-cats-loader-wrapper">
+                                                                <span class="load-more-cat-spinner"></span>
+                                                              </span>
+                                                            </a>
+                                                          </td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                      </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                            </tbody>
+                              </table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+               </table>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tbody 
+        ng-if="
+        (selectedCategories.length > 0 && searchProductText != '' && !isRecordsFound)
+        || (selectedCategories.length == 0 && currentFilterValue != 'All' != '' && !isRecordsFound)
+        ">
+          <tr>
+            <td colspan="100%" style="background:#edf0f5; height: 10px; padding: 0"></td>
+         </tr>
+          <tr>
+            <td colspan="100%">
+              <div class="no-results-div no-results-div-transparent ">
+               No Items to Display
+              </div>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+  </div>
+  <br>
+  <br>
+  <br>
+</div>
+</ng-container>
+<script type="text/ng-template" id="addProductTemplate.html">
+  <div class="dataTables_wrapper modal-box modal-box-v2 common-popup" style="max-width: 800px; min-height: auto;">
+    <div class="spinner" ng-if="productAuditLogLoading">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+   <div class="popup-header">
+    <div class="payment-audit-log-btn" ng-if="isProductEditing" ng-click="openProductAuditLog()"><i class="fa fa-history" aria-hidden="true"></i></div>
+     <span class="heading ">{{ isProductEditing ? 'Edit' : 'New' }} {{addSelectedType}}</span>
+     <div ng-if="isProductEditing" class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+   </div>
+     <div>
+           <form class="form-product" name="productModelForm" ng-submit="productModelFormIsSubmit = true; productModelForm.$valid && (addSelectedType == 'Bundle' && !isProductServicesBundleSaving ?  saveBundleForm() : ( !isProductServicesSaving ? addEditProduct() : null) )" novalidate>           
+            <div class="row">
+              <div class="col-md-4 dropdown select-wrap select-product-dropdown" ng-class="home">
+                <button class="btn btn-primary dropdown-toggle {{addSelectedType ? addSelectedType : 'Select one'   }}" type="button" data-toggle="dropdown">
+                  {{addSelectedType ? addSelectedType : 'Select one'   }}
+                <span class="caret white" ng-if="!isProductEditing"></span></button>
+                <ul class="dropdown-menu scrollable-menu" ng-model="home" ng-if="!isProductEditing" style="margin-left: 15px;">                         
+                  <li ng-hide="addSelectedType == 'Product'" class="select-products" ng-click="selectProductType('Product')"><a href="javascript:void(0)" value="Product">Product</a></li>
+                  <li ng-hide="addSelectedType == 'Service'" class="select-services" ng-click="selectProductType('Service')"><a href="javascript:void(0)" value="Service">Service</a></li>
+                  <li ng-hide="addSelectedType == 'Bundle'" class="select-bundle" ng-click="selectProductType('Bundle')"><a href="javascript:void(0)" value="Bundle">Bundle</a></li>
+                  <li ng-hide="addSelectedType == 'Category'" class="select-category" ng-click="selectProductType('Category')"><a href="javascript:void(0)" value="Category">Category</a></li>
+                </ul>
+              </div>
+              <div class="col-md-8" ng-if="isProductEditing && getChemicalName.keyValue && addSelectedType =='Product'" style="text-align: right;">
+                <span class="tooltipForChemical">
+                  <span class="tooltiptext">{{chemicalNameTip}}</span>
+                  <span class="link" style="opacity: 0.5;"></span><span style="opacity: 0.5;">{{getChemicalName.keyValue.toUpperCase()}}</span>
+                </span>
+                </div>
+            </div>
+            
+            <!--Product Add New Form-->
+            <div id="productAddNewForm" ng-if="addSelectedType =='Product' || addSelectedType =='Service'">
+              <div class="row">
+                <div class="col-md-5">
+                  <div class="required-box  p-b10">
+                    <label class="edit-procuct-text-label" style="margin-top: 8px;" ng-if="isProductEditing">Name</label>
+                    <!-- <span class="edit-procuct-text-label" ng-if="isProductEditing">Name</span> -->
+                    <input autocomplete="off" class="form-control" name="name" ng-maxlength="100" ng-model="productModel.name" ng-blur="isProductEditing ? addEditProduct('name') : '' " placeholder="Name" required="" type="text" ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" ng-pattern="/^[^:]*$/" ng-class="{ 'has-error' : ((productModelFormIsSubmit || isProductEditing) && (productModelForm.name.$error.required || productModelForm.name.$error.pattern)) }"/>
+                    <span class="has-required">
+                      <span ng-show="(productModelFormIsSubmit || isProductEditing) && productModelForm.name.$invalid">
+                        <span ng-show="productModelForm.name.$error.required">Please enter a name</span>
+                        <span ng-show="productModelForm.name.$error.pattern">Colon (:) character is not allowed</span>
+                      </span>
+                    </span>
+                  </div>
+                            
+
+                  <div class="p-b10" ng-if="addSelectedType=='Product'">
+                    <label class="edit-procuct-text-label" ng-if="isProductEditing">Part Number</label>
+                    <input ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" autocomplete="off" class="form-control" name="sku" ng-maxlength="100" ng-model="productModel.sku" ng-blur="isProductEditing ? addEditProduct('sku') : '' "  placeholder="Part Number" type="text"/>
+                  </div>
+                  <div class="p-b10" ng-if="isHeritageEnabled && addSelectedType=='Product' && (productModel.status == '1' || productModel.qboCatId == 0 || productModel.status == null)"> 
+                    <label class="edit-procuct-text-label" ng-if="isProductEditing">Heritage Number</label>
+                    <span ng-if="showHeritageErrorMsg && invalidHeritageText == 'Invalid Heritage Number Entered'" class="invalidHeritageText">{{invalidHeritageText}}</span>
+                    <div ng-if="showHeritageErrorMsg &&  invalidHeritageText == 'Heritage number cannot be validated, please try again later!'" class="heritageNotValidated">{{invalidHeritageText}}</div>
+                    <input ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" autocomplete="off" class="form-control" name="heritageNumber" ng-maxlength="100" ng-model="productModel.heritageNumber" ng-blur="changeHeritageNumber()" placeholder="Heritage Number" type="text"/>
+                  </div>
+                  
+                  <div class="row p-b10 cleaning-activity" ng-if="addSelectedType=='Service'">
+                    <div class="col-md-4 text-left">
+                      <label class="edit-procuct-text-label" ng-if="addSelectedType=='Service'" style="margin-top: 8px;">Duration </label>
+                    </div>
+                    <div class="col-md-8 p-l0 p-r0 text-right">
+                      <div class="dropdown select-wrap 03 input-with-dollar" >
+                        <span class="doller-icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+                        <div class="dropdown-duration">
+                        <span class="duration-field" onclick="$('#durationPicker').datetimepicker('show');">{{productModel.selectedDuration | duration}}</span>
+                        <input ng-focus="setZeroTimeDuration()" ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" id="durationPicker" type="text" datetimepicker datetimepicker-disable-drop options="durationOption" ng-model="productModel.selectedDuration" ng-blur="isProductEditing ? addEditProduct('duration') : '' " ps-datetime-picker class="form-control" >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- <label class="cost-level-one" ng-if="addSelectedType=='Product'">Cost </label> -->
+                  <div class="row p-b10 add-form-cost-box">
+                    <div>
+                    <div class="col-md-8 p-r0">
+                      <label>
+                        <span class="edit-procuct-text-label">Cost</span>                        
+                        <span ng-if="getChemicalName && getChemicalName.unit && isProductEditing">
+                          <span style="font-size: 12px;opacity: 0.5;">per {{getChemicalName.unit}}</span>
+                          <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                            <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                            <span>This is the unit for the chemical that is linked to this product. You can change this in settings.</span>
+                          </a>
+                        </span>
+                      </label>
+                      <div class="input-with-dollar">
+                        <span class="doller-icon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                        <input ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0) || cpmCalculating || isProductServicesSaving"
+                        class="form-control input-number" 
+                        name="cost" 
+                        ng-min="0" 
+                        ng-max="9999999" 
+                        ng-model="productModel.cost" 
+                        allow-typing="^[$,0-9.]+$"  
+                        ng-blur="isProductEditing ? addEditProduct('cost') : calculateCPM('cost')" 
+                        placeholder="Cost to you" 
+                        type="text" 
+                        format="currency" 
+                        style="width:80%; display:inline-block"/>
+                      </div>
+                    </div>
+                    <div class="col-md-4 p-l0 use-margin-parent">                      
+                      <label>
+                        <span class="edit-procuct-text-label">Markup</span>
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                          <span>When the Cost field is updated for any reason, the Price field will be auto-updated based on the markup % value. For example, if the markup % value is 50% and the Cost is changed to $100.00, the Price will be auto-updated to $150.00. If you lock the markup field, then the value won't change if markup is changed at the category level. This allows you to have most items in a category auto-set to a specific mark up, but make exceptions as needed.</span>
+                        </a>
+                        </label>
+                      <div ng-if="productModel.usePriceMargin" class="margin-input-area">                        
+                        <input ng-disabled="(loggedInuser.canEditProducts == 0) || cpmCalculating || isProductServicesSaving || productModel.priceLock"
+                        class="form-control input-number form-control-margin-input {{ marginHasError ? 'has-error' : ''}} {{ productModel.priceLock ? 'margin-disabled' : '' }} {{ marginHasError ? 'has-error' : ''}}" 
+                        name="marginPercentage" 
+                        ng-min="1" 
+                        ng-max="9000" 
+                        ng-model="productModel.marginPercentage" 
+                        allow-typing="^[0-9]+$"  
+                        ng-blur="handleMarginBlur()" 
+                        placeholder="" 
+                        type="text" 
+                        ng-paste="blockPasting($event)" 
+                        maxlength="4" 
+                        />
+                        <span class="marginPercentage-symbol">%</span>
+                        <span class="lock-btn" ng-click="togglePriceLock(productModel)">
+                          <!-- <i ng-if="isPriceLockToggleInProgress" class="lock-btn-anim"></i> -->
+                          <i class="fa fa-{{ productModel.priceLock ? 'lock' : 'unlock' }}"></i>
+                        </span>
+                      </div>
+                      <span ng-if="!productModel.usePriceMargin" ng-click="togglePriceMargin(productModel)" class="use-margin-toggle use-margin-toggle-off">Use price markup</span>
+                      <span ng-if="productModel.usePriceMargin" ng-click="togglePriceMargin(productModel)" class="use-margin-toggle use-margin-toggle-on">Don't use markup</span>
+                    </div>
+                  </div>                    
+                  </div>
+                
+                  <div class="row m-t10">
+                    <div class="col-md-8">
+                      <label class="edit-procuct-text-label" style="margin-top: 8px;margin-left: -10px;"><span style="color:red;">*</span> Price</label>
+                    </div>
+                    <div class="col-md-4" style="padding-left: 0px;">
+                      <div ng-if="isHeritageEnabled && addSelectedType=='Product' && (productModel.status == '1' || productModel.qboCatId == 0)" style="position: relative; top: 8px;">
+                        <span class="edit-procuct-text-label" style="font-weight: 700">Unit</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">                    
+                    <div class="col-md-8 p-r0 text-right">
+                      <div class="input-with-dollar">
+                        <span class="doller-icon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                        <input ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0) || cpmCalculating || isProductServicesSaving" autocomplete="off" class="form-control input-number" name="price" ng-min="0" ng-max="9999999" ng-model="productModel.price"  allow-typing="^[$,0-9.-]+$"  ng-blur="isProductEditing ? addEditProduct('price') : calculateCPM('price')" placeholder="Price to Customer" required="" type="text" format="currency" style="width:80%; display:inline-block"/>
+                      </div>
+                    </div>
+                    <div class="col-md-4" style="padding:unset;top:6px" ng-if="getChemicalName && getChemicalName.unit && isProductEditing && !isHeritageEnabled && !productModel.heritageNumber">
+                      <span style="font-size: 12px;opacity: 0.5;">per {{getChemicalName.unit}}</span>
+                    </div>
+                    <div class="col-md-4" style="padding-left: 0px;">
+                      <div class="account-name-dropdown">
+                        <div class="dropdown select-wrap" ng-if="isHeritageEnabled && addSelectedType=='Product' && (productModel.status == '1' || productModel.qboCatId == 0 || productModel.status == null)">
+                           <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="!productModel.heritageNumber || heritageUnits.length == 0" style="height: 34px;">
+                             <b>{{ productModel.heritageUOM ? productModel.heritageUOM : '' }}</b>
+                             <span class="caret"></span>
+                          </button>
+                          <div class="tooltipForHeritageUnit icon-required customer-subdomain-help" ng-if="!isProcessing && !productModel.heritageNumber || heritageUnits.length == 0">
+                            <span>A valid Heritage Number must be entered to use this.</span>
+                          </div>
+                          <ul class="dropdown-menu scrollable-menu scrollareaCls account-scrollable-menu">
+                            <li ng-repeat="htUnit in heritageUnits" ng-click="heritageUnitUpdate(htUnit.uom)" ng-hide="productModel.heritageUOM == htUnit.uom">
+                              <a href="javascript:void(0)">{{htUnit.uom}}</a>
+                            </li>
+                          </ul>
+                        </div> 
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <span class="has-required text-right" ng-if="addSelectedType=='Service'"><span ng-show="productModelFormIsSubmit && productModelForm.price.$invalid">Please enter a price</span> </span>
+                      <span class="has-required" ng-if="addSelectedType=='Product'"><span ng-show="productModelFormIsSubmit && productModelForm.price.$invalid">Please enter a price</span> </span>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-8 charge_tax">                      
+                      <label for="charge_tax"><input ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" id="charge_tax" type="checkbox" ng-model="productModel.isChargeTax" name="chargetax" class="" ng-change="isProductEditing ? addEditProduct() : '' " ng-true-value="1" ng-false-value="0"> Charge Tax</label>
+                    </div>
+                  </div>
+                </div>                 
+  
+               <div class="col-md-7  p-b10">
+                <span class="edit-procuct-text-label" ng-if="isProductEditing">Description</span>
+                  <textarea ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0)" autocomplete="off" class="form-control h-180" name="description" ng-maxlength="5000" ng-model="productModel.description" ng-blur="isProductEditing ? addEditProduct('description') : '' " placeholder="Description" type="text"></textarea>
+               </div>
+               <div class="col-md-5" ng-if="addSelectedType=='Service'">
+                <span class="edit-procuct-text-label">Category</span>
+                <input ng-if="(isProductEditing && loggedInuser.canEditProducts == 0)" ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0) || cpmCalculating" autocomplete="off" class="form-control m-b10" readonly ng-model="productModel.qboCatName"  type="text"/>
+                <tree-dropdown ng-if="loggedInuser.canEditProducts == 1" ng-class="{ 'cant-add-categoryFromTree' : (isProductEditing && loggedInuser.canEditProducts == 0) }" data-sid="{{loggedInuser.canEditProducts == 1 ? setSelected(selected) : ''}}" class="tree-dropdown" data="treeData" id="qboCatId_dd" selected="selected" name="qboCatId" ></tree-dropdown>
+               </div> 
+
+               <div class="col-md-5" ng-if="addSelectedType=='Product'">
+                <span class="edit-procuct-text-label">Category</span>
+                <input ng-if="(isProductEditing && loggedInuser.canEditProducts == 0)" ng-disabled="(isProductEditing && loggedInuser.canEditProducts == 0) || cpmCalculating" autocomplete="off" class="form-control m-b10" readonly ng-model="selected.name"  type="text"/>
+                <tree-dropdown ng-if="loggedInuser.canEditProducts == 1" ng-class="{ 'cant-add-categoryFromTree' : (isProductEditing && loggedInuser.canEditProducts == 0) }" data-sid="{{loggedInuser.canEditProducts == 1 ? setSelected(selected) : ''}}" class="tree-dropdown" data="treeData" id="qboCatId_dd" selected="selected" name="qboCatId" ></tree-dropdown>
+               </div>
+               <div class="col-md-7 {{addSelectedType == 'Service' ? 'product-img-area-float-right-lg-devices' : ''}}">
+               <div class="quote-li-img-container quote-li-img-container-products" ng-class="{ 'disable-img-events' : PSImageProcessing || isImageDeleting() || (isProductEditing && loggedInuser.canEditProducts == 0) }">
+                  <div class="quote-li-image-div" ng-if="productModel.photos && productModel.photos.length > 0"  ng-repeat="photo in productModel.photos" ng-class="{ 'is-deleting' : imageDeleting[getSanitizedId(photo.fileName)] }">
+                    <div class="quote-li-image-deleting"><span class="quote-li-image-deleting-loader"></span></div>
+                      <div ng-if="!photo.fileName.endsWith('.pdf')" class="quote-li-img-holder" ng-click="showFullScreenImages($index, getPhotosArr(productModel.photos), awsCDNpath, photo.fileName.endsWith('.pdf') ? 'pdf' : 'photo')">
+                          <img src="{{awsCDNpath}}{{photo.fileName}}" alt=""> 
+                      </div>
+                      <div ng-if="photo.fileName.endsWith('.pdf')" class="quote-li-img-holder">
+                        <a href="javascript:void(0)" ng-click="downloadPDFfromLineItem(awsCDNpath + photo.fileName)" >
+                          <i class="fa fa fa-file-pdf-o" style="font-size:48px"></i>
+                        </a>
+                    </div>
+                      <span class="quote-li-img-delete-btn" ng-click="deletePSImagePopup(productModel, photo, getSanitizedId(photo.fileName))"><i class="fa fa-times"></i></span>
+                      <div class="quote-li-caption-area">
+                          <span class="quote-li-img-caption quote-li-img-caption-text" ng-if="photo.caption && photo.caption !== ''" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_text">{{photo.caption}}</span> 
+                          <span ng-if="photo.caption" class="quote-li-img-caption-edit" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_edit"><a href="javascript:void(0)" ng-click="showCaptionInput(getSanitizedId(photo.fileName))"><i class="fa fa-pencil"></i></a></span>                                         
+                          <span ng-if="!photo.caption || photo.caption == ''" class="quote-li-img-caption quote-li-img-caption-link" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_link"><a href="javascript:void(0)" class="add-link" ng-click="showCaptionInput(getSanitizedId(photo.fileName))">add caption</a></span>
+                          <span class="quote-li-img-caption-input" id="qouteImgInput_{{getSanitizedId(photo.fileName)}}_caption_input"><textarea auto-height data-index="{{$parent.$index}}" ng-blur="saveCaption($event, photo, getSanitizedId(photo.fileName))">{{photo.caption}}</textarea></span>
+                      </div>                                          
+                  </div>
+                  <label class="quote-li-img-uploader-btn" ng-if="!productModel.photos || productModel.photos.length < 10"  ng-class="{ 'uploading' : PSImageProcessing }" title="Attach Photo or PDF">
+                      <input type="file" ng-disabled="PSImageProcessing" accept="image/png, image/gif, image/jpeg, image/jpg, application/pdf" data-index="{{$index}}" id="qouteImgInput_{{$index}}" onchange="angular.element(this).scope().PSLiImageInputChange(event)"/>
+                      <span class="quote-li-img-icon"></span>
+                      <span class="quote-li-img-uploading"></span>
+                  </label>
+               </div>
+               </div>
+              </div>
+              <div>
+                  <span class="edit-procuct-text-label default-qbo-account-area-label">QuickBooks Online settings
+                    <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                      <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                      <span>These settings determine which accounts in QBO are associated with this product/service. These must be set or QBO may auto-assign an account when it syncs.</span>
+                    </a>
+                  </span>
+                  <div class="default-qbo-account-area">
+                    <div class="col-xs-12 default-qbo-account-area-card">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <span class="default-qbo-account-label">Income Account</span>
+                          <div class="account-name-dropdown">
+                            <div class="dropdown select-wrap ">
+                              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="!qbConnectedNow || (qbConnectedNow && !isQboItemsSyncEnabled) || (isProductEditing && loggedInuser.canEditProducts == 0)">
+                                <b>{{getQboAccountNameById(productModel.incomeAccountRef)}}</b>
+                              <span class="caret"></span></button>
+                              <ul class="dropdown-menu scrollable-menu scrollareaCls account-scrollable-menu">  
+                                <li ng-click="updateQboMapAccount(productModel, { accountId: null } , 'incomeAccountRef')" ng-hide="!productModel.incomeAccountRef || productModel.incomeAccountRef==null"><a href="javascript:void(0)">None</a></li>                       
+                                <li ng-repeat="account in qboAccounts" ng-click="updateQboMapAccount(productModel, account, 'incomeAccountRef')" ng-hide="productModel.incomeAccountRef == account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                              </ul>
+                            </div> 
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <span class="default-qbo-account-label">Expense Account</span>
+                          <div class="account-name-dropdown">
+                            <div class="dropdown select-wrap ">
+                              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="!qbConnectedNow || (qbConnectedNow && !isQboItemsSyncEnabled) || (isProductEditing && loggedInuser.canEditProducts == 0)">
+                                <b>{{getQboAccountNameById(productModel.expenseAccountRef)}}</b>
+                              <span class="caret"></span></button>
+                              <ul class="dropdown-menu scrollable-menu scrollareaCls account-scrollable-menu">          
+                                <li ng-click="updateQboMapAccount(productModel, { accountId: null }, 'expenseAccountRef')" ng-hide="!productModel.expenseAccountRef || productModel.expenseAccountRef==null"><a href="javascript:void(0)">None</a></li>               
+                                <li ng-repeat="account in qboAccounts" ng-click="updateQboMapAccount(productModel, account, 'expenseAccountRef')" ng-hide="productModel.expenseAccountRef == account.accountId"><a href="javascript:void(0)">{{account.accountName}}</a></li>
+                              </ul>
+                            </div> 
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>             
+              </div>
+              </div>
+                
+                <!--Bundle Add New Form-->
+              <div id="productAddNewForm"  ng-if="addSelectedType=='Bundle'">
+                <div class="row">
+                  <div class="col-md-5">
+                    <div class="required-box">
+                      <span class="edit-procuct-text-label" ng-if="isProductEditing">Name</span>
+                      <input autocomplete="off" class="form-control" name="name" ng-maxlength="100" ng-model="productModel.name" placeholder="Name" required="" type="text" ng-blur="isProductEditing ? addEditProduct('name') : '' " ng-pattern="/^[^:]*$/" ng-class="{ 'has-error' : ((productModelFormIsSubmit || isProductEditing) && (productModelForm.name.$error.required || productModelForm.name.$error.pattern)) }"/>
+                      <span class="has-required p-b10">
+                        <span ng-show="(productModelFormIsSubmit || isProductEditing) && productModelForm.name.$invalid">
+                          <span ng-show="productModelForm.name.$error.required">Please enter a name</span>
+                          <span ng-show="productModelForm.name.$error.pattern">Colon (:) character is not allowed</span>
+                        </span>
+                      </span>
+                    </div>
+
+                    <div class="p-b10">
+                      <span class="edit-procuct-text-label">Category</span>
+                      <tree-dropdown data-sid="{{selectedCategoryEdit(selected)}}" class="tree-dropdown" data="treeData" id="qboCatId_dd" selected="selected" name="qboCatId" ></tree-dropdown>
+                    </div>
+
+                    <div>
+                      <span class="edit-procuct-text-label" ng-if="isProductEditing">Description</span>
+                      <textarea autocomplete="off" class="form-control h-180" name="description" ng-class="{'has-error': productModelFormIsSubmit && productModelForm.description.$invalid}" ng-maxlength="5000" ng-model="productModel.description" placeholder="Description" type="text" ng-blur="isProductEditing ? addEditProduct('description') : '' "></textarea>
+                    </div>
+  
+  
+                    <div class="row">
+                      <div class="col-md-12 text-right charge_tax">                      
+                        <label for="charge_tax3">
+                          <input id="charge_tax3" type="checkbox" name="chargetax" ng-model="productModel.showIndividualPrice" class="" ng-change="isProductEditing ? addEditProduct() : '' " ng-true-value="1" ng-false-value="0"> Show individual prices on quotes and invoices
+                          <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 20px;">
+                            <i class="fa fa-question-circle m-lr10" aria-hidden="true"></i>
+                            <span class="sch-help" style="margin-right:10px"><p>By default, the total price for all items in bundle will be shown on invoices. If you want to show the price for each individual item in the bundle as well, check this box.</p></span>
+                          </a>
+                        </label>
+                        
+                      </div>
+                    </div>
+                  </div>                 
+  
+                 <div class="col-md-7 p-l0">
+                    <div class="">
+                      <div class="product-add-new-form-top">
+                        <label>Products & Services Included in this Bundle</label>
+                        <a class="btn" ng-click="addBundleProductSearch()"> Add New <i class="fa fa-plus-circle "></i></a>
+                      </div>
+                      <div class="grey-box">
+                        <div id="scrollarea"  style="overflow:auto; max-height:300px;">
+                          <table class="bundle-table" >
+                            <thead>
+                              <tr>
+                                <td style="width:40px"></td>
+                                <td style="width:100px; text-align:center">NAME</td>
+                                <td style="width:60px; text-align:center">PRICE</td>
+                                <td style="width:60px; text-align:center">QTY</td>
+                                <td style="width:75px; text-align:center">AMOUNT</td>
+                                <td style="width:20px"></td>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td colspan="6" style="background-color:#fff;padding:0;">
+                                  <div ng-if="bundleSearchForm">
+                                    <div class="product-search-widget-holder --fixed">
+                                      <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('productServicePage',bundleList)"></div>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                        
+                          <tbody ng-repeat="bundle in bundleList">
+                            <tr><td colspan="5"></td></tr>
+                            <tr>
+                              <td><div class="product-sevices-category" ng-class="bundle.category"></div></td>
+                              <td>{{bundle.name}}</td>
+                              <td style="text-align:center">{{ bundle.price | currency}}</td>
+                              <td style="text-align:center"><input type="number" class="form-control input-number form-control-small bundle-qty" ng-model="bundle.qty" mgminmax-validator ng-min="0" ng-max="999" ng-blur="editBundleItem($index)"/></td>
+                              <td style="text-align:center">{{bundle.qty==0 || !bundle.qty? bundle.price : bundle.price * bundle.qty | currency}}</td>
+                              <td style="padding:0;">
+                                <span class="bundle-item-delete" ng-click="deleteBundleItem($index)"><i class="fa fa-times"></i></span></td>
+                            </tr>
+                          </tbody>
+                          <tbody ng-if="(bundleList.length==0 || !bundleList) && !bundleSearchForm">
+                            <tr><td colspan="5" style="text-align:center">No item in list</td></tr>
+                          </tbody> 
+                        </table>
+                        </div>
+                      </div>
+                     
+                      <div class="text-right product-add-new-form-bottom">Total<b>{{bundleTotal | currency}}</b></div>
+                    </div>
+  
+                    </div>
+                    
+                  </div>
+                  
+                </div>
+                <!--Bundle Add New Form-->
+  
+                <div ng-if="addSelectedType =='Category'">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-12">
+                      <div class="col-xs-6 col-sm-6 p-0">
+                          <div class="required-box  p-b10">
+                            <!-- <span class="edit-procuct-text-label" ng-if="isProductEditing">Name</span> -->
+                            <input autocomplete="off" class="form-control" name="name" maxlength="30" ng-model="productModel.name" ng-blur="isProductEditing ? addEditProduct('name') : '' " placeholder="Name" required="" type="text" ng-pattern="/^[^:]*$/" ng-class="{ 'has-error' : ((productModelFormIsSubmit || isProductEditing) && (productModelForm.name.$error.required || productModelForm.name.$error.pattern)) }"/>
+                            <span class="has-required">
+                              <span ng-show="(productModelFormIsSubmit || isProductEditing) && productModelForm.name.$invalid">
+                                <span ng-show="productModelForm.name.$error.required">Please enter a name</span>
+                                <span ng-show="productModelForm.name.$error.pattern">Colon (:) character is not allowed</span>
+                              </span>
+                            </span>
+                          </div>
+
+                          <div class="showallproperties p-lr0">
+                            <label class="font-size-link-psc click-arrow" ng-click="getCustomerJobList(isParent ? isParent : false)">{{categoryText}}</label>
+                          </div>
+                      </div>
+                      <div class="col-xs-6 col-sm-6 p-0" ng-if='!isParent' style="top: -20px;">
+                        <div class="col-xs-12 col-sm-12">
+                            <div ng-if="isProductEditing">
+                              <span class="edit-procuct-text-label">Select Category</span>
+                              <tree-dropdown ng-click="selectedCategoryEdit(selected)" class="tree-dropdown" data="treeData" id="qboCatId_dd" selected="selected" name="qboCatId" ng-hide="cat.id==0 || cat.status == '0' || cat.status == 0"></tree-dropdown>
+                            </div>
+                            <div ng-if="!isProductEditing">
+                              <span class="edit-procuct-text-label">Select Category</span>
+                              <tree-dropdown ng-click="selectedCategoryy(selected)" class="tree-dropdown" data="treeData" id="qboCatId_dd" selected="selected" name="qboCatId" placeholder="Select Category"></tree-dropdown>
+                            </div>
+                        </div>
+                      </div>
+                    </div>              
+                      
+                  </div>
+                  <!--  -->
+                  <div class="row use-margin-parent-category-row">
+                    <div class="col-xs-12">
+                      <div class="col-md-4 p-l0 use-margin-parent use-margin-parent-category">                      
+                        <label>
+                          <span class="edit-procuct-text-label" >Pricing Markup</span>
+                          <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                            <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                            <span>This allows you to set a markup for all products and services within a specific category. When the Cost field for a product/service is updated for any reason, the Price field will be auto-updated based on the markup % value set for that product/service. For example, if the markup % value is 50% and the Cost is changed to $100.00, the Price will be auto-updated to $150.00. If you lock the markup field on a specific product/service, then the value won't change if markup is changed at the category level. This allows you to have most items in a category auto-set to a specific mark up, but make exceptions as needed.</span>
+                          </a>
+                          </label>
+                        <div ng-if="productModel.usePriceMargin" class="margin-input-area">                        
+                          <input ng-disabled="(loggedInuser.canEditProducts == 0) || cpmCalculating"
+                          class="form-control input-number form-control-margin-input {{ marginHasError ? 'has-error' : ''}}" 
+                          name="marginPercentage" 
+                          ng-min="1" 
+                          ng-max="9000" 
+                          ng-model="productModel.marginPercentage" 
+                          allow-typing="^[0-9]+$"  
+                          ng-blur="handleMarginBlur()" 
+                          placeholder="" 
+                          type="text" 
+                          ng-paste="blockPasting($event)" 
+                          maxlength="4"
+                          />
+                          <span class="marginPercentage-symbol">%</span>                          
+                        </div>
+                        <span ng-if="!productModel.usePriceMargin" ng-click="togglePriceMargin(productModel)" class="use-margin-toggle use-margin-toggle-off">Use price markup</span>
+                        <span ng-if="productModel.usePriceMargin" ng-click="togglePriceMargin(productModel)" class="use-margin-toggle use-margin-toggle-on">Do not use markup</span>
+                      </div>
+                    </div>                    
+                  </div>
+                  <!--  -->
+            
+                </div>
+                <div class="row product-action-row">
+                  <div class="col-md-1"></div>
+                  <div class="col-md-10 m-tb20 text-center">
+                    <button style="position: inherit !important;" id="saveButton" class="btn btn-primary" type="submit" ng-if="!isProductEditing" ng-disabled="isProductServicesSaving || isProductServicesBundleSaving || PSImageProcessing"><span ng-if="isProductServicesSaving || isProductServicesBundleSaving">SAVING...</span><span ng-if="!isProductServicesSaving && !isProductServicesBundleSaving">SAVE</span></button>
+                    <button style="position: inherit !important;" id="cancelButton" class="btn btn-primary" type="button" ng-click="closeThisDialog();deletePSFiles()" ng-if="!isProductEditing" ng-disabled="isProductServicesSaving || isProductServicesBundleSaving || PSImageProcessing">CANCEL</button>
+                    <div class="col-md-12 m-tb20 text-center" ng-if="isProductEditing && productModel.category!='Bundle' && !productModel.canDelete">
+                      <span class="tooltipForChemical" style="width: 175px">
+                      <span class="tooltiptext" ng-if="getChemicalName.keyValue">{{cantAllowPermission}}</span>
+                      <span ng-if="getChemicalName">
+                        <a style="position: inherit !important;" ng-if="productModel.category!='Category'" class="btn btn-danger" ng-class="{ 'cant-add-category' : loggedInuser.canDeleteProducts == 0 || getChemicalName }">{{ productModel.status==1 ? 'Archive' : 'Undo Archive' }}</a> 
+                      </span>
+                      <span ng-if="!getChemicalName">
+                        <a style="position: inherit !important;" ng-if="productModel.category!='Category'" class="btn btn-danger" ng-click="productModel.status==1 ? archiveProductPopup() : unArchiveProduct()" ng-class="{ 'cant-add-category' : loggedInuser.canDeleteProducts == 0 || getChemicalName }">{{ productModel.status==1 ? 'Archive' : 'Undo Archive' }}</a> 
+                      </span>
+                      </span>
+                      <!-- <a style="position: inherit !important;" ng-if="productModel.category=='Category'" class="btn btn-danger" ng-click="productModel.status==1 ? archiveProductPopup() : unArchiveProduct()" ng-class="{ 'cant-delete-category' : productModel.items.length > 0 && productModel.status==1 }">{{ 'Delete Category' }}</a>  -->
+                
+                      <span ng-if="productModel.category!='Category'" style="font-size:12px;  display:{{productModel.canDelete ? 'block' : 'inline' }};margin-left:15px">(will be hidden from all lists and searches)</span>
+                    </div>             
+
+                    <div ng-if="isProductEditing && productModel.category=='Category'">
+                      <a style="position: inherit !important;" class="btn btn-danger" ng-click="deleteProductPopup()">Delete Category</a>
+                    </div>
+                    <div class="col-md-12 m-tb20 text-center" ng-if="isProductEditing && productModel.canDelete && productModel.category !=='Category'" title="{{loggedInuser.canDeleteProducts == 0 ? cantAllowPermission : ''}}">
+                      <span class="tooltipForChemical" style="width: 175px" ng-if='productModel.status == 0'>
+                        <span class="tooltiptext" ng-if="getChemicalName.keyValue">{{cantAllowPermission}}</span>
+                        <a style="position: inherit !important;" ng-if="productModel.category!='Category'" class="btn btn-danger" ng-click="unArchiveProduct()" ng-class="{ 'cant-add-category' : loggedInuser.canDeleteProducts == 0 || getChemicalName }"> Undo Archive </a> 
+                      </span>
+                      <span class="tooltipForChemical" style="width: 175px">
+                        <span class="tooltiptext" ng-if="getChemicalName.keyValue">{{cantAllowPermission}}</span>
+                        <a style="position: inherit !important;" class="btn btn-danger" ng-click="loggedInuser.canDeleteProducts == 1 && !getChemicalName ? deleteProductPopup() : ''" ng-class="{ 'cant-add-category' : loggedInuser.canDeleteProducts == 0 || getChemicalName }">Delete</a>
+                      </span>
+                    </div>
+                    
+                  </div>
+                </div>     
+              </div>
+             <div class="prouct-msg-area">
+                <error message="{{errorProductForm}}" ng-if="errorProductForm"></error>
+                <success message="{{successProductForm}}" ng-if="successProductForm"></success>    
+             </div>
+             
+           </form>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="deleteProductPopup.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white" style="width: 100%;text-align: center;">Confirm Delete</div>
+      <div class="popup-close" >
+        <i class="fa " aria-hidden="true"></i>
+      </div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete this 
+           <span ng-if="productModel.category == 'Category'">category</span>? This cannot be undone.</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="deleteProduct(productModel.id)">OK</button>
+         </div>
+       </div>
+     </div>
+  
+  </div>
+</script>
+<script type="text/ng-template" id="archiveProductPopup.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white" style="width: 100%;text-align: center;">Confirm Archive</div>
+      <div class="popup-close" >
+        <i class="fa " aria-hidden="true"></i>
+      </div>
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to archive this? You can undo this later.</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="archiveProduct()">OK</button>
+         </div>
+       </div>
+     </div>
+  
+  </div>
+</script>
+<script type="text/ng-template" id="parentPoppup.html">
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white" style="width: 100%;text-align:center">Confirm Parent Category</div>
+      <div class="popup-close" >
+        <i class="fa " aria-hidden="true"></i>
+      </div>
+    </div>
+      <div class="popup-body text-center">
+        <div class="row-container">
+          <div><label>Are you sure you want to make this Parent Category ?</label></div>
+          <br />
+          <div class="set-chem-button m-b20" style="text-align: center;">
+            <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+            <button class="add-button" type="submit" ng-click="makeParentCategory()">OK</button>
+          </div>
+        </div>
+      </div>
+  
+  </div>
+</script>
+
+<script type="text/ng-template" id="deletePSConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>       
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete this?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="deletePSImage()">confirm</button>
+         </div>
+       </div>
+     </div>  
+  </div>
+ </script>
+ <script type="text/ng-template" id="PSPicturesGallery.html">
+  <div class="modal-box modal-gallery full-screen-gallery equipment-gallery full-screen-gallery-quotes">
+    <div class="full-screen-inner">
+      <div ng-click="closeThisDialog('Some value')" class="btn-cls">
+        <i class="fa fa-close" aria-hidden="true"></i>
+      </div>
+      <div ng-if="galleryPhotos.length > 0">
+        <ui-carousel slides="galleryPhotos" slides-to-show="1" slides-to-scroll="1" initial-slide="imageInitialIndex" autoplay="false" autoplay-speed="3000" dots="false">
+          <carousel-item>
+            <div class="image popup">
+              <div class="slide-image {{item.fullPath}}">
+                <img src="{{item.fullPath}}">
+                  <div class="modal-gallery-btm" ng-show="item.caption" >                  
+                    <span>{{item.caption}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </carousel-item>
+        </ui-carousel>
+      </div>
+    </div>
+  </div>
+  </script> 
+  <script type="text/ng-template" id="showImageError.html">
+      <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+          <div class="popup-header">
+            <div class="h-1-5x b white text-center">Error</div>           
+          </div>
+           <div class="popup-body text-center">
+             <div class="row-container">
+               <div><label>Please select image format in JPEG, PNG or GIF.</label></div>
+               <br />
+               <div class="set-chem-button m-b20" style="text-align: center;">
+                 <button class="add-button" type="submit" ng-click="closeThisDialog()">OKAY</button>
+               </div>
+             </div>
+           </div>  
+        </div>
+  </script> 
+  <script type="text/ng-template" id="overWriteMarginCategory.html" >
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>       
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>This will update markup pricing for all products & services assigned to the category and update their prices based on the current Cost and markup settings. Are you sure you want to continue?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="overWriteMarginCategoryCanceled()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="overWriteMarginCategoryConfirmed()">CONTINUE</button>
+           </div>
+         </div>
+       </div>  
+    </div>
+   </script>
+   <script type="text/ng-template" id="productAuditLog.html">
+    <div class="dataTables_wrapper modal-box picture-videos-popup" ng-init="getProductAuditLog()">
+      <div class="spinner" ng-if="productAuditLogLoading">
+        <div class="spinner-item">
+          <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+        </div>
+      </div>
+      <div class="dataTables_wrapper customer" style="padding:5px" >
+          <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+          <error message="{{error3}}" ng-if="error3"></error>
+          
+          <div class="popup-header" style="text-align: center;color: white;font-weight:900">
+            <span class="heading">Activity History</span>
+            <div class="popup-close" ng-click="closeThisDialog()" style="float: right"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+          </div>
+          <div class="list-box" style="max-height:70vh;" id="scrollarea">
+            <table class="row-border hover no-footer dataTable" width="100%">
+                <thead>
+                    <tr>
+                        <th style="width:15% !important">Details</th>
+                    </tr>
+                </thead>
+                <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="item in productAuditLog track by $index">
+                  <tr>
+                      <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                  </tr>
+                  <tr class="even">
+                      <td class="border-top2 border-bottom2">
+                          <div class="customer-add">
+                            {{item.firstName}} {{item.lastName}} - {{item.createTime | date:"MM/dd/yy"}} at {{item.createTime | date:"h:mm a"}} - {{ item.message }}
+                          </div>
+                      </td>                      
+                  </tr>
+              </tbody>
+                <tbody ng-if="!isProcessing && productAuditLog.length == 0">
+                  <tr>                  
+                    <td colspan="100%" class="no-record-found-reports-table">
+                      <div>
+                        No activity for product/service
+                      </div>
+                    </td>                 
+                  </tr>
+                </tbody>
+            </table>
+            <div class="paging-warp container-fluid" ng-show="productAuditLog.length != 0">
+              <div class="row p-t10" ng-class="{ 'align-footer-table' : isReportListingPage}">
+                <div class="text-left p-l20 p-b10 record-text-inv" ng-class="{ 'col-md-4' : !isReportListingPage, 'col-md-6' : isReportListingPage}">
+                    Showing 
+                    {{productAuditLog.length ? (pageObjProductLog.totalPage == pageObjProductLog.page ? (pageObjProductLog.totalRecord-productAuditLog.length)+1 : (pageObjProductLog.page > 1 ? ((pageObjProductLog.page-1)*productAuditLog.length)+1 : 1)) : 0 }} 
+                    to 
+                    {{ productAuditLog.length ? (pageObjProductLog.totalPage == pageObjProductLog.page ? pageObjProductLog.totalRecord : pageObjProductLog.page*productAuditLog.length) : 0 }}  
+                    of 
+                    {{pageObjProductLog.totalRecord}}             
+                </div>
+              
+                <div class="col-md-12">
+                  <div class="pagination m-t0">                  
+                      <paging
+                      page="pageObjProductLog.page" page-size="pageObjProductLog.limitInv" total="pageObjProductLog.totalRecord" text-first="First"
+                      text-last="Last" text-next="Next" text-prev="Prev"
+                      paging-action="goToAuditPage(page)"
+                      show-prev-next="true" show-first-last="true"> </paging>         
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div> 
+ </script>

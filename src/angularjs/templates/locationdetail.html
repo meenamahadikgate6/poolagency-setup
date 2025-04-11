@@ -1,0 +1,560 @@
+<div class="dataTables_wrapper">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <success ng-if="successMsg" message="{{successMsg}}"></success>
+  <error ng-if="error" message="{{error}}"></error>
+  <div class="row customer-add-moreinfo" ng-init="getCustomerInfo()">
+    <div class="col-md-5 col-sm-5 col-xs-12">
+      <div class="white-bg text-left p-tb20 p-lr20 cust-info-box" id="cust-info-box">
+        <div ng-if="isServiceSchedule" ng-controller="serviceScheduleController" ng-include="'/templates/component/service-schedule-popup.html?ver='+PB_WEB_VERSION"></div>
+        <div class="grid">       
+          <div class="p-name-container h-3-5x p-relative job-detail-customer-name"> 
+            <i class="fa fa-user-circle" aria-hidden="true"></i>             
+            <a class="underline-none b" ng-href="app/customerdetail/{{customerinfo.customer.primeaddressId}}" title="{{displayName}}">{{displayName}}</a>             
+          </div> 
+        </div>
+
+
+        <div class="customer-add-block adjust">
+            <div class="customer-add grid" style="font-weight: normal">
+                <div class="fl p-l10"><img border="0" src="resources/images/gps_mapblue.svg" class="phone-icon p-r5" style="vertical-align: middle" /></div>
+                <div class="fl cust-name-width" ng-if="customerinfo.customer.address" style="max-width: 350px;">
+                  <span>{{customerinfo.customer.address}}  <i aria-hidden="true" style="color:red" ng-if="customerinfo.customer.uspsValid==2"  class="fa fa-exclamation-triangle" title="Not a valid address"></i><br>
+                    {{customerinfo.customer.city}}, {{customerinfo.customer.state}} {{customerinfo.customer.zipcode}}
+                  </span>
+                </div>
+            </div>
+              <div class="h-0-5x" ng-if="customerinfo.contact" style="padding: 15px 0 0 32px;">
+            <div class="b customer-contact-name"><i class="fa fa-address-book adjust" aria-hidden="true"></i> {{customerinfo.contact.firstName}} {{customerinfo.contact.lastName}}</div>
+            <div class="customer-contact-relation h-12x">{{customerinfo.contact.relation}}</div>
+            <div class="customer-contact-detail m-tb5">
+            <div ng-if="customerinfo.contact.contactNumber">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+                <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+              </svg>
+  
+              <a href="tel:{{customerinfo.contact.contactNumber}}" class="darkGray">
+              <phone-Number number="{{customerinfo.contact.contactNumber}}"></phone-Number>
+              </a>
+            </div>
+            <div class="customer-email" ng-if="customerinfo.contact.email">
+  
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+              </svg>
+  
+              <p><a class="show darkGray" ng-repeat="email in customerinfo.contact.email | convertToArrayByComma" href="mailto:{{email}}" >{{email}}</a></p>
+            
+            </div>
+            </div>
+            <span class="more-count" ng-if="contactList.length>0" ng-click="showTab('2')">
+                {{contactList.length-1}} more contacts
+              </span>
+          </div>
+          <div class="p-l20 h-0-5x" ng-if="!customerinfo.contact">
+              <div class="b customer-contact-name"><i class="fa fa-address-book" aria-hidden="true"></i> {{customerinfo.customer.displayName}}</div>
+              <div class="customer-contact-relation h-12x">Customer</div>
+              <div class="customer-contact-detail m-tb5">
+              <div ng-if="customerinfo.customer.contactNumber">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15">
+                  <path fill="#285FC6" fill-rule="evenodd" d="M11.835 15c-2.876 0-5.849-1.324-8.157-3.632l-.046-.05C1.239 8.905-.067 5.873.003 2.95l.006-.216.133-.17A7.866 7.866 0 0 1 3.504.074C3.629.026 3.771 0 3.925 0c.348 0 1.13.177 1.331.725.353.979.798 2.256 1.121 3.478.09.343.002 1.171-.477 1.473L4.758 6.4c.01.01.005.188.154.391.443.607.956 1.207 1.525 1.786a15.92 15.92 0 0 0 1.773 1.51c.117.086.25.136.357.136l.395-.551.364-.573c.316-.491 1.109-.505 1.198-.505.092 0 .174.008.25.025 1.504.336 2.4.624 3.547 1.145.51.23.833 1.155.604 1.736a7.86 7.86 0 0 1-1.778 2.734c-.222.22-.46.43-.713.627l-.168.132-.431.007z"/>
+                </svg>
+    
+                <a href="tel:{{customerinfo.customer.contactNumber}}" class="">
+                <phone-Number number="{{customerinfo.customer.contactNumber}}"></phone-Number>
+                </a>
+              </div>
+              <div class="customer-email" ng-if="customerinfo.customer.email">
+    
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                  <path fill="#285FC6" fill-rule="evenodd" d="M16 5.838c-.007 2.99-.005 5.981-.005 8.972 0 .046-.006.093-.012.19l-.675-.517c-1.736-1.332-3.47-2.666-5.212-3.99-.193-.147-.185-.204.002-.345 1.71-1.285 3.41-2.582 5.119-3.868.19-.143.216-.209.003-.36a1452.135 1452.135 0 0 1-6.517-4.695c-.152-.11-.253-.111-.406 0a1630.996 1630.996 0 0 1-6.54 4.71c-.19.136-.171.196.001.326 1.709 1.286 3.409 2.584 5.119 3.868.207.155.218.219.004.382-1.875 1.424-3.74 2.861-5.61 4.292-.074.057-.134.144-.268.152v-.263c0-2.931.003-5.862-.003-8.794 0-.187.05-.305.201-.419C3.563 3.691 5.922 1.9 8.276.1c.172-.131.273-.133.446 0 2.353 1.8 4.713 3.59 7.073 5.382.12.092.205.175.205.357zm-1.226 8.94c.076.058.172.096.226.222H2c.049-.127.147-.162.222-.22 2.013-1.558 4.029-3.11 6.038-4.673.18-.14.294-.144.476-.002 2.008 1.564 4.025 3.115 6.038 4.673z"/>
+                </svg>
+    
+                <p><a class="show" ng-repeat="email in customerinfo.customer.email | convertToArrayByComma" href="mailto:{{email}}" class="">{{email}}</a></p>
+              
+              </div>
+              </div>
+              <span class="more-count" ng-if="contactList.length>0" ng-click="showTab('2')">
+                  {{contactList.length-1}} more contacts
+                </span>
+            </div>
+          <div class="">
+              <div>
+                  <div class="addRemoveEmail p-l20">
+                    <span class="h-0-5x route-stop-email-label">
+                      <span>Route Stop Email</span>
+                      <a href="javascript:void(0)" class="icon-required">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>
+                          <p>If auto-sending route stop emails is turned on in settings, emails will be sent to the email address in this field and it is specific to the property page you are viewing. You can enter more than one email address (SEPARATED BY A COMMA) to send to multiple email addresses automatically. If you don't want any emails sent to this customer for this property, leave the field blank. </p>
+                        </span>
+                      </a>
+                    </span>
+                    <input type="text"
+                      autocomplete="off"
+                      ng-class="checkEmail(primaryEmail) ? 'form-control' : 'form-control  has-error'"
+                      ng-model="primaryEmail"
+                      placeholder="Enter 1 or more email addresses" name="primaryEmail"
+                      maxlength="5000"
+                      ng-keyup="$event.keyCode == 13 && savePrimaryEmail(primaryEmail)"
+                      ng-blur="savePrimaryEmail(primaryEmail)"
+                      autofocus>
+                  </div>
+                <!-- <div class="" ng-if="primaryEmail!=customerinfo.customer.primaryEmail">
+                  <div ng-show="primaryEmail" class="saveEmail" ng-click="savePrimaryEmail(primaryEmail, customerinfo.customer.customerId)"></div>
+                </div> -->
+              </div>
+          </div>
+        </div>
+        <div ng-if="isPropertyInformation" ng-controller="propertyInformationController" ng-include="'/templates/property-information-popup.html?ver='+PB_WEB_VERSION"></div>        
+      </div>
+      
+    </div>
+    
+      <div class="col-md-7 col-sm-7 col-xs-12 " ng-controller="checklistItemController" ng-include="'/templates/component/checklist-item.html?ver='+PB_WEB_VERSION"></div>
+   
+  </div>
+ 
+
+  <!--<div ng-controller="equipmentController" ng-include="'/templates/equipmentDetails.html?ver='+PB_WEB_VERSION"></div>-->
+  <div ng-controller="equipmentController" ng-include="'/templates/equipmentDetailsOneOffJob.html?ver='+PB_WEB_VERSION"></div>
+  <script type="text/ng-template" id="sensor.html" >
+<div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+  <div class="popup-header">
+    <div class="popup-close" ng-click="closeThisDialog('Some value')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+  </div>
+  <div>
+       <div class="p-t10" ng-if="jobSensor.length > 0">
+              <div class="b" style="padding-left: 10px;">SENSORS</div>
+              <div style="padding:5px 10px" ng-repeat="sensor in jobSensor track by $index" > {{sensor.name}}  - <span style="color:#797979; font-size: 13px;">{{sensor.sensorType}}</span> </div>
+              <!-- Left Basket<br />
+              Right Basket -->
+              </div>
+          </div>
+</div>
+</script>
+<div ng-init="initGraphArea(addressId, waterBodyId, 'location')" class="graph-area-parent graph-area-parent-location" ng-controller="graphAreaController"  ng-include="'/templates/component/graph-area.html?ver='+PB_WEB_VERSION"></div>
+
+  <!--
+    <div class="h-2x darkGray bb p-t20 p-b10">JOB HISTORY </div>
+    <span>Select Date Range</span>
+    <div datepicker date-format="MM/dd/yyyy">
+      <input ng-model="fromDate" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+    </div>
+    <div datepicker date-format="MM/dd/yyyy" min-date="fromDate">
+      <input ng-model="toDate" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+    </div>
+
+
+  <!-- <input type="text" format="M/dd/yyyy"   date-time  max-view="date" min-view="date" id="fromDate"  placeholder="From Date" ng-model="fromDate" ng-change="filterByDate()" />&nbsp;To&nbsp;<input ng-change="filterByDate()" max-view="date" min-view="date"  date-time type="text" id="toDate"  placeholder="To Date"  format="M/dd/yyyy" ng-model="toDate" />  -->
+<ng-container  ng-show="listingTab['jobHistory'] || listingTab['feedback']">
+  <div class="contianer-fluid invoice-job-listing-title">
+    <div class="row">
+      <div class="col-md-8 col-xs-12 listing-tab-headings">
+        <div class="title" ng-click="showListingTab('jobHistory')" ng-class="{'disabled':!listingTab['jobHistory']}">JOBS</div>
+        <div class="title" ng-click="showListingTab('quotes')" ng-class="{'disabled':!listingTab['quotes']}">QUOTES</div>
+        <div class="title"  ng-click="showListingTab('invoice')" ng-class="{'disabled':!listingTab['invoice']}">INVOICES</div>
+        <div class="title"  ng-click="showListingTab('payment')" ng-class="{'disabled':!listingTab['payment']}">PAYMENTS</div>
+        <div class="title"  ng-click="showListingTab('feedback')" ng-class="{'disabled':!listingTab['feedback']}">FEEDBACK</div>
+      </div>
+      <div class="col-md-4 col-xs-6">
+        <!--  -->
+        <div class="dropdown dropdown-rangepicker-static select-wrap filterRange-dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">{{rangeFilterData[filterRangeSelected].title}}</button>
+          <ul class="dropdown-menu scrollable-menu">   
+            <li ng-repeat="x in rangeFilterData">
+              <a href="javascript:void(0)" ng-click="filterRange($index)">{{x.title}}</a>
+            </li>
+          </ul>
+          <div class="hide-dates-text" ng-if="hideShownDatesText" ng-hide="listingTab['feedback']">
+            <span style="cursor: pointer;margin-right: 37px;" ng-click="hideShowDates()"
+              ng-if="hideShowDatesText == 'Hide future dates'">{{hideShowDatesText}}</span>
+            <span style="cursor: pointer;margin-right: 32px;" ng-click="hideShowDates()"
+              ng-if="hideShowDatesText == 'Show future dates'">{{hideShowDatesText}}</span>
+          </div>
+        </div>
+        <!--  -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 col-xs-12"></div>
+        <div class="col-md-2 col-xs-12"></div>
+        <div class="col-md-4 col-xs-12">
+          <div class="datePicker datePicker-rangepicker-static input-daterange" ng-show="rangeFilterData[filterRangeSelected].type == 'custom'">
+            <div class="date-rangepicker-static-row">
+            <div class="date-rangepicker-static-col left">
+              <div class="smallview" date-format="MM/dd/yyyy">
+                <input ng-model="fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" />
+              </div>
+            </div>
+            <div class="date-rangepicker-static-col right">
+              <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                <input ng-model="toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" />
+              </div>
+            </div>
+            </div>          
+          </div>
+        </div>
+      </div>
+    </div>    
+  <div class="grid cust-job-history data-table-grid job-dataTable">
+    <div class="col-1-1">
+      <div class="white-bg p-lg20">
+        <div class="row">
+          <div class="col-md-7">
+            <div class="flex invoice-filter" style="visibility: {{ listingTab['jobHistory'] ? 'unset' : 'hidden' }};">
+              <div class="flex" ng-class="{'disabled':!jobFilter['RoutedJob']}" ng-click="jobFilterByType('RoutedJob')">
+                <div class="tag route-stops">
+                  {{ listingTab['jobHistory'] ? routeCount : routeCountFb }}
+                </div>
+                <div>
+                  <div><strong>Route Stops</strong></div>
+                </div>
+              </div>        
+              <div class="flex" ng-class="{'disabled':!jobFilter['OneOfJob']}" ng-click="jobFilterByType('OneOfJob')">
+                <div class="tag jobs">
+                  {{ listingTab['jobHistory'] ? oneOfJobCount : oneOfJobCountFb }}
+                </div>
+                <div>
+                  <div><strong>Jobs</strong></div>
+                </div>
+              </div>        
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-6 showallproperties p-lr0" style="margin-top: 16px;"> <input id="show_all_properties" type="checkbox" ng-model="showAllPropertiesJob.value" ng-change="listingTab['jobHistory'] ? getCustomerJobList() : getCustomerFeedbackList()" ng-true-value="1" ng-false-value="0" name="show_all_properties">
+            <label for="show_all_properties"> Show all properties</label>
+          </div>
+          <div class="col-md-3">
+            <div class="search-box" ng-if="listingTab['jobHistory']">
+              <i class="fa fa-search searchbtn" ng-click="doSearchJobList($event,searchText)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchJobList($event,searchText)" ng-model="searchText" placeholder="address, job title, tech name" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchJobList($event,searchText) : null">
+            </div>
+            <div class="search-box" ng-if="listingTab['feedback']">
+              <i class="fa fa-search searchbtn" ng-click="doSearchFeedbackList($event,searchTextFb)" aria-hidden="true"></i>
+              <input type="search" ng-blur="doSearchFeedbackList($event,searchTextFb)" ng-model="searchTextFb" placeholder="Address, technician, feedback" class="form-control" ng-keyup="$event.keyCode == 13 ? doSearchFeedbackList($event,searchTextFb) : null">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="white-bg p-t20">
+        <div class="dataTables_wrapper" ng-init="getCustomerJobList()">
+          <div class="list-box" id="scrollarea">
+            <table class="row-border hover no-footer dataTable sticky-header-table" width="100%" ng-show="listingTab['jobHistory']">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th style="border-left: 10px solid transparent;">
+                    <div class="sorting"
+                      ng-class="{'sorting_asc': column == 'createTime' && dir == 'asc', 'sorting_desc': column == 'createTime' && dir == 'desc', }"
+                      rowspan="1" colspan="1" aria-sort="ascending"
+                      aria-label="DATE: activate to sort column descending"
+                      ng-click="orderByJobList('createTime')">DATE</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('isOneOfJob')"
+                         ng-class="{'sorting_asc': column == 'isOneOfJob' && dir == 'asc', 'sorting_desc': column == 'isOneOfJob' && dir == 'desc', }">
+                      TYPE
+                    </div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByJobList('address')"
+                         ng-class="{'sorting_asc': column == 'address' && dir == 'asc', 'sorting_desc': column == 'address' && dir == 'desc', }">
+                      ADDRESS
+                    </div>
+                  </th>
+                  <th style="width: 210px!important;">
+                    <div class="row" style="display: flex;align-items: center;">
+                      <div class="col-md-5 p-r0">BODY OF WATER</div>
+                      <div class="col-md-7 text-center">ALERT(S)</div>
+                    </div>
+                    
+                  </th>
+                  <th>
+                    <div class="sorting"
+                          ng-click="orderByJobList('jobTitle')"
+                          ng-class="{'sorting_asc': column == 'jobTitle' && dir == 'asc', 'sorting_desc': column == 'jobTitle' && dir == 'desc', }">
+                      TITLE / SERVICE LEVEL
+                    </div>
+                  </th>
+                  
+                 
+
+                  <th>
+                    <div class="sorting"
+                          ng-click="orderByJobList('jobStatus')"
+                          ng-class="{'sorting_asc': column == 'jobStatus' && dir == 'asc', 'sorting_desc': column == 'jobStatus' && dir == 'desc', }">
+                      STATUS
+                    </div>
+                  </th>
+
+                  <th style="width:126px;">
+                    <div class="sorting"
+                     ng-class="{'sorting_asc': column == 'technicianName' && dir == 'asc', 'sorting_desc': column == 'technicianName' && dir == 'desc', }"
+                      ng-click="orderByJobList('technicianName')">TECHNICIAN</div>
+                  </th>
+                  <th class="text-right">
+                    <div class="sorting" ng-class="{'sorting_asc': column == 'totalAmount' && dir == 'asc', 'sorting_desc': column == 'totalAmount' && dir == 'desc', }"
+                    ng-click="orderByJobList('totalAmount')">PRICE</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody  ng-if="jobList.length > 0" dt-rows ng-repeat="job in jobList" ng-class="{'shown': job.jobId == openedJobId}">
+                <tr>
+                  <td colspan="6" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr ng-click="job.status == 1 && goToDetail(job,job.isOneOfJob)" style="cursor: pointer;" ng-class="{'deleted-jobs': job.status == 0}"
+                title-class="dark"  
+                ptitle='{{ job.status == 0 ? "Deleted by " + job.jobDeleteLogs[0].firstName +" "+ job.jobDeleteLogs[0].lastName + " - " + (job.jobDeleteLogs[0].createTime |  date:"MM/dd/yy") + " at " + (job.jobDeleteLogs[0].createTime |  date:"hh:mm a")  : ""}}' 
+                title-direction="bottom">
+                  <td ng-class="job.isOneOfJob ? 'jobs' : 'route-stops'"><div class="darkGray date-col" ng-if="job.createTime">{{job.createTime | CFDate: job.tempJobId | date:"MM/dd/yy"}}</div><div class="darkGray" style="width: 75px;" ng-if="!job.createTime">{{job.dueDate |  date:"MM/dd/yy"}}</div></td>
+                  <td>
+                    <span class="darkGray" id="job_type_{{job.jobId}}">
+                      <span ng-if="job.isOneOfJob==0">Route</span>
+                      <span ng-if="job.isOneOfJob==1">Job</span>
+                    </span>
+                    
+                  </td>
+                  <td><span class="darkGray" id="pool_location_{{job.jobId}}"><span>{{job.address}}
+                  <br>{{job.city}}, {{job.state}} {{job.zipcode}}
+                  </span>
+                      <!-- <format-Address address="{{job.address}}"></format-Address> -->
+                  </span>
+                  
+                </td>
+                
+                <td align="center"> 
+                  <div class="row" ng-if="job.isMwb==0">
+                    <div class="col-md-5 p-r0">
+                      <span title="{{job.waterBodyName}}" class="pool-tag over-wb-name" style="background-color: {{job.color ? job.color : 'inherit'}};">{{job.waterBodyName}}</span>
+                    </div>
+                    <div class="col-md-7">
+                      <div class="alerts-icon" >
+                        <div class="tech-action-buttons" ng-if="alertIssue.issue.length > 0" ng-repeat="alertIssue in job.alerts">
+                            <a class="linkClass clientIssue"
+                            data-title="{{issue.type}}"
+                            href="javascript:void(0)"
+                            ng-repeat="issue in alertIssue.issue" style="cursor: text;">
+                                <img alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                                <div class="alertNote" ng-bind="getAlertTabName(issue.type)"> </div>
+                            </a>
+                          </div>
+                        <div class="tech-action-buttons" ng-if="alertIssue.systemIssue.length > 0" ng-repeat="alertIssue in job.alerts">
+                          <div ng-repeat="issue in alertIssue.systemIssue" class="tech-action-buttons alert-button">
+                            <a class="linkClass {{issue.priority}}"
+                              data-title="{{issue.type}}"
+                              href="javascript:void(0)" style="cursor: text;">
+  
+                              <img alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}"/>
+                              <div class="alertNote"> {{issue.description}} </div>
+                              </a>
+                            </div>
+                        </div>
+                      </div> 
+                    </div>
+                  </div>
+
+
+                  <div ng-if="job.isMwb==1 && job.waterBodies && job.waterBodies.length > 0">
+                    <div class="row" ng-repeat="waterBody in job.waterBodies" style="display: flex;align-items: center;">
+                      <div class="col-md-5 p-r0">
+                        <div><span title="{{waterBody.waterBodyName}}"  class="pool-tag over-wb-name" style="background-color: {{waterBody.color ? waterBody.color : 'inherit'}};white-space: nowrap;">{{waterBody.waterBodyName}}</span></div>                        
+                      </div>
+                      <div class="col-md-7">                          
+                        <div ng-if="job.isMwb==1">
+                          <img style="width: 20px; margin:2px 1px" ng-repeat="issue in waterBody.alertIssueArray"  alt="{{setTitle(issue.type)}}" border="0" src="resources/images/{{issue.type}}.jpg" title="{{setTitle(issue.type)}}"/>
+                          <img style="width: 20px; margin:2px 1px;" ng-repeat="issue in waterBody.alertSystemIssueArray"  alt="{{issue.title}}" border="0" src="resources/images/{{issue.symbol}}_{{issue.priority}}.jpg" title="{{issue.title}}" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                
+                
+                </td>
+                
+                <td>
+                  <span class="darkGray" id="job_title_{{job.jobId}}">
+                    {{job.jobTitle ? job.jobTitle : 'Untitled Job'}}
+                  </span>
+                </td>
+                
+                <td>
+                  <span class="darkGray status-col" id="job_title_{{job.jobId}}">
+                    {{job.jobStatus}}
+                  </span>
+                </td>
+                  <td>
+                    <span ng-if="job.technicianId" class="technician-name">{{job.techFirstName}} <span class="last-name">{{job.techLastName}}</span></span>
+                  </td>
+                  <td class="text-right">
+                    <span class="darkGray price-col" id="job_totalamount_{{job.jobId}}">
+                      {{job.totalAmount | currency}}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody ng-if="jobList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">No Route Stops / Jobs to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- table for feedback listing -->
+            <table ng-show="listingTab['feedback']" class="row-border hover no-footer dataTable" width="100%" ng-init="getCustomerFeedbackList()">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th></th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByFeedbackList('createTime')"
+                         ng-class="{'sorting_asc': feedbackPayload.column == 'createTime' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'createTime' && feedbackPayload.dir == 'desc', }">DATE</div>
+                  </th>
+                  <th>
+                    <div class="sorting"
+                         ng-click="orderByFeedbackList('customerName')"
+                         ng-class="{'sorting_asc': feedbackPayload.column == 'customerName' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'customerName' && feedbackPayload.dir == 'desc', }">ADDRESS</div>
+                  </th>
+                  <th>
+                      <div class="sorting"
+                           ng-click="orderByFeedbackList('techName')"
+                           ng-class="{'sorting_asc': feedbackPayload.column == 'techName' && feedbackPayload.dir == 'asc', 'sorting_desc': feedbackPayload.column == 'techName' && feedbackPayload.dir == 'desc', }">TECHNICIAN</div>
+                    </th>
+                  <th><div>FEEDBACK</div></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="review-tbody" dt-rows ng-repeat="reviewObj in feedbackList">
+                <tr>
+                  <td colspan="6" class="border-td" style="background: #fff;"></td>
+                </tr>
+                <tr>
+                  <td class="left-td" rowspan="2"></td>
+                  <td>
+                      <div class="darkGray"><span class="thums-up-down"><img ng-if="reviewObj.thumbs=='UP'" src="resources/images/thums-up24.png"><img ng-if="reviewObj.thumbs=='DOWN'" src="resources/images/thums-down24.png"></span>
+                      {{getReviewDate(reviewObj.reviewDate) | date:"MM/dd/yy"}}</div>
+                  </td>
+                  <td>{{reviewObj.address ? reviewObj.address : reviewObj.primaryAddress }}</td>
+                  <td><a class="underline-none" ng-href="app/techniciandetail/{{reviewObj.technicianId}}" >{{reviewObj.techName ? reviewObj.techName : ''}}</a></td>
+                  <td class="feedback-readmore">
+                    {{reviewObj.review.substring(0, reviewLengthOnGrid)}}{{reviewObj.review.length > reviewLengthOnGrid ? '...' : ''}}
+                    <a ng-if="reviewObj.review.length > reviewLengthOnGrid" href="javascript:void(0)" ng-click="openCloseReadMore(reviewObj)">Read More</a>
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && reviewObj.isOneOfJob"  ng-href="app/one-time-job/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a> 
+                    
+
+                    <a class="fr" ng-if="reviewObj.reviewDate && reviewObj.addressId && reviewObj.jobId && !reviewObj.isOneOfJob"  ng-href="app/customerjobdetail/{{reviewObj.addressId}}/{{reviewObj.jobId}}">Job # {{reviewObj.jobId ? reviewObj.jobId : ''}}</a>                 
+                  </td>
+                  <td class="right-td" rowspan="2"></td>
+                </tr>
+
+                <div ng-if="remoreReview" id="remoreReviewModal" class="inline-popup">
+                   <div class="inline-popup-header" >
+                      <a ng-if="linkAddressId && linkJobId && isOneOfJob" class="m-r20" ng-href="app/one-time-job/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                      <a ng-if="linkAddressId && linkJobId && !isOneOfJob" class="m-r20" ng-href="app/customerjobdetail/{{linkAddressId}}/{{linkJobId}}">Job # {{linkJobId}}</a>
+                     <div class="h-1-5x b m-b10 fl">{{titleName}}</div>
+                     <div class="inline-popup-close" ng-click="openCloseReadMore(false)" >
+                       <i class="fa fa-times-circle" aria-hidden="true" ></i>
+                     </div>
+                   </div>
+                   <div class="row" style="text-align: left">
+                     <div class="col-md-12">
+                       <div class="scrollable-box" id="scrollarea" >
+                         <p>{{remoreReview}}</p>
+                       </div>
+                     </div>
+                   </div>
+                  </div>
+
+
+              </tbody>
+              <tbody ng-if="feedbackList.length == 0" class="no-record-found-frame-tbody">
+                <tr>
+                  <td colspan="100%" class="no-record-found-frame-td">no feedback to display within the date range selected</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+
+
+
+        <div class="paging-warp p-l20"  ng-if="jobList.length > 0">
+          <div class="row">
+            <div class="col-md-4 p-t20">
+              <div class="dataTables_info" id="dashTable_info" role="status" aria-live="polite"> 
+                Showing
+                  {{jobList.length ? (totalPage == page-1 ? (totalRecord-jobList.length)+1 : (page > 0 ? ((page-1)*jobList.length)+1 : 1)) : 0 }} 
+                  to 
+                  {{ jobList.length ? (totalPage == page-1 ? totalRecord : page*jobList.length) : 0 }}  
+                  of 
+                  {{totalRecord}}   
+              </div>
+              </div>
+              <div class="col-md-8">
+                  <div class="pagination">
+                    <paging
+                    page="page" page-size="limit" total="totalRecord" text-first="First"
+                    text-last="Last" text-next="Next" text-prev="Prev"
+                    paging-action="goToCustomerJobListPage(page)"
+                    show-prev-next="true" show-first-last="true"> </paging>
+                    </div>
+                </div>
+              </div>
+
+            </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<ng-container ng-show="listingTab['quotes']">
+  <div ng-controller="customerQuotesListController" ng-include="'/templates/component/customer-quotes-list.html?ver='+PB_WEB_VERSION"></div>
+</ng-container>
+<ng-container ng-show="listingTab['invoice']">
+  <div ng-controller="customerInvoiceListController" ng-include="'/templates/component/customer-invoice-list.html?ver='+PB_WEB_VERSION"></div> 
+</ng-container>
+<ng-container ng-show="listingTab['payment']" ng-init="getPayaSettings()">
+  <div ng-controller="customerPaymentListController" ng-include="'/templates/component/customer-payment-list.html?ver='+PB_WEB_VERSION"></div> 
+</ng-container>
+</div>
+<script type="text/ng-template" id="removeChelistConfirm.html" >
+ <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+   <div class="popup-header">
+     <div class="h-1-5x b white text-center">Confirm</div>  
+   </div>
+    <div class="popup-body text-center">
+      <div class="row-container">
+        <div><label>Are you sure you want to delete checklist item?</label></div>
+        <br />
+        <div class="set-chem-button m-b20" style="text-align: center;">
+          <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+          <button class="add-button" type="submit" ng-click="confirmChecklistAction(checkListObj, index)">OK</button>
+        </div>
+      </div>
+    </div>
+
+ </div>
+</script>
+<script type="text/ng-template" id="removeCleanHistoryConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>    
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete history?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="confirmCleanHistoryAction(cleanHistoryObj, index);closeThisDialog()">OK</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>

@@ -1,0 +1,347 @@
+<div class="technicians-profile">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <div class="grid technician-add-moreinfo" ng-init="getTechnicianInfo()">
+    <div class="col-1-2 p-l0">
+      <div class="white-bg text-left p-tb20 p-lr20 ">
+        <div class="grid">
+          <div class="fl p-l20">
+            <div class="technician-name"> <span class="h-4x b darkGray"> {{companyData.companyName}}  </span> </div>
+            <div class="technician-title"> <span class="h-1x b darkGray"> {{companyData.address}} </span> </div>
+          </div>
+        </div>
+        <div class="technician-add-block">
+          <div class="technician-add p-t10">
+            <img border="0" class="phone-icon p-r5" src="resources/images/email-icon.png" style="vertical-align: middle"/>
+            <a class="" href="mailto:{{companyData.email}}"> {{companyData.email}} </a>
+          </div>
+           <div class="technician-add p-t10 b grid">
+            <div class="fl"><img border="0" src="resources/images/map-icon.png" class="phone-icon p-r5" style="vertical-align: middle" /></div>
+            <div class="fl" ng-if="companyData.address">
+              <span>{{companyData.address}}<br/></span>
+              <span>{{companyData.city+', '+companyData.state+' '+companyData.zipcode}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-1-1 p-r0 p-t20" >
+      <div class="white-bg text-left p-tb20 p-lr20 ">
+        <div class="grid">
+          <div class=" p-l0">
+            <div class="" >
+              <div class="grid">
+                <div class=" p-0">
+                      <div class="nav nav-tabs">
+                        <li class="{{tabType == 'business'? 'active' : ''}}">
+                            <a href="javascript:void(0)" ng-click="openTab('business')"><h1>Company Information</h1></a>
+                        </li>
+                          <!-- <li class="{{tabType == 'billing'? 'active' : ''}}">
+                              <a href="javascript:void(0)" ng-click="openTab('billing')"><h1>Billing Information</h1></a>
+                          </li>
+                          <li class="{{tabType == 'card'? 'active' : ''}}">
+                              <a href="javascript:void(0)" ng-click="openTab('card')"><h1>Credit Card Information</h1></a>
+                          </li>
+                          <li class="{{tabType == 'paymentHistory'? 'active' : ''}}">
+                              <a href="javascript:void(0)" ng-click="openTab('paymentHistory')"><h1>Payment History</h1></a>
+                          </li> -->
+                      </div>
+                      <form class="comman-form" ng-if="tabType == 'business'" name="companyInfoForm" rc-submit="updateCompanyInfo('business')" novalidate>
+                      <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                          <h3>Company Information</h3>
+                          <div class="form-group">
+                              <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].companyName" placeholder="Company Name" name="companyName" minlength="3" maxlength="50" validator="[companyName]"  >
+                              <label>Company Name</label>
+                              <span class="company-validation-message">(only <kbd>&</kbd><kbd>-</kbd><kbd>.</kbd><kbd>(</kbd><kbd>)</kbd> symbols are allowed)</span>
+                          </div>
+                          <div class="form-group">
+                            <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].website"  placeholder="www.company.com" maxlength="100" name="website" >
+                            <label>Website</label>
+                        </div>  
+                          <div class="form-group">
+                              <input type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].address" placeholder="Company Address" minlength="5" maxlength="60" name="address" validator="[required]" >
+                              <label>Company Address</label>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                     <div class="form-group">
+                        <input type="text" class="form-control"  ng-model="companyInfoModel['companyInfo'].city" placeholder="City" name="city" minlength="3"  maxlength="40"  validator="[alphanum]">
+                                        <label>City</label>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <div class="form-group">
+                                      <div class="select-style" ng-class="{'has-error-select': companyInfoForm.$submitted && !companyInfoModel['companyInfo'].state}">
+                                        <select  name="State" ng-model="companyInfoModel['companyInfo'].state"  validator="[required]">
+                                            <option value=''>State</option>
+                                            <option ng-repeat="state in stateList" value="{{state.key}}">{{state.value}}</option>
+                                        </select>
+                                      </div>
+                                      <label>State</label>
+                                      </div>
+                                    </div>
+
+                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                        <div class="form-group">
+                                        <input  type="text" class="form-control" ng-model="companyInfoModel['companyInfo'].zipcode" placeholder="Zipcode" name="zipcode" minlength="5" maxlength="6"  validator="[required, numeric]" >
+                                        <label>Zipcode</label>
+                                        </div>
+                                    </div>
+
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12 text-right" >
+                                    <button class="button bt-blue" ng-disabled="isProcessing" type="submit">Update</button>
+                            </div>
+                        </div>
+                      </div>
+                      </form>
+ <!--                      <form class="comman-form" ng-if="tabType == 'billing'" name="companyInfoForm" rc-submit="updateCompanyInfo('billing')" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <h3>Primary Contact Information</h3>
+                                <div class="form-group">
+                                    <input type="text"  class="form-control" ng-model="companyInfoModel['billInfo'].firstName" placeholder="Full Name" name="firstName"  maxlength="50" validator="[alphanum]" autofocus>
+                                    <label>Full Name</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email"  class="form-control" ng-model="companyInfoModel['billInfo'].email" placeholder="Email" name="email" maxlength="100" ng-minlength="6" validator="[email]" >
+                                    <label>Email</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text"  class="form-control" ng-model="companyInfoModel['billInfo'].phoneNumber" placeholder="Phone" name="phoneNumber" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input="" validator="[phone]">
+                                    <label>Phone Number</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <h3>Billing Address</h3>
+                                <div class="form-group">
+                                    <input type="text"  class="form-control"  ng-model="companyInfoModel['billInfo'].streetAddress" placeholder="Address" name="streetAddress" validator="[required]">
+                                    <label>Address</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text"  class="form-control"  ng-model="companyInfoModel['billInfo'].city" placeholder="City" name="city" maxlength="50"  validator="[alphanum]">
+                                    <label>City</label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <div class="form-group">
+                                            <label>State</label>
+                                            <div class="select-style">
+                                                 <select  name="State" ng-model="companyInfoModel['billInfo'].state">
+                                                   <option value="">State</option>
+                                                   <option ng-repeat="state in stateList" value="{{state.key}}">{{state.value}}</option>
+                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-sm-5 col-xs-12">
+                                        <div class="form-group">
+                                            <input  type="text" class="form-control" ng-model="companyInfoModel['billInfo'].zipcode" placeholder="Zip code" name="zipcode" maxlength="6"  validator="[alphanum]">
+                                            <label>Zipcode</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <h3>Billing Contact Information</h3>
+
+                        <div class="form-group">
+                            <input type="text"  class="form-control" ng-model="companyInfoModel['billInfo'].firstNameBill" placeholder="Full Name" name="billfirstName" maxlength="50" validator="[alphanum]">
+                            <label>Full Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="email"  class="form-control" ng-model="companyInfoModel['billInfo'].emailBill" placeholder="Email" name="emailBill" validator="[email]">
+                            <label>Email</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"  class="form-control" ng-model="companyInfoModel['billInfo'].phoneNumberBill" placeholder="Phone" ng-pattern="/^(\+?(\d{1}|\d{2}|\d{3})[- ]?)?\d{3}[- ]?\d{3}[- ]?\d{4}$/" phone-input="" name="phoneNumberBill" validator="[phone]">
+                            <label>Phone</label>
+                        </div>
+                    </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12 text-right" >
+                                <button class="button  bt-blue" ng-disabled="isProcessing" type="submit">Update</button>
+                        </div>
+                    </div>
+                  </form> -->
+<!--                   <div class="row" ng-if="tabType == 'card'">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                      <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                          <h3>Credit Card Information </h3>
+                        </div>
+
+                        <div class="col-md-6 col-sm-6 col-xs-6 p-t20" >
+                          <button class="button bt-blue" ng-click="addNewCard()" type="button">Add</button>
+                        </div>
+                      </div>
+                      <div class="row" ng-repeat="cardData in cardInfo" style="padding-bottom: 10px;" ng-if="cardData.isDefault">
+                        <div class="col-md-4 col-sm-4 col-xs-12" ng-init="checkDefaultCard(cardData)">
+                          <input  type="radio" style="opacity: 1 !important"
+                            ng-model="model.selectedDefault"
+                            value="{{cardData.id}}"
+                            name="defaultCard"
+                            id="defaultCard_{{cardData.id}}"
+                            ng-change="changeDefaultCard(cardData)"
+                            ng-value="cardData.id">
+                          <label for="defaultCard_{{cardData.id}}">{{cardData.maskedCard}}</label>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                          {{cardData.expiry}}
+                        </div>
+                        <div ng-if="model.defaultCard != cardData.id && model.selectedDefault == cardData.id" class="col-md-4 col-sm-4 col-xs-12">
+                          <button class="button bt-blue" ng-click="setCardAsDefault(model.selectedDefault)" ng-disabled="isProcessing" type="button">Set as default</button>
+                        </div>
+                      </div>
+                      <div class="row" ng-if="!cardInfo" style="padding-left: 30px;" >No credit card information found.</div>
+                    </div>
+                  </div> -->
+            <!-- <div class="row" ng-if="tabType == 'paymentHistory'">
+                      <div class="dataTables_wrapper" style="height: 500px;" >
+                        <div class="list-box" style="max-height: 500px !important" id="scrollarea">
+                          <table class="row-border hover no-footer dataTable paymentHistory" width="100%">
+                            <thead class="dark-gray-bg white">
+                              <tr>
+                                <th> Card</th>
+                                <th> Expiry </th>
+                                <th> Status </th>
+                                <th> Note </th>
+                                <th> Date </th>
+                              </tr>
+                            </thead>
+                            <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="history in paymentHistory track by $index">
+                              <tr>
+                                <td colspan="5" style="background:#edf0f5; height: 10px; padding: 0"></td>
+                              </tr>
+                              <tr class="even">
+                                <td class="technician-name border-top2 border-left2 border-bottom2">
+                                  <a class="">{{history.maskedCard}}</a>
+                                </td>
+                                <td class="border-top2 border-bottom2">
+                                  <div class="customer-add" >{{ history.expiry }} </div>
+                                </td>
+                                <td class="border-top2 border-bottom2">
+                                  <div class="customer-add" style="text-transform: capitalize;">{{history.transactionStatus}}</div>
+                                </td>
+                                <td class="border-top2 border-bottom2">
+                                  <div class="customer-add">{{history.transactionNote}}</div>
+                                </td>
+                                <td class="border-top2 border-bottom2">
+                                  <div class="customer-add">{{ history.transactionDate | date : 'MM/dd/yyyy' }}</div>
+                                </td>
+
+                              </tr>
+                            </tbody>
+                            <tbody ng-if="paymentHistory.length < 1">
+                              <tr class="even">
+                                <td colspan="5" style="text-align: center;"> Sorry, no results found! </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div> -->
+                  <success ng-if="success" message="{{success}}"></success>
+                  <error ng-if="error" message="{{error}}"></error>
+                </div>
+              </div>
+              <div class="p-t10">
+                <div class="fl">
+                  <div class="graphDiv" id="CHEMICALCOST1" ng-style="{'width': chartSize.width + 'px', 'height': chartSize.height + 'px' }" style="margin: auto 0"> </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid chemical-cost">
+    <div class="p-t20">
+      <div class="white-bg p-tb20 p-lr20">
+        <div class="grid">
+          <div class="col-1-2 p-t10 p-lr0">
+            <div class="col-10-12 p-0">
+              <div class="title"> User List </div>
+            </div>
+          </div>
+          <div class="col-1-2 p-t10 p-lr0">
+            <div class="col-10-12 p-0 text-right">
+                <a href="javascript:void(0)" ng-click="addCompanyUser('Add')" >Add User</a>
+            </div>
+          </div>
+        </div>
+        <success ng-if="successUser" message="{{successUser}}"></success>
+      </div>
+    </div>
+  </div>
+  <div class="grid cust-job-history data-table-grid userList">
+    <div class="spinner" ng-if="isProcessingStatus">
+      <div class="spinner-item">
+        <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+      </div>
+    </div>
+    <div class="">
+      <div class="white-bg p-t10">
+        <div class="dataTables_wrapper" ng-init="getUsersList()">
+          <div class="list-box" id="scrollarea">
+            <table class="row-border hover no-footer dataTable" width="100%">
+              <thead class="dark-gray-bg">
+                <tr>
+                  <th> USERS</th>
+                  <th> ROLE </th>
+                  <th> PHONE </th>
+                  <th> EMAIL </th>
+                  <th> ACTION </th>
+                </tr>
+              </thead>
+              <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="user in usersList track by $index">
+                <tr>
+                  <td colspan="5" class="border-td" style="height: 10px; background: #edf0f5;"></td>
+                </tr>
+                <tr>
+                  <td class="technician-name border-top2 border-left2 border-bottom2">
+                    <a class="" id="{{user.technicianId}}" title="{{user.firstName+' '+user.lastName}}">{{user.firstName+' '+user.lastName}}</a>
+                  </td>
+                  <td class="border-top2 border-bottom2"><div class="customer-add" id="pool_location_{{user.id}}"> {{user.userRolesValue}} </div></td>
+                  <td class="border-top2 border-bottom2"><div class="customer-add"> <a class="underline-none darkGray" href="tel:{{user.contactNumber}}">
+                      <phone-number number="{{user.contactNumber}}"></phone-number>
+                      </a> </div></td>
+                  <td class="border-top2 border-right2 border-bottom2"><div class="customer-add"> <a title="{{user.email}}" class="underline-none darkGray" href="mailto:{{user.email}}"> {{user.email}} </a> </div></td>
+                  <td class="border-top2 border-right2 border-bottom2">
+                    <div class="customer-add" >
+                      <a title="{{(user.isActive == '1')? 'Deactive' : 'Active'}}" class="underline-none" ng-click="setStatus(user.id,user.isActive)" href="javascript:void(0)"> {{(user.isActive == '1')?'Active':'Inactive'}} </a> &nbsp;&nbsp;
+                      <a title="Edit" class="underline-none" ng-click="editUser(user,$index)" href="javascript:void(0)"> Edit </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody ng-if="usersList.length < 1">
+                <tr class="even">
+                  <td colspan="5" style="text-align: center;"> Sorry, no results found! </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div aria-live="polite" class="dataTables_info p-l20 p-b20" id="dashTable_info" role="status"> Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div>
+          <div class="pagination p-r20">
+            <paging page="page" page-size="limit" paging-action="changePage(page)" show-first-last="true" show-prev-next="true" text-first="First" text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

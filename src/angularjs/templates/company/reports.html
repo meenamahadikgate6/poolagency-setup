@@ -1,0 +1,746 @@
+<div class="dataTables_wrapper report-page-wrapper" ng-init='getChemicalCost("filterByDate")'>   
+   <success ng-if="successMsg" message="{{successMsg}}"></success>
+   <error ng-if="error" message="{{error}}"></error>
+   <div class="row p-b20">
+      <div class="col-md-12 text-left report-filter-box">
+         <div class="select custom-select custom-select-noimage">
+            <select ng-model="filterMonth" ng-change="filterByDays()" ng-options="x for x in filterReportData">
+            </select>
+         </div>
+         <div class="grid date-picker-wrapper" ng-show="filterMonth == 'custom'">
+            <div class="datePicker input-daterange">
+               <div class="col-6-12 p-lr10 fl">
+                  <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                     <input ng-model="fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDate('fromDate')" id="fromDateInput"/>
+                  </div>
+               </div>
+               <div class="col-6-12 m-l10 text-right fr">
+                  <div class="" date-format="MM/dd/yyyy" min-date="fromDate">
+                     <input ng-model="toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDate('toDate')" id="toDateInput" />
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="row" >
+      <div class="col-md-5 col-sm-5 col-xs-12">
+         <div class="white-bg border-box text-left p-tb20 p-lr20 report-sm-card-loader-parent" style="min-height: 280px">
+            <div class="report-sm-card-loader" ng-if="isChemicalReportProcessing">
+               <div class="spinner">
+                  <div class="spinner-item">
+                     <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                  </div>
+               </div>
+            </div>
+            <span class="excel-download-btn" ng-click="downloadJobReport()"></span>
+            <div class="row p-t20 justify-content-middle">
+               <div class="col-md-4 text-right r-figure">{{activeCustomers | number}}</div>
+               <div class="col-md-8 r-label">Active Customers</div>
+            </div>
+            <div class="row p-t20 justify-content-middle">
+               <div class="col-md-4 text-right r-figure">{{propertyServiced | number}}</div>
+               <div class="col-md-8 r-label">Properties Serviced</div>
+            </div>
+            <div class="row p-t20 justify-content-middle">
+               <div class="col-md-4 text-right r-figure">{{jobsCompleted | number}}</div>
+               <div class="col-md-8 r-label">Jobs Completed</div>
+            </div>
+         </div>
+      </div>
+      <div class="col-md-7 col-sm-7 col-xs-12 chemical-report-panel">      
+         <div class="white-bg border-box text-left p-tb20 p-lr20 report-sm-card-loader-parent" style="overflow: hidden;min-height: 280px">
+            <div class="report-sm-card-loader" ng-if="isChemicalReportProcessing">
+               <div class="spinner">
+                  <div class="spinner-item">
+                     <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                  </div>
+               </div>
+            </div>
+            <span class="excel-download-btn" ng-click="downloadChemicalReport()"></span>
+            <div class="text-center" style="line-height:1;margin-bottom: 10px;">                
+                <span class="r-label chemical-dd-label">
+                   <span class="bb light-blue font-large" ng-hide="isChemicalReportProcessing">
+                       <span ng-if="reportMode=='spent'">{{totalChemicalCountsSpent | currency}}  &nbsp;&nbsp;</span>                 
+                       <span ng-if="reportMode=='charged'">{{totalChemicalCountsCharged | currency}}  &nbsp;&nbsp;</span>                 
+                   </span> 
+                   <div class="select custom-select custom-select-chemical-dd">
+                      <span>
+                         <span ng-if="reportMode=='spent'">Spent on Chemicals</span>
+                         <span ng-if="reportMode=='charged'">Charged for Chemicals</span>
+                         <i class="chem-dd-icon"></i>
+                      </span>
+                      <select ng-model="reportMode" ng-change="generateChart()">
+                         <option value="spent">Spent on Chemicals</option>
+                         <option value="charged">Charged for Chemicals</option>
+                      </select>
+                   </div>
+                </span>
+            </div>
+            <div ng-if="(reportMode=='spent' ? seriesDataSpent.length == 0 : seriesDataCharged.length == 0) && !isChemicalReportProcessing" class="text-center p-t20">No data to display.</div>
+            <div ng-show="reportMode=='spent' ? seriesDataSpent.length > 0 : seriesDataCharged.length > 0">
+               <div id="REPORTCHART" class="report-chart"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="text-right p-tb5 p-20x" style="min-height: 34px;">
+      <ng-container ng-show="isDownloadingChemicalReoprt || isDownloadingReoprt">
+         <b>Generating Report (this could take several minutes), Please wait or <a href="javascript:void;" ng-click="reloadPage()">Cancel </a></b>
+      </ng-container>
+   </div>
+   <div ng-controller="oneJobReportController">
+   <!-- <div class="spinner" ng-if="isProcessingJobReport || isProcessingQuoteReport || isProcessingInvoiceReport || isProcessingPaymentReport">
+      <div class="spinner-item">
+         <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+      </div>
+   </div> -->
+   <div class="dataTables_wrapper" ng-init='getOneJobStatus()'>
+      <success ng-if="successMsg" message="{{successMsg}}"></success>
+      <error ng-if="error" message="{{error}}"></error>
+      <div class="row one-job-report" >
+         <div class="col-md-12 col-sm-5 col-xs-12">
+            <div class="white-bg border-box text-left p-tb20 p-lr20 min-h270 report-type-card report-sm-card-loader-parent">
+               <div class="report-sm-card-loader" ng-if="isProcessingJobReport">
+                  <div class="spinner">
+                     <div class="spinner-item">
+                        <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                     </div>
+                  </div>
+               </div>
+               <h2 class="h-4x m-b20 text-center report-type-card-title">Jobs</h2>
+               <div class="row one-job-header">
+                  <div class="col-md-12 one-off-job-reports report-type-card-filter-dd">
+                     <div class="select custom-select custom-select-noimage">
+                        <select ng-model="filterDuration" ng-change="filterByDuration(filterDuration)" ng-options="x for x in filterReportDataJob">
+                        </select>
+                     </div>
+                     <div class="col-md-12">
+                        <div class="grid date-picker-wrapper report-type-card-date-picker-wrapper" ng-hide="filterDuration !='custom'">
+                           <div class="datePicker input-daterange">
+                              <div class="col-6-12 p-lr10 fl">
+                                 <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                                    <input ng-model="fromDateJob" ng-click="clickDateJob($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDateJob('fromDateJob')" id="fromDateInputJob"/>
+                                 </div>
+                              </div>
+                              <div class="col-6-12 m-l10 text-right fr">
+                                 <div class="" date-format="MM/dd/yyyy" min-date="fromDateJob">
+                                    <input ng-model="toDateJob" ng-click="clickDateJob($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDateJob('toDateJob')" />
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row one-job-grid">
+                  <div class="col-md-12">
+                     <div class="one-job-grid-cards-row">
+                        <div class="one-job-grid-cards-col-holder">
+                           <h3 class="text-center report-type-card-subtitle">
+                              Not yet completed
+                           </h3>
+                        </div>
+                        <div class="one-job-grid-cards-col-holder">
+                           <h3 class="text-center report-type-card-subtitle">
+                              Need to be closed
+                              <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                                 <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                 <span class="sch-help">
+                                    <p style="text-align: left;">Please change the status for completed jobs to "CLOSED".</br>If products/services exist for the job when status is changed, an invoice will be created automatically.</br>No changes can be made to job once it is closed.</p>
+                                 </span>
+                              </a>
+                           </h3>
+                        </div>
+                        <div class="one-job-grid-cards-col-holder">
+                           <h3 class="text-center report-type-card-subtitle">
+                              No action needed
+                           </h3>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-12">
+                     <div class="row">
+                        <div class="col-md-12">
+                           <div class="one-job-grid-cards-row">
+                              <div class="one-job-grid-cards-col-holder">
+                                 <div class="one-job-grid-cards-col">
+                                    <div class="one-job-color-box" ng-click="clickJobStatus(1, 'Not Started')">
+                                       <h4>Not Started</h4>
+                                       <p><strong>{{countNotStarted | number}}</strong> {{amountNotStarted | currency}}</p>
+                                    </div>
+                                 </div>
+                                 <div class="one-job-grid-cards-col">
+                                    <div class="one-job-color-box one-job-yellow-box" ng-click="clickJobStatus(3, 'In Progress')">
+                                       <h4>In Progress <i class="fa fa-clock-o"></i></h4>
+                                       <p><strong>{{countInProgress | number}}</strong>{{amountInProgress | currency}}</p>
+                                    </div>
+                                 </div>
+                              </div>                              
+                              <div class="one-job-grid-cards-col-holder">
+                                 <div class="one-job-grid-cards-col">
+                                    <div class="one-job-color-box one-job-green-box" ng-click="clickJobStatus(4, 'Completed')">
+                                       <h4>Completed <i class="fa fa-check-circle-o"></i></h4>
+                                       <p><strong>{{countCompleted | number}}</strong>{{amountCompleted | currency}}</p>
+                                    </div>
+                                 </div>
+                              </div>                              
+                              <div class="one-job-grid-cards-col-holder">
+                                 <div class="one-job-grid-cards-col">
+                                    <div class="one-job-color-box  one-job-black-box" ng-click="clickJobStatus(5, 'Closed')">
+                                       <h4>Closed <i class="fa fa-check-square"></i></h4>
+                                       <p><strong>{{countClosed | number}}</strong>{{amountClosed | currency}}</p>
+                                    </div>
+                                 </div>                              
+                                 <div class="one-job-grid-cards-col">
+                                    <div class="one-job-color-box one-job-red-box" ng-click="clickJobStatus(2, 'No Access')">
+                                       <h4>No Access <i class="fa fa-lock"></i></h4>
+                                       <p><strong>{{countNoAccess | number}}</strong>{{amountNoAccess | currency}}</p>
+                                    </div>
+                                 </div>
+                              </div>                              
+                           </div>
+                        </div> 
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      </br></br>
+   </div>
+   
+   <div class="dataTables_wrapper" ng-init='getQuotesStatus()'>
+     <div class="row one-job-report" >
+        <div class="col-md-12 col-sm-5 col-xs-12">
+           <div class="white-bg border-box text-left p-tb20 p-lr20 min-h270 report-type-card report-sm-card-loader-parent">
+            <div class="report-sm-card-loader" ng-if="isProcessingQuoteReport">
+               <div class="spinner">
+                  <div class="spinner-item">
+                     <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                  </div>
+               </div>
+            </div>
+              <h2 class="h-4x m-b20 text-center report-type-card-title">Quotes</h2>
+              <div class="row one-job-header">
+                 <div class="col-md-12 one-off-job-reports report-type-card-filter-dd">
+                    <div class="select custom-select custom-select-noimage">
+                       <select ng-model="filterDurationQuote" ng-change="filterByDurationQuote(filterDurationQuote)" ng-options="x for x in filterReportDataQuote">
+                       </select>
+                    </div>
+                    <div class="col-md-12">
+                       <div class="grid date-picker-wrapper report-type-card-date-picker-wrapper" ng-hide="filterDurationQuote !='custom'">
+                          <div class="datePicker input-daterange">
+                             <div class="col-6-12 p-lr10 fl">
+                                <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                                   <input ng-model="fromDateQuote" ng-click="clickDateQuote($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDateQuote('fromDateQuote')" id="fromDateInputQuote"/>
+                                </div>
+                             </div>
+                             <div class="col-6-12 m-l10 text-right fr">
+                                <div class="" date-format="MM/dd/yyyy" min-date="fromDateJob">
+                                   <input ng-model="toDateQuote" ng-click="clickDateQuote($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDateQuote('toDateQuote')" />
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+              <div class="row one-job-grid">
+                 <div class="col-md-6 ">
+                    <h3 class="text-center report-type-card-subtitle">
+                      <!--  -->
+                       Need to approve or close
+                       <a href="javascript:void(0)" class="icon-required checklist-help" style="margin-left: 10px;">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span class="sch-help"><p>OPEN quotes should be followed up on and changed to approved, denied or closed status. When status is changed to APPROVED by you or the customer, a job will be created automatically and will appear in unscheduled section. DENIED status means customer does not want the proposed work to be completed. CLOSED status indicates the customer never made a decision, but you have decided to stop following up on it.</p></span>
+                          </a>
+                    </h3>
+                    <div class="row justify-content-center" style="display:flex">
+                       <div class="col-md-4 p-l0">
+                          <div class="one-job-color-box one-job-color-box--box one-job-color-box--open" ng-click="clickQuoteStatus('open')">
+                             <h4>Open</h4>
+                             <p><strong>{{quotesStatusData.open.count | number}}</strong> {{quotesStatusData.open.amount | currency}}</p>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+                 <div class="col-md-6">
+                    <h3 class="text-center report-type-card-subtitle">
+                       No action needed
+                    </h3>
+                    <div class="row">
+                       <div class="col-md-4 p-r0">
+                          <div class="one-job-color-box one-job-color-box--box one-job-color-box--approved" ng-click="clickQuoteStatus('approved')">
+                             <h4>Approved</h4>
+                             <p><strong>{{quotesStatusData.approved.count | number}}</strong> {{quotesStatusData.approved.amount | currency}}</p>
+                          </div>
+                       </div>
+                       <div class="col-md-4 p-r0">
+                          <div class="one-job-color-box one-job-color-box--box one-job-color-box--denied" ng-click="clickQuoteStatus('denied')">
+                             <h4>Denied</h4>
+                             <p><strong>{{quotesStatusData.denied.count | number}}</strong> {{quotesStatusData.denied.amount | currency}}</p>
+                          </div>
+                       </div>
+                       <div class="col-md-4 p-r0">
+                          <div class="one-job-color-box one-job-color-box--box one-job-color-box--closed" ng-click="clickQuoteStatus('closed')">
+                             <h4>Closed</h4>
+                             <p><strong>{{quotesStatusData.closed.count | number}}</strong> {{quotesStatusData.closed.amount | currency}}</p>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+     </div>
+     </br></br>
+  </div>
+  <div class="dataTables_wrapper" ng-init='getInvoiceStatus()'>
+    <div class="row one-job-report" >
+       <div class="col-md-12 col-sm-5 col-xs-12">
+          <div class="white-bg border-box text-left p-tb20 p-lr20 min-h210 report-type-card report-sm-card-loader-parent">
+            <div class="report-sm-card-loader" ng-if="isProcessingInvoiceReport">
+               <div class="spinner">
+                  <div class="spinner-item">
+                     <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                  </div>
+               </div>
+            </div>
+             <h2 class="h-4x m-b20 text-center report-type-card-title">Invoices</h2>
+             <div class="row one-job-header">
+                <div class="col-md-8 one-off-job-reports report-type-card-filter-dd">
+                   <div class="select custom-select custom-select-noimage">
+                      <select ng-model="filterDurationInvoice" ng-change="filterByDurationInvoice(filterDurationInvoice)" ng-options="x for x in filterReportDataInvoice">
+                      </select>
+                   </div>
+                   <div class="col-md-12">
+                      <div class="grid date-picker-wrapper report-type-card-date-picker-wrapper" ng-hide="filterDurationInvoice !='custom'">
+                         <div class="datePicker input-daterange">
+                            <div class="col-6-12 p-lr10 fl">
+                               <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                                  <input ng-model="fromDateInvoice" ng-click="clickDateInvoice($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDateInvoice('fromDateInvoice')" id="fromDateInputInvoice"/>
+                               </div>
+                            </div>
+                            <div class="col-6-12 m-l10 text-right fr">
+                               <div class="" date-format="MM/dd/yyyy" min-date="fromDateJob">
+                                  <input ng-model="toDateInvoice" ng-click="clickDateInvoice($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDateInvoice('toDateInvoice')" />
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+                <div class="col-md-4 one-off-job-reports report-type-card-filter-dd">
+                        <div class="one-job-color-box invoice-report-card--box invoice-report-card--unsent" ng-click="clickInvoiceStatus('Unsent')">
+                           <h4><div class="unset-inoice-email-icon"></div> Unsent Invoices</h4>
+                           <p><strong>{{invoiceStatusData.unsent.count | number}}</strong> {{invoiceStatusData.unsent.amount | currency}}</p>
+                        </div>
+               </div>
+             </div>
+             <div class="row invoice-card-grid">
+                <div class="col-md-12">                  
+                   <div class="row">
+                      <div class="col-md-3">
+                         <div class="one-job-color-box invoice-report-card--box invoice-report-card--notpaid" ng-click="clickInvoiceStatus('Awaiting Payment')">
+                            <h4>Not Paid</h4>
+                            <p><strong>{{invoiceStatusData.notPaid.count | number}}</strong> {{invoiceStatusData.notPaid.amount | currency}}</p>
+                         </div>
+                      </div>
+                      <div class="col-md-3">
+                         <div class="one-job-color-box invoice-report-card--box invoice-report-card--paid" ng-click="clickInvoiceStatus('Paid')">
+                            <h4>Paid</h4>
+                            <p><strong>{{invoiceStatusData.paid.count | number}}</strong> {{invoiceStatusData.paid.amount | currency}}</p>
+                         </div>
+                      </div>
+                      <div class="col-md-3">
+                         <div class="one-job-color-box invoice-report-card--box invoice-report-card--pastdue" ng-click="clickInvoiceStatus('Past Due')">
+                            <h4>Past Due</h4>
+                            <p><strong>{{invoiceStatusData.pastDue.count | number}}</strong> {{invoiceStatusData.pastDue.amount | currency}}</p>
+                         </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="one-job-color-box invoice-report-card--box invoice-report-card--upcoming" ng-click="clickInvoiceStatus('Upcoming')">
+                           <h4>Upcoming</h4>
+                           <p><strong>{{invoiceStatusData.upcoming.count | number}}</strong> {{invoiceStatusData.upcoming.amount | currency}}</p>
+                        </div>
+                     </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+    </br></br>
+ </div>
+ 
+ <div class="dataTables_wrapper" ng-init='getPaymentStatus()'>
+   <div class="row one-job-report" >
+      <div class="col-md-12 col-sm-5 col-xs-12">
+         <div class="white-bg border-box text-left p-tb20 p-lr20 min-h210 report-type-card report-sm-card-loader-parent">
+            <div class="report-sm-card-loader" ng-if="isProcessingPaymentReport">
+               <div class="spinner">
+                  <div class="spinner-item">
+                     <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+                  </div>
+               </div>
+            </div>
+            <h2 class="h-4x m-b20 text-center report-type-card-title">Payments</h2>
+            <div class="row one-job-header">
+               <div class="col-md-12 one-off-job-reports report-type-card-filter-dd">
+                  <div class="select custom-select custom-select-noimage">
+                     <select ng-model="filterDurationPayment" ng-change="filterByDurationPayment(filterDurationPayment)" ng-options="x for x in filterReportDataPayment">
+                     </select>
+                  </div>
+                  <div class="col-md-12">
+                     <div class="grid date-picker-wrapper report-type-card-date-picker-wrapper" ng-hide="filterDurationPayment !='custom'">
+                        <div class="datePicker input-daterange">
+                           <div class="col-6-12 p-lr10 fl">
+                              <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                                 <input ng-model="fromDatePayment" ng-click="clickDatePayment($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDatePayment('fromDatePayment')" id="fromDateInputPayment"/>
+                              </div>
+                           </div>
+                           <div class="col-6-12 m-l10 text-right fr">
+                              <div class="" date-format="MM/dd/yyyy" min-date="fromDateJob">
+                                 <input ng-model="toDatePayment" ng-click="clickDatePayment($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDatePayment('toDatePayment')" />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="row invoice-card-grid">
+               <div class="col-md-12">                  
+                  <div class="row">
+                     <div class="col-md-3">
+                        <div class="one-job-color-box payment-report-card--box payment-report-card--unapplied" ng-click="clickPaymentStatus('unapplied')">
+                           <h4>Unapplied</h4>
+                           <p><strong>{{paymentStatusData.unapplied.count | number}}</strong> {{paymentStatusData.unapplied.amount | currency}}</p>
+                        </div>
+                     </div>
+                     <div class="col-md-3">
+                        <div class="one-job-color-box payment-report-card--box payment-report-card--partial" ng-click="clickPaymentStatus('partial')">
+                           <h4>Partial</h4>
+                           <p><strong>{{paymentStatusData.partial.count | number}}</strong> {{paymentStatusData.partial.amount | currency}}</p>
+                        </div>
+                     </div>
+                     <div class="col-md-3">
+                        <div class="one-job-color-box payment-report-card--box payment-report-card--applied" ng-click="clickPaymentStatus('applied')">
+                           <h4>Applied</h4>
+                           <p><strong>{{paymentStatusData.applied.count | number}}</strong> {{paymentStatusData.applied.amount | currency}}</p>
+                        </div>
+                     </div>
+                     <div class="col-md-3">
+                        <div class="one-job-color-box payment-report-card--box payment-report-card--refunds" ng-click="clickPaymentStatus('refunds')">
+                           <h4>Refunds</h4>
+                           <p><strong>{{paymentStatusData.refunds.count | number}}</strong> {{paymentStatusData.refunds.amount | currency}}</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   </br></br>
+</div>
+ <div ng-controller="technicianPayReportController" ng-include="'/templates/component/technician-pay-report.html?ver='+PB_WEB_VERSION"></div>
+ <div class="dataTables_wrapper border-box" ng-show="canView" ng-init="getFeedbackReport()" style="margin-bottom: 30px;">    
+   <success ng-if="successMsg" message="{{successMsg}}"></success>
+   <error ng-if="error" message="{{error}}"></error>  
+   
+   <div  class="container-fluid white-bg p-tb20 p-lr20 report-sm-card-loader-parent">
+     <div class="report-sm-card-loader" ng-if="isProcessingFeedback">
+       <div class="spinner">
+          <div class="spinner-item">
+             <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+          </div>
+       </div>
+    </div>
+     <div class="row">
+       <div class="col-md-12">
+         <label class="font-regular h-4x m-b20">Customer Feedback</label>   
+         <span class="excel-download-btn" ng-click="downloadFeedbackReport()"></span> 
+       </div>
+     </div>
+
+     
+     <div class="row p-b20 m-b20">
+       <div ng-if="isTechDetailPage" class="col-md-3"></div>
+       <div class="col-md-6 text-left report-filter-box tech-report-filter-box">        
+           <div class="select custom-select custom-select-noimage">
+               <select ng-model="pageObjFb.filterMonth" ng-change="filterByDaysFb(pageObjFb.filterMonth)" ng-options="x for x in pageObjFb.filterReportData"></select>
+           </div> 
+           <div>
+             <div class="grid date-picker-wrapper" ng-hide="pageObjFb.filterMonth !='custom'">
+               <div class="datePicker input-daterange input-daterange-include">
+                 <div class="col-6-12 p-lr10 fl">
+                   <div class="smallview fromDateView" date-format="MM/dd/yyyy">
+                     <input ng-model="pageObjFb.fromDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="From Date" ng-change="filterByDateFb(pageObjFb.fromDate, 'fromDate')" id="fromDateInputFeedback"/>
+                   </div>
+                 </div>
+                 <div class="col-6-12 m-l10 text-right fr">
+                   <div class="" date-format="MM/dd/yyyy" min-date="pageObjFb.fromDate">
+                     <input ng-model="pageObjFb.toDate" ng-click="clickDate($event)" type="text" class="angular-datepicker-input" placeholder="To Date"  ng-change="filterByDateFb(pageObjFb.toDate, 'toDate')" id="toDateInputFeedback" />
+                   </div>
+                 </div>
+               </div>
+             </div> 
+             <div class="flex" ng-show="pageObjFb.filterMonth !='custom'">
+               <i class="fa fa-caret-left" aria-hidden="true" ng-click="changeMonthFb('prev')"></i>
+               
+               <span style="min-width: 127px;" class="text-center">{{pageObjFb.month | date:'MMMM yyyy'}}</span>                
+               <i class="fa fa-caret-right" aria-hidden="true" ng-click="changeMonthFb('next')"></i>
+             </div>
+           </div>
+         </div> 
+       </div>
+       <div class="fluid-container">
+         <div class="row" style="min-height: 190px;">
+           <div class="col-md-6"> 
+            <div class="like-dislike-new" style="max-width: unset; text-align: justify; z-index: 1; font-size: 32px; left: 50px;">
+               <a style="display: inline-block; text-decoration: none;" class="underline-none"
+                 href="javascript:void(0)" ng-click="rateTach('', technicianinfo.id, userSession.userId, 'up')">
+                 <span class="like-inner-new" style="width: 44px; height: 44px;"> 
+                   <i class="fa fa-thumbs-up" aria-hidden="true" style="font-size: 24px; position: relative; top: -4px;"></i>
+                 </span> 
+                 <span class="like-dislike-count">{{feedbackData.ratingCount.up ? feedbackData.ratingCount.up :'0'}}</span>
+               </a>
+               <a style="display: inline-block; text-decoration: none;" class="underline-none p-l5"
+                 href="javascript:void(0)" ng-click="rateTach('', technicianinfo.id, userSession.userId, 'down')">
+                 <span class="dislike-inner-new" style="border: 2px solid #bc1010; width: 44px; height: 44px;">
+                   <i class="fa fa-thumbs-down" aria-hidden="true" style="font-size: 24px; position: relative; top: -4px;"></i>
+                 </span>
+                 <span class="like-dislike-count">{{feedbackData.ratingCount.down ? feedbackData.ratingCount.down : '0'}}</span>
+               </a>
+             </div>
+             <div id="COMPANYFEEDBACKCHART" class="report-chart feedback-report-chart" style="position: relative; top: -60px; left: 130px;"></div>
+             <div ng-if="!hasFeedback" ng-hide="isProcessing" style="min-width: 200px;position: relative;top: 15px;left: 100px;opacity: 0.5;">no feedback received yet</div>
+           </div>
+           <div class="col-md-6">
+            <div class="white-bg">
+               <div class="dataTables_wrapper" style="position: relative; top: -50px;">
+                 <div class="list-box" id="scrollarea" style="padding: 0px; background: #ffffff; border: none; min-height: {{ feedbackList.length > 0 ? '260px' : 'unset' }};">
+                   <table class="row-border hover no-footer dataTable sticky-header-table" width="100%">
+                     <tbody ng-if="feedbackList.length > 0" dt-rows ng-repeat="fb in feedbackList">
+                       <tr>
+                        <td class="technician-name border-left2 border-bottom2" style="text-align: left;">            
+                           <div class="image-radius name-initial" style="background-image:url({{fb.userImage}});background-size: cover; width: 40px;" >
+                               <span ng-show="!fb.userImage" style="font-size: 16px;">
+                                 {{fb.firstName | convertToInitial: fb.lastName}}                      
+                               </span>
+                           </div>
+                           <a class="underline-none feedback-tech-name" title="{{fb.firstName+' '+fb.lastName}}" ui-sref="app.techniciandetail({technicianId: fb.technicianId})">{{fb.firstName}} {{fb.lastName}}</a>                       
+                         </td>
+                         <td>
+                           <div>
+                              <span class="thums-up-down">
+                               <img src="resources/images/thums-up24.png">
+                              </span>
+                              {{fb.up}}
+                           </div>
+                           </td>
+                         <td>
+                           <div>
+                              <span class="thums-up-down">
+                               <img src="resources/images/thums-down24.png">
+                              </span>
+                              {{fb.down}}
+                           </div>
+                           </td>
+                         <td style="text-align: left;"> {{getPercentage(fb.up,fb.down)}}%</td>
+                       </tr>
+                     </tbody>
+                     <tbody ng-if="feedbackList.length == 0" ng-hide="isProcessing" class="no-record-found-frame-tbody">
+                       <tr>
+                         <td colspan="100%" class="no-record-found-frame-td"><div style="position: absolute; top: 110px; opacity: 0.5;">No feedback to display within the date range selected</div></td>
+                       </tr>
+                     </tbody>
+                   </table>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+   </div> 
+</div>
+ <div ng-controller="profitReportController" ng-include="'/templates/component/profit-report.html?ver='+PB_WEB_VERSION"></div>
+ <script type="text/ng-template" id="sentReportEmailPopupReportPage.html">
+ <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+    <div class="popup-header">
+       <span class="heading">Create Report</span>
+       <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>  
+    <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+       <div class="detail-box">         
+       <div class="grid text-left box" >         
+          <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+          <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+          <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+          <div class="col-12 sent-email-report-message">
+            Where should we send the report when it's ready? <br> (large reports can take a while)
+          </div>
+          <div class="col-12-12">                 
+             <div class="formGroup">
+                   <label>Email Address</label>
+                   <input 
+                      type="email" 
+                      autocomplete="off" 
+                      class="form-control" 
+                      ng-model="reportPageSentReportEmailModel.email" 
+                      placeholder="Email Address" 
+                      name="emailId" 
+                      ng-maxlength="100" 
+                      ng-minlength="6" 
+                      ng-disabled="reportPageIsReportSending"
+                      ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                      ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                      required                         
+                   />
+             </div>     
+          </div>
+       </div>      
+       <div class="text-center p-t20">
+          <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+          <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+       </div>        
+       </div>
+    </form> 
+ 
+ </div>
+ </script>
+ 
+ <script type="text/ng-template" id="sentReportEmailPopupReportPageStyle.html">
+   <div class="dataTables_wrapper modal-box common-popup add-service-level-popup report-style-select-box right-aligned" style="width:700px"> 
+      <div class="popup-header">
+         <span class="heading">Choose which style of report to generate</span>
+         <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+         <div class="detail-box">         
+         <div class="grid text-left box" > 
+            <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>        
+            <div class="col-12 sent-email-report-message">
+              Choose which style of report to generate
+            </div>
+            <div class="col-12-12">                 
+               <div class="row">
+                  <div class="col-sm-6">
+                     <a href="javascript:void(0);" ng-click="selectReportStyleType('group')" class="report-style-large-btn" ng-disabled="reportPageIsReportSending">
+                        <h6>Grouped</h6>
+                        <div class="report-style-icon report-style-icon-1">
+                           <div class="rsi-item">
+                              <div class="rsi-header">
+                                 <div class="rsi-heading"></div>
+                                 <div class="rsi-sub-heading"></div>
+                              </div>
+                              <div class="rsi-body">
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                              </div>
+                           </div>
+                           <div class="rsi-item">
+                              <div class="rsi-header">
+                                 <div class="rsi-heading"></div>
+                                 <div class="rsi-sub-heading"></div>
+                              </div>
+                              <div class="rsi-body">
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                              </div>
+                           </div>
+                        </div>
+                     </a>
+                     <p class="report-style-large-btn-desc">Date is grouped within sections</p>
+                  </div>
+                  <div class="col-sm-6">
+                     <a href="javascript:void(0);" ng-click="selectReportStyleType('single')" class="report-style-large-btn" ng-disabled="reportPageIsReportSending">
+                        <h6>Single Lines</h6>
+                        <div class="report-style-icon report-style-icon-2">
+                           <div class="rsi-item">
+                              <div class="rsi-header">
+                                 <div class="rsi-heading"></div>
+                                 <div class="rsi-sub-heading"></div>
+                              </div>
+                              <div class="rsi-body">
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                                 <div class="rsi-para"></div>
+                              </div>
+                           </div>
+                           <div class="rsi-item">
+                             <div class="rsi-header">
+                                <div class="rsi-heading"></div>
+                                <div class="rsi-sub-heading"></div>
+                             </div>
+                             <div class="rsi-body">
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                                <div class="rsi-para"></div>
+                             </div>
+                          </div>
+                        </div>
+                     </a>
+                     <p class="report-style-large-btn-desc">one chemical per row</p>
+                  </div>
+               </div>
+            </div>
+         </div>      
+         <div class="text-center p-t20">
+            <button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" ng-click="closeThisDialog()" type="button">CANCEL</button>
+         </div>        
+         </div>
+   
+   </div>
+   </script>
+   <script type="text/ng-template" id="sentReportEmailPopupFeedback.html">
+      <div class="dataTables_wrapper modal-box common-popup add-service-level-popup" style="width:420px"> 
+         <div class="popup-header">
+            <span class="heading">Create Report</span>
+            <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+         </div>  
+         <form class="set-chem-form" name="sentReportEmailForm" autocomplete="off" ng-submit="sentReportEmailForm.$valid && sendReport()" novalidate>      
+            <div class="detail-box">         
+            <div class="grid text-left box" >         
+               <error ng-if="sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid" message="Please enter a valid email."></error>
+               <error ng-if="reportPageErrorMsg" message="{{reportPageErrorMsg}}"></error>
+               <success ng-if="reportPagereportGeneratingProcessStart" message="Report will be sent to provided email address."></success>
+               <div class="col-12 sent-email-report-message">
+                 Where should we send the report when it's ready? <br> (large reports can take a while)
+               </div>
+               <div class="col-12-12">                 
+                  <div class="formGroup">
+                        <label>Email Address</label>
+                        <input 
+                           type="email" 
+                           autocomplete="off" 
+                           class="form-control" 
+                           ng-model="reportPageSentReportEmailModel.email" 
+                           placeholder="Email Address" 
+                           name="emailId" 
+                           ng-maxlength="100" 
+                           ng-minlength="6" 
+                           ng-disabled="reportPageIsReportSending"
+                           ng-pattern='/^[^<>()[\]\\,;:\%#^\s@\"$&!@]+@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9\d-_]+\.)+[a-zA-Z\d-_]{2,}))$/' 
+                           ng-class="{'has-error': sentReportEmailForm.$submitted && sentReportEmailForm.emailId.$invalid }"
+                           required                         
+                        />
+                  </div>     
+               </div>
+            </div>      
+            <div class="text-center p-t20">
+               <button class="add-button add-button-report-send" ng-click="closeThisDialog()" ng-disabled="reportPageIsReportSending" type="button">CANCEL</button>
+               <span class="p-l10"><button class="add-button add-button-report-send" ng-disabled="reportPageIsReportSending" type="submit" ng-click="sentReportEmailForm.submitAttempt=true;" >SEND REPORT</button></span>            
+            </div>        
+            </div>
+         </form> 
+      
+      </div>
+      </script>

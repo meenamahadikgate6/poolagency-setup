@@ -1,0 +1,112 @@
+<div class="pbx-popup">
+    <div class="inventory-loader" ng-if="isProcessing">
+        <div class="spinner">
+            <div class="spinner-item">
+                <div class="spinner-animation">
+                    <img src="/resources/images/spinner.gif">
+                </div>
+            </div>
+        </div>
+    </div>
+   <form name="addItemForm" id="addItemForm" ng-submit="itemFormSubmitted = true; addItemForm.$valid && addInventoryItem()" novalidate>
+    <div class="pbx-popup-header">
+        <div class="pbx-popup-header-title">
+            Add Item
+        </div>
+        <div class="pbx-popup-header-close">
+            <i class="fa fa-times-circle" ng-click="closeThisDialog()"></i>
+        </div>
+    </div>
+    <div class="pbx-popup-body text-left">              
+        <div class="row">
+            <div class="col-xs-12 col-lg-6">
+                <div class="row" ng-if="isShowSearchWidget">
+                    <div class="col-xs-12">
+                        <div class="form-group inventory-product-search-widget-holder">
+                            <label class="form-label">Select Product or Tool</label>
+                            <div class="product-search-widget-holder --fixed --scrollable ">
+                                <div ng-include="'templates/component/search-product-widget.html?ver='+PB_WEB_VERSION" ng-controller="searchProductWidgetController" ng-init="selectProductSearchWidgetArea('inventory')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" ng-if="!isShowSearchWidget">
+                    <div class="col-xs-12">
+                        <div class="form-group inventory-update-qty-input">
+                            <label class="form-label">Product or Tool Name</label>
+                            <input  type="text" ng-model="model.name" name="name" class="pbx-form-control" disabled />
+                            <span class="update-link" ng-click="revertItem()">                                        
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#285FC6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group" ng-if="inventorySidebarType == 'inventory'">
+                            <label class="form-label">Location</label>                        
+                            <tree-dropdown data-sid="{{parentLocationSelect(selected)}}" class="tree-dropdown" data="transformedLocation" id="location" selected="selected" name="location"></tree-dropdown>
+                        </div>
+                        <div class="form-group" ng-if="inventorySidebarType != 'inventory'">
+                            <label class="form-label">Truck</label>                        
+                            <tree-dropdown data-sid="{{selectTruckparent(selected)}}" class="tree-dropdown" data="transformedTruck" id="truck" selected="selected" name="truck"></tree-dropdown>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="form-label">Quantity</label>
+                            <input class="pbx-form-control" type="text" ng-model="model.quantity" name="quantity" id="quantity" name="cost" id="cost" ng-pattern="/^(?!0(\.0+)?$)([0-9]*\.?[0-9]+)$/" required="" ng-class="{ 'has-error' : itemFormSubmitted && addItemForm.quantity.$invalid }" />
+                            <span class="has-required p-b10" ng-if="itemFormSubmitted && addItemForm.quantity.$invalid">
+                                <span ng-show="addItemForm.quantity.$error.required">Quantity is required</span>
+                                <span ng-show="addItemForm.quantity.$error.pattern">Invalid Quantity</span>
+                            </span>
+                        </div>
+                    </div>            
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <label class="form-label">Cost</label>
+                            <div class="input-with-dollar">
+                                <span class="doller-icon"><i class="fa fa-usd" aria-hidden="true"></i></span>
+                                <input ng-model="model.cost" type="text" min="0" max="9999999" allow-typing="^[$,0-9.-]+$" format="currency" class="pbx-form-control" name="cost" id="cost" required="" ng-class="{ 'has-error' : itemFormSubmitted && addItemForm.cost.$invalid }" />
+                            </div>
+                            <span class="has-required p-b10" ng-if="itemFormSubmitted && addItemForm.cost.$invalid">
+                                <span ng-show="addItemForm.cost.$error.required">Cost is required</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 error_display">
+                        <error message="{{errorMessage}}" ng-if="errorMessage"></error>
+                        <success message="{{successMessage}}" ng-if="successMessage"></success>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-lg-6">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Photos</label>
+                            <div class="truck-photo-area">
+                                <div class="tuck-cover-photo">
+                                    
+                                    <img ng-repeat="img in model.images track by $index" ng-if="img.isCoverPhoto" ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)" >
+                                </div>
+                                <div class="tuck-photo-list">
+                                    <div class="truck-photo-list-item" ng-repeat="img in model.images track by $index"><img ng-src="{{img.mediaPath}}" alt="" ng-click="showImageSlides($index, model.images)" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+    <div class="pbx-popup-footer">           
+        <button tabindex="-1" class="pbx-btn" type="submit" ng-disabled="isProcessing">{{ isProcessing ? 'Adding...' : 'Add'}}</button>
+        <button tabindex="-1" class="pbx-btn" type="button" ng-click="closeThisDialog()">Cancel</button>
+    </div>
+  </form>
+</div>

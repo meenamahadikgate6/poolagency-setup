@@ -1,0 +1,123 @@
+<div class="data-table-grid technicians">
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"> <img border="0" src="resources/images/spinner.gif"/> </div>
+    </div>
+  </div>
+  <success message="{{success}}" ng-if="success"></success>
+  <error message="{{error}}" ng-if="error"></error>
+  <div class="m-t20" ng-init="getUsersList()">
+    <div class="fl p-t5 p-b10">
+      <div class="fl dropdown">
+        <button class="btn btn-primary dropdown-toggle button blue-bg" type="button" data-toggle="dropdown">Filter: {{currentFilterValue}}&nbsp;&nbsp;<span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li ng-class="{'active': currentFilterValue == 'All'}"><a href="javascript:void(0)" ng-click="filterBy('All')">All</a></li>
+          <li ng-class="{'active': currentFilterValue == 'Active'}"><a href="javascript:void(0)" ng-click="filterBy('Active')">Active</a></li>
+          <li ng-class="{'active': currentFilterValue == 'Inactive'}"><a href="javascript:void(0)" ng-click="filterBy('Inactive')">Inactive</a></li>
+        </ul>
+      </div>
+      <div class="fr" style="margin: 0 50px 0 50px">
+        <success message="{{successMsg3}}" ng-if="successMsg3"></success>
+        <error message="{{error3}}" ng-if="error3"></error>
+      </div>
+    </div>
+
+    <div class="fr p-t5 p-b10">
+      <div class="grid">
+        <div class="fl p-l30">
+            <div class="technicians-invite">
+              <div class="confirm-list">
+                  <a href="javascript:void(0)" ng-click="addCompany('Add')">Add User</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+
+    <div class="dataTables_wrapper customer">
+      
+      <table class="row-border hover no-footer dataTable" width="100%">
+        <thead class="dark-gray-bg">
+          <tr>
+            <th> USERS</th>
+            <th> ROLE </th>
+            <th> PHONE </th>
+            <th> EMAIL </th>
+            <th> STATUS </th>
+            <th> ACTION </th>
+          </tr>
+        </thead>
+        <tbody dt-rows="" ng-class-even="'even'" ng-class-odd="'odd'" ng-repeat="user in userList track by $index">
+          <tr>
+            <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+          </tr>
+          <tr class="even">
+            <td class="technician-name border-top2 border-left2 border-bottom2"> 
+              <div class="initial-wrapper">
+                <div class="image-radius name-initial" style="background-image:url({{user.userImage}});background-size: cover;" >
+                  <span ng-show="!user.userImage">
+                      {{user.firstName | convertToInitial: user.lastName}}                             
+                  </span>
+                  </div>
+                  <a class="" id="{{user.technicianId}}" title="{{user.firstName+' '+user.lastName}}">{{user.firstName+' '+user.lastName}} </a>
+              </div>
+            </td>
+            <td class="border-top2 border-bottom2"><div class="customer-add" id="pool_location_{{user.id}}"> {{roleValue[user.userRolesKey]}} </div></td>
+            <td class="border-top2 border-bottom2"><div class="customer-add"> <a class="underline-none darkGray" href="tel:{{user.contactNumber}}">
+                <phone-number number="{{user.contactNumber}}"></phone-number>
+                </a> </div></td>
+
+            <td class="border-top2 border-right2 border-bottom2"><div class="customer-add"> <a title="{{user.email}}" class="underline-none darkGray" href="mailto:{{user.email}}"> {{user.email}} </a> </div></td>
+            <td class="border-top2 border-right2 border-bottom2">
+              <div class="customer-add m-t10" ng-if="!preventDefaultAction && user.id!=loggedInuserId" >
+                 <label class="switch" ng-click="setStatus(user.id,user.isActive, $index)">
+                    <span ng-class="{'active' : user.isActive == '1'}" class="slider round"></span>
+                 </label>
+            </td>
+            <td class="border-top2 border-right2 border-bottom2">
+              <div class="customer-add">
+                <a title="Edit" class="underline-none" ng-click="editUser(user,$index)" href="javascript:void(0)"> Edit </a>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+        <tbody ng-if="userList.length < 1">
+          <tr>
+            <td colspan="4" style="background:#edf0f5; height: 10px; padding: 0"></td>
+          </tr>
+          <tr class="even">
+            <td colspan="100%" style="text-align: center;"> Sorry, no results found! </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div aria-live="polite" class="dataTables_info" id="dashTable_info" role="status"> Showing {{currentPage}} to {{totalPage > 0 ? totalPage + 1 : 1}} of {{totalRecord}} entries </div>
+    <div class="pagination">
+      <paging page="page" page-size="limit" paging-action="changePage(page)" show-first-last="true" show-prev-next="true" text-first="First" text-last="Last" text-next="Next" text-prev="Prev" total="totalRecord"> </paging>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="addUserConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="fl h-1-5x b white">Alert! </div>
+      <div class="popup-close" ng-click="closeThisDialog()"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>  
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>You are going to create a user for a company which is De-Active. Please Confirm.</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="addOrUpdateUser()">confirm</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+ </script>

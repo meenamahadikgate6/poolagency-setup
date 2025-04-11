@@ -1,0 +1,614 @@
+<div class="set-chem-form m-t20 billing-section p-relative" ng-init="getCompanyBillingSettings()">
+  <form class="set-chem-form" name="billingSettingForm" ng-submit="billingSettingForm.$valid ? updateBillingSettings() : null" novalidate>
+    <div class="set-chem-price setting-sm-card-loader-parent" style="width:100% !important">  
+      <div class="setting-sm-card-loader" ng-if="settingPageLoaders.billingSection">
+        <div class="spinner">
+           <div class="spinner-item">
+              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+           </div>
+        </div>
+     </div>    
+      <div class="set-chem-title">Billing Defaults</div>                   
+      <div class="p-relative" id="billing-section-error">
+        <div class="message-absolute" ng-if="successMsg" >  <success  message="{{successMsg}}"></success></div>
+        <div class="message-absolute" ng-if="errorMsg">  <error  message="{{errorMsg}}"></error></div> 
+        <div class="message-absolute" ng-if="globalSettingSucess" >  <success message="{{globalSettingSucess}}"></success></div>
+      </div>                
+        
+      <div class="set-chem-details text-left">
+          <div class="text-center m-tb20"><span class="h-3x v-align-top p-r10"><b>Activate Billing</b></span>
+            <label class="switch" ng-click="activeInactiveBilling()">
+              <span ng-class="{'active' : modelBillingSettingObj.activateBilling}" class="slider round"></span>
+            </label>
+          </div>
+          <div class="p-relative">
+            <div class="overlay-white" ng-if="!modelBillingSettingObj.activateBilling"></div>
+            <section>
+              <div class="container-fluid">               
+                <div class="row">
+                  <div class="col-sm-8">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <label class="label-title">Customers Pay: <span class="apply-setting-to-global-btn" ng-click="openConfirmModalForGlobalSettings('customersPay', modelBillingSettingObj)" ng-class="{ 'visible' : globalSettingButtonVisibility['customersPay'] }"></span></label>
+                        <div style="min-height: 100px;">
+                          <div class="radio-default2">               
+                            <label for="customersPay1">
+                              Monthly Flat Rate
+                              <input type="radio" name="customersPay" id="customersPay1" value="Monthly Flat Rate" ng-model="modelBillingSettingObj.customersPay"  ng-checked="true" ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('customersPay')" />
+                              <span></span>
+                            </label>                   
+                          </div>
+                          <div class="radio-default2">               
+                            <label for="customersPay2">
+                              Per Visit
+                              <input type="radio" name="customersPay" id="customersPay2" value="Per Visit" ng-model="modelBillingSettingObj.customersPay"  ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('customersPay')" />
+                              <span></span>
+                            </label>                   
+                          </div>
+                          <div class="flex align-items-center flex-small-pad charge-for-no-access-toggle">
+                            <span>Charge for "no access" stops</span>
+                            <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                              <i class="fa fa-question-circle" aria-hidden="true"></i>
+                              <span>Charge for "no access" stops</span>
+                            </a>  
+                            <div>
+                              <label class="switch small" ng-click="toggleNoAccess()" style="vertical-align: text-bottom;" >
+                                <span ng-class="{'active' : modelBillingSettingObj.noAccessToggle }" class="slider round" ></span>
+                              </label>
+                            </div>
+                          </div>   
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <label class="label-title">Invoiced on: <span class="apply-setting-to-global-btn" ng-click="openConfirmModalForGlobalSettings('invoicedOn', modelBillingSettingObj)" ng-class="{ 'visible' : globalSettingButtonVisibility['invoicedOn'] }"></span></label>
+                        <div style="min-height: 100px;">
+                          <div class="radio-default2">               
+                            <label for="invoicedOn1">
+                              First of Month (paid in advance)
+                              <input type="radio" name="invoicedOn" id="invoicedOn1" value="First of Month" ng-model="modelBillingSettingObj.invoicedOn" ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('invoicedOn')" />
+                              <span></span>
+                            </label>                   
+                          </div>
+                          <div class="radio-default2">               
+                            <label for="invoicedOn2">
+                              First of Month (paid in arrears) 
+                              <input type="radio" name="invoicedOn" id="invoicedOn2" value="End of Month" ng-model="modelBillingSettingObj.invoicedOn" ng-disabled="!modelBillingSettingObj.activateBilling" ng-change="updateBillingSettings('invoicedOn')" />
+                              <span></span>
+                            </label>                   
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="label-title">Terms: <span class="apply-setting-to-global-btn" ng-click="openConfirmModalForGlobalSettings('terms', modelBillingSettingObj)" ng-class="{ 'visible' : globalSettingButtonVisibility['terms'] }"></span></label>
+                    <div style="min-height: 100px; max-width: 185px;">                     
+                      <div class="dropdown select-wrap ">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" ng-disabled="!modelBillingSettingObj.activateBilling">
+                          <b>{{modelBillingSettingObj.terms ? modelBillingSettingObj.terms : '--'   }}</b>
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu scrollable-menu">                         
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due Immediately'" ng-click="modelBillingSettingObj.terms = 'Due Immediately'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due Immediately</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 3 days'" ng-click="modelBillingSettingObj.terms = 'Due in 3 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 3 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 7 days'" ng-click="modelBillingSettingObj.terms = 'Due in 7 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 7 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 14 days'" ng-click="modelBillingSettingObj.terms = 'Due in 14 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 14 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 30 days'" ng-click="modelBillingSettingObj.terms = 'Due in 30 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 30 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 45 days'" ng-click="modelBillingSettingObj.terms = 'Due in 45 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 45 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 60 days'" ng-click="modelBillingSettingObj.terms = 'Due in 60 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 60 days</a></li>
+                          <li ng-hide="modelBillingSettingObj.terms == 'Due in 90 days'" ng-click="modelBillingSettingObj.terms = 'Due in 90 days'; updateBillingSettings('terms')"><a href="javascript:void(0)">Due in 90 days</a></li>
+                        </ul>
+                      </div> 
+                    </div>                
+                  </div>                  
+                </div>
+                <div class="row m-t20">
+                  <div class="col-md-3">
+                    <div class="flex align-items-center flex-small-pad">                    
+                      <strong>Auto Charge</strong>                   
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span class="sch-help2">PoolBrain will automatically charge the selected payment method on the 1st of the month when this invoice is created</span>
+                      </a>                   
+                      <div>
+                        <label class="switch small" ng-click="toggleSwitch('isAutoCharge')" style="vertical-align: text-bottom;" >
+                          <span ng-class="{'active' : modelBillingSettingObj.isAutoCharge}" class="slider round" ></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3" style="padding: 0;">
+                    <div class="flex align-items-center flex-small-pad">                    
+                      <strong>Reattempt Charge</strong>                   
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span class="sch-help2">If a customer's card is declined during an automatic charge attempt, Pool Brain will keep attempting to charge it once per day for the amount of days selected (14 max) or until charge is successful</span>
+                      </a>                   
+                      <div>
+                        <label class="switch small" ng-click="toggleSwitch('isReattemptCharge'); modelBillingSettingObj.reattemptDays = 14" style="vertical-align: text-bottom;">
+                          <span ng-class="{'active' : modelBillingSettingObj.isReattemptCharge}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="flex align-items-center flex-small-pad m-t10 p-l20 bill-reattempt-resp" ng-if="modelBillingSettingObj.isReattemptCharge">                    
+                      <strong>Once per day for</strong>                   
+                      <input type="number" mgminmax-validator class="input-number width50 text-center small-input" style="height: 25px;" name="reattemptDays" id="reattemptDays" ng-model="modelBillingSettingObj.reattemptDays" ng-min="1" ng-max="60" value="" ng-disabled="!modelBillingSettingObj.activateBilling" ng-blur="updateBillingSettings('reattemptDays')" allow-typing="^[0-9]+$"  />             
+                      <strong>days</strong> 
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="flex align-items-center flex-small-pad">                    
+                      <strong class="nowrap">Auto Email Invoice</strong>                   
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span>PoolBrain will automatically email the invoice to the billing contact on the 1st of the month. If auto charge is activated and payment is successful, a paid invoice receipt will be sent.</span>
+                      </a>                   
+                      <div>
+                        <label class="switch small" ng-click="toggleSwitch('isAutoEmailInvoice')" style="vertical-align: text-bottom;">
+                          <span ng-class="{'active' : modelBillingSettingObj.isAutoEmailInvoice}" class="slider round"></span>
+                        </label>
+                      </div>                      
+                      <span class="apply-setting-to-global-btn" ng-click="openConfirmModalForGlobalSettings('isAutoEmailInvoice', modelBillingSettingObj)" ng-class="{ 'visible' : globalSettingButtonVisibility['isAutoEmailInvoice'] }"></span>                    
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="flex align-items-center flex-small-pad">                    
+                      <strong>Hide Service Dates</strong>                   
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help mobileTooltip" ng-click="openToolTipInPopup($event)">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span class="sch-help2">You can prevent customers from seeing service dates on route stop invoices. This setting will hide or show service dates by default but you can change this individually on any property or invoice.</span>
+                      </a>                   
+                      <div>
+                        <label class="switch small" ng-click="toggleSwitch('isServiceDatesHidden')" style="vertical-align: text-bottom;">
+                          <span ng-class="{'active' : modelBillingSettingObj.isServiceDatesHidden}" class="slider round"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row m-t20">
+                  <div class="col-sm-12 m-b20">
+                    <div class="flex align-items-center flex-small-pad">  
+                      <label class="label-title m-b0">Starting Invoice #: </label>               
+                      <input type="number" mgminmax-validator class="input-number text-center small-input" style="height: 25px; width: 250px;" name="invoiceStartFrom" id="invoiceStartFrom" ng-model="modelBillingSettingObj.invoiceStartFrom" ng-min="0" ng-max="999999999999999" value="" ng-disabled="!modelBillingSettingObj.activateBilling" ng-blur="updateInvoiceNumber('invoiceStartFrom')" allow-typing="^[0-9]+$"  />             
+                    </div>                    
+                  </div>
+                  <div class="col-sm-12">
+                    <label class="label-title">Invoice Notes: 
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help"  >
+                        <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                        <span>Notes entered here will be added by default to the bottom of every invoice created. Notes can be manually added or changed on each invoice at any time.</span>
+                      </a> 
+                    </label>
+                    <textarea class="form-control minH-50" maxlength="1000" ng-model="modelBillingSettingObj.invoiceNotes" name="invoiceNotes" ng-disabled="!modelBillingSettingObj.activateBilling" ng-blur="updateBillingSettings('invoiceNotes')">{{modelBillingSettingObj.invoiceNotes}}</textarea>
+                  </div>
+                </div>
+              </div>
+          </section>
+         
+          <section class="set-service-section">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="text-left m-t20">
+                    <label>SET PRICE BY SERVICE LEVEL & TYPE 
+                      <a href="javascript:void(0)" class="icon-required customer-subdomain-help"  >
+                        <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                        <span>Select a service level and enter prices to be charged to customer for each Type. For example, if a service level called "Complete Care" has a Type called "Play Pool" with a price of $30.00, that would be the price charged to any customer with that service level and type selected. When you activate a route for a customer, you can choose to bill per visit or charge a monthly flat rate. The price entered here is what is used by default in either case. If you use flat rate billing, you might enter $120.00 for a type and if you use per visit billing, you might enter $30.00 instead</span>
+                      </a>  
+                    </label>
+                  </div>
+                  <div class="border-box p-tb10" ng-if="modelBillingSettingObj.serviceLevel.length == 0 && !initialSLoad">
+                    <div class="colored-scroll-bar" style="height: 200px; overflow:auto; padding-right:10px;">
+                      <div  class="flex align-items-center height-full justify-content-center">
+                        <strong class="h-1-5x">No Service Levels currently exist <br/>Create at least one service level to set prices </strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="container-fluid">
+                    <div class="service-level-tab-item-wrapper" >     
+                      <i class="fa fa-arrow-left fl"ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('left')"></i> 
+                      <div class="service-tab service-tab-one" ng-class="{'service-fullbox' : tabContainerWidth < 900,  'service-box' : tabContainerWidth > 900    }">
+                        <div style="width:{{tabContainerWidth+'px'}}">
+                        <ul id="serviceTab3">
+                          <li ng-repeat="item in modelBillingSettingObj.serviceLevel" ng-class="{'active':$index == selectedCustomerPayServiceLevelIndex}" ng-click="changeServiceTab($index)"><span><b>{{item.title}}</b></span></li>                 
+                        </ul>
+                      </div>
+                      </div> 
+                      <i class="fa fa-arrow-right fr"ng-show="tabContainerWidth > 900" aria-hidden="true" ng-click="scrollServiceLevelTab('right')"></i>     
+                    </div>
+                  </div>  
+                         
+                  <ng-container ng-repeat="item in modelBillingSettingObj.serviceLevel" ng-if="$index == selectedCustomerPayServiceLevelIndex">
+                    <div class="pool-body-wrap" style="border: solid 2px #285fc6; padding-bottom: 0;" >
+                      <div class="container-fluid colored-scroll-bar" style="height: 164px; overflow: auto;" >
+                        <div class="row tbody">    
+                          <ng-container ng-repeat="poolType in item.poolType; track by $index">         
+                            <div class="col-md-3" >                                        
+                              <div class="chemical-reading-required-setting">
+                                <div class="h-1-5x p-b10 poolType-text" ng-class="{ 'poolType-text-for-global-setting-button-wrapper' : globalSettingButtonVisibility.poolTypes[modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].serviceLevelId+'_pooltype_'+modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].poolTypeId] }"> 
+                                  <b>{{poolType.poolType}}</b>
+                                  <span class="apply-setting-to-global-btn" 
+                                          ng-class="{ 'visible' : globalSettingButtonVisibility.poolTypes[modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].serviceLevelId+'_pooltype_'+modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].poolTypeId] }" 
+                                          ng-click="openConfirmModalForGlobalSettings('poolType', modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index])"
+                                    ></span>
+                                </div>
+                                <span class="h-1-5x">$</span> 
+                                
+ <!--                               <input type="number" mgminmax-validator class="input-number maxWidth80 text-right" decimals="2" decimal-point="."
+                                name="crate" id="crate{{$index}}" ng-model="modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate" 
+                                value="{{modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate ? modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate : 0}}" ng-min="0" ng-max="9999999" value="" ng-blur="updateServiceLevelPay($index)" allow-typing="^[0-9. ]+$" ng-disabled="!modelBillingSettingObj.activateBilling" /> -->
+                                <input type="text" format="number" 
+                                allowinputonlytwodecimal 
+                                allow-typing="^[$,0-9. ]+$"  class="input-number maxWidth80 text-right"
+                                name="crate" id="crate{{$index}}" ng-model="modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate" 
+                                value="{{modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate ? modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].poolType[$index].rate : 0}}" ng-min="0" ng-max="9999999" value="" ng-blur="updateServiceLevelPay($index)" allow-typing="^[0-9. ]+$" ng-disabled="!modelBillingSettingObj.activateBilling" />
+                                
+                                <span class="light-grey h-0-5x">per visit / flat rate</span>
+                              </div>     
+                            </div> 
+                          </ng-container>  
+                          <p ng-if="item.poolType.length == 0" class="m-t10 m-b30 text-center">         
+                            No Types are added in service level
+                          </p>              
+                        </div>       
+                      </div>
+                      <div class="flex align-items-center flex-small-pad p-lr20 p-b20">                    
+                        <strong>Charge for Chemicals</strong>                   
+                        <a href="javascript:void(0)" class="icon-required customer-subdomain-help">
+                          <i class="fa fa-question-circle" aria-hidden="true"></i>
+                          <span>Pool Brain will automatically invoice routed customers for any chemicals used during visits. Charges will only appear for chemicals that have a price entered for them in settings</span>
+                        </a>                   
+                        <div>
+                          <div class="blue-tooltip-large"> 
+                          <label class="switch small" ng-click="toggleChargeForChemical()" style="vertical-align: text-bottom;" >
+                            <span ng-class="{'active' : modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].isChargeForChemicals}" class="slider round"></span>
+                          </label>
+                          </div>
+                        </div>
+                        <span class="apply-setting-to-global-btn" 
+                              ng-class="{ 'visible' : globalSettingButtonVisibility.isChargeForChemicals['charge_for_chem_toggle_'+modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex].serviceLevelId] }" 
+                              ng-click="openConfirmModalForGlobalSettings('isChargeForChemicals', modelBillingSettingObj.serviceLevel[selectedCustomerPayServiceLevelIndex])"
+                        ></span>
+                      </div>
+                    </div>
+                    
+                  </ng-container>                        
+                </div>              
+              </div>
+            </div>
+          </section>
+          <section class="create-discount-section m-t20">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-12">
+                  <label class="label-title">
+                    Discounts 
+                    <a href="javascript:void(0)" class="icon-required customer-subdomain-help"  >
+                      <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                      <span>Discounts created here can be applied to invoices by selecting them in the route/billing schedule for a customer. They can be added/removed at any time and you can set an automatic end date for the discount. For example, you could create a new customer discount that gives 25% off their service for the first 4 months. Click "Add", name it "25% off first 4 months", choose Percentage and enter "25", select "Ends After" and enter "4" months. Just select the discount when a customer activates service and Pool Brain does the rest automatically</span>
+                    </a> 
+                    <span style="display: inline-block;">
+                      <div class="pb-checklist-add-new" style="margin: 6px 20px 0; font-size: 13px; color: #285fc6;" ng-click="addNewDiscountRow()">
+                        <span>Add</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z" />
+                        </svg>
+                      </div> 
+                    </span>
+                  </label>
+                  <div class="border-box p-tb10">
+                    <div class="colored-scroll-bar" style="height: 200px; overflow:auto; padding-right:10px;">
+                      <div ng-if="modelBillingSettingObj.discountData.length == 0 && !initialDLoad" class="flex align-items-center height-full justify-content-center">
+                        <strong class="h-1-5x">Click Add to create a discount</strong>
+                      </div>
+                      <div class="flex list" ng-repeat="discount in modelBillingSettingObj.discountData">
+                        <div>
+                          <label>Name <small class="h-12x font-regular">(shown on invoice)</small></label>
+                          <input class="form-control small-input d-name" type="text" name="discountName" id="discountName{{$index}}" ng-model="modelBillingSettingObj.discountData[$index].title"  ng-class="{'has-error':discountName.$invalid }"  required  ng-blur="addDiscount($index, 'title')" />
+                        </div>
+                        <div>
+                          <div class="dropdown select-wrap label-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" >
+                              <b>{{ modelBillingSettingObj.discountData[$index].type ? modelBillingSettingObj.discountData[$index].type : '--' }}</b>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu scrollable-menu">
+                              <li ng-hide="modelBillingSettingObj.discountData[$index].type == 'Percentage'" ng-click="modelBillingSettingObj.discountData[$index].type = 'Percentage'; updateDiscountType($index, 'type')"><a href="javascript:void(0)">Percentage</a></li>
+                              <li ng-hide="modelBillingSettingObj.discountData[$index].type == 'Fixed Amount'" ng-click="modelBillingSettingObj.discountData[$index].type = 'Fixed Amount'; updateDiscountType($index, 'type')"><a href="javascript:void(0)">Fixed Amount</a></li>
+                            </ul>
+                          </div> 
+                          <div class="input-{{modelBillingSettingObj.discountData[$index].type == 'Percentage' ? 'percentage' : 'fixed-amount'}}">
+                            <span>{{modelBillingSettingObj.discountData[$index].type == 'Percentage' ? '%' : '$'}}</span>
+                          <!--  <input 
+                              class="form-control small-input input-number" 
+                              mgminmax-validator 
+                              type="number" 
+                              name="value{{$index}}" 
+                              id="value{{$index}}" 
+                              ng-model="modelBillingSettingObj.discountData[$index].value" 
+                              ng-min="0" 
+                              ng-max="modelBillingSettingObj.discountData[$index].type == 'Percentage' ? 100 : 9999999" 
+                              style="width: 127px; height:30px" 
+                              required 
+                              ng-blur="addDiscount($index, 'value')"
+                              allow-typing="^[0-9. ]+$"
+                            /> --> 
+                              <input 
+                              class="form-control small-input input-number" 
+                              type="text" 
+                              format="number"  
+                              allow-typing="^[$,0-9. ]+$" 
+                              name="value{{$index}}" 
+                              id="value{{$index}}" 
+                              ng-model="modelBillingSettingObj.discountData[$index].value" 
+                              ng-min="0" 
+                              ng-max="modelBillingSettingObj.discountData[$index].type == 'Percentage' ? 100 : 9999999" 
+                              style="width: 127px; height:30px" 
+                              required 
+                              ng-blur="addDiscount($index, 'value')"
+                              allowinputonlytwodecimal
+                            />
+
+                          </div>                          
+                        </div>
+                        <div>
+                          <label>Ends After</span></label>
+                          <div class="radio-default2">
+                            <label for="endAfterType1{{$index}}" >
+
+                              <input type="number" class="input-under-radio small-input duration" name="endsAfter{{$index}}" id="endsAfter{{$index}}" ng-model="modelBillingSettingObj.discountData[$index].endsAfter" maxlength="3" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="checkDeleteAfterInput($index, modelBillingSettingObj.discountData[$index].endsAfter)" ng-click="modelBillingSettingObj.discountData[$index].endAfterType = '0'" /> 
+
+                              Months
+
+                              <input type="radio" name="endAfterType{{$index}}" id="endAfterType1{{$index}}" value="0" ng-model="modelBillingSettingObj.discountData[$index].endAfterType" ng-checked="modelBillingSettingObj.discountData[$index].endAfterType == '0'" ng-change="setEndAfter($index, '0')" />
+                              <span></span>
+                            </label>                    
+                          </div>
+                        </div>
+                        <div>
+                          <label>&nbsp;</label>
+                          <div class="radio-default2">
+                            <label for="endAfterType2{{$index}}" >
+                              Never
+                              <input type="radio" name="endAfterType{{$index}}" id="endAfterType2{{$index}}" value="1" ng-model="modelBillingSettingObj.discountData[$index].endAfterType" ng-checked="modelBillingSettingObj.discountData[$index].endAfterType == '1'" ng-change="setEndAfter($index, '1')" />
+                              <span></span>
+                            </label>                    
+                          </div>
+                        </div>
+                        <div>
+                          <a class="delete" href="javascript:void(0)" ng-click="modelBillingSettingObj.activateBilling ? discountDeleteConfirm($index) : null">
+                            <i class="fa fa-times"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="create-tax-section m-t20">            
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-12">
+                  <label class="label-title">
+                    Tax Rates
+                    <a href="javascript:void(0)" class="icon-required customer-subdomain-help"  >
+                      <i class="fa fa-question-circle" aria-hidden="true" style="font-size: 16px;"></i>
+                      <span>You can add any taxes that apply to your business. For example, a Tax Name of Arizona and a percentage amount of 8.6%. Once created here, tax rates can be manually added or changed on invoices at any time. Select a tax rate to apply by default to all invoices or leave it as "NONE" if you don't want tax added automatically.</span>
+                    </a> 
+                    <span style="display: inline-block;">
+                      <div class="pb-checklist-add-new" style="margin: 6px 20px 0; font-size: 13px; color: #285fc6;" ng-click="addNewTaxRow()">
+                        <span>Add</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z" />
+                        </svg>
+                      </div> 
+                    </span>
+                  </label>
+                  <div class="border-box p-tb10">
+                    <div class="colored-scroll-bar" style="height: 220px; overflow:auto; padding-right:10px;">
+                      <div class="tax-rate-panel-div">
+                          <div class="tax-rate-panel-div-left">
+                            <div class="flex list tax-rate-none-row" style="padding-top:10px">
+                              <div style="width:320px"></div>
+                              <div class="p-l10 p-t10 tax-none"><br/>NONE</div>
+                              <div class="radio-default2">
+                                <div>Default</div>
+                                <label for="taxoptionnone" >
+                                  <input type="radio" name="taxoption" id="taxoptionnone" value="" ng-checked="modelBillingSettingObj.taxData.length==0 || taxSelectedIndex==null" ng-click="setTaxDefaultNone()"/>
+                                  <span></span>
+                                </label>                    
+                              </div> 
+                              <span class="apply-setting-to-global-btn" 
+                                    ng-if="modelBillingSettingObj.taxData.length==0 || taxSelectedIndex==null"
+                                    ng-class="{ 'visible' : globalSettingButtonVisibility.taxRates['taxRates_none'] }" 
+                                    ng-click="openConfirmModalForGlobalSettings('taxRates', {id: 'none', isDefault: 1})"
+                              ></span>
+                            </div>  
+                            <div class="flex list" style="padding-top:5px" ng-repeat="tax in modelBillingSettingObj.taxData">
+                              <div>
+                                <label>Tax name</label>
+                                <input class="form-control small-input d-name" type="text" name="taxTitle" id="taxTitle{{$index}}" ng-model="modelBillingSettingObj.taxData[$index].title"  ng-class="{'has-error':taxName.$invalid }"  required ng-blur="addTax($index, 'title')" />
+                              </div>
+                              <div>
+                                <label>Tax rate</label>
+                                <div class="input-percentage">
+                                  <span>%</span>
+                                  <input 
+                                    class="form-control small-input input-number" 
+                                    mgminmax-validator 
+                                    type="number" 
+                                    name="amount{{$index}}" 
+                                    id="amount{{$index}}" 
+                                    ng-model="modelBillingSettingObj.taxData[$index].amount" 
+                                    ng-min="0" 
+                                    ng-max="100" 
+                                    style="width: 127px; height:30px" 
+                                    ng-blur="addTax($index, 'amount')"
+                                    required 
+                                    allowinputonlytwodecimal
+                                    allow-typing="^[0-9. ]+$"
+                                  />
+                                </div>                          
+                              </div>
+                              <div>
+                                <label>&nbsp;</label>
+                                <div class="radio-default2">
+                                  <label for="taxoption{{$index}}" >
+                                    <input type="radio" name="taxoption" id="taxoption{{$index}}"
+                                    value="{{$index}}" ng-model="taxSelectedIndex" ng-checked="$index == taxSelectedIndex" 
+                                    ng-change="setTaxDefault($index)" />&nbsp; 
+                                    <span></span>
+                                  </label>                    
+                                </div>
+                              </div>
+                              <div>
+                                <a class="delete icon-required customer-subdomain-help" href="javascript:void(0)" ng-click="tax.isDefault == 1 || tax.isApplied ? '' : taxDeleteConfirm($index)" 
+                                ng-class="{ 'cant-delete-tax' : tax.isDefault == 1 || tax.isApplied }" 
+                                ng-class="{ 'disbaled' : tax.isDefault == 1 || tax.isApplied }" >
+                                  <i class="fa fa-times"></i>
+                                  <span ng-if="tax.isDefault == 1 || tax.isApplied">{{(tax.isDefault == 1 || tax.isApplied ? "This tax has been assigned to at least 1 property so it can't be deleted. You can still edit the name or rate which will update it for all properties it is selected on." : '')}}</span>
+                                </a>
+                                <span class="apply-setting-to-global-btn" 
+                                      ng-class="{ 'visible' : globalSettingButtonVisibility.taxRates['taxRates_'+tax.id] }" 
+                                      ng-click="openConfirmModalForGlobalSettings('taxRates', tax)"
+                                ></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="tax-rate-panel-div-right">
+                            <div class="container-fluid"  style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-sm-12">
+                                  <p>Taxable</p>
+                                </div>
+                              </div>
+                              <div class="row taxable-setting-row">
+                                <div class="col-sm-12">
+                                  <label class="taxable-switch-label">Products</label>
+                                  <label class="taxable-switch switch small" ng-click="updateTaxableSetting('taxOnProduct')">
+                                    <span ng-class="{'active' : billingSettingObj.taxOnProduct }" class="slider round"></span>
+                                  </label>
+                                </div>
+                              </div>
+                              <div class="row taxable-setting-row">
+                                <div class="col-sm-12">                                  
+                                  <label class="taxable-switch-label">Services</label>
+                                  <label class="taxable-switch switch small" ng-click="updateTaxableSetting('taxOnService')">
+                                    <span ng-class="{'active' : billingSettingObj.taxOnService }" class="slider round"></span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div> 
+                          </div>
+                      </div>
+                    </div>
+                    
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+            
+             
+          </div>
+         
+
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script type="text/ng-template" id="removeDiscountConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete discount?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red" type="submit" ng-click="confirmDiscountAction(index)">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+        
+<script type="text/ng-template" id="removeTaxConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete Tax Rate?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button btn-red" type="submit" ng-click="confirmTaxAction(taxIndex)">DELETE</button>
+         </div>
+       </div>
+     </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="activateBillingConfirm.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Confirm</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div><label>Are you sure you want to disable billing? This will delete all Upcoming Monthly Invoices that currently exist (other invoices will not be affected).</label></div>
+         <br />
+         <div class="set-chem-button m-b20 actbill-confirm" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog();">CANCEL</button>&nbsp;
+           <button class="add-button btn-red m-l20" type="submit" ng-click="checkActivateToggle();updateBillingSettings('activateBilling');closeThisDialog()">Disable & Delete</button>
+         </div>
+       </div>
+     </div>
+  </div>
+</script>
+<script type="text/ng-template" id="confirmModalForGlobalSettings.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup global-setting-update-popup" style="width:420px; ">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Update setting in bulk</div>     
+    </div>
+     <div class="popup-body text-center">
+       <div class="row-container">
+         <div>          
+          <error ng-if="globalSettingError" message="{{globalSettingError}}"></error>
+         </div>
+         <div>
+            <label ng-if="selectedDataToUpdateGlobally.actionType!='taxRates' && selectedDataToUpdateGlobally.actionType !='terms'">Are you sure you want to update this setting for ALL existing route schedules? This will overwrite the current settings for ALL route schedules.</label>
+            <label ng-if="selectedDataToUpdateGlobally.actionType=='taxRates'">Are you sure you want to assign this tax to ALL existing properties? This will overwrite the current tax setting for ALL properties.</label>
+            <label ng-if="selectedDataToUpdateGlobally.actionType=='terms'">The default setting has already been updated and will affect new customers. Do you want to also update the Terms setting for ALL existing customers?</label>
+         </div>
+         <div class="radio-label-area" ng-if="selectedDataToUpdateGlobally.actionType=='poolType'">
+              <label class="radio-label"><input type="radio" name="isLockValueOverride" value="false" checked ng-click="setIsLockValueOverride($event)"><span>Don't update prices that are locked</span></label>
+              <label class="radio-label"><input type="radio" name="isLockValueOverride" value="true" ng-click="setIsLockValueOverride($event)"><span>Update ALL prices (including locked prices)</span></label>
+         </div>   
+         <div class="set-chem-button m-t10 " style="text-align: center;">
+           <button ng-disabled="globalSettingsUpdating" class="add-button" type="button" ng-click="closeThisDialog();">CANCEL</button>&nbsp;
+           <button ng-disabled="globalSettingsUpdating" class="add-button m-l10" type="button" ng-click="updateGlobalSettings()">
+              <span ng-if="!globalSettingsUpdating">
+                <ng-container ng-if="selectedDataToUpdateGlobally.actionType=='poolType'">Update</ng-container>
+                <ng-container ng-if="selectedDataToUpdateGlobally.actionType!='poolType'">Update All</ng-container>
+              </span>
+              <span ng-if="globalSettingsUpdating">Updating...</span>
+           </button>
+         </div>
+       </div>
+     </div>
+  </div>
+</script>

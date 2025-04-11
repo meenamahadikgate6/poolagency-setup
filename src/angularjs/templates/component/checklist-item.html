@@ -1,0 +1,521 @@
+
+  <div class="spinner" ng-if="isProcessing">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="spinner" ng-if="isProcessingWrapper" style="border:none; position: fixed; z-index: 99999;">
+    <div class="spinner-item">
+      <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+    </div>
+  </div>
+  <div class="checklist-msg">
+    <success ng-if="successMsg || successChecklist" message="{{successMsg ? successMsg : successChecklist}} "></success>
+    <error ng-if="error || errorChecklist" message="{{error ? error : errorChecklist}}"></error>
+  </div>
+  <div class="set-chem-form ">
+    <div class="water-bodies-tab-item-wrapper" ng-if="checkListOneOfJob">
+        <i class="fa fa-arrow-left" ng-show="tabContainerWidth > 421" aria-hidden="true" ng-click="scrollWaterBodiesTab('left')"></i>
+        <div class="water-bodies-tab">
+          <ul id="waterBodiesTab" style="width:{{tabContainerWidth+'px'}}">
+            <li  ng-repeat="waterBody in waterBodies"  ng-class="{'active':selectedWaterBody == $index}" ng-click="selectTab($index)" title="{{waterBody.waterBodyName}}">
+              <strong ng-if="waterBody.serviced == 0">not serviced</strong>
+              <span style="{{ waterBody.color ? 'background-color:'+waterBody.color : 'background-color:inherit'}}; {{selectedWaterBody == $index ? 'border-color:'+waterBody.color : 'border-color:inherit'}}">{{waterBody.waterBodyName | limitTo : 20 }}{{ waterBody.waterBodyName.length > 20 ? '...' : ''}} <i class="fa fa-pencil" aria-hidden="true" ng-click="openAddWaterBodiesPopup($index)"></i></span></li>               
+          </ul>
+        </div>
+        <i class="fa fa-arrow-right" ng-show="tabContainerWidth > 421" aria-hidden="true" ng-click="scrollWaterBodiesTab('right')"></i>
+        <i class="fa fa-plus-circle" ng-show="waterBodies.length < 100" aria-hidden="true" ng-click="openAddWaterBodiesPopup()"></i>
+      </div>
+    <div class="set-chem-price work-bridge-height" style="width: 100%; max-height: 445px; min-height: 391px; height: auto; border-width:3px; {{waterBodies[selectedWaterBody].color ? 'border-color:'+waterBodies[selectedWaterBody].color : 'border-color:#285fc6'}}">
+      <div class="work-progress-grid" style="padding: 0">
+          
+            <div class="white-bg text-left p-tb20 p-lr20 darkGray" id="checklist-box">
+            <div class="row">        
+              <div class="col-md-12 checklist-loader-wrapper" ng-class="checkListFormSubmittting ? 'xloading' : ''">
+                  <div class="row" ng-if="checkListOneOfJob">        
+                    <div class="col-md-4">
+                        <label>Service Level</label>
+                        <div class="blue-tooltip-large">
+                          <div class="dropdown select-wrap service-level-dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                              <b>{{assignedSL.title ? assignedSL.title : ''}}</b>
+                            <span class="caret"></span></button>
+                            <ul class="dropdown-menu scrollable-menu">
+                              <li ng-repeat="serviceLevel in serviceLevelArray" ng-hide="assignedSL.title==serviceLevel.title" ng-click="setActionPerformed('billing_schedule_selected');assignServiceLevel(serviceLevel.id,serviceLevel.title, $index) "><a href="javascript:void(0)" draggable="false">{{serviceLevel.title}}</a></li>
+                            </ul>
+                          </div>
+                          <span class="service-level-no-item-help" ng-show="serviceLevelArray.length==1 && serviceLevelArray[0].title=='--'">To use Service Levels, they first need to be created in Settings by an Admin user. (Complete Care, Chemicals Only, etc) Checklist items will appear for the property based on the settings and service level you select. Alerts can be triggered based on service level.</span>
+                        </div>
+                      </div>
+                      <div class="col-md-4" ng-if="assignedSL.serviceLevelId != 0">
+                        <label>Type</label>
+                          <div class="blue-tooltip-large">
+                            <div class="dropdown select-wrap service-level-dropdown">
+                              <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"  ng-click="clearInterval()">
+                                <b>{{assignedPT.poolType ? assignedPT.poolType : '--'}}</b>
+                              <span class="caret"></span></button>
+                              <ul class="dropdown-menu scrollable-menu">
+                                <li ng-repeat="poolType in serviceLevelArray[selectedServiceLevelOption].poolType" ng-hide="poolType.status == 0 || assignedPT.poolType==poolType.poolType" ng-click="setActionPerformed('billing_schedule_selected');assignPoolType(poolType.id,poolType.poolType)"><a href="javascript:void(0)" draggable="false">{{poolType.poolType}}</a></li>
+                              </ul>
+                            </div>                           
+                          </div>
+                        </div>
+
+                        <div class="col-md-4 intallation-edit">
+                          <form name="form.saveInstallForm" novalidate >
+                            <div class="gallanogeCalculated">
+                              <label>Gallons</label><div>
+                                <input type="text" class="gallanoge-input" currency-mask  name="gallanogeCalculated"  ng-model="activityModel.gallanogeCalculated" ng-blur="getNumToStr(installDetail.gallonage) !== getNumToStr(activityModel.gallanogeCalculated) ? saveInstall() : null"> 
+                              </div>                          
+                            </div>                      
+                          </form>
+                        </div>
+                      </div>
+                      <div class="text-right row">
+                        <div class="col-md-7 text-left one-off-job-checklist-heading">
+                          <div ng-if="!checkListOneOfJob">Workflow shown in technician app
+                            <a href="javascript:void(0)" draggable="false" class="icon-required inverce" style="margin-left: 3px;">
+                              <i class="fa fa-question-circle" aria-hidden="true"></i>
+                              <span class="sch-help"><p>This workflow will appear in the technician app in the order shown.</p></span>
+                            </a>
+                          </div>     
+                        </div>
+                        <div class="col-md-5 pb-checklist-add-new">
+                          <span style="display: contents">
+                            <div class="dropdown dropdown-checklist-multi-option">
+                              <a class="dropdown-checklist-multi-option-link" data-toggle="dropdown">
+                                <span>Add Item</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                  <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z" />
+                                </svg>
+                              </a>
+                              <ul class="dropdown-menu">
+                                <li ng-repeat="item in checklistTypes"><a href="javascript:void(0)" ng-click="enableChecklist && addNewChecklistAction(item.key)">{{item.label}}</a></li>                                      
+                              </ul>
+                          </div>
+                          </span>
+                          <a href="javascript:void(0)" draggable="false" class="icon-required checklist-help" style="margin-left: 20px;" ng-if="checkListOneOfJob">
+                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                            <span class="sch-help"><p>This workflow will appear in the technician app in the order shown. Checklist items and settings will change when you select a service level, but any items added to this property directly will not change. You can control what is required/optional, whether a picture is required and how often items should appear. Certain items are shown in bold and are enabled or disabled automatically based on equipment settings. For example, backwash will not appear in the app if the property has a cartridge filter. These items also have more complex settings you can change when you click them.</p></span>
+                          </a>
+                        </div>
+                        
+                      </div>
+                    <div class="pb-checklist-box" id="scrollarea" >
+                    <!-- <form name="checklistForm" ng-submit="checklistForm.$valid ? saveCheckList() : null" novalidate>  -->
+                    <form name="checklistForm" ng-submit="saveCheckList()" novalidate> 
+                      <div>
+                      
+                      <!--temp-->
+                      <div ui-tree="checklistSortableOptions" >
+                      <div  ui-tree-nodes ng-model="checklistBundle">
+                        <div class="section-wrapper" ng-repeat="bundle in checklistBundle">
+                          <div ng-if="bundle.type == 'jobInProgress' && checkListOneOfJob" class="before-after-checklist-section">
+                            <span>Before Pictures&nbsp;&nbsp;
+                              <a class="icon-required toggle-icon" ng-click="jobSteps.beforePicture=!jobSteps.beforePicture; saveJobSteps(serviceLevelIndex)">
+                                <i class="fa fa-exclamation-circle" ng-class="{active: jobSteps.beforePicture }" aria-hidden="true"></i>
+                                <span>{{(jobSteps.beforePicture ? 'Completion Required' : 'Not Required')}}</span>
+                              </a> 
+                            </span> 
+                            <span><i class="fa fa-chevron-right"></i></span> 
+                            <span>Chemical Readings</span> 
+                            <span><i class="fa fa-chevron-right"></i></span> 
+                            <span>Chemical Dosing</span>
+                          </div>
+          
+                          <div ng-if="bundle.type == 'whenLeaving' && checkListOneOfJob" class="before-after-checklist-section">
+                            <span>PSI Gauge reading&nbsp;&nbsp;
+                              <a class="icon-required toggle-icon" ng-click="jobSteps.psiGaugeReading=!jobSteps.psiGaugeReading; saveJobSteps(serviceLevelIndex)">
+                                <i class="fa fa-exclamation-circle" ng-class="{active: jobSteps.psiGaugeReading }" aria-hidden="true"></i>
+                                <span>{{(jobSteps.psiGaugeReading ? 'Completion Required' : 'Not Required')}}</span>
+                              </a> &nbsp;&nbsp;
+                              <a class="icon-required toggle-icon" ng-click="jobSteps.psiGaugePicture=!jobSteps.psiGaugePicture; saveJobSteps(serviceLevelIndex)">
+                                <i class="fa fa-camera" style="font-size: 11px;" ng-class="{active: jobSteps.psiGaugePicture }" aria-hidden="true"></i>
+                                <span>{{(jobSteps.psiGaugePicture ? 'Photo Required' : 'Photo Not Required')}}</span>
+                              </a> 
+                            </span> 
+                            <span><i class="fa fa-chevron-right"></i></span> 
+                            <span>After Pictures&nbsp;&nbsp;
+                              <a class="icon-required toggle-icon" ng-click="jobSteps.afterPicture=!jobSteps.afterPicture; saveJobSteps(serviceLevelIndex)">
+                                <i class="fa fa-exclamation-circle" ng-class="{active: jobSteps.afterPicture }" aria-hidden="true"></i>
+                                <span>{{(jobSteps.afterPicture ? 'Completion Required' : 'Not Required')}}</span>
+                              </a> 
+                            
+                            </span> 
+                          </div>
+                          <div class="section" ui-tree-node="" data-li-id="{{bundle.name}}" >
+                          <div ui-tree-handle></div>
+                          
+                          <div class="head"><span>{{bundle.title}}</span></div>
+                            <ul class="pb-checklist multi-option-checklist" ui-tree-nodes ng-model="bundle.data" data-type="checkList"  data-section-id="{{bundle.sectionId}}" >    
+                              <li class="checklist-textarea-li" ui-tree-node="" data-scroll-container=".pb-checklist-box" data-type="checkList-item" data-li-id="{{data.id}}" data-parent-index="{{$parent.$index}}" data-section-id={{data.sectionId}}  ng-repeat="data in bundle.data" ng-class="{'is-local':data.isLocal && !data.isSystem, 'is-disabled' : (checkListOneOfJob || isOneTimeJobPage) && data.isSystem && ((disableBackwashChecklist && data.title == 'Backwash') || (disableFilterCleanedChecklist && data.title == 'Cleaned Filter') || (disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell'))}" ng-hide="(checkListOneOfJob || isOneTimeJobPage)  && data.isSystem && ((disableBackwashChecklist && data.title == 'Backwash') || (disableFilterCleanedChecklist && data.title == 'Cleaned Filter') || (disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell'))">
+                                <div class="checklist-item-input-parent-{{getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).key}}">
+                                  <div class="new-pick-icon" ui-tree-handle>
+                                      <img src="/resources/images/move-icon.png" />
+                                  </div>
+                                  <span class="checklist-type-icon {{ !data.isSystem ? 'checklist-type-icon--cursor' : ''}} checklist-type-icon-{{getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).key}}">                                    
+                                    <span class="checklist-help-area" ptitle="{{!data.isSystem ? getCheckListToolTip(checklistBundle[$parent.$index].data[$index].workFlowType) : ''}}" title-class="checklist-type-tooltip">
+                                      <img width="20" ng-src="{{!data.isSystem ? (getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).icon) : 'resources/images/blank.png'}}" alt="">                                             
+                                    </span>
+                                  </span> 
+                                  <div class="name">
+                                    <textarea
+                                      ng-maxlength="getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).maxLength"
+                                      maxlength="{{getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).maxLength}}"
+                                      name="{{'title_'+[$parent.$index]+'_'+[$index]}}"
+                                      style="height: {{checklistBundle[$parent.$index].data[$index].title.length > 40 ? '60px' : '35px'}}"
+                                      ng-keypress="clearSaveInterval(); updateCheckListItemHeight()"  
+                                      ng-keyup="updateCheckListItemHeight()"  
+                                      class="checklist-item-input"  
+                                      ng-init="updateCheckListItemHeight()"                                  
+                                      ng-model="checklistBundle[$parent.$index].data[$index].title"
+                                      ng-model-options="{updateOn: 'blur'}"
+                                      ng-focus="turnOnOneTimeJobEditing()"
+                                      ng-blur="turnOffOneTimeJobEditing()"
+                                      ng-change="isBlurOn && !data.isSystem && saveCheckListTrigger($parent.$index,$index,'title');setActionPerformed('changed_checklist');saveCheckListItem(checklistBundle[$parent.$index].data, data, 'title', false, $index);" 
+                                      id="input_id_{{$parent.$index}}_{{$index}}"
+                                      ng-click="getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).key == 'dropDownMenu' ? addDropDownChecklist('dropDownMenu', data) : (data.isSystem && checkListOneOfJob  && showEquipmentDetail((data.title == 'Backwash' || data.title == 'Cleaned Filter' ? 1 : 6)))"
+                                      ng-class="{'has-error': checklistForm.$submitted && checklistForm['title_'+[$parent.$index]+'_'+[$index]].$invalid || checklistForm['title_'+[$parent.$index]+'_'+[$index]].$touched && checklistForm['title_'+[$parent.$index]+'_'+[$index]].$invalid, 'system-check-list':data.isSystem}"
+                                      ng-readonly="data.isSystem || getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).key == 'dropDownMenu'"
+                                      placeholder="{{getChecklistType(checklistBundle[$parent.$index].data[$index].workFlowType).placeholderText}}"
+                                      required>{{data.title}}</textarea> 
+                                      <div class="textarea-placeholder"> <span>{{data.title}}</span> {{disableBackwashChecklist && data.title == 'Backwash' ? disableBackwashChecklistText : '' }} {{disableFilterCleanedChecklist && data.title == 'Cleaned Filter' ? disableFilterCleanedChecklistText : '' }} {{disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell' ? disableSaltCellCleanedChecklistText : '' }}</div>
+                                  </div>
+                                  <div class="action" ng-init="parentIndex = $parent.$index">
+                                    <a href="javascript:void(0)" draggable="false" ng-show="!data.isSystem || !checkListOneOfJob" class="icon-required before-after-checklist-section-res"
+                                      ng-click="setActionPerformed('changed_checklist');checklistBundle[parentIndex].data[$index].required=!checklistBundle[parentIndex].data[$index].required; isBlurOn && saveCheckListTrigger($parent.$index,$index,'required');saveCheckListItem(checklistBundle[$parent.$index].data, data, 'required', false)">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 12 13">
+                                        <path fill="{{checklistBundle[parentIndex].data[$index].required ? '#285FC6' : '#909ca9'}}" fill-rule="evenodd" d="M5.454 9.008a.607.607 0 0 1 .424-.164c.17 0 .315.053.436.161.12.107.18.26.18.456a.615.615 0 0 1-.616.613.626.626 0 0 1-.42-.156c-.121-.105-.182-.257-.182-.457 0-.193.06-.344.178-.453zM5.276 3.91c0-.252.057-.442.173-.571a.57.57 0 0 1 .443-.194c.178 0 .324.066.435.198.111.132.167.322.167.567v3.598c0 .249-.056.436-.167.562a.553.553 0 0 1-.435.19.576.576 0 0 1-.443-.19c-.116-.126-.173-.301-.173-.525V3.91zm-3.56 7.04a5.737 5.737 0 0 0 8.294 0 6.111 6.111 0 0 0 1.72-4.28 6.11 6.11 0 0 0-1.719-4.28 5.74 5.74 0 0 0-8.297.001c-2.286 2.36-2.285 6.2.002 8.56z"/>
+              
+                                      </svg>
+                                      <span>{{checklistBundle[parentIndex].data[$index].required ? 'Completion Required' :  'Not Required'}}</span>
+                                    </a>
+              
+                                    <a href="javascript:void(0)" draggable="false" class="icon-required before-after-checklist-section-res" ng-show="!data.isSystem"
+                                      ng-click="checklistBundle[parentIndex].data[$index].photo=!checklistBundle[parentIndex].data[$index].photo;isBlurOn && setActionPerformed('changed_checklist');saveCheckListTrigger($parent.$index,$index,'photo');saveCheckListItem(checklistBundle[$parent.$index].data, data, 'photo', false)">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25">
+                                          <path fill="{{checklistBundle[parentIndex].data[$index].photo ? '#285FC6' : '#909ca9'}}" fill-rule="evenodd" d="M21.61 10.022a.882.882 0 0 0 .891-.873.888.888 0 0 0-.873-.87.88.88 0 0 0-.875.864.876.876 0 0 0 .857.88zm-9.114 9.471c3.428.01 6.235-2.779 6.253-6.212.018-3.427-2.791-6.234-6.245-6.24A6.245 6.245 0 0 0 6.25 13.25c-.017 3.426 2.792 6.234 6.245 6.244zM24.383 6.661c.33.365.49.809.617 1.27v11.874c-.096.411-.226.809-.488 1.15-.549.714-1.278 1.037-2.177 1.037-6.557-.005-13.113-.003-19.67-.003-.082 0-.163 0-.244-.004a2.513 2.513 0 0 1-1.857-.935C.26 20.686.106 20.257 0 19.805V7.932c.013-.02.034-.039.037-.06.197-1.205 1.326-2.133 2.614-2.088.893.032 1.789.007 2.684.006.62 0 1.008-.277 1.203-.86.23-.682.457-1.366.687-2.048.18-.539.583-.832 1.15-.832 2.75-.002 5.5-.002 8.249 0 .568 0 .97.293 1.151.832.233.69.461 1.381.694 2.072.187.553.584.836 1.172.836.968.001 1.936-.008 2.904.005.739.009 1.345.32 1.838.866zM12.507 9.533c2.071.004 3.766 1.7 3.746 3.75a3.748 3.748 0 0 1-3.76 3.714c-2.076-.007-3.765-1.698-3.746-3.75a3.748 3.748 0 0 1 3.76-3.714z"/>
+              
+                                      </svg>
+                                      <span>{{checklistBundle[parentIndex].data[$index].photo ? 'Photo Required' :  'Photo Not Required'}}</span>
+                                    </a> 
+                                    
+                                    <a href="javascript:void(0)" draggable="false"  ng-show="!data.isSystem" class="calender-icon" ng-class="{'icon-disabled':checklistBundle[parentIndex].data[$index].frequency == 0 && checklistBundle[parentIndex].data[$index].deleteAfter == 0 && checklistBundle[parentIndex].data[$index].endDate == null && checklistBundle[parentIndex].data[$index].days == null}" ng-click="openFrequencyOptionPopup(data,parentIndex,$index,'jobInProgress')" ng-if="checkListOneOfJob">
+                                      
+                                      <i class="fa fa-calendar-o"></i>
+                                    </a>
+              
+                                    <a class="delete" href="javascript:void(0)" draggable="false" ng-show="!data.isSystem" ng-click="checklistDeleteConfirm(data, parentIndex, $index, 'jobInProgress')">
+                                      <i class="fa fa-times"></i>
+                                    </a>
+                                  </div>
+                                  
+
+                                  <div class="action" ng-show="data.isSystem"> 
+                                    <a ng-if="checkListOneOfJob" class="setting" href="javascript:void(0)" draggable="false" ng-click="showEquipmentDetail((data.title == 'Backwash' || data.title == 'Cleaned Filter' ? 1 : 6))" >
+                                      <i class="fa fa-cog"></i>
+                                    </a>
+                                  </div>
+                                </div>
+                              </li>
+
+                              <li ui-tree-node="" data-scroll-container=".pb-checklist-box" data-type="checkList-item" data-li-id="{{data.id}}" data-parent-index="{{$parent.$index}}" data-section-id={{data.sectionId}}  ng-repeat="data in bundle.data" ng-class="{'is-local':data.isLocal && !data.isSystem, 'is-disabled' :(checkListOneOfJob || isOneTimeJobPage) && data.isSystem && ((disableBackwashChecklist && data.title == 'Backwash') || (disableFilterCleanedChecklist && data.title == 'Cleaned Filter') || (disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell'))}" ng-if="(checkListOneOfJob || isOneTimeJobPage) && data.isSystem && ((disableBackwashChecklist && data.title == 'Backwash') || (disableFilterCleanedChecklist && data.title == 'Cleaned Filter') || (disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell'))" >
+                                <div >                      
+                                  <div class="name">                          
+                                      <div class="textarea-placeholder"> <span>{{data.title}}</span> {{disableBackwashChecklist && data.title == 'Backwash' ? disableBackwashChecklistText : '' }} {{disableFilterCleanedChecklist && data.title == 'Cleaned Filter' ? disableFilterCleanedChecklistText : '' }} {{disableSaltCellCleanedChecklist && data.title == 'Cleaned Salt Cell' ? disableSaltCellCleanedChecklistText : '' }}</div>
+                                  </div> 
+                                </div>
+                              </li>
+                            </ul>
+                          
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                      <input type="submit" id="checklistSubmit" style="display: none">
+                    </div>
+                      </form>
+                  </div>          
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+    
+
+
+<script type="text/ng-template" id="removeChelistConfirm.html">
+    <div class="dataTables_wrapper modal-box picture-videos-popup" style="width:400px; ">
+      <div class="popup-header">
+        <div class="h-1-5x b white text-center">Confirm</div>
+      </div>
+       <div class="popup-body text-center">
+         <div class="row-container">
+           <div><label>Are you sure you want to delete checklist item?</label></div>
+           <br />
+           <div class="set-chem-button m-b20" style="text-align: center;">
+             <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+             <button class="add-button" type="submit" ng-click="setActionPerformed('changed_checklist');confirmChecklistAction(checkListObj)">OK</button>
+           </div>
+         </div>
+       </div>
+   
+    </div>
+</script>
+
+
+<script type="text/ng-template" id="setFrequencyPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header">
+      <span class="heading">Frequency</span>
+      <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+    </div>
+  
+    <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+      <success ng-if="frequencySuccessMsg" message="{{frequencySuccessMsg}}"></success>
+    </div>
+
+     <div class="detail-box">
+          
+         <div class="formGroup">
+          <div class="main-title">Show in technician app:</div>
+          <div class="radio-default2" ng-class="{'disabled':model.frequencyType != '1'}">
+            <label for="frequencyType1" >
+              Always 
+              <input type="radio" name="frequencyType" id="frequencyType1" value="1" ng-model="model.frequencyType" ng-checked="model.frequencyType == '1'" ng-change="setFrequency()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':model.frequencyType != '2'}">
+            <label for="frequencyType2" >
+              Every  <input type="number" ng-min="1" class="input-under-radio" name="frequency" id="frequency" ng-model="model.frequency" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)"  ng-blur="checkFrequencyInput(model.frequency)" />  visits
+              <input type="radio" name="frequencyType" id="frequencyType2" value="2" ng-model="model.frequencyType" ng-checked="model.frequencyType == '2'" ng-change="setFrequency()" />
+              <span></span>
+            </label>                    
+          </div>
+        </div> 
+
+
+        <div class="formGroup">
+          <div class="main-title">Delete after:</div>
+          <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '1'}">
+            <label for="deleteAfterType1" >
+              Never
+              <input type="radio" name="deleteAfterType" id="deleteAfterType1" value="1" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '1'" ng-change="setDeleteAfter()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '2'}">
+            <label for="deleteAfterType2" >
+              After  <input type="number" class="input-under-radio" name="deleteAfter" id="deleteAfter" ng-model="model.deleteAfter" maxlength="2" oninput="this.value=this.value.slice(0,this.maxLength)" ng-blur="checkDeleteAfterInput(model.deleteAfter)"   />  visits
+              <input type="radio" name="deleteAfterType" id="deleteAfterType2" value="2" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '2'" ng-change="setDeleteAfter()" />
+              <span></span>
+            </label>                    
+          </div>
+          <div class="radio-default2" ng-class="{'disabled':model.deleteAfterType != '3'}">
+            <label for="deleteAfterType3" class="date-picker-icon pointer" >
+              <i class="fa fa-calendar-o light-blue " ></i> Choose date <input ng-model="model.endDate"  class="datepicker-custom-input" ng-change="chooseDate(model.endDate)" readonly/> 
+              <input type="radio" name="deleteAfterType" id="deleteAfterType3" value="3" ng-model="model.deleteAfterType" ng-checked="model.deleteAfterType == '3'"  ng-change="setDeleteAfter()" /> {{model.deleteAfterType == 3 ? model.endDate : ''}}                          
+              <span></span>
+            </label> 
+
+          </div>
+        </div> 
+         
+        
+     
+     </div>
+ 
+  </div>
+</script>
+
+
+<script type="text/ng-template" id="addWaterBodiesPopup.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <form class="set-chem-form" name="addWaterBodiesForm" ng-submit="addWaterBodiesForm.$valid && addNewWaterBody(waterBodiesModel)" novalidate>
+      <div class="popup-header">
+        <span class="heading">{{waterBodiesModel.id ? 'Edit' : 'Add'}} Body of Water</span>
+        <div class="popup-close" ng-click="closeThisDialog('')"><i class="fa fa-times-circle" aria-hidden="true"></i></div>
+      </div>  
+      <div class="" style="position:absolute; width: 100%; z-index: 1; margin-top: -24px;">      
+        <success ng-if="addWaterBodySuccess" message="{{addWaterBodySuccess}}"></success>
+        <error ng-if="addWaterBodyError" message="{{addWaterBodyError}}"></error>
+      </div>
+      <div class="detail-box">    
+        <div class="flex-form" style="display:flex;justify-content: center;">
+          <div class="col-left"  ng-if="waterBodiesModel.typeId">            
+            <div class="formGroup water-body-name-field">
+              <div ng-show="colorPickerMask" class="color-picker-mask" ng-click="toggleColorClickArea()"></div>
+              <div class="color-picker-btn" ng-click="toggleColorClickArea()" colorpicker ng-model="waterBodiesModel.color" style="background-color:{{waterBodiesModel.color ? waterBodiesModel.color : '#275fc6'}}">
+                <i class="fa fa-pencil" ></i>
+                
+              </div>    
+              <div class="main-title">Name </div>
+              <input class="form-control" name="bodyTitle" ng-model="waterBodiesModel.waterBodyName"  ng-class="{'has-error': addWaterBodiesForm.$submitted && addWaterBodiesForm.bodyTitle.$invalid}" maxlength="50" required />
+              <span class="has-required" ng-show="addWaterBodiesForm.$submitted && addWaterBodiesForm.bodyTitle.$invalid">Please enter Name</span>
+            </div>
+            <div class="formGroup">
+              <div class="main-title">Notes </div>
+              <textarea class="form-control minH-100" ng-model="waterBodiesModel.notes" maxlength="300" >{{waterBodies[selectedWaterBody].notes}}</textarea>
+            </div>
+
+                 
+            
+          </div>
+          <div class="col-right p-l10">
+            <div class="formGroup">
+              <div class="main-title"><ng-container ng-hide="waterBodiesModel.typeId">What</ng-container> Type<ng-container ng-hide="waterBodiesModel.typeId">?</ng-container></div>
+              <div class="radio-default2" ng-repeat="waterBody in waterBodyTypeDefault">
+                <label for="bodyTypeId{{$index}}" >
+                  {{waterBody.waterBodyType}} 
+                  <input type="radio" name="bodyTypeId" id="bodyTypeId{{$index}}" value="{{waterBody.typeId}}" ng-model="waterBodiesModel.typeId" ng-checked="waterBodiesModel.typeId == waterBody.typeId" ng-change="chooseWaterBodyType(waterBody)"    />
+                  <span></span>
+                </label>                    
+              </div>      
+            </div> 
+          </div>
+        </div>  
+        
+        <div class="text-center" ng-if="waterBodiesModel.typeId">
+          <div class="text-left" ng-if="waterBodiesModel.id && waterBodiesModel.allowDelete == 0 && waterBodies.length > 1">
+            <div class="checkbox-default" >
+              <label for="bodyServiced" >
+                Not Serviced <small>(will not show in technician app)</small>
+                <input type="checkbox" name="bodyServiced" id="bodyServiced"  ng-model="waterBodiesModel.servicedCheckbox" ng-checked="waterBodiesModel.serviced ? false : true" />
+                <span></span>
+              </label>                    
+            </div> 
+          </div>
+          <span class="p-r10">
+            <button 
+            class="add-button" 
+            style="background-color:{{waterBodiesModel.id && waterBodies.length > 1 && waterBodiesModel.allowDelete == 1 ? 'red' : ''}}" 
+            ng-click="waterBodiesModel.id && waterBodies.length > 1 && waterBodiesModel.allowDelete == 1  ? waterBodyDeleteConfirm(waterBodiesModel.id) : closeThisDialog()" 
+            type="button"
+            >
+            {{waterBodiesModel.id && waterBodies.length > 1 && waterBodiesModel.allowDelete == 1 ? 'DELETE' : 'CANCEL'}}
+          </button>
+          </span>
+          <button class="add-button" type="submit" >SAVE</button>    
+        </div>         
+      </div>       
+    </form>
+  </div>
+</script>
+
+
+
+
+
+<script type="text/ng-template" id="removeWaterBodyConfirm.html" >
+  <div class="dataTables_wrapper modal-box common-popup" style="width:400px; ">
+    <div class="popup-header">
+      <span class="heading">Confirm</span>     
+    </div>
+     <div class="popup-body text-center" style="padding: 20px 5px;">
+       <div class="row-container">
+         <div><label>Are you sure you want to delete this body of water?</label></div>
+         <br />
+         <div class="set-chem-button m-b20" style="text-align: center;">
+           <button class="add-button" type="submit" ng-click="closeThisDialog()">CANCEL</button>&nbsp;
+           <button class="add-button" type="submit" ng-click="closeThisDialog();deleteWaterBody()" style="background-color:red;">DELETE</button>
+         </div>
+       </div>
+     </div>
+ 
+  </div>
+</script>
+
+
+<script type="text/ng-template" id="dropDownMenuSettingsPopup.html" >
+  <div class="dataTables_wrapper modal-box picture-videos-popup dropDownMenuSettingsPopup" style="width:100%;max-width: 500px">
+    <div class="popup-header">
+      <div class="h-1-5x b white text-center">Drop Down Menu Settings</div>   
+    </div>
+     <div class="popup-body">
+      <div class="setting-sm-card-loader" ng-if="dropdownSavingLoader">
+        <div class="spinner">
+           <div class="spinner-item">
+              <div class="spinner-animation"><img border="0" src="resources/images/spinner.gif" /></div>
+           </div>
+        </div>
+     </div>
+       <div class="row-container">
+        <div class="row">
+          <div class="col-xs-12">
+            <error ng-if="dropDownMenuError" message="{{dropDownMenuError}}"></error>
+          </div>
+        </div>
+         <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label class="form-label">Menu Title</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  name="title"
+                  ng-model="addDropDownChecklistModel.title"
+                  id="addDropDownChecklistModelTitle"
+                  ng-maxlength="1000"
+                  maxlength="1000"
+                >
+              </div>
+            </div>
+         </div>
+         <div class="row">
+          <div class="col-xs-12">             
+              <div class="form-group drop-down-menu-settings-add-item-parent">
+                <label class="form-label">Menu Options</label>
+                <a class="drop-down-menu-settings-add-item" ng-click="addItem()">
+                  <span>Add Option</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#285FC6" fill-rule="evenodd" d="M16.697 12a.95.95 0 0 1-.952.951h-2.794v2.795a.95.95 0 1 1-1.902 0V12.95H8.254a.948.948 0 0 1-.95-.95.95.95 0 0 1 .95-.952h2.795V8.255a.95.95 0 1 1 1.902 0v2.794h2.794a.95.95 0 0 1 .952.951zm2.353 7.043c3.884-3.884 3.884-10.204-.001-14.089a9.903 9.903 0 0 0-7.046-2.916 9.903 9.903 0 0 0-7.046 2.916A9.9 9.9 0 0 0 2.039 12a9.897 9.897 0 0 0 2.917 7.046A9.899 9.899 0 0 0 12 21.962a9.906 9.906 0 0 0 7.049-2.919zm1.441-15.53c4.678 4.68 4.68 12.293 0 16.971A11.933 11.933 0 0 1 12.001 24a11.92 11.92 0 0 1-8.487-3.514A11.913 11.913 0 0 1 0 12c0-3.207 1.249-6.22 3.516-8.486A11.922 11.922 0 0 1 12.003 0a11.93 11.93 0 0 1 8.488 3.514z"></path>
+                  </svg>
+                </a>
+              </div>
+              <div>
+                <div class="drop-down-menu-settings-area">
+                  <div ui-tree="dropDownMenuOptionConfig">
+                      <ul ui-tree-nodes="" ng-model="addDropDownChecklistModel.options" data-type="dropdown-options-area">
+                          <li ui-tree-node="" ng-repeat="item in addDropDownChecklistModel.options" data-type="dropdown-option">
+                              <div class="drop-down-menu-settings-option" >
+                                <div class="drop-down-menu-option-handle" ui-tree-handle="">
+                                  <img src="/resources/images/move-icon.png">                            
+                                </div>
+                                <div class="drop-down-menu-option-input-area">
+                                  <textarea 
+                                  data-nodrag 
+                                  class="drop-down-menu-option-input" 
+                                  ng-model="item.title" 
+                                  placeholder="Option" 
+                                  ng-keyup="updateOptionsHeight()"  
+                                  ng-keydown="updateOptionsHeight()"  
+                                  ng-paste="updateOptionsHeight()"  
+                                  ng-maxlength="1000"
+                                  ondrop="event.preventDefault();" 
+                                  ondragover="event.preventDefault();" 
+                                  maxlength="1000">
+                                </textarea>
+                                </div>
+                                <div class="drop-down-menu-option-remove" ng-click="removeItem($index)">
+                                  <span>
+                                    <i class="fa fa-times"></i>
+                                  </span>
+                                </div>
+                              </div>
+                          </li>
+                        </ul>
+                  </div>
+            </div>            
+            </div>
+          </div>
+        </div>
+         <div style="text-align: center;padding-top: 10px;">
+            <button class="add-button"  type="button" ng-click="setActionPerformed('changed_checklist'); saveDropDownSettings()" >SAVE </button>
+            <button class="add-button"  type="button" ng-click="closeThisDialog('close')">CANCEL </button>
+         </div>
+       </div>
+     </div> 
+  </div>
+</script>
