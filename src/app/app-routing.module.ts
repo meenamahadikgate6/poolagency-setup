@@ -9,12 +9,12 @@ export const routes: Routes = [
   { path: '', redirectTo: '/app/dashboard', pathMatch: 'full' }, // default page as old app
  
   {
-    path: 'angular/test',
+    path: 'test',
     loadComponent: () => import('./components/dashboard/dashboard.component').then( m => m.DashboardComponent)
   },
   {
     path: '**',
-    canActivate: [AngularJSRouteGuard],
+    // canActivate: [AngularJSRouteGuard],
     component: HandlerComponent,
   },
   
