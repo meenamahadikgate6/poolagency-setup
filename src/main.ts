@@ -1,28 +1,22 @@
 
-// main.ts
-import { createApplication } from '@angular/platform-browser';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule } from './app/app.module';
 import { createCustomElement } from '@angular/elements';
-import { importProvidersFrom } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
-import { appConfig } from './app.config';
-import { LoginComponent } from './app/components/login/login.component';
-import { AppComponent } from './app/app.component';
-import { provideRouter } from '@angular/router';
-import { routes } from './app/app.routes';
+import { DashboardComponent } from './app/components/dashboard/dashboard.component';
+import { UpgradeModule } from '@angular/upgrade/static';
 
-createApplication({
-  ...appConfig,
-  providers: [importProvidersFrom(HttpClientModule), provideRouter(routes),],
-})
-  .then((app) => {
-    // Check for app-root in DOM
-    if (document.querySelector('app-root')) {
-      // ✅ Full Angular App
-      app.bootstrap(AppComponent);
-    } else {
-      // ✅ Angular Element Only
-      const LikeButton = createCustomElement(LoginComponent, { injector: app.injector });
-      customElements.define('like-button', LikeButton);
-    }
-  })
-  .catch((err) => console.error('Error initializing Angular:', err));
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .then(moduleRef => {
+    const injector = moduleRef.injector;
+    // moduleRef.injector.bootstrap(AppComponent);
+    
+    const upgrade = moduleRef.injector.get(UpgradeModule);
+    upgrade.bootstrap(document.body, ['POOLAGENCY']);
+
+    const el = createCustomElement(DashboardComponent, { injector });
+    customElements.define('pb-dashboard', el);
+    })
+  .catch(err => console.error(err));
+
+  

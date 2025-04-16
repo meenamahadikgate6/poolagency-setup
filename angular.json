@@ -20,11 +20,15 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "css",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets",
+              "src/resources",
+              "src/scripts",
+              "src/templates",
+              "src/favicon",
+              "src/public"
             ],
             "styles": [
               "src/styles.css"
@@ -50,7 +54,8 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -78,11 +83,15 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "css",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets",
+              "src/resources",
+              "src/scripts",
+              "src/templates",
+              "src/favicon",
+              "src/public"              
             ],
             "styles": [
               "src/styles.css"

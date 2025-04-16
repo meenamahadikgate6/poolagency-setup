@@ -1,0 +1,25 @@
+RewriteEngine On
+#RewriteBase /admin/
+RewriteRule ^alert-popout/scripts/(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^alert-popout/resources/(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^app/scripts/(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^app/resources/(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^app/customerdetail/scripts(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^app/customerdetail/resources(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^app/customerjobdetail/(.*)/scripts(.*)$ /admin/scripts/$2 [R=301,L]
+RewriteRule ^app/customerjobdetail/(.*)/resources(.*)$ /admin/resources/$2 [R=301,L]
+RewriteRule ^app/customerjobimages/scripts(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^app/customerjobimages/resources(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^app/techniciandetail/scripts(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^app/techniciandetail/resources(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^app/installdetail/scripts(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^app/installdetail/resources(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^administrator/scripts/(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^administrator/resources/(.*)$ /admin/resources/$1 [R=301,L]
+RewriteRule ^administrator/company-details/scripts(.*)$ /admin/scripts/$1 [R=301,L]
+RewriteRule ^administrator/company-details/resources(.*)$ /admin/resources/$1 [R=301,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.html [L]
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
