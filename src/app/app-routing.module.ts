@@ -7,13 +7,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/app/dashboard', pathMatch: 'full' }, // default page as old app
-  // {
-  //   path: '',    
-  //   loadChildren: () => import('./features/features-routing.module').then( m => m.FeaturesRoutingModule)
-  // },
+ 
   {
-    path: 'test',
-    component: DashboardComponent,
+    path: 'angular/test',
+    loadComponent: () => import('./components/dashboard/dashboard.component').then( m => m.DashboardComponent)
   },
   {
     path: '**',

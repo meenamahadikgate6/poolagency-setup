@@ -82,7 +82,7 @@ angular
     // $routeProvider and therefore reduces bounce rate created by redirects.
     // NOTE: The following option requires the ngRoute module
     // AnalyticsProvider.readFromRoute(true);
-    $urlRouterProvider.otherwise("/login");
+    // $urlRouterProvider.otherwise("/login");
     $stateProvider
 
       /*********************************Start Poolagency super admin routing***************************************/
