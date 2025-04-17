@@ -2,16 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
-
 import { LOGIN_ENDPOINT } from './api.constants';
 import { buildAuthHeaders } from './api-headers.util';
+import { HttpService } from '../shared/services/http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   // isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private httpService: HttpService) {}
 
   login(email: string, password: string, rememberMe: boolean = false) {
     const payload = { email, password, remember_me: rememberMe };
@@ -26,6 +26,11 @@ export class AuthService {
       })
     );
   }
+
+//   login(email: string, password: string, rememberMe: boolean = false) {
+//     const payload = { email, password, remember_me: rememberMe };
+//     return this.httpService.postData(LOGIN_ENDPOINT, payload);
+// }
 
   logout() {
     localStorage.removeItem('token');
