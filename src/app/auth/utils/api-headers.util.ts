@@ -1,5 +1,5 @@
 import { HttpHeaders } from '@angular/common/http';
-import { API_KEY } from './api.constants';
+import { API_KEY } from '../api.constants';
 
 export function buildAuthHeaders(): { headers: HttpHeaders } {
   const headers: Record<string, string> = {

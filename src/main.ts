@@ -4,7 +4,7 @@ import { createCustomElement } from '@angular/elements';
 
 import { AppModule } from './app/app.module';
 import { UpgradeModule } from '@angular/upgrade/static';
-import { DashboardComponent } from './app/components/dashboard/dashboard.component';
+import { DashboardComponent } from './app/shared/components/dashboard/dashboard.component';
 
 
 

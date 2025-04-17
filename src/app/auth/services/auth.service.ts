@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap } from 'rxjs';
-import { LOGIN_ENDPOINT } from './api.constants';
-import { buildAuthHeaders } from './api-headers.util';
-import { HttpService } from '../shared/services/http.service';
+import { LOGIN_ENDPOINT } from '../api.constants';
+import { buildAuthHeaders } from '../utils/api-headers.util';
+import { HttpService } from '../../shared/services/http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
