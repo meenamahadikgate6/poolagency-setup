@@ -1,0 +1,32 @@
+<!-- <span *ngIf="crmStatus && crmStatus | json !== '{}' " class="qbo-placeholder">
+  <div *ngIf="crmStatus.quickBook" class="sync-status-box">
+    <span class="icon"
+          [ngClass]="{ 'connectionError': crmStatus.quickBook.qbErrorMessage }"
+          style="background-image:url(resources/images/quickbooks_logo-icon.png);">
+    </span>
+    <div><b>Last Synced</b></div>
+    <div>{{crmStatus.quickBook.timeDiff}} ago</div>
+    <div>
+      <ng-container>
+        <span *ngIf="successSync" style="display: block; color: #557930;">{{successSync}}</span>
+      </ng-container>
+      <span class="btn"
+            *ngIf="!qbConnectedNow"
+            (click)="quickBookIntegration()">
+        <i class="fa fa-refresh"></i> Fix
+      </span>
+    </div>
+    <div *ngIf="!qbConnectedNow" class="clr-red">
+      <b *ngIf="!crmStatus.quickBook.qbErrorMessage">Not Connected</b>
+      <a *ngIf="crmStatus.quickBook.qbErrorMessage"
+         href="javascript:void(0)"
+         class="icon-required sync-error-tooltip">
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Connection Error
+        <span>{{crmStatus.quickBook.qbErrorMessage}}</span>
+      </a>
+    </div>
+  </div>
+</span> -->
+aaa
+
+<p>Status: {{ crmStatus }}</p>

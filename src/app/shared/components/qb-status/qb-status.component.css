@@ -1,0 +1,16 @@
+.sync-status-box {
+  
+  }
+  
+  .btn {
+    cursor: pointer;
+  }
+  
+  .clr-red {
+    color: red;
+  }
+  
+  .connectionError {
+    border: 1px solid red;
+  }
+  

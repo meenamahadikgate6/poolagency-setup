@@ -5,6 +5,7 @@ import { createCustomElement } from '@angular/elements';
 import { AppModule } from './app/app.module';
 import { UpgradeModule } from '@angular/upgrade/static';
 import { DashboardComponent } from './app/shared/components/dashboard/dashboard.component';
+import { QbStatusComponent } from './app/shared/components/qb-status/qb-status.component';
 
 
 
@@ -12,8 +13,13 @@ import { DashboardComponent } from './app/shared/components/dashboard/dashboard.
     .then(platformRef => {
       const injector = platformRef.injector;
       const upgrade = injector.get(UpgradeModule) as UpgradeModule;
-      const el = createCustomElement(DashboardComponent, { injector });
-      customElements.define('pb-dashboard', el);
+
+      const dashboardElement  = createCustomElement(DashboardComponent, { injector });
+      customElements.define('pb-dashboard', dashboardElement );
+
+      const qbStatusElement = createCustomElement(QbStatusComponent, { injector });
+      customElements.define('app-qb-status', qbStatusElement);
+
       upgrade.bootstrap(document.body, ['POOLAGENCY']);
     });
 

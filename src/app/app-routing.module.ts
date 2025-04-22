@@ -12,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./shared/components/dashboard/dashboard.component').then( m => m.DashboardComponent)
   },
   {
+    path: 'status',
+    loadComponent: () => import('./shared/components/qb-status/qb-status.component').then( m => m.QbStatusComponent)
+  },
+  {
     path: '**',
     // canActivate: [AngularJSRouteGuard],
     component: HandlerComponent,
