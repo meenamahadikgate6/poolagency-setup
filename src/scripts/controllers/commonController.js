@@ -612,40 +612,40 @@ angular.module('POOLAGENCY')
           })
         }
     };
-    $rootScope.getCrmStatus = function(){      
-      $rootScope.crmStatus = {};
-      $rootScope.qbConnectedNow = false;
-      var custId = '';
-      var session = auth.getSession();
-        if(session && session.userId){
-            custId = session.userId;
-            companyId = session.companyId;
-            $rootScope.isCompanyHasFullSignUp = session.isCompanyHasFullSignUp;
-            if(companyId){
-              apiGateWay.get("/company/crm_status",{companyId: companyId}).then(function(response) {
-                var responseData = response.data;
-                if (responseData.status == 200) {
-                  $rootScope.crmStatus = responseData.data;
-                  if($rootScope.crmStatus.quickBook && $rootScope.crmStatus.quickBook.qbConnection==1){
-                    $rootScope.qbConnectedNow = true;
-                  }
-                  if($rootScope.currentState == 'app.companysettings' || $rootScope.currentState == 'administrator.settings'){
-                    setTimeout(function(){
-                      try {
-                        $scope.getIncomeAccount();
-                        $scope.getIncomeAccountDetails();
-                      } catch (error) {
-                      }
-                    }, 1000);
-                  }
-                }
-                $rootScope.settingPageLoaders.qboSection.qboConnected = false;
-              },function(errorResponse) {
-                $rootScope.settingPageLoaders.qboSection.qboConnected = false;
-              });
-            }
-        }
-    }
+    // $rootScope.getCrmStatus = function(){      
+    //   $rootScope.crmStatus = {};
+    //   $rootScope.qbConnectedNow = false;
+    //   var custId = '';
+    //   var session = auth.getSession();
+    //     if(session && session.userId){
+    //         custId = session.userId;
+    //         companyId = session.companyId;
+    //         $rootScope.isCompanyHasFullSignUp = session.isCompanyHasFullSignUp;
+    //         if(companyId){
+    //           apiGateWay.get("/company/crm_status",{companyId: companyId}).then(function(response) {
+    //             var responseData = response.data;
+    //             if (responseData.status == 200) {
+    //               $rootScope.crmStatus = responseData.data;
+    //               if($rootScope.crmStatus.quickBook && $rootScope.crmStatus.quickBook.qbConnection==1){
+    //                 $rootScope.qbConnectedNow = true;
+    //               }
+    //               if($rootScope.currentState == 'app.companysettings' || $rootScope.currentState == 'administrator.settings'){
+    //                 setTimeout(function(){
+    //                   try {
+    //                     $scope.getIncomeAccount();
+    //                     $scope.getIncomeAccountDetails();
+    //                   } catch (error) {
+    //                   }
+    //                 }, 1000);
+    //               }
+    //             }
+    //             $rootScope.settingPageLoaders.qboSection.qboConnected = false;
+    //           },function(errorResponse) {
+    //             $rootScope.settingPageLoaders.qboSection.qboConnected = false;
+    //           });
+    //         }
+    //     }
+    // }
 
 
     $rootScope.incomeAccountDetails = [];

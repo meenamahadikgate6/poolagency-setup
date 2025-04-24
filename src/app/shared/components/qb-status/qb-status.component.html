@@ -1,4 +1,4 @@
-<!-- <span *ngIf="crmStatus && crmStatus | json !== '{}' " class="qbo-placeholder">
+<span class="qbo-placeholder">
   <div *ngIf="crmStatus.quickBook" class="sync-status-box">
     <span class="icon"
           [ngClass]="{ 'connectionError': crmStatus.quickBook.qbErrorMessage }"
@@ -8,13 +8,13 @@
     <div>{{crmStatus.quickBook.timeDiff}} ago</div>
     <div>
       <ng-container>
-        <span *ngIf="successSync" style="display: block; color: #557930;">{{successSync}}</span>
+        <span *ngIf="successSync" style="display: block; color: #557930;">{{successSync}}</span>  
       </ng-container>
-      <span class="btn"
+      <!-- <span class="btn"
             *ngIf="!qbConnectedNow"
             (click)="quickBookIntegration()">
         <i class="fa fa-refresh"></i> Fix
-      </span>
+      </span> -->
     </div>
     <div *ngIf="!qbConnectedNow" class="clr-red">
       <b *ngIf="!crmStatus.quickBook.qbErrorMessage">Not Connected</b>
@@ -26,7 +26,9 @@
       </a>
     </div>
   </div>
-</span> -->
-aaa
+</span>
 
-<p>Status: {{ crmStatus }}</p>
+<!-- <p>Status: {{ crmStatus }}</p> -->
+<!-- <div *ngIf="crmStatus">
+  <p>QB Connection: {{ crmStatus.quickBook.qbConnection === 1 ? '✅ Connected' : '❌ Not Connected' }}</p>
+</div> -->

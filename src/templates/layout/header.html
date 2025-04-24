@@ -11,14 +11,13 @@
     <div class="row d-f-align-center">
       <div class="col-sm-6 logo-holder"><img  border="0" class="logo-img" src="resources/images/triton-logo.png?ver={{PB_WEB_VERSION}}" />  <img ng-if="useProdDb" id="icon-loading" border="0" src="resources/images/icon-loding.gif" /></div>
       <div class="col-sm-6 logo-qbo-holder">
-       <span ng-if="(crmStatus | json) != '{}'" class="qbo-placeholder">
+       <!-- <span ng-if="(crmStatus | json) != '{}'" class="qbo-placeholder">
         <div ng-if="crmStatus.quickBook" class="sync-status-box">
           <span class="icon" ng-class="{ 'connectionError' : crmStatus.quickBook.qbErrorMessage }" style="background-image:url(resources/images/quickbooks_logo-icon.png);"></span>
           <div><b>Last Synced</b></div>
           <div>{{crmStatus.quickBook.timeDiff}} ago</div>
           <div>
             <ng-container>
-             <!-- <span class="btn" ng-if="qbConnectedNow" ng-click="initSyncCompanyCustomers('manual')"><i class="fa fa-refresh"></i> Sync</span> -->
              <span ng-if="successSync"  style="display: block;color: #557930;"  >{{successSync}}</span>
             </ng-container>
             <span class="btn" ng-if="!qbConnectedNow" ng-controller="quickbookController" ng-click="quickBookIntegration()"><i class="fa fa-refresh"></i> Fix</span>
@@ -32,11 +31,10 @@
 
           </div>
         </div>
-        <!-- {{crmStatus.quickBook.timeDiff}} -->
 
       
-      </span>
-      <app-qb-status crmStatus="2 hours"></app-qb-status>
+      </span> -->
+      <app-qb-status [success-sync]="successSync" [qb-connected-now]="qbConnectedNow"></app-qb-status>
       </div>
     </div>
     <span class="toggle-sidebar-icon toggle-sidebar-icon-sidebar" ng-click="toggleSideBar()" ng-class="{ 'open' : sidebarOpened}">         

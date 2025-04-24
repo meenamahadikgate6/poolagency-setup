@@ -1,43 +1,37 @@
-import { Component, Input, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+// qb-status.component.ts
+import { Component, Input, OnInit } from '@angular/core';
+import { CrmStatusService } from '../../services/crm-status.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-qb-status',
   templateUrl: './qb-status.component.html',
   styleUrls: ['./qb-status.component.css'],
-  imports: [CommonModule]
+  imports: [
+    CommonModule,
+  ]
 })
-export class QbStatusComponent implements OnInit, OnChanges {
-  @Input() crmStatus?: any;
-  @Input() qbConnectedNow?: boolean = false;
-  @Input() successSync?: string = '';
-  constructor() {
-    console.log('[QbStatus] constructor called');
-  }
-  ngOnInit(): void {
-    console.log(' Initialized', this.crmStatus);
-    debugger
+export class QbStatusComponent implements OnInit {
+  crmStatus: any;
+  @Input('success-sync') successSync: any;
+  @Input('  qb-connected-now') qbConnectedNow: any;
+
+  constructor(private crmStatusService: CrmStatusService, private authService: AuthService) {
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // console.log(' Initialized', this.crmStatus, this.qbConnectedNow, this.successSync);
-    // if (changes['crmStatus']) {
-    //   console.log('[QbStatus] crmStatus:', changes['crmStatus'].currentValue);
-    // }
-    // if (changes['qbConnectedNow']) {
-    //   console.log('[QbStatus] qbConnectedNow:', changes['qbConnectedNow'].currentValue);
-    // }
-    // if (changes['successSync']) {
-    //   console.log('[QbStatus] successSync:', changes['successSync'].currentValue);
-    // }
-  }
-
-  quickBookIntegration() {
-    const event = new CustomEvent('quickBookIntegrationClicked', {
-      bubbles: true,
-      detail: {}
-    });
-    window.dispatchEvent(event);
+  ngOnInit() {
+    const session = this.authService.getSession?.(); 
+  
+    if (session?.companyId) {
+      this.crmStatusService.updateCrmStatus(session.companyId).subscribe((res:any) => {
+        // console.log("updateCrmStatus", res)
+        this.crmStatus = res
+      })
+    }
+  
+;
   }
 }
