@@ -34,7 +34,7 @@
 
       
       </span> -->
-      <app-qb-status [success-sync]="successSync" [qb-connected-now]="qbConnectedNow"></app-qb-status>
+     <app-qb-status  ng-attr-success-sync="{{successSync}}" ng-attr-qb-connected-now="{{qbConnectedNow}}"></app-qb-status>
       </div>
     </div>
     <span class="toggle-sidebar-icon toggle-sidebar-icon-sidebar" ng-click="toggleSideBar()" ng-class="{ 'open' : sidebarOpened}">         

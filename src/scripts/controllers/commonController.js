@@ -1,6 +1,6 @@
 angular.module('POOLAGENCY')
 
-.controller('headerController', function($scope, $rootScope, $templateCache, auth, apiGateWay, config,$window,configConstant, $state, ngDialog, $stateParams, $filter, companyService, pendingRequests) {
+.controller('headerController', function($scope, $rootScope, $templateCache, auth, apiGateWay, config,$window,configConstant, $state, ngDialog, $stateParams, $filter, companyService, pendingRequests, $timeout) {
     $scope.isBundleSearch = false;
     $scope.bundleList = [];
     $scope.selectedCustomerForJob = null;  
@@ -612,40 +612,53 @@ angular.module('POOLAGENCY')
           })
         }
     };
-    // $rootScope.getCrmStatus = function(){      
-    //   $rootScope.crmStatus = {};
-    //   $rootScope.qbConnectedNow = false;
-    //   var custId = '';
-    //   var session = auth.getSession();
-    //     if(session && session.userId){
-    //         custId = session.userId;
-    //         companyId = session.companyId;
-    //         $rootScope.isCompanyHasFullSignUp = session.isCompanyHasFullSignUp;
-    //         if(companyId){
-    //           apiGateWay.get("/company/crm_status",{companyId: companyId}).then(function(response) {
-    //             var responseData = response.data;
-    //             if (responseData.status == 200) {
-    //               $rootScope.crmStatus = responseData.data;
-    //               if($rootScope.crmStatus.quickBook && $rootScope.crmStatus.quickBook.qbConnection==1){
-    //                 $rootScope.qbConnectedNow = true;
-    //               }
-    //               if($rootScope.currentState == 'app.companysettings' || $rootScope.currentState == 'administrator.settings'){
-    //                 setTimeout(function(){
-    //                   try {
-    //                     $scope.getIncomeAccount();
-    //                     $scope.getIncomeAccountDetails();
-    //                   } catch (error) {
-    //                   }
-    //                 }, 1000);
-    //               }
-    //             }
-    //             $rootScope.settingPageLoaders.qboSection.qboConnected = false;
-    //           },function(errorResponse) {
-    //             $rootScope.settingPageLoaders.qboSection.qboConnected = false;
-    //           });
-    //         }
-    //     }
-    // }
+    $rootScope.getCrmStatus = function(){      
+      $rootScope.crmStatus = {};
+      $rootScope.qbConnectedNow = false;
+      var custId = '';
+      var session = auth.getSession();
+        if(session && session.userId){
+            custId = session.userId;
+            companyId = session.companyId;
+            $rootScope.isCompanyHasFullSignUp = session.isCompanyHasFullSignUp;
+            if(companyId){
+              apiGateWay.get("/company/crm_status",{companyId: companyId}).then(function(response) {
+                var responseData = response.data;
+                if (responseData.status == 200) {
+                  $rootScope.crmStatus = responseData.data;
+                  if($rootScope.crmStatus.quickBook && $rootScope.crmStatus.quickBook.qbConnection==1){
+                    $rootScope.qbConnectedNow = true;
+                  }
+                  if($rootScope.currentState == 'app.companysettings' || $rootScope.currentState == 'administrator.settings'){
+                    setTimeout(function(){
+                      try {
+                        $scope.getIncomeAccount();
+                        $scope.getIncomeAccountDetails();
+                      } catch (error) {
+                      }
+                    }, 1000);
+                  }
+                }
+                $rootScope.settingPageLoaders.qboSection.qboConnected = false;
+              },function(errorResponse) {
+                $rootScope.settingPageLoaders.qboSection.qboConnected = false;
+              });
+            }
+        }
+    }
+
+     $rootScope.$watch('crmStatus', function(newValue) {
+          if (newValue && Object.keys(newValue).length > 0) {
+            debugger; 
+              // Wait for DOM rendering to ensure the custom element exists
+              $timeout(function() {
+                  const qbStatusElement = document.querySelector('app-qb-status');
+                  if (qbStatusElement) {
+                      qbStatusElement.crmstatus = newValue; // Set crmStatus property
+                  }
+              }, 500);
+          }
+      });
 
 
     $rootScope.incomeAccountDetails = [];

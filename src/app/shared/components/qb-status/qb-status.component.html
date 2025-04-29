@@ -1,7 +1,7 @@
 <span class="qbo-placeholder">
-  <div *ngIf="crmStatus.quickBook" class="sync-status-box">
+  <div *ngIf="crmStatus?.quickBook" class="sync-status-box">
     <span class="icon"
-          [ngClass]="{ 'connectionError': crmStatus.quickBook.qbErrorMessage }"
+          [ngClass]="{ 'connectionError': crmStatus?.quickBook?.qbErrorMessage }"
           style="background-image:url(resources/images/quickbooks_logo-icon.png);">
     </span>
     <div><b>Last Synced</b></div>
@@ -17,18 +17,13 @@
       </span> -->
     </div>
     <div *ngIf="!qbConnectedNow" class="clr-red">
-      <b *ngIf="!crmStatus.quickBook.qbErrorMessage">Not Connected</b>
-      <a *ngIf="crmStatus.quickBook.qbErrorMessage"
+      <b *ngIf="!crmStatus?.quickBook?.qbErrorMessage">Not Connected</b>
+      <a *ngIf="crmStatus?.quickBook?.qbErrorMessage"
          href="javascript:void(0)"
          class="icon-required sync-error-tooltip">
         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Connection Error
-        <span>{{crmStatus.quickBook.qbErrorMessage}}</span>
+        <span>{{crmStatus?.quickBook?.qbErrorMessage}}</span>
       </a>
     </div>
   </div>
 </span>
-
-<!-- <p>Status: {{ crmStatus }}</p> -->
-<!-- <div *ngIf="crmStatus">
-  <p>QB Connection: {{ crmStatus.quickBook.qbConnection === 1 ? '✅ Connected' : '❌ Not Connected' }}</p>
-</div> -->
