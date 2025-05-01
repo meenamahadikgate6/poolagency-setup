@@ -660,6 +660,15 @@ angular.module('POOLAGENCY')
           }
       });
 
+    //   document.addEventListener("DOMContentLoaded", function() {
+    //     const qbStatusElement = document.querySelector('app-qb-status');
+    //     if (qbStatusElement) {
+    //         qbStatusElement.addEventListener('dataEmitter', function(event) {
+    //             console.log('Received data:', event.detail);
+    //         });
+    //     }
+    // });
+
 
     $rootScope.incomeAccountDetails = [];
     $scope.initiatedIncomeAccounts = false;

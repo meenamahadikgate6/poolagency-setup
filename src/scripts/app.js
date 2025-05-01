@@ -1400,53 +1400,87 @@ angular
     //$rootScope.sChemReadingSeTab = '';
     //$rootScope.chemicalReadingSettingModel = []
     $rootScope.customerBillingData = {};
+
     $rootScope.activeSocket = function() {
-      if (auth.getSession()) {
-
-        $rootScope.userSession = auth.getSession();
-        var userId = auth.getSession().userIdForSocket ? auth.getSession().userIdForSocket : auth.getSession().userId;
-        var requestedCompanyId = auth.getSession().parentCompanyId ? auth.getSession().parentCompanyId : auth.getSession().companyId;
-        if (auth.getSession().companyId == auth.getSession().parentCompanyId) {
-          userId = auth.getSession().loggedInUserId;
-        }
-        var loggedInRole = auth.loggedInRole();
-        // to start socket server on page refresh
-        if (userId) {
-          var socketServer = config.currentEnvironment.socketServer;
-          console.log('Trying to connect socket')          
-          console.log('Socket Server == ' + socketServer + "?userId=" + userId + "&requestedCompanyId=" + requestedCompanyId) 
-          var socket = io.connect(socketServer + "?userId=" + userId + "&requestedCompanyId=" + requestedCompanyId, {transports:['websocket']});
-          $rootScope.onlineServiceMangProcessing = true;
-          socket.on("connect", function() {
-            console.log('Socket connected!!!')
-            socket.emit("refreshManagerList");
-          });
-          socket.on("disconnect", function() {
-            console.log('Socket disconnected!!!')
-            $rootScope.scope = {};
-          });
-          socket.on("json", function(data) {
-
-          });
-
-          socket.on("refreshManagerList", function(data) {
-            var count = 0;
-            $rootScope.onlineServiceMang = [];
-            $rootScope.onlineServiceMang = Object.keys(data.users).map(
-              function(key) {
-                return data.users[key];
-              }
-            );
-            $rootScope.onlineServiceMangProcessing = false;
-            if (!$rootScope.$$phase) $rootScope.$apply();
-          });
-          socket.on("manager_response", function(data) {
-
-          });
-          $rootScope.socket = socket;
-          Idle.watch();
-        }
+      if (!window.socketServiceInstance || !window.socketServiceInstance.getSocketInstance) {
+        console.error("❌ socketServiceInstance is NOT available yet! Waiting...");
+        return null;
       }
+
+      console.log("✅ Using Angular 2+ SocketService instance:", window.socketServiceInstance);
+
+      const socketInstance = window.socketServiceInstance.getSocketInstance();
+
+      // ✅ Sync AngularJS global variables with Angular 2+  WebSocket data
+      $rootScope.onlineServiceMangProcessing = window.socketServiceInstance.getProcessingStatus();
+      $rootScope.onlineServiceMang = window.socketServiceInstance.getOnlineManagers();
+
+      if (!$rootScope.$$phase) {
+        $rootScope.$apply(); // ✅ Trigger AngularJS digest cycle to update UI
+      }
+
+      // ✅ Ensure WebSocket listens for updates and updates `$rootScope` variables
+      socketInstance.on("refreshManagerList", function(data) {
+        $rootScope.onlineServiceMang = Object.keys(data.users).map(
+          function(key) {
+            return data.users[key];
+          }
+        );
+        $rootScope.onlineServiceMangProcessing = false;
+        
+        if (!$rootScope.$$phase) $rootScope.$apply();
+      });
+
+      return window.socketServiceInstance;
+
+      
+
+      // if (auth.getSession()) {
+
+      //   $rootScope.userSession = auth.getSession();
+      //   var userId = auth.getSession().userIdForSocket ? auth.getSession().userIdForSocket : auth.getSession().userId;
+      //   var requestedCompanyId = auth.getSession().parentCompanyId ? auth.getSession().parentCompanyId : auth.getSession().companyId;
+      //   if (auth.getSession().companyId == auth.getSession().parentCompanyId) {
+      //     userId = auth.getSession().loggedInUserId;
+      //   }
+      //   var loggedInRole = auth.loggedInRole();
+      //   // to start socket server on page refresh
+      //   if (userId) {
+      //     var socketServer = config.currentEnvironment.socketServer;
+      //     console.log('Trying to connect socket')          
+      //     console.log('Socket Server == ' + socketServer + "?userId=" + userId + "&requestedCompanyId=" + requestedCompanyId) 
+      //     var socket = io.connect(socketServer + "?userId=" + userId + "&requestedCompanyId=" + requestedCompanyId, {transports:['websocket']});
+      //     $rootScope.onlineServiceMangProcessing = true;
+      //     socket.on("connect", function() {
+      //       console.log('Socket connected!!!')
+      //       socket.emit("refreshManagerList");
+      //     });
+      //     socket.on("disconnect", function() {
+      //       console.log('Socket disconnected!!!')
+      //       $rootScope.scope = {};
+      //     });
+      //     socket.on("json", function(data) {
+
+      //     });
+
+      //     socket.on("refreshManagerList", function(data) {
+      //       var count = 0;
+      //       $rootScope.onlineServiceMang = [];
+      //       $rootScope.onlineServiceMang = Object.keys(data.users).map(
+      //         function(key) {
+      //           return data.users[key];
+      //         }
+      //       );
+      //       $rootScope.onlineServiceMangProcessing = false;
+      //       if (!$rootScope.$$phase) $rootScope.$apply();
+      //     });
+      //     socket.on("manager_response", function(data) {
+
+      //     });
+      //     $rootScope.socket = socket;
+      //     Idle.watch();
+      //   }
+      // }
     };
 
     if ($state.canActiveFor && $state.canActiveFor == "administrator") {
@@ -1454,7 +1488,17 @@ angular
     } else {
       ga("create", config.currentEnvironment.googleAnalyticKey, "auto");
     }
-    $rootScope.activeSocket();
+
+    const checkSocketAvailability = setInterval(() => {
+      if (window.socketServiceInstance && window.socketServiceInstance.getSocketInstance) {
+        console.log("✅ socketServiceInstance is ready! Initializing AngularJS...");
+        clearInterval(checkSocketAvailability); // Stop checking once available
+    
+        // Trigger AngularJS logic that requires the socket service
+        $rootScope.activeSocket();
+      }
+    }, 500);
+   
 
     $rootScope.addAuditLog = function(jobId, actionName, dataType='') {
       if (auth.getSession()) {

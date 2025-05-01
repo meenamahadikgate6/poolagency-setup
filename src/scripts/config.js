@@ -13,9 +13,11 @@ angular.module("POOLAGENCY").constant("configConstant", {
   dev: {
     text: "Testing",
     webVersion: Date.now(),
-    server: localStorage.getItem('pbApi') || "https://testapi.poolbrain.com",
+    // server: localStorage.getItem('pbApi') || "https://testapi.poolbrain.com",
+    server: localStorage.getItem('pbApi') || "https://uatapi.poolbrain.com",
     portalUrl: "https://test.poolbrain.com",
-    socketServer: "https://testsapi.poolbrain.com",
+    // socketServer: "https://testsapi.poolbrain.com",
+    socketServer: "https://uatsapi.poolbrain.com",
     authorizeApiLoginId: "7FfaP2r5V",
     authorizeClientKey: "99kzR6YCX74Tkg2j3UuRzmV93y8Jd5682U6Vg8w6wU3YJm5vUrNEs8a2HqnhJFhK",
     googleAnalyticKey: "UA-97703495-1",

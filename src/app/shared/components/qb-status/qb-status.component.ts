@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 // qb-status.component.ts
 import {
   Component,
+  Inject,
   Input,
   OnChanges,
   OnInit,
@@ -10,7 +11,13 @@ import {
 import { CrmStatusService } from '../../services/crm-status.service';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../auth/services/auth.service';
+import { SocketService } from '../../services/socket.service';
 
+declare global {
+  interface Window {
+    socketServiceInstance: any;
+  }
+}
 @Component({
   standalone: true,
   selector: 'app-qb-status',
@@ -25,14 +32,14 @@ export class QbStatusComponent implements OnInit, OnChanges {
 
   @Input('qb-connected-now') set qbConnectedNow(value: any) {
     this._qbConnectedNow = value === 'true'; // Convert string back to boolean
-    console.log('successSync received:', this._qbConnectedNow);
+    console.log('qbConnectedNow:', this._qbConnectedNow);
   }
 
   @Input()
   set crmstatus(value: any) {
     debugger;
     this.crmStatus = value;
-    console.log("Received crmStatus:", this.crmStatus);
+    console.log("crmStatus:", this.crmStatus);
   }
 
   get qbConnectedNow() {

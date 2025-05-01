@@ -15,7 +15,8 @@ export class AuthInterceptor implements HttpInterceptor {
     };
 
     if (token) {
-      headersConfig['X-Auth-Token'] = token;
+      // headersConfig['X-Auth-Token'] = token;
+      headersConfig['X-Auth-Token'] = "a53rI3242WDc0A35j455r4w5A9h5kO4r4G2Z4t3eET3374431HEevh3L42gD3Xpq";
     }
 
     const modifiedReq = req.clone({ setHeaders: headersConfig });   

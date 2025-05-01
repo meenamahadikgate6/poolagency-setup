@@ -1,4 +1,4 @@
-import { environment } from './../../../environments/environments.prod';
+import { environment } from './../../../environments/environments';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpService } from './http.service';
