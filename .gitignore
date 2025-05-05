@@ -11,6 +11,7 @@
 npm-debug.log
 yarn-error.log
 package-lock.json
+/src/scripts/app.console.ts
 
 # IDEs and editors
 .idea/
