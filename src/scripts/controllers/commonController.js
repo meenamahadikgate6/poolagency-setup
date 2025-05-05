@@ -649,7 +649,7 @@ angular.module('POOLAGENCY')
 
      $rootScope.$watch('crmStatus', function(newValue) {
           if (newValue && Object.keys(newValue).length > 0) {
-            debugger; 
+             
               // Wait for DOM rendering to ensure the custom element exists
               $timeout(function() {
                   const qbStatusElement = document.querySelector('app-qb-status');
@@ -659,6 +659,33 @@ angular.module('POOLAGENCY')
               }, 500);
           }
       });
+      
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            const qbStatusElement = document.querySelector('app-qb-status');
+            if (qbStatusElement) {
+                console.log('Element found, adding event listener...');
+                
+                // Remove existing listener to prevent duplicates
+                qbStatusElement.removeEventListener('passData', handlePassData);
+                qbStatusElement.addEventListener('passData', handlePassData);
+    
+                observer.disconnect(); // Stop observing once found
+            } else {
+                console.warn('app-qb-status not found yet.');
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+      function handlePassData(event) {
+        debugger;
+        $scope.$apply(function() {
+            console.log('Received data: 3', event.detail);
+            // $scope.crmStatus = event.detail; // Store data in AngularJS scope
+        });
+    }
 
     //   document.addEventListener("DOMContentLoaded", function() {
     //     const qbStatusElement = document.querySelector('app-qb-status');

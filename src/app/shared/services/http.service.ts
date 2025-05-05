@@ -8,35 +8,35 @@ import { catchError, map, throwError } from 'rxjs';
 export class HttpService {
   constructor(public httpClient: HttpClient) {}
 
-  postData(apiPath: string, data: any) {
+  post(apiPath: string, data: any) {
     return this.httpClient.post(apiPath, data).pipe(
       map((response: any) => response?.data || response),
       catchError(this.handleError)
     );
   }
 
-  patchData(apiPath: string, data: any) {
+  patch(apiPath: string, data: any) {
     return this.httpClient.patch(apiPath, data).pipe(
       map((response: any) => response?.data || response),
       catchError(this.handleError)
     );
   }
 
-  getData(apiPath: string, data?: any, option?: any) {
+  get(apiPath: string, data?: any, option?: any) {
     return this.httpClient.get(apiPath, { params: data, ...option }).pipe(
       map((response: any) => response?.data || response),
       catchError(this.handleError)
     );
   }
 
-  putData(apiPath: string, data: any) {
+  put(apiPath: string, data: any) {
     return this.httpClient.put(apiPath, data).pipe(
       map((response: any) => response?.data || response),
       catchError(this.handleError)
     );
   }
 
-  deleteData(apiPath: string, options?: any) {
+  delete(apiPath: string, options?: any) {
     return this.httpClient.delete(apiPath, options).pipe(
       map((response: any) => response?.data || response),
       catchError(this.handleError)

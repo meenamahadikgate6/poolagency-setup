@@ -2,6 +2,7 @@ import { environment } from './../../../environments/environments';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpService } from './http.service';
+import { QBSTATUS_LOGIN_ENDPOINT } from '../../auth/api.constants';
 
 @Injectable({ providedIn: 'root' })
 export class CrmStatusService {
@@ -26,8 +27,8 @@ export class CrmStatusService {
   }
 
   updateCrmStatus(companyId: string) {
-    const url = `${this.env.apiBaseUrl}/company/crm_status`;
-    return this.http.getData(url, {companyId: companyId });
+    // const url = `${this.env.apiBaseUrl}/company/crm_status`;
+    return this.http.get(QBSTATUS_LOGIN_ENDPOINT, {companyId: companyId });
   }
 
 }
