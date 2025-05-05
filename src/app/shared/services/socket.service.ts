@@ -14,7 +14,7 @@ export class SocketService {
   constructor(private authService: AuthService) {}
 
   initializeSocket() {
-    debugger
+    
     const session = this.authService.getSession();
     if (!session) return;
 

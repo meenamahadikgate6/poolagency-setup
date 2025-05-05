@@ -109,7 +109,7 @@ export class QbStatusComponent implements OnInit, OnChanges {
             console.log("Event Emitted! 1", "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
             
             
-            this.passData.emit({...this.complexObject});
+            // this.passData.emit({...this.complexObject});
          
             console.log("Event Emitted! 2", "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
          
